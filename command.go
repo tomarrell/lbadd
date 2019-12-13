@@ -10,11 +10,11 @@ const (
 )
 
 func newCommand(cmd string) command {
-	switch cmd {
+	switch toUp(cmd) {
 	case commandInsert.String():
 		return commandInsert
 	case commandSelect.String():
-		return commandInsert
+		return commandSelect
 	case commandDelete.String():
 		return commandDelete
 	default:
@@ -25,12 +25,12 @@ func newCommand(cmd string) command {
 func (c command) String() string {
 	switch c {
 	case commandInsert:
-		return "insert"
+		return "INSERT"
 	case commandSelect:
-		return "select"
+		return "SELECT"
 	case commandDelete:
-		return "delete"
+		return "DELETE"
 	default:
-		return "unknown"
+		return "UNKNOWN"
 	}
 }

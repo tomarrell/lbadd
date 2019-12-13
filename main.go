@@ -1,5 +1,6 @@
 package main
 
 func main() {
-	_ = newRepl()
+	r := newRepl()
+	r.start()
 }

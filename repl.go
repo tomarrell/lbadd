@@ -2,8 +2,9 @@ package main
 
 import (
 	"bufio"
-	"bytes"
-	"io"
+	"fmt"
+	"os"
+	"strings"
 )
 
 type repl struct {
@@ -16,42 +17,41 @@ func newRepl() *repl {
 	}
 }
 
-func (r *repl) readCommand(reader io.Reader) (instruction, error) {
-	sc := bufio.NewScanner(reader)
-	sc.Split(splitBySpace)
-	sc.Scan()
+func (r *repl) start() {
+	sc := bufio.NewScanner(os.Stdin)
+	fmt.Println("Starting Bad SQL repl")
 
+	for {
+		fmt.Print("$ ")
+		sc.Scan()
+
+		instr, err := r.readCommand(sc.Text())
+		if err != nil {
+			fmt.Printf("\nInvalid command: %v", err)
+			continue
+		}
+
+		r.executor.execute(instr)
+	}
+}
+
+func (r *repl) readCommand(input string) (instruction, error) {
+	tokens := strings.Split(input, " ")
 	instr := instruction{}
 
-	cmd := newCommand(sc.Text())
-	switch cmd {
+	switch newCommand(tokens[0]) {
 	case commandInsert:
+		instr.command = commandInsert
+		instr.params = tokens[1:]
 	case commandSelect:
+		instr.command = commandSelect
+		instr.params = tokens[1:]
 	case commandDelete:
+		instr.command = commandDelete
+		instr.params = tokens[1:]
+	default:
+		return instr, nil
 	}
 
 	return instr, nil
-}
-
-func splitBySpace(data []byte, atEOF bool) (advance int, token []byte, err error) {
-	if atEOF && len(data) == 0 {
-		return 0, nil, nil
-	}
-
-	if i := bytes.IndexByte(data, ' '); i >= 0 {
-		return i + 1, dropSpace(data[0:i]), nil
-	}
-
-	if atEOF {
-		return len(data), dropSpace(data), nil
-	}
-
-	return 0, nil, nil
-}
-
-func dropSpace(data []byte) []byte {
-	if len(data) > 0 && data[len(data)-1] == ' ' {
-		return data[0 : len(data)-1]
-	}
-	return data
 }
