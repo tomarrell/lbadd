@@ -3,8 +3,7 @@ module github.com/tomarrell/bad
 go 1.13
 
 require (
-	github.com/google/go-cmp v0.3.1 // indirect
-	github.com/pkg/errors v0.8.1 // indirect
+	github.com/davecgh/go-spew v1.1.0
 	github.com/stretchr/testify v1.4.0
-	gotest.tools v2.2.0+incompatible
+	golang.org/x/tools v0.0.0-20191213032237-7093a17b0467 // indirect
 )

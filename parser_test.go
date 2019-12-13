@@ -46,7 +46,8 @@ func TestParser(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			actual, _ := parse(tc.sql)
+			actual, err := parse(tc.sql)
+			assert.NoError(t, err)
 			assert.Equal(t, tc.expected, actual)
 		})
 	}

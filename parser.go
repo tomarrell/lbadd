@@ -6,14 +6,6 @@ import (
 	"strings"
 )
 
-type step int
-
-const (
-	stepInit step = iota
-	stepSelectField
-	stepSelectComma
-)
-
 func parse(sql string) (query, error) {
 	p := parser{
 		cursor:          0,
@@ -53,6 +45,8 @@ func (p *parser) doParse() (query, error) {
 			return p.query, p.err
 		}
 
+		fmt.Println("\nstep:", p.step.String())
+		fmt.Println("remaining:", p.sql[p.cursor:])
 		switch p.step {
 		case stepInit:
 			switch strings.ToLower(p.peek()) {
@@ -67,7 +61,21 @@ func (p *parser) doParse() (query, error) {
 		case stepSelectField:
 			val, _ := p.pop()
 			p.query.fields = append(p.query.fields, val)
-			p.step = stepSelectComma
+			p.step = stepSelectFrom
+
+		case stepSelectFrom:
+			val, _ := p.pop()
+			if strings.ToLower(val) == "from" {
+				p.step = stepSelectTable
+				break
+			}
+			return p.query, fmt.Errorf("at SELECT: expected FROM")
+
+		case stepSelectTable:
+			val, _ := p.pop()
+			p.query.tableName = val
+			return p.query, nil
+
 		default:
 			return p.query, nil
 		}
@@ -94,19 +102,37 @@ func (p *parser) pop() (string, int) {
 }
 
 func (p *parser) peekWithCount() (string, int) {
-	buf := ""
-
-	i := p.cursor
-	for ; p.sql[i] != ' '; i++ {
-		buf += string(p.sql[i])
+	if p.cursor >= len(p.sql) {
+		return "", 0
 	}
 
-	return buf, i - p.cursor
+	// Advance the cursor until we reach the end of the
+	// input, or the desired character
+	buf := ""
+	i := p.cursor
+	for {
+		// Reached the end
+		if i == len(p.sql) {
+			fmt.Println("returning buf: ", buf)
+			return buf, i - p.cursor
+		}
+
+		// Reached our desired character
+		if p.sql[i] == ' ' {
+			fmt.Println("returning buf: ", buf)
+			return buf, i - p.cursor
+		}
+
+		buf += string(p.sql[i])
+		i++
+	}
 }
 
-func (p *parser) popWhitespace() string {
-	for ; p.sql[p.cursor] == ' '; p.cursor++ {
+func (p *parser) popWhitespace() {
+	for {
+		if p.sql[p.cursor] != ' ' {
+			break
+		}
+		p.cursor++
 	}
-
-	return ""
 }
