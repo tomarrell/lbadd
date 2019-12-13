@@ -24,15 +24,15 @@ const (
 func (qt queryType) String() string {
 	switch qt {
 	case selectQuery:
-		return "select"
+		return "SELECT"
 	case updateQuery:
-		return "update"
+		return "UPDATE"
 	case insertQuery:
-		return "insert"
+		return "INSERT"
 	case deleteQuery:
-		return "deleteQuery"
+		return "DELETE"
 	default:
-		return "unknownOperator"
+		return "UNKNOWN"
 	}
 }
 

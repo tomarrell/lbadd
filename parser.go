@@ -32,7 +32,7 @@ func (p *parser) parse() (query, error) {
 	q, err := p.doParse()
 	if err != nil {
 		log.Printf("Err: failed to parse sql: %v", err)
-		return query{}, err
+		return q, err
 	}
 
 	return q, nil
@@ -49,7 +49,7 @@ func (p *parser) doParse() (query, error) {
 		fmt.Println("remaining:", p.sql[p.cursor:])
 		switch p.step {
 		case stepInit:
-			switch strings.ToLower(p.peek()) {
+			switch toUp(p.peek()) {
 			case selectQuery.String():
 				p.query.queryType = selectQuery
 				p.step = stepSelectField
@@ -59,9 +59,28 @@ func (p *parser) doParse() (query, error) {
 			}
 
 		case stepSelectField:
-			val, _ := p.pop()
-			p.query.fields = append(p.query.fields, val)
-			p.step = stepSelectFrom
+			field, _ := p.pop()
+			if toUp(field) == "FROM" {
+				return p.query, fmt.Errorf("at SELECT: unexpected FROM after comma")
+			}
+
+			p.query.fields = append(p.query.fields, field)
+
+			maybeFrom := toUp(p.peek())
+			if maybeFrom == "FROM" {
+				p.step = stepSelectFrom
+				continue
+			}
+
+			p.step = stepSelectComma
+
+		case stepSelectComma:
+			maybeComma := p.sql[p.cursor]
+			if maybeComma != ',' {
+				return p.query, fmt.Errorf("at SELECT: expected comma or FROM")
+			}
+			p.cursor++
+			p.step = stepSelectField
 
 		case stepSelectFrom:
 			val, _ := p.pop()
@@ -89,6 +108,7 @@ var reservedWords = []string{
 }
 
 func (p *parser) peek() string {
+	p.popWhitespace()
 	val, _ := p.peekWithCount()
 	return val
 }
@@ -118,7 +138,7 @@ func (p *parser) peekWithCount() (string, int) {
 		}
 
 		// Reached our desired character
-		if p.sql[i] == ' ' {
+		if p.sql[i] == ' ' || isReserved(string(p.sql[i])) {
 			fmt.Println("returning buf: ", buf)
 			return buf, i - p.cursor
 		}
@@ -135,4 +155,18 @@ func (p *parser) popWhitespace() {
 		}
 		p.cursor++
 	}
+}
+
+func isReserved(token string) bool {
+	for _, w := range reservedWords {
+		if w == token {
+			return true
+		}
+	}
+
+	return false
+}
+
+func toUp(str string) string {
+	return strings.ToUpper(str)
 }
