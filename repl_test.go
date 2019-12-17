@@ -12,9 +12,26 @@ func TestReadCommand(t *testing.T) {
 		command  string
 		expected instruction
 	}{
-		{"insert command", "insert table a b", instruction{commandInsert, []string{"table", "a", "b"}}},
-		{"select command", "select table a b c", instruction{commandSelect, []string{"table", "a", "b", "c"}}},
-		{"delete command", "delete table a>6 b=1", instruction{commandDelete, []string{"table", "a>6", "b=1"}}},
+		{
+			name:     "insert command",
+			command:  "insert users a b",
+			expected: instruction{commandInsert, "users", []string{"a", "b"}},
+		},
+		{
+			name:     "select command",
+			command:  "select table a b c",
+			expected: instruction{commandSelect, "table", []string{"a", "b", "c"}},
+		},
+		{
+			name:     "select with filter",
+			command:  "select table a b c<1",
+			expected: instruction{commandSelect, "table", []string{"a", "b", "c<1"}},
+		},
+		{
+			name:     "delete command",
+			command:  "delete table a>6 b=1",
+			expected: instruction{commandDelete, "table", []string{"a>6", "b=1"}},
+		},
 	}
 
 	for _, tc := range cases {

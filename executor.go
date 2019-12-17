@@ -5,6 +5,7 @@ import "fmt"
 // Contains a command and associated information required to execute such command
 type instruction struct {
 	command command
+	table   string
 	params  []string
 }
 

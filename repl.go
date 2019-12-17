@@ -42,13 +42,16 @@ func (r *repl) readCommand(input string) (instruction, error) {
 	switch newCommand(tokens[0]) {
 	case commandInsert:
 		instr.command = commandInsert
-		instr.params = tokens[1:]
+		instr.table = tokens[1]
+		instr.params = tokens[2:]
 	case commandSelect:
 		instr.command = commandSelect
-		instr.params = tokens[1:]
+		instr.table = tokens[1]
+		instr.params = tokens[2:]
 	case commandDelete:
 		instr.command = commandDelete
-		instr.params = tokens[1:]
+		instr.table = tokens[1]
+		instr.params = tokens[2:]
 	default:
 		return instr, nil
 	}

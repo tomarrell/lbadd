@@ -1,9 +1,17 @@
 package main
 
+type table struct {
+	store *storage
+}
+
 type db struct {
-	tree *btree
+	tables map[string]table
 }
 
 func newDB() *db {
-	return &db{}
+	tables := make(map[string]table)
+
+	return &db{
+		tables: tables,
+	}
 }
