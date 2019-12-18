@@ -42,6 +42,11 @@ func newBtree() *btree {
 	}
 }
 
+// TODO
+func (b *btree) get(k key) (result *entry, exists bool) {
+	return &entry{}, true
+}
+
 func (b *btree) insert(k key, v value) {
 	if b.root == nil {
 		b.root = &node{
@@ -55,15 +60,27 @@ func (b *btree) insert(k key, v value) {
 	b.insertEntry(b.root, &entry{k, v})
 }
 
-func (b *btree) insertEntry(node *node, entry *entry) {
-	if len(node.children) == 0 {
-		b.search(node.entries, entry.key)
+func (b *btree) insertEntry(node *node, entry *entry) (inserted bool) {
+	idx, exists := b.search(node.entries, entry.key)
+	if exists {
+		node.entries[idx] = entry
+		return false
 	}
-}
 
-// TODO
-func (b *btree) get(k key) *entry {
-	return &entry{}
+	// If the node is the root and would be filled, we need to split it
+	if node == b.root && node.wouldFill(b.order) {
+		b.root = node.split()
+	}
+
+	// If the node is a leaf node, put it into the entries list
+	if node.isLeaf() {
+		node.entries = append(node.entries, nil)
+		copy(node.entries[idx+1:], node.entries[idx:])
+		node.entries[idx] = entry
+		return true
+	}
+
+	return b.insertEntry(node.children[idx], entry)
 }
 
 func (b *btree) search(entries []*entry, k key) (index int, exists bool) {
@@ -88,4 +105,37 @@ func (b *btree) search(entries []*entry, k key) (index int, exists bool) {
 	}
 
 	return low, false
+}
+
+func (n *node) isLeaf() bool {
+	return len(n.children) == 0
+}
+
+func (n *node) wouldFill(order int) bool {
+	return len(n.entries)+1 >= ((order * 2) - 1)
+}
+
+// Splits a full node to have a single, median,
+// entry, and two child nodes containing the left
+// and right halves of the entries
+func (n *node) split() *node {
+	if len(n.entries) == 0 {
+		return n
+	}
+
+	mid := len(n.entries) / 2
+
+	left := &node{
+		parent:  n,
+		entries: append([]*entry{}, n.entries[:mid]...),
+	}
+	right := &node{
+		parent:  n,
+		entries: append([]*entry{}, n.entries[mid+1:]...),
+	}
+
+	n.entries = []*entry{n.entries[mid]}
+	n.children = append(n.children, left, right)
+
+	return n
 }
