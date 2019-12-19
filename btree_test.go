@@ -41,6 +41,35 @@ func TestBTree(t *testing.T) {
 	}
 }
 
+func TestGet(t *testing.T) {
+	cases := []struct {
+		name           string
+		btree          *btree
+		key            key
+		expectedExists bool
+	}{
+		{
+			name:           "no root",
+			btree:          &btree{},
+			key:            1,
+			expectedExists: false,
+		},
+		{
+			name:           "entries only in root",
+			btree:          &btree{root: &node{entries: []*entry{{1, 1}, {2, 2}, {3, 3}}}},
+			key:            2,
+			expectedExists: true,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			_, exists := tc.btree.get(tc.key)
+			assert.Equal(t, tc.expectedExists, exists)
+		})
+	}
+}
+
 func TestKeySearch(t *testing.T) {
 	cases := []struct {
 		name    string

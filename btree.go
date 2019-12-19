@@ -38,13 +38,22 @@ type btree struct {
 
 func newBtree() *btree {
 	return &btree{
+		root:  nil,
+		size:  0,
 		order: defaultOrder,
 	}
 }
 
-// TODO
 func (b *btree) get(k key) (result *entry, exists bool) {
-	return &entry{}, true
+	if b.root == nil {
+		return nil, false
+	}
+
+	return b.getNode(b.root, k)
+}
+
+func (b *btree) getNode(node *node, k key) (result *entry, exists bool) {
+	return nil, false
 }
 
 func (b *btree) insert(k key, v value) {
@@ -57,17 +66,18 @@ func (b *btree) insert(k key, v value) {
 		return
 	}
 
-	b.insertEntry(b.root, &entry{k, v})
+	b.insertNode(b.root, &entry{k, v})
 }
 
-func (b *btree) insertEntry(node *node, entry *entry) (inserted bool) {
+// TODO finish this
+func (b *btree) insertNode(node *node, entry *entry) (inserted bool) {
 	idx, exists := b.search(node.entries, entry.key)
 	if exists {
 		node.entries[idx] = entry
 		return false
 	}
 
-	// If the node is the root and would be filled, we need to split it
+	// If the root node would be filled, we need to split it
 	if node == b.root && node.wouldFill(b.order) {
 		b.root = node.split()
 	}
@@ -80,7 +90,7 @@ func (b *btree) insertEntry(node *node, entry *entry) (inserted bool) {
 		return true
 	}
 
-	return b.insertEntry(node.children[idx], entry)
+	return b.insertNode(node.children[idx], entry)
 }
 
 func (b *btree) search(entries []*entry, k key) (index int, exists bool) {
