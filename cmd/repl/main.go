@@ -1,6 +1,6 @@
 package main
 
 func main() {
-	r := newRepl()
+	r := lbadd.newRepl()
 	r.start()
 }
