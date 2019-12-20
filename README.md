@@ -1,3 +1,5 @@
+<center><img src="./gopheydb.png" width="100"></img></center>
+
 # LBADD
 > Let's Build A Distributed Database
 
