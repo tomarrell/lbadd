@@ -1,4 +1,4 @@
-package main
+package lbadd
 
 import (
 	"bufio"
@@ -11,13 +11,13 @@ type repl struct {
 	executor *executor
 }
 
-func newRepl() *repl {
+func NewRepl() *repl {
 	return &repl{
 		executor: newExecutor(),
 	}
 }
 
-func (r *repl) start() {
+func (r *repl) Start() {
 	sc := bufio.NewScanner(os.Stdin)
 	fmt.Println("Starting Bad SQL repl")
 
@@ -25,7 +25,17 @@ func (r *repl) start() {
 		fmt.Print("$ ")
 		sc.Scan()
 
-		instr, err := r.readCommand(sc.Text())
+		input := sc.Text()
+		switch input {
+		case "help", "h", "?", "\\?":
+			fmt.Println(`Available Commands:
+// TODO`)
+		case "q", "exit", "\\q":
+			fmt.Println("Bye!")
+			return
+		}
+
+		instr, err := r.readCommand(input)
 		if err != nil {
 			fmt.Printf("\nInvalid command: %v", err)
 			continue

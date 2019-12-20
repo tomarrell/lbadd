@@ -1,4 +1,4 @@
-package main
+package lbadd
 
 import (
 	"testing"
@@ -36,8 +36,7 @@ func TestReadCommand(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			repl := newRepl()
-			instr, err := repl.readCommand(tc.command)
+			instr, err := NewRepl().readCommand(tc.command)
 			assert.NoError(t, err)
 			assert.Equal(t, tc.expected, instr)
 		})

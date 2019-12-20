@@ -1,6 +1,10 @@
 package main
 
+import (
+	"github.com/tomarrell/lbadd"
+)
+
 func main() {
-	r := lbadd.newRepl()
-	r.start()
+	r := lbadd.NewRepl()
+	r.Start()
 }

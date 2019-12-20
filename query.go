@@ -1,4 +1,4 @@
-package main
+package lbadd
 
 type query struct {
 	queryType  queryType

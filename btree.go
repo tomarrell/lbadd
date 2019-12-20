@@ -1,4 +1,4 @@
-package main
+package lbadd
 
 const defaultOrder = 3
 

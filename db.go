@@ -1,4 +1,4 @@
-package main
+package lbadd
 
 type table struct {
 	store *storage

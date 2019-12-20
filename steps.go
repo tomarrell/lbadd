@@ -1,6 +1,6 @@
 //go:generate stringer -type=step
 
-package main
+package lbadd
 
 type step int
 
