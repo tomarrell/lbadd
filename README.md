@@ -1,4 +1,4 @@
-<center><img src="./gopheydb.png" width="100"></img></center>
+<p align="center"><img src="./gopheydb.png" width="100"></img></p>
 
 # LBADD
 > Let's Build A Distributed Database
