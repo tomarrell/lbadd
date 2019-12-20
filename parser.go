@@ -101,10 +101,10 @@ func (p *parser) doParse() (query, error) {
 	}
 }
 
-// TODO
 var reservedWords = []string{
-	"(", ")", ">=", "<=", "!=", ",", "=", ">", "<", "SELECT", "INSERT INTO", "VALUES", "UPDATE", "DELETE FROM",
-	"WHERE", "FROM", "SET",
+	"(", ")", ">=", "<=", "!=", ",", "=", ">", "<",
+	"SELECT", "INSERT INTO", "VALUES", "UPDATE",
+	"DELETE FROM", "WHERE", "FROM", "SET",
 }
 
 func (p *parser) peek() string {

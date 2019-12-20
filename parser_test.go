@@ -7,13 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// queryType  queryType
-// tableName  string
-// conditions []condition
-// updates    map[string]string
-// inserts    [][]string
-// fields     []string
-
 func TestParser(t *testing.T) {
 	cases := []struct {
 		name     string
