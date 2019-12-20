@@ -1,4 +1,4 @@
-module github.com/tomarrell/bad
+module github.com/tomarrell/lbadd
 
 go 1.13
 
