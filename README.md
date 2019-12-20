@@ -7,6 +7,8 @@ An experimental distributed SQL database, written in Go.
 
 The goal of this project is to build a database from scratch which is well documented, fully tested, and easy to understand. Implementing as much as possible from the ground up.
 
+It is also currently a work in progress. Feel free to follow along with the development of each component, from parser to pager.
+
 ## Architecture
 
 The database is made up of a few separate components. These handle the **SQL parsing**, the **intermediary representation generation**, the **multi-node consensus**, the **execution of the IR**, and the **storage**.
