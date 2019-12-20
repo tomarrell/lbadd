@@ -8,24 +8,22 @@ import (
 
 func parse(sql string) (query, error) {
 	p := parser{
-		cursor:          0,
-		sql:             sql,
-		step:            stepInit,
-		query:           query{},
-		err:             nil,
-		nextUpdateField: "",
+		cursor: 0,
+		sql:    sql,
+		step:   stepInit,
+		query:  query{},
+		err:    nil,
 	}
 
 	return p.parse()
 }
 
 type parser struct {
-	cursor          int
-	sql             string
-	step            step
-	query           query
-	err             error
-	nextUpdateField string
+	cursor int
+	sql    string
+	step   step
+	query  query
+	err    error
 }
 
 func (p *parser) parse() (query, error) {
