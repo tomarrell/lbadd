@@ -44,27 +44,100 @@ func TestBTree(t *testing.T) {
 func TestGet(t *testing.T) {
 	cases := []struct {
 		name           string
-		btree          *btree
+		root           *node
 		key            key
 		expectedExists bool
 	}{
 		{
 			name:           "no root",
-			btree:          &btree{},
-			key:            1,
+			root:           nil,
+			expectedExists: false,
+		},
+		{
+			name:           "empty root",
+			root:           &node{},
 			expectedExists: false,
 		},
 		{
 			name:           "entries only in root",
-			btree:          &btree{root: &node{entries: []*entry{{1, 1}, {2, 2}, {3, 3}}}},
+			root:           &node{entries: []*entry{{1, 1}, {2, 2}, {3, 3}}},
 			key:            2,
 			expectedExists: true,
+		},
+		{
+			name: "entry one level deep left of root",
+			root: &node{
+				entries: []*entry{{2, 2}},
+				children: []*node{
+					{entries: []*entry{{1, 1}}},
+					{entries: []*entry{{3, 3}}},
+				},
+			},
+			key:            1,
+			expectedExists: true,
+		},
+		{
+			name: "entry one level deep right of root",
+			root: &node{
+				entries: []*entry{{2, 2}},
+				children: []*node{
+					{entries: []*entry{{1, 1}}},
+					{entries: []*entry{{3, 3}}},
+				},
+			},
+			key:            3,
+			expectedExists: true,
+		},
+		{
+			name: "depth > 1 and key not exist",
+			root: &node{
+				entries: []*entry{{2, 2}},
+				children: []*node{
+					{entries: []*entry{{1, 1}}},
+					{entries: []*entry{{3, 3}}},
+				},
+			},
+			key:            4,
+			expectedExists: false,
+		},
+		{
+			name: "depth = 3 found",
+			root: &node{
+				entries: []*entry{{2, 2}},
+				children: []*node{
+					{entries: []*entry{{1, 1}}},
+					{
+						entries:  []*entry{{3, 3}},
+						children: []*node{{}, {entries: []*entry{{4, 4}}}},
+					},
+				},
+			},
+			key:            4,
+			expectedExists: true,
+		},
+		{
+			name: "depth = 3 not found",
+			root: &node{
+				entries: []*entry{{2, 2}},
+				children: []*node{
+					{entries: []*entry{{1, 1}}},
+					{
+						entries:  []*entry{{3, 3}},
+						children: []*node{{}, {entries: []*entry{{4, 4}}}},
+					},
+				},
+			},
+			key:            5,
+			expectedExists: false,
 		},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			_, exists := tc.btree.get(tc.key)
+			btree := newBtree()
+			btree.root = tc.root
+
+			_, exists := btree.get(tc.key)
 			assert.Equal(t, tc.expectedExists, exists)
 		})
 	}

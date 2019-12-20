@@ -36,6 +36,7 @@ type btree struct {
 	order int
 }
 
+// newBtree creates a new instance of Btree
 func newBtree() *btree {
 	return &btree{
 		root:  nil,
@@ -44,8 +45,11 @@ func newBtree() *btree {
 	}
 }
 
+// get searches for a specific key in the btree,
+// returning a pointer to the resulting entry
+// and a boolean as to whether it exists in the tree
 func (b *btree) get(k key) (result *entry, exists bool) {
-	if b.root == nil {
+	if b.root == nil || len(b.root.entries) == 0 {
 		return nil, false
 	}
 
@@ -53,11 +57,23 @@ func (b *btree) get(k key) (result *entry, exists bool) {
 }
 
 func (b *btree) getNode(node *node, k key) (result *entry, exists bool) {
-	return nil, false
+	i, exists := b.search(node.entries, k)
+	if exists {
+		return node.entries[i], true
+	}
+
+	if i > len(node.children) {
+		return nil, false
+	}
+
+	return b.getNode(node.children[i], k)
 }
 
+// insert takes a key and value, creats a new
+// entry and inserts it in the tree according to the key
 func (b *btree) insert(k key, v value) {
 	if b.root == nil {
+		b.size++
 		b.root = &node{
 			parent:   nil,
 			entries:  []*entry{{k, v}},
@@ -91,6 +107,13 @@ func (b *btree) insertNode(node *node, entry *entry) (inserted bool) {
 	}
 
 	return b.insertNode(node.children[idx], entry)
+}
+
+// remove tries to delete an entry from the tree, and
+// returns true if the entry was removed, and false if
+// the key was not found in the tree
+func (b *btree) remove(k key) (removed bool) {
+	return false
 }
 
 func (b *btree) search(entries []*entry, k key) (index int, exists bool) {
