@@ -18,7 +18,7 @@ Inspiration has been taken from the brilliantly documented codebase of [SQLite](
 
 Work has also already been done to build a distributed version of SQLite called [rqlite](https://github.com/rqlite/rqlite). The project uses [raft](https://github.com/hashicorp/raft) consensus in order to keep nodes consistent across the network.
 
-LBADD aims to be replicate these in a single project. LBADD doesn't aim to be nearly as performant as SQLite nor rqlite, and hopefully trades this instead for slightly more clarity and simplicity.
+LBADD aims to replicate these in a single project. LBADD doesn't aim to be nearly as performant as SQLite nor rqlite, and hopefully trades this instead for slightly more clarity and simplicity.
 
 ## Contributing
 Contributors are more than welcome and much appreciated. Please feel free to open a PR to improve anything you don't like, or would like to add. No PR is too small!
