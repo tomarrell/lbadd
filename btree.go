@@ -45,6 +45,14 @@ func newBtree() *btree {
 	}
 }
 
+func newBtreeOrder(order int) *btree {
+	return &btree{
+		root:  nil,
+		size:  0,
+		order: order,
+	}
+}
+
 // get searches for a specific key in the btree,
 // returning a pointer to the resulting entry
 // and a boolean as to whether it exists in the tree
@@ -85,25 +93,38 @@ func (b *btree) insert(k key, v value) {
 	b.insertNode(b.root, &entry{k, v})
 }
 
-// TODO finish this
+// insertNode takes a node and the entry to insert
 func (b *btree) insertNode(node *node, entry *entry) (inserted bool) {
-	idx, exists := b.search(node.entries, entry.key)
-	if exists {
-		node.entries[idx] = entry
-		return false
-	}
-
 	// If the root node would be filled, we need to split it
 	if node == b.root && node.wouldFill(b.order) {
 		b.root = node.split()
 	}
 
-	// If the node is a leaf node, put it into the entries list
+	idx, exists := b.search(node.entries, entry.key)
+
+	// The entry already exists, so it should be updated
+	if exists {
+		node.entries[idx] = entry
+		return false
+	}
+
+	// If the node is a leaf node, add entry to the entries list
+	// We can guarantee that we have room as it would otherwise have
+	// been split.
 	if node.isLeaf() {
 		node.entries = append(node.entries, nil)
 		copy(node.entries[idx+1:], node.entries[idx:])
 		node.entries[idx] = entry
+		b.size++
 		return true
+	}
+
+	// The node is not a leaf, so we we need to check
+	// whether we would fill the appropriate child,
+	// and conditionally split it. Otherwise traverse
+	// to that child.
+	if node.children[idx].wouldFill(b.order) {
+		node.children[idx] = node.children[idx].split()
 	}
 
 	return b.insertNode(node.children[idx], entry)

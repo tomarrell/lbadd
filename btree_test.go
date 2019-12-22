@@ -20,9 +20,11 @@ func TestBTree(t *testing.T) {
 		},
 	}
 
+	order := 3
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			bt := newBtree()
+			bt := newBtreeOrder(order)
 
 			for _, e := range tc.insert {
 				bt.insert(e.key, e.value)
@@ -271,6 +273,121 @@ func TestNodeSplit(t *testing.T) {
 				assert.Equal(t, expectedChild.entries, newChild.entries)
 				assert.Equal(t, expectedChild.children, newChild.children)
 			}
+		})
+	}
+}
+
+func TestInsertNode(t *testing.T) {
+	type fields struct {
+		root  *node
+		size  int
+		order int
+	}
+	type args struct {
+		node  *node
+		entry *entry
+	}
+
+	order := 3
+
+	tests := []struct {
+		name         string
+		fields       fields
+		args         args
+		wantSize     int
+		wantInserted bool
+	}{
+		{
+			name:         "insert single entry",
+			fields:       fields{},
+			args:         args{&node{}, &entry{1, 1}},
+			wantSize:     1,
+			wantInserted: true,
+		},
+		{
+			name:         "entry already exists",
+			fields:       fields{size: 1},
+			args:         args{&node{entries: []*entry{{1, 1}}}, &entry{1, 1}},
+			wantSize:     1,
+			wantInserted: false,
+		},
+		{
+			name:   "entry exists one level down right",
+			fields: fields{size: 2},
+			args: args{
+				&node{
+					entries: []*entry{{1, 1}},
+					children: []*node{
+						{},
+						{entries: []*entry{{2, 2}}},
+					},
+				},
+				&entry{2, 2},
+			},
+			wantSize:     2,
+			wantInserted: false,
+		},
+		{
+			name:   "entry exists one level down left",
+			fields: fields{size: 2},
+			args: args{
+				&node{
+					entries: []*entry{{2, 2}},
+					children: []*node{
+						{entries: []*entry{{1, 1}}},
+						{},
+					},
+				},
+				&entry{1, 1},
+			},
+			wantSize:     2,
+			wantInserted: false,
+		},
+		{
+			name:   "entry inserted one level down right",
+			fields: fields{size: 2},
+			args: args{
+				&node{
+					entries: []*entry{{2, 2}},
+					children: []*node{
+						{},
+						{entries: []*entry{{3, 3}}},
+					},
+				},
+				&entry{4, 4},
+			},
+			wantSize:     3,
+			wantInserted: true,
+		},
+		{
+			name:   "entry inserted one level down left, would overflow",
+			fields: fields{size: 2},
+			args: args{
+				&node{
+					entries: []*entry{{10, 10}},
+					children: []*node{
+						{entries: []*entry{{3, 3}, {4, 4}, {5, 5}}},
+						{},
+					},
+				},
+				&entry{1, 1},
+			},
+			wantSize:     3,
+			wantInserted: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			b := &btree{
+				root:  tt.fields.root,
+				size:  tt.fields.size,
+				order: order,
+			}
+
+			got := b.insertNode(tt.args.node, tt.args.entry)
+			assert.Equal(t, tt.wantInserted, got)
+			assert.Equal(t, tt.wantSize, b.size)
 		})
 	}
 }
