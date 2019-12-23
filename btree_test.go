@@ -398,3 +398,93 @@ func TestInsertNode(t *testing.T) {
 		})
 	}
 }
+
+func TestRemove(t *testing.T) {
+	type fields struct {
+		root  *node
+		size  int
+		order int
+	}
+	type args struct {
+		k key
+	}
+
+	tests := []struct {
+		name        string
+		fields      fields
+		args        args
+		wantRemoved bool
+		wantSize    int
+	}{
+		{
+			name:        "remove entry from root",
+			fields:      fields{root: &node{entries: []*entry{{1, 1}}}, size: 1, order: 3},
+			args:        args{k: 1},
+			wantRemoved: true,
+			wantSize:    0,
+		},
+		{
+			name: "remove entry depth 1 left",
+			fields: fields{
+				size:  2,
+				order: 3,
+				root: &node{
+					entries: []*entry{{1, 1}},
+					children: []*node{
+						nil,
+						{entries: []*entry{{2, 2}}},
+					},
+				},
+			},
+			args:        args{k: 2},
+			wantRemoved: true,
+			wantSize:    1,
+		},
+		{
+			name: "remove entry depth 1 right",
+			fields: fields{
+				size:  2,
+				order: 3,
+				root: &node{
+					entries: []*entry{{2, 2}},
+					children: []*node{
+						{entries: []*entry{{1, 1}}},
+					},
+				},
+			},
+			args:        args{k: 1},
+			wantRemoved: true,
+			wantSize:    1,
+		},
+		{
+			name: "key doesn't exist",
+			fields: fields{
+				size:  2,
+				order: 3,
+				root: &node{
+					entries: []*entry{{2, 2}},
+					children: []*node{
+						{entries: []*entry{{1, 1}}},
+					},
+				},
+			},
+			args:        args{k: 3},
+			wantRemoved: false,
+			wantSize:    2,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			b := &btree{
+				root:  tt.fields.root,
+				size:  tt.fields.size,
+				order: tt.fields.order,
+			}
+
+			gotRemoved := b.remove(tt.args.k)
+			assert.Equal(t, tt.wantRemoved, gotRemoved)
+			assert.Equal(t, tt.wantSize, b.size)
+		})
+	}
+}
