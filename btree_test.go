@@ -417,6 +417,13 @@ func TestRemove(t *testing.T) {
 		wantSize    int
 	}{
 		{
+			name:        "no root",
+			fields:      fields{root: nil, size: 0, order: 3},
+			args:        args{k: 1},
+			wantRemoved: false,
+			wantSize:    0,
+		},
+		{
 			name:        "remove entry from root",
 			fields:      fields{root: &node{entries: []*entry{{1, 1}}}, size: 1, order: 3},
 			args:        args{k: 1},
