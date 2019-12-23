@@ -161,17 +161,24 @@ func TestKeySearch(t *testing.T) {
 			index:   1,
 		},
 		{
-			name:    "single value duplicate",
+			name:    "single value, already exists",
 			entries: []*entry{{key: 1}},
 			key:     1,
 			exists:  true,
 			index:   0,
 		},
 		{
-			name:    "duplicate",
+			name:    "already exists",
 			entries: []*entry{{key: 1}, {key: 2}, {key: 4}, {key: 5}},
 			key:     4,
 			exists:  true,
+			index:   2,
+		},
+		{
+			name:    "doc example",
+			entries: []*entry{{key: 1}, {key: 2}, {key: 4}},
+			key:     3,
+			exists:  false,
 			index:   2,
 		},
 		{
