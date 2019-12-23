@@ -137,6 +137,11 @@ func (b *btree) remove(k key) (removed bool) {
 	return false
 }
 
+// search takes a slice of entries and a key, and returns
+// the position that the key would fit relative to all
+// other entries' keys.
+// e.g.
+//       b.search([1, 2, 4], 3) => (2, false)
 func (b *btree) search(entries []*entry, k key) (index int, exists bool) {
 	var (
 		low  = 0
