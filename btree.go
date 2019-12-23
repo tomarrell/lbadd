@@ -134,7 +134,25 @@ func (b *btree) insertNode(node *node, entry *entry) (inserted bool) {
 // returns true if the entry was removed, and false if
 // the key was not found in the tree
 func (b *btree) remove(k key) (removed bool) {
-	return false
+	if b.root == nil {
+		return false
+	}
+
+	return b.removeNode(b.root, k)
+}
+
+func (b *btree) removeNode(node *node, k key) (removed bool) {
+	idx, exists := b.search(node.entries, k)
+
+	// If the key exists in a leaf node, we can simply remove
+	// it outright
+	if exists && node.isLeaf() {
+		b.size--
+		node.entries = append(node.entries[:idx], node.entries[idx+1:]...)
+		return true
+	}
+
+	return true
 }
 
 // search takes a slice of entries and a key, and returns
