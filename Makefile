@@ -4,7 +4,7 @@ watch: ## Start a file watcher to run tests on change. (requires: watchexec)
 
 .PHONY: test
 test: ## Runs the unit test suite
-	go test ./...
+	go test -failfast ./...
 
 ## Help display.
 ## Pulls comments from beside commands and prints a nicely formatted
