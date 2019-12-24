@@ -586,3 +586,36 @@ func TestNode_isFull(t *testing.T) {
 		})
 	}
 }
+
+func TestNode_canSteal(t *testing.T) {
+	type fields struct {
+		parent   *node
+		entries  []*entry
+		children []*node
+	}
+	type args struct {
+		order int
+	}
+
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   bool
+	}{
+		// TODO add test cases
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			n := &node{
+				parent:   tt.fields.parent,
+				entries:  tt.fields.entries,
+				children: tt.fields.children,
+			}
+
+			got := n.canSteal(tt.args.order)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}

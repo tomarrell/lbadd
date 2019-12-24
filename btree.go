@@ -199,6 +199,12 @@ func (n *node) isFull(order int) bool {
 	return len(n.entries) >= ((order * 2) - 1)
 }
 
+// canSteal returns a bool indicating whether or not
+// the node contains enough entries to be able to take one
+func (n *node) canSteal(order int) bool {
+	return len(n.entries)-1 > order-1
+}
+
 // Splits a full node to have a single, median,
 // entry, and two child nodes containing the left
 // and right halves of the entries
