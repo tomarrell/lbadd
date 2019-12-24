@@ -433,13 +433,30 @@ func TestRemove(t *testing.T) {
 		{
 			name: "remove entry from non-leaf node with children",
 			fields: fields{
-				size:  3,
+				size:  8,
 				order: 3,
 				root: &node{
-					entries: []*entry{{2, 2}},
+					entries: []*entry{{5, 5}},
 					children: []*node{
-						{entries: []*entry{{1, 1}}},
-						{entries: []*entry{{3, 3}}},
+						{entries: []*entry{{1, 1}, {2, 2}, {3, 3}, {4, 4}}},
+						{entries: []*entry{{6, 6}, {7, 7}, {8, 8}}},
+					},
+				},
+			},
+			args:        args{k: 5},
+			wantRemoved: true,
+			wantSize:    7,
+		},
+		{
+			name: "remove entry depth 1 right is leaf",
+			fields: fields{
+				size:  3,
+				order: 2,
+				root: &node{
+					entries: []*entry{{1, 1}},
+					children: []*node{
+						{},
+						{entries: []*entry{{2, 2}, {3, 3}}},
 					},
 				},
 			},
@@ -448,65 +465,32 @@ func TestRemove(t *testing.T) {
 			wantSize:    2,
 		},
 		{
-			name: "remove entry from non-leaf node with children, parent over order",
-			fields: fields{
-				size:  6,
-				order: 3,
-				root: &node{
-					entries: []*entry{{2, 2}, {3, 3}, {6, 6}},
-					children: []*node{
-						{entries: []*entry{{1, 1}}},
-						{},
-						{entries: []*entry{{4, 4}, {5, 5}}},
-					},
-				},
-			},
-			args:        args{k: 2},
-			wantRemoved: true,
-			wantSize:    5,
-		},
-		{
-			name: "remove entry depth 1 right is leaf",
-			fields: fields{
-				size:  2,
-				order: 3,
-				root: &node{
-					entries: []*entry{{1, 1}},
-					children: []*node{
-						{},
-						{entries: []*entry{{2, 2}}},
-					},
-				},
-			},
-			args:        args{k: 2},
-			wantRemoved: true,
-			wantSize:    1,
-		},
-		{
 			name: "remove entry depth 1 left is leaf",
 			fields: fields{
-				size:  2,
-				order: 3,
+				size:  3,
+				order: 2,
 				root: &node{
-					entries: []*entry{{2, 2}},
+					entries: []*entry{{3, 3}},
 					children: []*node{
-						{entries: []*entry{{1, 1}}},
+						{entries: []*entry{{1, 1}, {2, 2}}},
+						{},
 					},
 				},
 			},
 			args:        args{k: 1},
 			wantRemoved: true,
-			wantSize:    1,
+			wantSize:    2,
 		},
 		{
 			name: "key doesn't exist",
 			fields: fields{
 				size:  2,
-				order: 3,
+				order: 2,
 				root: &node{
 					entries: []*entry{{2, 2}},
 					children: []*node{
 						{entries: []*entry{{1, 1}}},
+						{},
 					},
 				},
 			},
@@ -570,6 +554,24 @@ func TestNode_isFull(t *testing.T) {
 			fields: fields{entries: []*entry{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}}},
 			args:   args{order: 3},
 			want:   true,
+		},
+		{
+			name:   "order 5, node full",
+			fields: fields{entries: []*entry{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {7, 7}, {8, 8}, {9, 9}}},
+			args:   args{order: 5},
+			want:   true,
+		},
+		{
+			name:   "order 5, node almost full",
+			fields: fields{entries: []*entry{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {7, 7}, {8, 8}}},
+			args:   args{order: 5},
+			want:   false,
+		},
+		{
+			name:   "order 5, node empty",
+			fields: fields{entries: []*entry{}},
+			args:   args{order: 5},
+			want:   false,
 		},
 	}
 

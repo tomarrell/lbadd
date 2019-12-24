@@ -145,18 +145,46 @@ func (b *btree) remove(k key) (removed bool) {
 	return b.removeNode(b.root, k)
 }
 
+// removeNode takes a node and key and bool, and recursively deletes
+// k from the node, while maintaining the order invariants
 func (b *btree) removeNode(node *node, k key) (removed bool) {
 	idx, exists := b.search(node.entries, k)
 
 	// If the key exists in a leaf node, we can simply remove
 	// it outright
-	if exists && node.isLeaf() {
-		b.size--
-		node.entries = append(node.entries[:idx], node.entries[idx+1:]...)
-		return true
+	if node.isLeaf() {
+		if exists {
+			b.size--
+			node.entries = append(node.entries[:idx], node.entries[idx+1:]...)
+			return true
+		} else {
+			// We've reached the bottom and couldn't find the key
+			return false
+		}
 	}
 
-	return true
+	// If the key exists in the node, but it is not a leaf
+	if exists {
+		child := node.children[idx]
+		// There are enough entries in left child to take one
+		if child.canSteal(b.order) {
+			stolen := child.entries[len(child.entries)-1]
+			node.entries[idx] = stolen
+			return b.removeNode(child, stolen.key)
+		}
+
+		child = node.children[idx]
+		// There are enough entries in the right child to take one
+		if child.canSteal(b.order) {
+			// TODO implement this
+		}
+
+		// Both children don't have enough entries, so we need
+		// to merge the left and right children and take a key
+		// TODO
+	}
+
+	return b.removeNode(node.children[idx], k)
 }
 
 // search takes a slice of entries and a key, and returns
