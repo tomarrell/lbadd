@@ -29,7 +29,11 @@ type entry struct {
 	value value
 }
 
-// btree is the main structure
+// btree is the main structure.
+//
+// "order" invariants:
+// - every node except root must contain at least order-1 keys
+// - every node may contain at most (2*order)-1 keys
 type btree struct {
 	root  *node
 	size  int
@@ -95,8 +99,8 @@ func (b *btree) insert(k key, v value) {
 
 // insertNode takes a node and the entry to insert
 func (b *btree) insertNode(node *node, entry *entry) (inserted bool) {
-	// If the root node would be filled, we need to split it
-	if node == b.root && node.wouldFill(b.order) {
+	// If the root node is already full, we need to split it
+	if node == b.root && node.isFull(b.order) {
 		b.root = node.split()
 	}
 
@@ -120,10 +124,10 @@ func (b *btree) insertNode(node *node, entry *entry) (inserted bool) {
 	}
 
 	// The node is not a leaf, so we we need to check
-	// whether we would fill the appropriate child,
+	// if the appropriate child is already full,
 	// and conditionally split it. Otherwise traverse
 	// to that child.
-	if node.children[idx].wouldFill(b.order) {
+	if node.children[idx].isFull(b.order) {
 		node.children[idx] = node.children[idx].split()
 	}
 
@@ -188,8 +192,11 @@ func (n *node) isLeaf() bool {
 	return len(n.children) == 0
 }
 
-func (n *node) wouldFill(order int) bool {
-	return len(n.entries)+1 >= ((order * 2) - 1)
+// isFull returns a bool indication whether the node
+// already contains the maximum number of entries
+// allowed for a given order
+func (n *node) isFull(order int) bool {
+	return len(n.entries) >= ((order * 2) - 1)
 }
 
 // Splits a full node to have a single, median,

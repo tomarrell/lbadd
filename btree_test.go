@@ -456,7 +456,7 @@ func TestRemove(t *testing.T) {
 					entries: []*entry{{2, 2}, {3, 3}, {6, 6}},
 					children: []*node{
 						{entries: []*entry{{1, 1}}},
-						nil,
+						{},
 						{entries: []*entry{{4, 4}, {5, 5}}},
 					},
 				},
@@ -473,7 +473,7 @@ func TestRemove(t *testing.T) {
 				root: &node{
 					entries: []*entry{{1, 1}},
 					children: []*node{
-						nil,
+						{},
 						{entries: []*entry{{2, 2}}},
 					},
 				},
@@ -527,6 +527,62 @@ func TestRemove(t *testing.T) {
 			gotRemoved := b.remove(tt.args.k)
 			assert.Equal(t, tt.wantRemoved, gotRemoved)
 			assert.Equal(t, tt.wantSize, b.size)
+		})
+	}
+}
+
+func TestNode_isFull(t *testing.T) {
+	type fields struct {
+		parent   *node
+		entries  []*entry
+		children []*node
+	}
+	type args struct {
+		order int
+	}
+
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   bool
+	}{
+		{
+			name:   "order 3, node not full",
+			fields: fields{entries: []*entry{}},
+			args:   args{order: 3},
+			want:   false,
+		},
+		{
+			name:   "order 3, node full",
+			fields: fields{entries: []*entry{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}}},
+			args:   args{order: 3},
+			want:   true,
+		},
+		{
+			name:   "order 3, node nearly full",
+			fields: fields{entries: []*entry{{1, 1}, {2, 2}, {3, 3}, {4, 4}}},
+			args:   args{order: 3},
+			want:   false,
+		},
+		{
+			name:   "order 3, node over filled (bug case)",
+			fields: fields{entries: []*entry{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}}},
+			args:   args{order: 3},
+			want:   true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			n := &node{
+				parent:   tt.fields.parent,
+				entries:  tt.fields.entries,
+				children: tt.fields.children,
+			}
+
+			got := n.isFull(tt.args.order)
+			assert.Equal(t, tt.want, got)
 		})
 	}
 }
