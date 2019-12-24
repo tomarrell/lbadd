@@ -431,7 +431,42 @@ func TestRemove(t *testing.T) {
 			wantSize:    0,
 		},
 		{
-			name: "remove entry depth 1 left",
+			name: "remove entry from non-leaf node with children",
+			fields: fields{
+				size:  3,
+				order: 3,
+				root: &node{
+					entries: []*entry{{2, 2}},
+					children: []*node{
+						{entries: []*entry{{1, 1}}},
+						{entries: []*entry{{3, 3}}},
+					},
+				},
+			},
+			args:        args{k: 2},
+			wantRemoved: true,
+			wantSize:    2,
+		},
+		{
+			name: "remove entry from non-leaf node with children, parent over order",
+			fields: fields{
+				size:  6,
+				order: 3,
+				root: &node{
+					entries: []*entry{{2, 2}, {3, 3}, {6, 6}},
+					children: []*node{
+						{entries: []*entry{{1, 1}}},
+						nil,
+						{entries: []*entry{{4, 4}, {5, 5}}},
+					},
+				},
+			},
+			args:        args{k: 2},
+			wantRemoved: true,
+			wantSize:    5,
+		},
+		{
+			name: "remove entry depth 1 right is leaf",
 			fields: fields{
 				size:  2,
 				order: 3,
@@ -448,7 +483,7 @@ func TestRemove(t *testing.T) {
 			wantSize:    1,
 		},
 		{
-			name: "remove entry depth 1 right",
+			name: "remove entry depth 1 left is leaf",
 			fields: fields{
 				size:  2,
 				order: 3,
