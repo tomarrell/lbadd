@@ -17,8 +17,10 @@ type row []record
 
 // A response from the executor
 type result struct {
-	columns []column
-	rows    []row
+	columns      []column // columns in order of stored rows
+	rows         []row    // the set of rows
+	rowsAffected int      // the number of rows affected by execution
+	created      int      // the number of resources created
 }
 
 // Execute executes an instruction against the database
