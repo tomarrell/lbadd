@@ -9,8 +9,25 @@ const (
 	columnTypeFloat
 	columnTypeBool
 	columnTypeString
-	columnTypeDate
+	columnTypeDateTime
 )
+
+func (c columnType) String() string {
+	switch c {
+	case columnTypeInt:
+		return "integer"
+	case columnTypeFloat:
+		return "float"
+	case columnTypeBool:
+		return "boolean"
+	case columnTypeString:
+		return "string"
+	case columnTypeDateTime:
+		return "datetime"
+	default:
+		return "invalid"
+	}
+}
 
 // A single column within a table
 type column struct {
