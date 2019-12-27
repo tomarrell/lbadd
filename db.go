@@ -1,7 +1,9 @@
 package lbadd
 
 type table struct {
-	store *storage
+	name    string
+	store   *storage
+	columns []column
 }
 
 type db struct {
