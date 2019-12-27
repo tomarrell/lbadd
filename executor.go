@@ -9,6 +9,18 @@ type instruction struct {
 	params  []string
 }
 
+// A single column on a single row
+type record []byte
+
+// A row containing multiple records
+type row []record
+
+// A response from the executor
+type result struct {
+	columns []column
+	rows    []row
+}
+
 // Execute executes an instruction against the database
 type executor struct {
 	db *db
@@ -20,14 +32,18 @@ func newExecutor() *executor {
 	}
 }
 
-func (e *executor) execute(instr instruction) error {
+// The executor takes an instruction, and coordinates the operations which are
+// required to fulfill the instruction, applying these against the storage. It
+// also returns the result of the instruction.
+func (e *executor) execute(instr instruction) (result, error) {
 	switch instr.command {
 	case commandInsert:
+		return result{}, fmt.Errorf("unimplmented")
 	case commandSelect:
+		return result{}, fmt.Errorf("unimplmented")
 	case commandDelete:
+		return result{}, fmt.Errorf("unimplmented")
 	default:
-		return fmt.Errorf("invalid executor command")
+		return result{}, fmt.Errorf("invalid executor command")
 	}
-
-	return nil
 }
