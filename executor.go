@@ -33,7 +33,7 @@ func newExecutor() *executor {
 }
 
 // The executor takes an instruction, and coordinates the operations which are
-// required to fulfill the instruction, applying these against the storage. It
+// required to fulfill the instruction, executing these against the DB. It
 // also returns the result of the instruction.
 func (e *executor) execute(instr instruction) (result, error) {
 	switch instr.command {
@@ -42,6 +42,9 @@ func (e *executor) execute(instr instruction) (result, error) {
 	case commandSelect:
 		return result{}, fmt.Errorf("unimplmented")
 	case commandDelete:
+		return result{}, fmt.Errorf("unimplmented")
+	case commandCreateTable:
+		e.db.tables[instr.table] = table{}
 		return result{}, fmt.Errorf("unimplmented")
 	default:
 		return result{}, fmt.Errorf("invalid executor command")

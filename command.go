@@ -7,6 +7,7 @@ const (
 	commandInsert
 	commandSelect
 	commandDelete
+	commandCreateTable
 )
 
 func newCommand(cmd string) command {
@@ -17,6 +18,8 @@ func newCommand(cmd string) command {
 		return commandSelect
 	case commandDelete.String():
 		return commandDelete
+	case commandCreateTable.String():
+		return commandCreateTable
 	default:
 		return commandUnknown
 	}
@@ -30,6 +33,8 @@ func (c command) String() string {
 		return "SELECT"
 	case commandDelete:
 		return "DELETE"
+	case commandCreateTable:
+		return "CREATE TABLE"
 	default:
 		return "UNKNOWN"
 	}

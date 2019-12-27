@@ -77,6 +77,11 @@ func Test_command_String(t *testing.T) {
 			c:    3,
 			want: "DELETE",
 		},
+		{
+			name: "create table",
+			c:    4,
+			want: "CREATE TABLE",
+		},
 	}
 
 	for _, tt := range tests {
