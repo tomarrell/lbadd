@@ -17,10 +17,11 @@ Each command has a unique set of parameters. The grammar for each is outlined be
 
 #### Create Table
 ```
-pair ::= pair " " pair
-  | <column_name> " " <column_type>
+is_nullable ::= true | false
+col ::= col " " col
+  | <column_name> " " <column_type> " " is_nullable
 
-expr ::= "create table" <table_name> pair
+expr ::= "create table" <table_name> col
 ```
 
 ---
