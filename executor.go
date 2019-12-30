@@ -55,9 +55,97 @@ func (e *executor) execute(instr instruction) (result, error) {
 	case commandDelete:
 		return result{}, fmt.Errorf("unimplmented")
 	case commandCreateTable:
-		e.db.tables[instr.table] = table{}
-		return result{}, fmt.Errorf("unimplmented")
+		return e.executeCreateTable(instr)
+
 	default:
 		return result{}, fmt.Errorf("invalid executor command")
+	}
+}
+
+// Executes the create table instruction, parses the columns given as arguments
+// and adds a new table record to the storage map.
+func (e *executor) executeCreateTable(instr instruction) (result, error) {
+	cols, err := parseColumns(instr.params)
+	if err != nil {
+		return result{}, fmt.Errorf("failed to parse column params: %v", err)
+	}
+
+	e.db.tables[instr.table] = table{
+		name:    instr.table,
+		store:   newBtreeOrder(e.cfg.order),
+		columns: cols,
+	}
+
+	return result{created: 1}, nil
+}
+
+func parseColumns(params []string) ([]column, error) {
+	// If there are no tables to be created, return early
+	if len(params) == 0 {
+		return []column{}, nil
+	}
+
+	// There should be a column name, type and nullable field for each column
+	// which is being declared
+	if len(params)%3 != 0 {
+		return []column{}, fmt.Errorf("invalid column pairs, every name must have a type")
+	}
+
+	cols := make([]column, 0, len(params)/3)
+
+	for i := 0; i < len(params); i += 3 {
+		p1, p2, p3 := params[i], params[i+1], params[i+2]
+		if err := validateTableName(p1); err != nil {
+			return cols, fmt.Errorf("invalid table name: %s: %v", p1, err)
+		}
+
+		colType := parseColumnType(p2)
+		if colType == columnTypeInvalid {
+			return cols, fmt.Errorf("found invalid column type: %s", p2)
+		}
+
+		b, err := parseBool(p3)
+		if err != nil {
+			return cols, fmt.Errorf("invalid value for field is_nullable: %s", err)
+		}
+
+		cols = append(cols, column{
+			name:       p1,
+			dataType:   colType,
+			isNullable: b,
+		})
+	}
+
+	return cols, nil
+}
+
+// The maximum number of characters allowed in a table name
+const tableNameMaxLen = 32
+
+// The validation pattern used to determine whether a table name is valid
+var tableNamePattern = regexp.MustCompile(`^[a-zA-Z]+$`)
+
+// Validates whether the string can be used as a valid table name identifier.
+// Returns an error if it is invalid, nil if valid.
+func validateTableName(name string) error {
+	if len(name) > tableNameMaxLen {
+		return fmt.Errorf("table name exceeds the character limit of %d", tableNameMaxLen)
+	}
+
+	if !tableNamePattern.MatchString(name) {
+		return fmt.Errorf("table name includes invalid characters")
+	}
+
+	return nil
+}
+
+func parseBool(str string) (bool, error) {
+	switch str {
+	case "true":
+		return true, nil
+	case "false":
+		return false, nil
+	default:
+		return false, fmt.Errorf("invalid boolean field")
 	}
 }
