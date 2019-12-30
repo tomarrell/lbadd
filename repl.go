@@ -13,7 +13,9 @@ type repl struct {
 
 func NewRepl() *repl {
 	return &repl{
-		executor: newExecutor(),
+		executor: newExecutor(exeConfig{
+			order: defaultOrder,
+		}),
 	}
 }
 
