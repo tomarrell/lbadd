@@ -14,9 +14,9 @@ const defaultOrder = 3
 // storage defines the interface to be implemented by
 // the b-tree
 type storage interface {
-	get(k key)
-	put(k key, v value)
-	remove(k key)
+	get(k key) (v *entry, exists bool)
+	insert(k key, v value)
+	remove(k key) (removed bool)
 }
 
 type (

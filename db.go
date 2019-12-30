@@ -2,7 +2,7 @@ package lbadd
 
 type table struct {
 	name    string
-	store   *storage
+	store   storage
 	columns []column
 }
 
