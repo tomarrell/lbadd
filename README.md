@@ -11,7 +11,7 @@ It is also currently a work in progress. Feel free to follow along with the deve
 
 ## Architecture
 
-The database is made up of a few separate components. These handle the **SQL parsing**, the **intermediary representation generation**, the **multi-node consensus**, the **execution of the IR**, and the **storage**.
+The database is made up of a few separate components. These handle the **SQL parsing**, the **intermediary representation generation**, the **multi-node consensus**, the **execution of the IR**, and the (persistent) **storage**.
 
 ### Prior art
 Inspiration has been taken from the brilliantly documented codebase of [SQLite](https://github.com/sqlite/sqlite). However the codebase has been heavily optimized, and is difficult to follow without spending significant time.
