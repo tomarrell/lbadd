@@ -1,6 +1,9 @@
 package lbadd
 
-import "fmt"
+import (
+	"fmt"
+	"regexp"
+)
 
 // Contains a command and associated information required to execute such command
 type instruction struct {
@@ -23,14 +26,20 @@ type result struct {
 	created      int      // the number of resources created
 }
 
-// Execute executes an instruction against the database
-type executor struct {
-	db *db
+type exeConfig struct {
+	order int
 }
 
-func newExecutor() *executor {
+// Execute executes an instruction against the database
+type executor struct {
+	db  *db
+	cfg exeConfig
+}
+
+func newExecutor(cfg exeConfig) *executor {
 	return &executor{
-		db: newDB(),
+		db:  newDB(),
+		cfg: cfg,
 	}
 }
 
