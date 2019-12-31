@@ -157,3 +157,42 @@ func Test_executor_executeCreateTable(t *testing.T) {
 		})
 	}
 }
+
+func Test_executor_executeSelect(t *testing.T) {
+	type fields struct {
+		db  *db
+		cfg exeConfig
+	}
+	type args struct {
+		instr instruction
+	}
+
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    result
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+		{},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			e := &executor{
+				db:  tt.fields.db,
+				cfg: tt.fields.cfg,
+			}
+
+			got, err := e.executeSelect(tt.args.instr)
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}

@@ -49,17 +49,23 @@ func newExecutor(cfg exeConfig) *executor {
 func (e *executor) execute(instr instruction) (result, error) {
 	switch instr.command {
 	case commandInsert:
-		return result{}, fmt.Errorf("unimplmented")
+		return result{}, fmt.Errorf("unimplemented")
 	case commandSelect:
-		return result{}, fmt.Errorf("unimplmented")
+		return e.executeSelect(instr)
 	case commandDelete:
-		return result{}, fmt.Errorf("unimplmented")
+		return result{}, fmt.Errorf("unimplemented")
 	case commandCreateTable:
 		return e.executeCreateTable(instr)
 
 	default:
 		return result{}, fmt.Errorf("invalid executor command")
 	}
+}
+
+// Executes the select query instruction, returning the structure of the table
+// (columns) and the rows specified in the query.
+func (e *executor) executeSelect(instr instruction) (result, error) {
+	return result{}, fmt.Errorf("unimplemented")
 }
 
 // Executes the create table instruction, parses the columns given as arguments
