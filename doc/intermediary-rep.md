@@ -24,5 +24,14 @@ col ::= col " " col
 expr ::= "create table" <table_name> col
 ```
 
+#### Select
+- *Currently doesn't support joins*
+```
+col ::= col " " col
+  | <column_name> " " <column_name>
+
+expr ::= "select" <table_name> col
+```
+
 ---
-**TODO**: insert, select, delete, ...
+**TODO**: insert, delete, ...
