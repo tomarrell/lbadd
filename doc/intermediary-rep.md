@@ -27,10 +27,10 @@ expr ::= "create table" <table_name> col
 #### Select
 - *Currently doesn't support joins*
 ```
-condition ::= <column_name>=<value>
-  | <column_name>><value>
-  | <column_name><<value>
-  | <column_name>!=<value>
+condition ::= <column_name> "=" <value>
+  | <column_name> ">" <value>
+  | <column_name> "<" <value>
+  | <column_name> "!=" <value>
 args ::= args " " args
   | condition
   | <column_name>
