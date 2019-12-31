@@ -65,7 +65,7 @@ func (e *executor) execute(instr instruction) (result, error) {
 // Executes the create table instruction, parses the columns given as arguments
 // and adds a new table record to the storage map.
 func (e *executor) executeCreateTable(instr instruction) (result, error) {
-	cols, err := parseColumns(instr.params)
+	cols, err := parseInsertColumns(instr.params)
 	if err != nil {
 		return result{}, fmt.Errorf("failed to parse column params: %v", err)
 	}
@@ -79,7 +79,7 @@ func (e *executor) executeCreateTable(instr instruction) (result, error) {
 	return result{created: 1}, nil
 }
 
-func parseColumns(params []string) ([]column, error) {
+func parseInsertColumns(params []string) ([]column, error) {
 	// If there are no tables to be created, return early
 	if len(params) == 0 {
 		return []column{}, nil
