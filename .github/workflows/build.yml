@@ -1,0 +1,30 @@
+name: Build
+on:
+  push:
+    branches:
+      - master
+      - develop
+      - release/*
+jobs:
+
+  test:
+    name: Build for OS ${{ matrix.goos }} with ARCH ${{ matrix.goarch }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [darwin, linux, windows]
+        goarch: [386, amd64]
+    steps:
+    - name: Set up Go ${{ matrix.go_version }}
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.x # hopefully chooses the latest stable go version
+      id: go
+    - uses: actions/checkout@v1
+    - name: Build
+      run: |
+        GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o ./bin/lbadd-${{ matrix.goos }}-${{ matrix.goarch }}
+    - uses: actions/upload-artifact@master
+      with:
+        name: binaries
+        path: ./bin
