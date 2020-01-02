@@ -4,7 +4,6 @@ on: [push, pull_request]
 jobs:
   errcheck:
     name: Errcheck
-    if: "!contains(github.event.commits[0].message, '[ci-skip]')"
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
@@ -16,7 +15,6 @@ jobs:
 
   lint:
     name: Lint
-    if: "!contains(github.event.commits[0].message, '[ci-skip]')"
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
@@ -28,7 +26,6 @@ jobs:
 
   staticcheck:
     name: StaticCheck
-    if: "!contains(github.event.commits[0].message, '[ci-skip]')"
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
@@ -40,7 +37,6 @@ jobs:
 
   sec:
     name: Sec
-    if: "!contains(github.event.commits[0].message, '[ci-skip]')"
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master

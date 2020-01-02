@@ -9,7 +9,6 @@ jobs:
 
   test:
     name: Build for OS ${{ matrix.goos }} with ARCH ${{ matrix.goarch }}
-    if: "!contains(github.event.commits[0].message, '[ci-skip]')"
     runs-on: ubuntu-latest
     strategy:
       matrix:

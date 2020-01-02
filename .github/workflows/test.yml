@@ -1,9 +1,8 @@
-name: Tests 
+name: Tests
 on: [push, pull_request]
 jobs:
   test:
     name: Test on ${{ matrix.os }} with Go ${{ matrix.go_version }}
-    if: "!contains(github.event.commits[0].message, '[ci-skip]')"
     runs-on: ubuntu-latest
     strategy:
       matrix:
