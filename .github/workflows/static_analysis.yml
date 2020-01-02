@@ -2,6 +2,11 @@ name: Static analysis
 on: [push, pull_request]
 
 jobs:
+  main:
+      name: Build and test
+      runs-on: ubuntu-latest
+      if: "!contains(github.event.head_commit.message, '[ci-skip]')"
+
   errcheck:
     name: Errcheck
     runs-on: ubuntu-latest
