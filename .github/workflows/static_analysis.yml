@@ -2,13 +2,9 @@ name: Static analysis
 on: [push, pull_request]
 
 jobs:
-  main:
-      name: Build and test
-      runs-on: ubuntu-latest
-      if: "!contains(github.event.head_commit.message, '[ci-skip]')"
-
   errcheck:
     name: Errcheck
+    if: "!contains(github.event.commits[0].message, '[ci-skip]')"
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
@@ -20,6 +16,7 @@ jobs:
 
   lint:
     name: Lint
+    if: "!contains(github.event.commits[0].message, '[ci-skip]')"
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
@@ -31,6 +28,7 @@ jobs:
 
   staticcheck:
     name: StaticCheck
+    if: "!contains(github.event.commits[0].message, '[ci-skip]')"
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
@@ -42,6 +40,7 @@ jobs:
 
   sec:
     name: Sec
+    if: "!contains(github.event.commits[0].message, '[ci-skip]')"
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
