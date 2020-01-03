@@ -7,19 +7,24 @@ import (
 	"strings"
 )
 
-type repl struct {
+// Repl is an interactive print loop which accepts instructions in the form of
+// the database's intermediary representation, and executes the statements
+// against the database.
+type Repl struct {
 	executor *executor
 }
 
-func NewRepl() *repl {
-	return &repl{
+// NewRepl creates a new repl instance
+func NewRepl() *Repl {
+	return &Repl{
 		executor: newExecutor(exeConfig{
 			order: defaultOrder,
 		}),
 	}
 }
 
-func (r *repl) Start() {
+// Start begings the execution of the given repl instance
+func (r *Repl) Start() {
 	sc := bufio.NewScanner(os.Stdin)
 	fmt.Println("Starting Bad SQL repl")
 
@@ -43,11 +48,15 @@ func (r *repl) Start() {
 			continue
 		}
 
-		r.executor.execute(instr)
+		_, err = r.executor.execute(instr)
+		if err != nil {
+			fmt.Printf("Err: %v\n", err)
+			continue
+		}
 	}
 }
 
-func (r *repl) readCommand(input string) (instruction, error) {
+func (r *Repl) readCommand(input string) (instruction, error) {
 	tokens := strings.Split(input, " ")
 	instr := instruction{}
 

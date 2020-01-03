@@ -286,9 +286,8 @@ func TestNodeSplit(t *testing.T) {
 
 func TestInsertNode(t *testing.T) {
 	type fields struct {
-		root  *node
-		size  int
-		order int
+		root *node
+		size int
 	}
 	type args struct {
 		node  *node

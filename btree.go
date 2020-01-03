@@ -166,10 +166,9 @@ func (b *btree) removeNode(node *node, k key) (removed bool) {
 			b.size--
 			node.entries = append(node.entries[:idx], node.entries[idx+1:]...)
 			return true
-		} else {
-			// We've reached the bottom and couldn't find the key
-			return false
 		}
+		// We've reached the bottom and couldn't find the key
+		return false
 	}
 
 	// If the key exists in the node, but it is not a leaf
@@ -182,11 +181,11 @@ func (b *btree) removeNode(node *node, k key) (removed bool) {
 			return b.removeNode(child, stolen.key)
 		}
 
-		child = node.children[idx]
+		// child = node.children[idx]
 		// There are enough entries in the right child to take one
-		if child.canSteal(b.order) {
-			// TODO implement this
-		}
+		// if child.canSteal(b.order) {
+		// TODO implement this
+		// }
 
 		// Both children don't have enough entries, so we need
 		// to merge the left and right children and take a key
