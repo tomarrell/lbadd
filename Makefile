@@ -6,6 +6,16 @@ watch: ## Start a file watcher to run tests on change. (requires: watchexec)
 test: ## Runs the unit test suite
 	go test -failfast ./...
 
+.PHONY: lint
+lint: ## Runs the linters
+	golint;
+	errcheck;
+	gosec ./...;
+
+	# TODO re-enable staticcheck
+	# staticcheck;
+
+
 ## Help display.
 ## Pulls comments from beside commands and prints a nicely formatted
 ## display with the commands and their usage information.
