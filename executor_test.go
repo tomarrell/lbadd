@@ -175,7 +175,6 @@ func Test_executor_executeSelect(t *testing.T) {
 		wantErr bool
 	}{
 		// TODO: Add test cases.
-		{},
 	}
 
 	for _, tt := range tests {
