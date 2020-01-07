@@ -257,10 +257,10 @@ func (n *node) split() *node {
 	}
 	right := &node{
 		parent:  n,
-		entries: append([]*entry{}, n.entries[mid+1:]...),
+		entries: append([]*entry{}, n.entries[mid:]...),
 	}
 
-	n.entries = []*entry{n.entries[mid]}
+	n.entries = []*entry{{n.entries[mid].key, nil}}
 	n.children = append(n.children, left, right)
 
 	return n
