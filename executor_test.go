@@ -61,7 +61,7 @@ func Test_executor_executeCreateTable(t *testing.T) {
 		{
 			name:    "creates a new empty table",
 			fields:  fields{db: &db{tables: map[string]table{}}, cfg: exeConfig{order: order}},
-			args:    args{instr: instruction{command: 4, table: "users"}},
+			args:    args{instr: instruction{command: commandCreateTable, table: "users"}},
 			want:    result{created: 1},
 			wantErr: false,
 			wantTables: map[string]table{
@@ -76,7 +76,7 @@ func Test_executor_executeCreateTable(t *testing.T) {
 			name:   "creates a new table with single column",
 			fields: fields{db: &db{tables: map[string]table{}}, cfg: exeConfig{order: order}},
 			args: args{instr: instruction{
-				command: 4,
+				command: commandCreateTable,
 				table:   "users",
 				params:  []string{"name", "string", "false"},
 			}},
@@ -100,7 +100,7 @@ func Test_executor_executeCreateTable(t *testing.T) {
 			name:   "creates a new table with multiple columns",
 			fields: fields{db: &db{tables: map[string]table{}}, cfg: exeConfig{order: order}},
 			args: args{instr: instruction{
-				command: 4,
+				command: commandCreateTable,
 				table:   "users",
 				params:  []string{"name", "string", "false", "age", "integer", "true"},
 			}},
@@ -129,7 +129,7 @@ func Test_executor_executeCreateTable(t *testing.T) {
 			name:   "fails to create if datatype is unknown",
 			fields: fields{db: &db{tables: map[string]table{}}, cfg: exeConfig{order: order}},
 			args: args{instr: instruction{
-				command: 4,
+				command: commandCreateTable,
 				table:   "users",
 				params:  []string{"name", "unknown", "false"},
 			}},
@@ -167,6 +167,25 @@ func Test_executor_executeSelect(t *testing.T) {
 		instr instruction
 	}
 
+	order := 3
+	mockTable := table{
+		name:  "user",
+		store: newBtreeOrder(order),
+		columns: []column{
+			{
+				dataType:   columnTypeInt,
+				name:       "id",
+				isNullable: false,
+			},
+			{
+				dataType:   columnTypeString,
+				name:       "name",
+				isNullable: false,
+			},
+		},
+	}
+	mockTable.store.insert(0, "John Smith")
+
 	tests := []struct {
 		name    string
 		fields  fields
@@ -174,7 +193,24 @@ func Test_executor_executeSelect(t *testing.T) {
 		want    result
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "error when table does not exist",
+			fields: fields{
+				db: &db{
+					tables: map[string]table{mockTable.name: mockTable},
+				},
+				cfg: exeConfig{order: order},
+			},
+			args: args{
+				instr: instruction{
+					command: commandSelect,
+					table:   "missing_table",
+					params:  []string{},
+				},
+			},
+			want:    result{},
+			wantErr: true,
+		},
 	}
 
 	for _, tt := range tests {

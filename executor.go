@@ -65,6 +65,14 @@ func (e *executor) execute(instr instruction) (result, error) {
 // Executes the select query instruction, returning the structure of the table
 // (columns) and the rows specified in the query.
 func (e *executor) executeSelect(instr instruction) (result, error) {
+	_, exists := e.db.tables[instr.table]
+	if !exists {
+		return result{}, fmt.Errorf("table %s does not exist", instr.table)
+	}
+
+	// TODO check if columns all exist in table
+	// TODO btree get all method
+
 	return result{}, fmt.Errorf("unimplemented")
 }
 
