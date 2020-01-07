@@ -17,6 +17,10 @@ type storage interface {
 	get(k key) (v *entry, exists bool)
 	insert(k key, v value)
 	remove(k key) (removed bool)
+	getAll(limit int) []*entry
+	getAbove(k key, limit int) []*entry
+	getBelow(k key, limit int) []*entry
+	getBetween(low, high key, limit int) []*entry
 }
 
 type (
@@ -113,6 +117,7 @@ func (b *btree) insertNode(node *node, entry *entry) (inserted bool) {
 		b.root = node.split()
 	}
 
+	// Search for the key in the node's entries
 	idx, exists := b.search(node.entries, entry.key)
 
 	// The entry already exists, so it should be updated
@@ -193,6 +198,35 @@ func (b *btree) removeNode(node *node, k key) (removed bool) {
 	}
 
 	return b.removeNode(node.children[idx], k)
+}
+
+//
+func (b *btree) getAll(limit int) []*entry {
+	if b.size == 0 || limit == 0 {
+		return []*entry{}
+	}
+
+	// TODO unimplemented
+
+	return nil
+}
+
+//
+func (b *btree) getAbove(k key, limit int) []*entry {
+	// TODO unimplemented
+	return []*entry{}
+}
+
+//
+func (b *btree) getBelow(k key, limit int) []*entry {
+	// TODO unimplemented
+	return []*entry{}
+}
+
+//
+func (b *btree) getBetween(low, high key, limit int) []*entry {
+	// TODO unimplemented
+	return []*entry{}
 }
 
 // search takes a slice of entries and a key, and returns

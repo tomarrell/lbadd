@@ -672,3 +672,73 @@ func TestNode_canSteal(t *testing.T) {
 		})
 	}
 }
+
+func Test_btree_getAll(t *testing.T) {
+	type fields struct {
+		root  *node
+		size  int
+		order int
+	}
+	type args struct {
+		limit int
+	}
+
+	root := &node{}
+	root.entries = []*entry{{4, 4}, {8, 8}}
+	root.children = []*node{
+		{
+			parent:  root,
+			entries: []*entry{{0, 0}, {1, 1}, {2, 2}},
+		},
+		{
+			parent:  root,
+			entries: []*entry{{5, 5}, {7, 7}},
+		},
+		{
+			parent:  root,
+			entries: []*entry{{9, 9}, {11, 11}, {12, 12}},
+		},
+	}
+
+	f := fields{root: root, size: 10}
+
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   []*entry
+	}{
+		{
+			name:   "empty tree returns empty entries",
+			fields: fields{size: 0},
+			args:   args{limit: 10},
+			want:   []*entry{},
+		},
+		{
+			name:   "limit of 0 returns empty entries",
+			fields: f,
+			args:   args{limit: 0},
+			want:   []*entry{},
+		},
+		{
+			name:   "returns all entries up to limit",
+			fields: f,
+			args:   args{limit: 0},
+			want:   []*entry{},
+		},
+		// TODO add more cases
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			b := &btree{
+				root:  tt.fields.root,
+				size:  tt.fields.size,
+				order: tt.fields.order,
+			}
+
+			got := b.getAll(tt.args.limit)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
