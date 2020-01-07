@@ -195,6 +195,7 @@ func (b *btree) removeNode(node *node, k key) (removed bool) {
 		// Both children don't have enough entries, so we need
 		// to merge the left and right children and take a key
 		// TODO
+		return false
 	}
 
 	return b.removeNode(node.children[idx], k)

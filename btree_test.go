@@ -566,6 +566,55 @@ func TestRemove(t *testing.T) {
 	}
 }
 
+func TestRemove_structure(t *testing.T) {
+	tree := &btree{
+		order: 3,
+		size:  0,
+		root: &node{
+			parent:  nil,
+			entries: []*entry{{5, nil}, {10, nil}},
+			children: []*node{
+				{entries: []*entry{{1, 1}, {2, 2}, {3, 3}}},
+				{entries: []*entry{{5, 5}, {7, 7}, {9, 9}}},
+				{entries: []*entry{{10, 10}, {20, 20}, {21, 21}}},
+			},
+		},
+	}
+
+	tests := []struct {
+		name      string
+		haveTree  *btree
+		removeKey key
+		wantTree  *btree
+	}{
+		{
+			name:      "remove entry from root",
+			haveTree:  tree,
+			removeKey: 5,
+			wantTree: &btree{
+				order: 3,
+				size:  0,
+				root: &node{
+					parent:  nil,
+					entries: []*entry{{5, nil}, {10, nil}},
+					children: []*node{
+						{entries: []*entry{{1, 1}, {2, 2}, {3, 3}}},
+						{entries: []*entry{{5, 5}, {7, 7}, {9, 9}}},
+						{entries: []*entry{{10, 10}, {20, 20}, {21, 21}}},
+					},
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.haveTree.remove(tt.removeKey)
+			assert.Equal(t, tt.wantTree, tt.haveTree)
+		})
+	}
+}
+
 func TestNode_isFull(t *testing.T) {
 	type fields struct {
 		parent   *node
