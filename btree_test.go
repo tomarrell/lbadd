@@ -847,3 +847,93 @@ func Test_btree_getAll(t *testing.T) {
 		})
 	}
 }
+
+func Test_node_canSplit(t *testing.T) {
+	type fields struct {
+		parent   *node
+		entries  []*entry
+		children []*node
+	}
+	type args struct {
+		order int
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			n := &node{
+				parent:   tt.fields.parent,
+				entries:  tt.fields.entries,
+				children: tt.fields.children,
+			}
+			if got := n.canSplit(tt.args.order); got != tt.want {
+				t.Errorf("node.canSplit() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_node_isUnderflowed(t *testing.T) {
+	type fields struct {
+		parent   *node
+		entries  []*entry
+		children []*node
+	}
+	type args struct {
+		order int
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			n := &node{
+				parent:   tt.fields.parent,
+				entries:  tt.fields.entries,
+				children: tt.fields.children,
+			}
+			if got := n.isUnderflowed(tt.args.order); got != tt.want {
+				t.Errorf("node.isUnderflowed() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_node_isLeaf(t *testing.T) {
+	type fields struct {
+		parent   *node
+		entries  []*entry
+		children []*node
+	}
+
+	tests := []struct {
+		name   string
+		fields fields
+		want   bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			n := &node{
+				parent:   tt.fields.parent,
+				entries:  tt.fields.entries,
+				children: tt.fields.children,
+			}
+			if got := n.isLeaf(); got != tt.want {
+				t.Errorf("node.isLeaf() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
