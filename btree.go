@@ -1,5 +1,6 @@
 // Btree contains the btree struct, which is used as the primary data store of
-// the database.
+// the database. It is an implementation of a traditional B+tree, however will
+// from here on out just be referred to as "btree".
 //
 // The btree supports 3 primary operations:
 // - get: given a key, retrieve the corresponding entry
@@ -267,13 +268,13 @@ func (n *node) isLeaf() bool {
 // already contains the maximum number of entries
 // allowed for a given order
 func (n *node) isFull(order int) bool {
-	return len(n.entries) >= ((order * 2) - 1)
+	return len(n.entries) >= order
 }
 
 // canSteal returns a bool indicating whether or not
 // the node contains enough entries to be able to take one
 func (n *node) canSteal(order int) bool {
-	return len(n.entries)-1 > order-1
+	return len(n.entries) > order/2
 }
 
 // Splits a full node to have a single, median,
