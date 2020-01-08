@@ -10,6 +10,8 @@
 
 package lbadd
 
+import "math"
+
 const defaultOrder = 3
 
 // storage defines the interface to be implemented by
@@ -165,41 +167,45 @@ func (b *btree) remove(k key) (removed bool) {
 func (b *btree) removeNode(node *node, k key) (removed bool) {
 	idx, exists := b.search(node.entries, k)
 
-	// If the key exists in a leaf node, we can simply remove
-	// it outright
-	if node.isLeaf() {
-		if exists {
-			b.size--
-			node.entries = append(node.entries[:idx], node.entries[idx+1:]...)
+	// If the node is not a leaf, we need to continue traversal
+	if !node.isLeaf() {
+		return b.removeNode(node.children[idx], k)
+	}
+
+	// Otherwise, we check if the entry exists, and return if it doesn't
+	if !exists {
+		return false
+	}
+
+	// Ok, so we've found the key, now we need to remove it.
+	node.entries = append(node.entries[:idx], node.entries[idx+1:]...)
+	b.size--
+
+	// Now we need to check if we've caused an underflow
+	if node.isUnderflowed(b.order) {
+		// Find the previous sibling node at the same height through the parent, and
+		// merge the entries in the two nodes.
+		parIdx, _ := b.search(node.parent.entries, k)
+		node.entries = append(node.parent.children[parIdx-1].entries, node.entries...)
+
+		// If the set of merged entries is greater than the number needed to have
+		// two separate nodes given the order invariants, then we need to do a
+		// split, update the entries
+		if node.canSplit(b.order) {
+			newNode := node.split()
+			// Update the current node's entries to be the right set of split entries
+			node.entries = newNode.children[1].entries
+			// Update the left leaf sibling's entries to be the left set of split
+			// entries
+			node.parent.children[parIdx-1].entries = newNode.children[0].entries
+			// Replace the index entry in the parent
+			node.parent.entries[parIdx-1] = newNode.entries[0]
+
 			return true
 		}
-		// We've reached the bottom and couldn't find the key
-		return false
 	}
 
-	// If the key exists in the node, but it is not a leaf
-	if exists {
-		child := node.children[idx]
-		// There are enough entries in left child to take one
-		if child.canSteal(b.order) {
-			stolen := child.entries[len(child.entries)-1]
-			node.entries[idx] = stolen
-			return b.removeNode(child, stolen.key)
-		}
-
-		// child = node.children[idx]
-		// There are enough entries in the right child to take one
-		// if child.canSteal(b.order) {
-		// TODO implement this
-		// }
-
-		// Both children don't have enough entries, so we need
-		// to merge the left and right children and take a key
-		// TODO
-		return false
-	}
-
-	return b.removeNode(node.children[idx], k)
+	return true
 }
 
 //
@@ -208,27 +214,22 @@ func (b *btree) getAll(limit int) []*entry {
 		return []*entry{}
 	}
 
-	// TODO unimplemented
-
-	return nil
+	panic("unimplemented")
 }
 
 //
 func (b *btree) getAbove(k key, limit int) []*entry {
-	// TODO unimplemented
-	return []*entry{}
+	panic("unimplemented")
 }
 
 //
 func (b *btree) getBelow(k key, limit int) []*entry {
-	// TODO unimplemented
-	return []*entry{}
+	panic("unimplemented")
 }
 
 //
 func (b *btree) getBetween(low, high key, limit int) []*entry {
-	// TODO unimplemented
-	return []*entry{}
+	panic("unimplemented")
 }
 
 // search takes a slice of entries and a key, and returns
@@ -277,6 +278,18 @@ func (n *node) canSteal(order int) bool {
 	return len(n.entries) > order/2
 }
 
+// Returns true when the node has too few entries to
+// satisfy the order invariant, given a specific order
+func (n *node) isUnderflowed(order int) bool {
+	return len(n.entries) < int(math.Ceil(float64(order)/2.0))
+}
+
+// returns whether the node can successfully be split into
+// two children while maintaining the invariants
+func (n *node) canSplit(order int) bool {
+	return float64(len(n.entries)) >= 2*math.Ceil(float64(order)/2.0)
+}
+
 // Splits a full node to have a single, median,
 // entry, and two child nodes containing the left
 // and right halves of the entries
@@ -296,8 +309,9 @@ func (n *node) split() *node {
 		entries: append([]*entry{}, n.entries[mid:]...),
 	}
 
-	n.entries = []*entry{{n.entries[mid].key, nil}}
-	n.children = append(n.children, left, right)
-
-	return n
+	return &node{
+		parent:   n.parent,
+		entries:  []*entry{{n.entries[mid].key, nil}},
+		children: append(n.children, left, right),
+	}
 }

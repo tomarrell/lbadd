@@ -585,19 +585,20 @@ func TestRemove(t *testing.T) {
 func TestRemove_structure(t *testing.T) {
 	order := 3
 	tree := func() *btree {
-		return &btree{
+		t := &btree{
 			order: order,
 			size:  8,
-			root: &node{
-				parent:  nil,
-				entries: []*entry{{5, nil}, {10, nil}},
-				children: []*node{
-					{entries: []*entry{{1, 1}, {2, 2}, {3, 3}}},
-					{entries: []*entry{{5, 5}, {7, 7}}},
-					{entries: []*entry{{10, 10}, {20, 20}, {21, 21}}},
-				},
-			},
 		}
+		t.root = &node{
+			parent:  nil,
+			entries: []*entry{{5, nil}, {10, nil}},
+		}
+		t.root.children = []*node{
+			{parent: t.root, entries: []*entry{{1, 1}, {2, 2}, {3, 3}}},
+			{parent: t.root, entries: []*entry{{5, 5}, {7, 7}}},
+			{parent: t.root, entries: []*entry{{10, 10}, {20, 20}, {21, 21}}},
+		}
+		return t
 	}
 
 	tests := []struct {
@@ -640,28 +641,33 @@ func TestRemove_structure(t *testing.T) {
 				},
 			},
 		},
-		// {
-		// name:      "remove entry from middle leaf, trigger underflow",
-		// haveTree:  tree(),
-		// removeKey: 7,
-		// wantTree: &btree{
-		// order: order,
-		// size:  7,
-		// root: &node{
-		// entries: []*entry{{5, nil}, {10, nil}},
-		// children: []*node{
-		// {entries: []*entry{{1, 1}, {2, 2}, {3, 3}}},
-		// {entries: []*entry{{5, 5}, {7, 7}}},
-		// {entries: []*entry{{10, 10}, {20, 20}, {21, 21}}},
-		// },
-		// },
-		// },
-		// },
+		{
+			name:      "remove entry from middle leaf, trigger underflow, have enough to combine",
+			haveTree:  tree(),
+			removeKey: 7,
+			wantTree: &btree{
+				order: order,
+				size:  7,
+				root: &node{
+					entries: []*entry{{3, nil}, {10, nil}},
+					children: []*node{
+						{entries: []*entry{{1, 1}, {2, 2}}},
+						{entries: []*entry{{3, 3}, {5, 5}}},
+						{entries: []*entry{{10, 10}, {20, 20}, {21, 21}}},
+					},
+				},
+			},
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.haveTree.remove(tt.removeKey)
+
+			for i := range tt.wantTree.root.children {
+				tt.wantTree.root.children[i].parent = tt.wantTree.root
+			}
+
 			assert.Equal(t, tt.wantTree, tt.haveTree)
 		})
 	}
