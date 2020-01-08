@@ -46,8 +46,8 @@ type entry struct {
 // btree is the main structure.
 //
 // "order" invariants:
-// - every node except root must contain at least order-1 keys
-// - every node may contain at most (2*order)-1 keys
+// - every node except root must contain at least ceil(order/2) children
+// - every node may contain at most order number of children
 type btree struct {
 	root  *node
 	size  int
