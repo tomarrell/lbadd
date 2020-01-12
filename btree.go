@@ -45,11 +45,18 @@ type entry struct {
 	value value
 }
 
-// btree is the main structure.
+// btree is an implementation of a B+tree with the following invariants
 //
-// "order" invariants:
-// - every node except root must contain at least ceil(order/2) children
-// - every node may contain at most order number of children
+// ref: c = len(children), k = len(keys), o = order
+//
+// - all leaves must be same distance (d) from root
+// - the root node has at least two children
+// - every node must have k+1 references
+// - every internal node has at least ceil(o / 2) children
+// - every leaf node contains at least ceil(o / 2) keys
+// - for every internal node N with k: all keys in the first child's subtree are
+//   less than N's first key; and all keys in the i'th child's subtree (2 ≤ i ≤ k)
+//   are between the (i − 1)th key of n and the i'th key of n
 type btree struct {
 	root  *node
 	size  int
