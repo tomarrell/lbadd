@@ -10,7 +10,11 @@
 
 package lbadd
 
-import "math"
+import (
+	"math"
+
+	"github.com/davecgh/go-spew/spew"
+)
 
 const defaultOrder = 3
 
@@ -173,6 +177,7 @@ func (b *btree) remove(k key) (removed bool) {
 // k from the node, while maintaining the order invariants
 func (b *btree) removeNode(node *node, k key) (removed bool) {
 	idx, exists := b.search(node.entries, k)
+	spew.Dump(idx, k)
 
 	// If the node is not a leaf, we need to continue traversal
 	if !node.isLeaf() {
@@ -190,26 +195,47 @@ func (b *btree) removeNode(node *node, k key) (removed bool) {
 
 	// Now we need to check if we've caused an underflow
 	if node.isUnderflowed(b.order) {
+		spew.Dump("underflow")
+		parIdx, _ := b.search(node.parent.entries, k)
+
+		spew.Dump(node.parent.children[parIdx].entries)
+
+		// Can steal from the left leaf sibling
+		if node.parent.children[parIdx].canSteal(b.order) {
+			panic("can steal from left sibling")
+		}
+
+		// Can steal from the right leaf sibling
+		rLeaf := node.parent.children[parIdx+1]
+		if rLeaf.canSteal(b.order) {
+			node.entries = append(node.entries, rLeaf.entries[0])
+			rLeaf.entries = rLeaf.entries[1:]
+		}
+
+		// Can't steal from either left or right, so we're going to have to merge
+
 		// Find the previous sibling node at the same height through the parent, and
 		// merge the entries in the two nodes.
-		parIdx, _ := b.search(node.parent.entries, k)
-		node.entries = append(node.parent.children[parIdx-1].entries, node.entries...)
+		// parIdx, _ := b.search(node.parent.entries, k)
+		// node.entries = append(node.parent.children[parIdx-1].entries, node.entries...)
 
-		// If the set of merged entries is greater than the number needed to have
-		// two separate nodes given the order invariants, then we need to do a
-		// split, update the entries
-		if node.canSplit(b.order) {
-			newNode := node.split()
-			// Update the current node's entries to be the right set of split entries
-			node.entries = newNode.children[1].entries
-			// Update the left leaf sibling's entries to be the left set of split
-			// entries
-			node.parent.children[parIdx-1].entries = newNode.children[0].entries
-			// Replace the index entry in the parent
-			node.parent.entries[parIdx-1] = newNode.entries[0]
+		// // If the set of merged entries is greater than the number needed to have
+		// // two separate nodes given the order invariants, then we need to do a
+		// // split, update the entries
+		// if node.canSplit(b.order) {
+		// newNode := node.split()
+		// // Update the current node's entries to be the right set of split entries
+		// node.entries = newNode.children[1].entries
+		// // Update the left leaf sibling's entries to be the left set of split
+		// // entries
+		// node.parent.children[parIdx-1].entries = newNode.children[0].entries
+		// // Replace the index entry in the parent
+		// node.parent.entries[parIdx-1] = newNode.entries[0]
 
-			return true
-		}
+		// return true
+		// }
+	} else {
+		spew.Dump("no underflow")
 	}
 
 	return true
@@ -261,7 +287,7 @@ func (b *btree) search(entries []*entry, k key) (index int, exists bool) {
 		case k < entryKey:
 			high = mid - 1
 		case k == entryKey:
-			return mid, true
+			return mid + 1, true
 		}
 	}
 
@@ -282,7 +308,7 @@ func (n *node) isFull(order int) bool {
 // canSteal returns a bool indicating whether or not
 // the node contains enough entries to be able to take one
 func (n *node) canSteal(order int) bool {
-	return len(n.entries) > order/2
+	return len(n.entries) > int(math.Ceil(float64(order)/2.0))
 }
 
 // Returns true when the node has too few entries to
