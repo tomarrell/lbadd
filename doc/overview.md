@@ -4,11 +4,12 @@ Each component in the database serves an isolated purpose by design. This is to 
 
 ## Parser
 
-The parser is responsible for reading and interpreting the SQL queries which are sent to the database. The output is a structured representation of the query known as an abstract syntax tree.
+The parser is responsible for reading and understanding the structure the of SQL queries which are sent to the database.
+The output is a structured representation of the query known as an abstract syntax tree (AST).
 
 ## Codegen
 
-LBADD executes queries in a virtual machine like environment. This machine has a specific and defined representation known as the intermediary representation. This allows for better separation between the execution and query layers of the database.
+LBADD executes queries in a virtual machine like environment. This machine has a specific and defined representation known as the intermediary representation (IR), which can be understood as a UST. The IR is generated from an AST. This allows for better separation between the execution and query layers of the database and also makes multi-level optimization more easy.
 
 The codegen step in particular takes an abstract syntax tree and transforms it into the intermediary representation which can be executed by the virtual machine.
 
