@@ -4,7 +4,7 @@ Each component in the database serves an isolated purpose by design. This is to 
 
 ## Parser
 
-The parser is responsible for reading and understanding the structure the SQL queries which are sent to the database.
+The parser is responsible for reading and understanding the structure the of SQL queries which are sent to the database.
 The output is a structured representation of the query known as an abstract syntax tree (AST).
 
 ## Codegen
