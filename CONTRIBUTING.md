@@ -47,9 +47,9 @@ Once you feel that you've finished the tasks, and the tests are running, you can
 
 Tests and linting will be automatically run on your PR using Github Actions.
 
-Please assign one of the contributors, who will review your code and leave any feedback if necessary. If you do receive feedback, please do not be offended! We're trying to keep the quality standards high, and feedback is common, and will always be contructive. After a round of review and after any changes are made, then you're PR will be approved, and merged into the `master` branch.
+Please assign one of the contributors, who will review your code and leave any feedback if necessary. If you do receive feedback, please do not be offended! We're trying to keep the quality standards high, and feedback is common, and will always be constructive. After a round of review and after any changes are made, then you're PR will be approved, and merged into the `master` branch.
 
-Contratulations!
+Congratulations!
 
 ## Becoming a Maintainer
 
