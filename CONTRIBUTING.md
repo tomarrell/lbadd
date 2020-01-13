@@ -21,6 +21,8 @@ You'll need to have installed:
 - errcheck `master // TODO`
 - gosec `master // TODO`
 
+It's recommended to join the slack organization to discuss your plans for changes early on. You can also ask any questions you might have throughout the process, or get help if you get stuck. To join, use the [invite link](https://join.slack.com/t/lbadd/shared_invite/enQtODgzMDM5ODM4MDY5LTkzMzQ0ZjY0NDdjYzFiZDU0ZjNiYjQyMmZlMzRlZDU0MGJhNjgxZTA3MTA1N2M2YjM5Y2ZlNmUwNDc2MzgxZjg).
+
 ## Contributing
 
 On this separate branch, make the minimum set of changes that are required to fulfill the task. If possible, please also write clear, package prefixed commit messages in order to make reviews easier. Once you're happy with the changes you've made, please make sure that you've added tests, and that the existing tests pass. We aim for high test coverage, so you'll likely be asked to add tests around areas that you've missed.
