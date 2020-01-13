@@ -6,9 +6,10 @@ Firstly, no contribution is too small. If you see something that's not right, pl
 
 ## Where to start
 
-If you don't know where to start, have a look at the list of [issues](./issues). If you find something interesting, feel free to say so in a comment, and you can be assigned to the issue.
+If you don't know where to start, have a look at the list of [issues](./issues). If you find something interesting, feel free to say so in a comment, and you can be assigned to the issue. If you don't know specifically what you'd like to work on, feel free to open an issue with the label `work-wanted`, and someone will reach out to discuss the areas that are in need of contributions.
 
 If you don't find something in the issues, don't worry! There is **plenty** that is *likely not listed there*. If you think you have a clear idea about something that should be done, feel free to open an issue yourself and start a discussion. A maintainer will get back to you, and most likely assign you to the task or clarify some requirements beforehand.
+
 
 ## Project Setup
 
