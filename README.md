@@ -34,7 +34,7 @@ Work has also already been done to build a distributed version of SQLite called 
 LBADD aims to replicate these in a single project. LBADD doesn't aim to be nearly as performant as SQLite nor rqlite, and hopefully trades this instead for slightly more clarity and simplicity.
 
 ## Contributing
-Contributors are more than welcome and much appreciated. Please feel free to open a PR to improve anything you don't like, or would like to add. No PR is too small!
+Contributors are more than welcome and much appreciated. Please feel free to open a PR to improve anything you don't like, or would like to add. No PR is too small! Go check out our [contributing guide](./CONTRIBUTING.md) for more detailed info about how to get started with a contribution.
 
 ## License
 This project is licensed under the MIT license.
