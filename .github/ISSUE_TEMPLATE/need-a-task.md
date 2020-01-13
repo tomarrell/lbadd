@@ -3,7 +3,7 @@ name: Need a task
 about: Tell us that you want to contribute to the project
 title: ''
 labels: needs triage, work wanted
-assignees: TimSatke
+assignees: tomarrell, TimSatke
 
 ---
 
