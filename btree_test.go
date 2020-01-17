@@ -1135,6 +1135,95 @@ func Test_node_leftSibling(t *testing.T) {
 	}
 }
 
+func Test_node_rightSibling(t *testing.T) {
+	type fields struct {
+		parent *node
+	}
+	type args struct {
+		k key
+	}
+
+	tests := []struct {
+		name        string
+		fields      fields
+		args        args
+		wantSibling *node
+		wantExists  bool
+	}{
+		{
+			name: "no siblings",
+			fields: fields{
+				parent: &node{
+					entries:  []*entry{},
+					children: []*node{},
+				},
+			},
+			args:        args{k: 3},
+			wantSibling: nil,
+			wantExists:  false,
+		},
+		{
+			name: "right sibling exists",
+			fields: fields{
+				parent: &node{
+					entries: []*entry{{3, nil}},
+					children: []*node{
+						{entries: []*entry{{0, 0}, {1, 1}}},
+						{entries: []*entry{{3, 3}, {4, 4}}},
+					},
+				},
+			},
+			args:        args{k: 1},
+			wantSibling: &node{entries: []*entry{{3, 3}, {4, 4}}},
+			wantExists:  true,
+		},
+		{
+			name: "right sibling with parent on edge",
+			fields: fields{
+				parent: &node{
+					entries: []*entry{{3, nil}},
+					children: []*node{
+						{entries: []*entry{{0, 0}, {1, 1}}},
+						{entries: []*entry{{3, 3}, {4, 4}}},
+					},
+				},
+			},
+			args:        args{k: 2},
+			wantSibling: &node{entries: []*entry{{3, 3}, {4, 4}}},
+			wantExists:  true,
+		},
+		{
+			name: "no right siblings, node is already rightmost",
+			fields: fields{
+				parent: &node{
+					entries: []*entry{{3, nil}},
+					children: []*node{
+						{entries: []*entry{{0, 0}, {1, 1}}},
+						{entries: []*entry{{3, 3}, {4, 4}}},
+					},
+				},
+			},
+			args:        args{k: 3},
+			wantSibling: nil,
+			wantExists:  false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			fmt.Println()
+			fmt.Println(tt.name)
+			n := &node{
+				parent: tt.fields.parent,
+			}
+
+			gotSibling, gotExists := n.rightSibling(tt.args.k)
+			assert.Equal(t, tt.wantExists, gotExists)
+			assert.Equal(t, tt.wantSibling, gotSibling)
+		})
+	}
+}
+
 // Helper functions
 
 // Repairs all the parent pointers throughout a tree

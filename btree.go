@@ -321,7 +321,7 @@ func (n *node) leftSibling(k key) (sibling *node, exists bool) {
 func (n *node) rightSibling(k key) (sibling *node, exists bool) {
 	parIdx, _ := search(n.parent.entries, k)
 
-	if parIdx == len(n.parent.entries) {
+	if parIdx+1 >= len(n.parent.children) {
 		return nil, false
 	}
 
