@@ -11,6 +11,7 @@
 package lbadd
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/davecgh/go-spew/spew"
@@ -177,10 +178,14 @@ func (b *btree) remove(k key) (removed bool) {
 // k from the node, while maintaining the order invariants
 func (b *btree) removeNode(node *node, k key) (removed bool) {
 	idx, exists := b.search(node.entries, k)
-	spew.Dump(idx, k)
 
 	// If the node is not a leaf, we need to continue traversal
 	if !node.isLeaf() {
+		// If it exists, the idx is one less than what we need
+		if exists {
+			idx++
+		}
+		fmt.Println("traversing to on child index", idx)
 		return b.removeNode(node.children[idx], k)
 	}
 
@@ -195,10 +200,7 @@ func (b *btree) removeNode(node *node, k key) (removed bool) {
 
 	// Now we need to check if we've caused an underflow
 	if node.isUnderflowed(b.order) {
-		spew.Dump("underflow")
 		parIdx, _ := b.search(node.parent.entries, k)
-
-		spew.Dump(node.parent.children[parIdx].entries)
 
 		// Can steal from the left leaf sibling
 		if node.parent.children[parIdx].canSteal(b.order) {
@@ -206,10 +208,15 @@ func (b *btree) removeNode(node *node, k key) (removed bool) {
 		}
 
 		// Can steal from the right leaf sibling
-		rLeaf := node.parent.children[parIdx+1]
-		if rLeaf.canSteal(b.order) {
-			node.entries = append(node.entries, rLeaf.entries[0])
-			rLeaf.entries = rLeaf.entries[1:]
+		rleaf := node.parent.children[parIdx+1]
+		if rleaf.canSteal(b.order) {
+			// Append the right sibling's first entry to this node
+			node.entries = append(node.entries, rleaf.entries[0])
+			// Remove the right sibling's first entry
+			rleaf.entries = rleaf.entries[1:]
+			// Replace the parent key to the right sibling's first entry's key
+			node.parent.entries[idx] = &entry{rleaf.entries[0].key, nil}
+			return true
 		}
 
 		// Can't steal from either left or right, so we're going to have to merge
@@ -287,7 +294,7 @@ func (b *btree) search(entries []*entry, k key) (index int, exists bool) {
 		case k < entryKey:
 			high = mid - 1
 		case k == entryKey:
-			return mid + 1, true
+			return mid, true
 		}
 	}
 

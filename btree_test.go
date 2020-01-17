@@ -1,6 +1,7 @@
 package lbadd
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -704,7 +705,6 @@ func TestRemove_structure_2(t *testing.T) {
 		removeKeys []key
 		wantTree   *btree
 	}{
-		// TODO
 		{
 			name:       "remove 13",
 			haveTree:   tree(),
@@ -738,6 +738,8 @@ func TestRemove_structure_2(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			fmt.Println()
+			fmt.Println("Removing keys", tt.removeKeys)
 			for _, k := range tt.removeKeys {
 				assert.True(t, tt.haveTree.remove(k))
 			}
