@@ -46,26 +46,28 @@ func TestBTree(t *testing.T) {
 
 func TestGet(t *testing.T) {
 	cases := []struct {
-		name           string
-		root           *node
-		key            key
-		expectedExists bool
+		name       string
+		root       *node
+		key        key
+		wantEntry  *entry
+		wantExists bool
 	}{
 		{
-			name:           "no root",
-			root:           nil,
-			expectedExists: false,
+			name:       "no root",
+			root:       nil,
+			wantExists: false,
 		},
 		{
-			name:           "empty root",
-			root:           &node{},
-			expectedExists: false,
+			name:       "empty root",
+			root:       &node{},
+			wantExists: false,
 		},
 		{
-			name:           "entries only in root",
-			root:           &node{entries: []*entry{{1, 1}, {2, 2}, {3, 3}}},
-			key:            2,
-			expectedExists: true,
+			name:       "entries only in root",
+			root:       &node{entries: []*entry{{1, 1}, {2, 2}, {3, 3}}},
+			key:        2,
+			wantEntry:  &entry{2, 2},
+			wantExists: true,
 		},
 		{
 			name: "entry one level deep left of root",
@@ -76,8 +78,9 @@ func TestGet(t *testing.T) {
 					{entries: []*entry{{2, 2}, {3, 3}}},
 				},
 			},
-			key:            1,
-			expectedExists: true,
+			key:        1,
+			wantEntry:  &entry{1, 1},
+			wantExists: true,
 		},
 		{
 			name: "entry one level deep right of root",
@@ -88,8 +91,9 @@ func TestGet(t *testing.T) {
 					{entries: []*entry{{2, 2}, {3, 3}}},
 				},
 			},
-			key:            3,
-			expectedExists: true,
+			key:        3,
+			wantEntry:  &entry{3, 3},
+			wantExists: true,
 		},
 		{
 			name: "depth > 1 and key not exist",
@@ -100,8 +104,8 @@ func TestGet(t *testing.T) {
 					{entries: []*entry{{2, 2}, {3, 3}}},
 				},
 			},
-			key:            4,
-			expectedExists: false,
+			key:        4,
+			wantExists: false,
 		},
 		{
 			name: "depth = 3 found",
@@ -118,8 +122,9 @@ func TestGet(t *testing.T) {
 					},
 				},
 			},
-			key:            4,
-			expectedExists: true,
+			key:        4,
+			wantEntry:  &entry{4, 4},
+			wantExists: true,
 		},
 		{
 			name: "depth = 3 not found",
@@ -136,8 +141,8 @@ func TestGet(t *testing.T) {
 					},
 				},
 			},
-			key:            5,
-			expectedExists: false,
+			key:        5,
+			wantExists: false,
 		},
 	}
 
@@ -146,8 +151,9 @@ func TestGet(t *testing.T) {
 			btree := newBtree()
 			btree.root = tc.root
 
-			_, exists := btree.get(tc.key)
-			assert.Equal(t, tc.expectedExists, exists)
+			entry, exists := btree.get(tc.key)
+			assert.Equal(t, tc.wantEntry, entry)
+			assert.Equal(t, tc.wantExists, exists)
 		})
 	}
 }
@@ -172,14 +178,14 @@ func TestKeySearch(t *testing.T) {
 			entries: []*entry{{key: 1}},
 			key:     1,
 			exists:  true,
-			index:   0,
+			index:   1,
 		},
 		{
 			name:    "already exists",
 			entries: []*entry{{key: 1}, {key: 2}, {key: 4}, {key: 5}},
 			key:     4,
 			exists:  true,
-			index:   2,
+			index:   3,
 		},
 		{
 			name:    "doc example",
@@ -199,9 +205,7 @@ func TestKeySearch(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			bt := newBtree()
-
-			idx, exists := bt.search(tc.entries, tc.key)
+			idx, exists := search(tc.entries, tc.key)
 
 			assert.Equal(t, tc.exists, exists)
 			assert.Equal(t, tc.index, idx)
@@ -734,6 +738,34 @@ func TestRemove_structure_2(t *testing.T) {
 				}, nil),
 			},
 		},
+		{
+			name:       "remove 13, 15",
+			haveTree:   tree(),
+			removeKeys: []key{13, 15},
+			wantTree: &btree{
+				order: order,
+				size:  9,
+				root: repairParents(t, &node{
+					entries: []*entry{{11, nil}},
+					children: []*node{
+						{
+							entries: []*entry{{9, nil}},
+							children: []*node{
+								{entries: []*entry{{1, 1}, {4, 4}}},
+								{entries: []*entry{{9, 9}, {10, 10}}},
+							},
+						},
+						{
+							entries: []*entry{{13, nil}},
+							children: []*node{
+								{entries: []*entry{{11, 11}, {12, 12}}},
+								{entries: []*entry{{16, 16}, {20, 20}, {25, 25}}},
+							},
+						},
+					},
+				}, nil),
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -1010,6 +1042,95 @@ func Test_node_isLeaf(t *testing.T) {
 			if got := n.isLeaf(); got != tt.want {
 				t.Errorf("node.isLeaf() = %v, want %v", got, tt.want)
 			}
+		})
+	}
+}
+
+func Test_node_leftSibling(t *testing.T) {
+	type fields struct {
+		parent *node
+	}
+	type args struct {
+		k key
+	}
+
+	tests := []struct {
+		name        string
+		fields      fields
+		args        args
+		wantSibling *node
+		wantExists  bool
+	}{
+		{
+			name: "no siblings",
+			fields: fields{
+				parent: &node{
+					entries:  []*entry{},
+					children: []*node{},
+				},
+			},
+			args:        args{k: 3},
+			wantSibling: nil,
+			wantExists:  false,
+		},
+		{
+			name: "left sibling exists",
+			fields: fields{
+				parent: &node{
+					entries: []*entry{{3, nil}},
+					children: []*node{
+						{entries: []*entry{{0, 0}, {1, 1}}},
+						{entries: []*entry{{3, 3}, {4, 4}}},
+					},
+				},
+			},
+			args:        args{k: 4},
+			wantSibling: &node{entries: []*entry{{0, 0}, {1, 1}}},
+			wantExists:  true,
+		},
+		{
+			name: "left sibling with parent on edge",
+			fields: fields{
+				parent: &node{
+					entries: []*entry{{3, nil}},
+					children: []*node{
+						{entries: []*entry{{0, 0}, {1, 1}}},
+						{entries: []*entry{{3, 3}, {4, 4}}},
+					},
+				},
+			},
+			args:        args{k: 3},
+			wantSibling: &node{entries: []*entry{{0, 0}, {1, 1}}},
+			wantExists:  true,
+		},
+		{
+			name: "no left siblings, node is already leftmost",
+			fields: fields{
+				parent: &node{
+					entries: []*entry{{3, nil}},
+					children: []*node{
+						{entries: []*entry{{0, 0}, {1, 1}}},
+						{entries: []*entry{{3, 3}, {4, 4}}},
+					},
+				},
+			},
+			args:        args{k: 0},
+			wantSibling: nil,
+			wantExists:  false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			fmt.Println()
+			fmt.Println(tt.name)
+			n := &node{
+				parent: tt.fields.parent,
+			}
+
+			gotSibling, gotExists := n.leftSibling(tt.args.k)
+			assert.Equal(t, tt.wantExists, gotExists)
+			assert.Equal(t, tt.wantSibling, gotSibling)
 		})
 	}
 }

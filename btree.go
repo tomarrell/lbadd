@@ -13,8 +13,6 @@ package lbadd
 import (
 	"fmt"
 	"math"
-
-	"github.com/davecgh/go-spew/spew"
 )
 
 const defaultOrder = 3
@@ -97,9 +95,9 @@ func (b *btree) get(k key) (result *entry, exists bool) {
 }
 
 func (b *btree) getNode(node *node, k key) (result *entry, exists bool) {
-	i, exists := b.search(node.entries, k)
-	if exists {
-		return node.entries[i], true
+	i, exists := search(node.entries, k)
+	if exists && node.isLeaf() {
+		return node.entries[i-1], true
 	}
 
 	if i > len(node.children) {
@@ -133,11 +131,11 @@ func (b *btree) insertNode(node *node, entry *entry) (inserted bool) {
 	}
 
 	// Search for the key in the node's entries
-	idx, exists := b.search(node.entries, entry.key)
+	idx, exists := search(node.entries, entry.key)
 
 	// The entry already exists, so it should be updated
 	if exists {
-		node.entries[idx] = entry
+		node.entries[idx-1] = entry
 		return false
 	}
 
@@ -177,15 +175,13 @@ func (b *btree) remove(k key) (removed bool) {
 // removeNode takes a node and key and bool, and recursively deletes
 // k from the node, while maintaining the order invariants
 func (b *btree) removeNode(node *node, k key) (removed bool) {
-	idx, exists := b.search(node.entries, k)
+	idx, exists := search(node.entries, k)
 
 	// If the node is not a leaf, we need to continue traversal
 	if !node.isLeaf() {
 		// If it exists, the idx is one less than what we need
-		if exists {
-			idx++
-		}
 		fmt.Println("traversing to on child index", idx)
+		fmt.Println(len(node.children))
 		return b.removeNode(node.children[idx], k)
 	}
 
@@ -195,54 +191,35 @@ func (b *btree) removeNode(node *node, k key) (removed bool) {
 	}
 
 	// Ok, so we've found the key, now we need to remove it.
-	node.entries = append(node.entries[:idx], node.entries[idx+1:]...)
+	node.entries = append(node.entries[:idx-1], node.entries[idx:]...)
 	b.size--
 
 	// Now we need to check if we've caused an underflow
 	if node.isUnderflowed(b.order) {
-		parIdx, _ := b.search(node.parent.entries, k)
-
 		// Can steal from the left leaf sibling
-		if node.parent.children[parIdx].canSteal(b.order) {
+		lleaf, exists := node.leftSibling(k)
+		if exists && lleaf.canSteal(b.order) {
 			panic("can steal from left sibling")
 		}
 
 		// Can steal from the right leaf sibling
-		rleaf := node.parent.children[parIdx+1]
-		if rleaf.canSteal(b.order) {
+		rleaf, exists := node.rightSibling(k)
+		if exists && rleaf.canSteal(b.order) {
 			// Append the right sibling's first entry to this node
 			node.entries = append(node.entries, rleaf.entries[0])
 			// Remove the right sibling's first entry
 			rleaf.entries = rleaf.entries[1:]
 			// Replace the parent key to the right sibling's first entry's key
-			node.parent.entries[idx] = &entry{rleaf.entries[0].key, nil}
+			node.parent.entries[idx-1] = &entry{rleaf.entries[0].key, nil}
 			return true
 		}
 
 		// Can't steal from either left or right, so we're going to have to merge
+		fmt.Println("found nothing to steal")
 
-		// Find the previous sibling node at the same height through the parent, and
-		// merge the entries in the two nodes.
-		// parIdx, _ := b.search(node.parent.entries, k)
-		// node.entries = append(node.parent.children[parIdx-1].entries, node.entries...)
-
-		// // If the set of merged entries is greater than the number needed to have
-		// // two separate nodes given the order invariants, then we need to do a
-		// // split, update the entries
-		// if node.canSplit(b.order) {
-		// newNode := node.split()
-		// // Update the current node's entries to be the right set of split entries
-		// node.entries = newNode.children[1].entries
-		// // Update the left leaf sibling's entries to be the left set of split
-		// // entries
-		// node.parent.children[parIdx-1].entries = newNode.children[0].entries
-		// // Replace the index entry in the parent
-		// node.parent.entries[parIdx-1] = newNode.entries[0]
-
-		// return true
-		// }
+		return false
 	} else {
-		spew.Dump("no underflow")
+		fmt.Println("no underflow")
 	}
 
 	return true
@@ -277,7 +254,7 @@ func (b *btree) getBetween(low, high key, limit int) []*entry {
 // other entries' keys.
 // e.g.
 //       b.search([1, 2, 4], 3) => (2, false)
-func (b *btree) search(entries []*entry, k key) (index int, exists bool) {
+func search(entries []*entry, k key) (index int, exists bool) {
 	var (
 		low  = 0
 		mid  = 0
@@ -294,7 +271,7 @@ func (b *btree) search(entries []*entry, k key) (index int, exists bool) {
 		case k < entryKey:
 			high = mid - 1
 		case k == entryKey:
-			return mid, true
+			return mid + 1, true
 		}
 	}
 
@@ -328,6 +305,27 @@ func (n *node) isUnderflowed(order int) bool {
 // two children while maintaining the invariants
 func (n *node) canSplit(order int) bool {
 	return float64(len(n.entries)) >= 2*math.Ceil(float64(order)/2.0)
+}
+
+// leftSibling returns the left sibling if it exists, indicating such
+func (n *node) leftSibling(k key) (sibling *node, exists bool) {
+	parIdx, exists := search(n.parent.entries, k)
+	if parIdx == 0 {
+		return nil, false
+	}
+
+	return n.parent.children[parIdx-1], true
+}
+
+// rightSibling returns the left sibling if it exists, indicating such
+func (n *node) rightSibling(k key) (sibling *node, exists bool) {
+	parIdx, _ := search(n.parent.entries, k)
+
+	if parIdx == len(n.parent.entries) {
+		return nil, false
+	}
+
+	return n.parent.children[parIdx+1], true
 }
 
 // Splits a full node to have a single, median,
