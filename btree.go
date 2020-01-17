@@ -181,7 +181,6 @@ func (b *btree) removeNode(node *node, k key) (removed bool) {
 	if !node.isLeaf() {
 		// If it exists, the idx is one less than what we need
 		fmt.Println("traversing to on child index", idx)
-		fmt.Println(len(node.children))
 		return b.removeNode(node.children[idx], k)
 	}
 
@@ -216,6 +215,18 @@ func (b *btree) removeNode(node *node, k key) (removed bool) {
 
 		// Can't steal from either left or right, so we're going to have to merge
 		fmt.Println("found nothing to steal")
+
+		// Try to merge left
+		_, exists = node.leftSibling(k)
+		if exists {
+			panic("can merge into left sibling")
+		}
+
+		dest, exists := node.rightSibling(k)
+		if exists {
+			fmt.Println(dest)
+			panic("can merge into right sibling")
+		}
 
 		return false
 	} else {
