@@ -43,9 +43,9 @@ const (
 	KeywordCreate
 	KeywordCross
 	KeywordCurrent
-	KeywordCurrent_date
-	KeywordCurrent_time
-	KeywordCurrent_timestamp
+	KeywordCurrentDate
+	KeywordCurrentTime
+	KeywordCurrentTimestamp
 	KeywordDatabase
 	KeywordDefault
 	KeywordDeferrable
