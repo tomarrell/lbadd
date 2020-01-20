@@ -1,10 +1,49 @@
 package parser
 
 import (
+	"fmt"
 	"github.com/tomarrell/lbadd/internal/parser/ast"
 	"github.com/tomarrell/lbadd/internal/parser/scanner"
 	"github.com/tomarrell/lbadd/internal/parser/scanner/token"
 )
+
+type errorReporter struct {
+	p      *simpleParser
+	errs   []error
+	sealed bool
+}
+
+func (r *errorReporter) prematureEOF() {
+	r.errs = append(r.errs, fmt.Errorf("%w", ErrPrematureEOF))
+	r.sealed = true
+}
+
+func (r *errorReporter) unexpectedToken(expected ...token.Type) {
+	if r.sealed {
+		return
+	}
+	next, ok := r.p.lookahead()
+	if !ok || next.Type() == token.EOF {
+		// use this instead of r.prematureEOF() because we can add the
+		// information about what tokens were expected
+		r.errs = append(r.errs, fmt.Errorf("%w: expected %s", ErrPrematureEOF, expected))
+		r.sealed = true
+		return
+	}
+
+	r.errs = append(r.errs, fmt.Errorf("%w: got %s but expected one of %s at (%d:%d) offset %d length %d", ErrUnexpectedToken, next, expected, next.Line(), next.Col(), next.Offset(), next.Length()))
+}
+
+func (r *errorReporter) unhandledToken(t token.Token) {
+	r.errs = append(r.errs, fmt.Errorf("%w: %s(%s) at (%d:%d) offset %d lenght %d", ErrUnknownToken, t.Type().String(), t.Value(), t.Line(), t.Col(), t.Offset(), t.Length()))
+	r.sealed = true
+}
+
+type reporter interface {
+	prematureEOF()
+	unexpectedToken(expected ...token.Type)
+	unhandledToken(t token.Token)
+}
 
 var _ Parser = (*simpleParser)(nil) // ensure that simpleParser implements Parser
 
@@ -16,43 +55,99 @@ func New() Parser {
 	return &simpleParser{}
 }
 
-func (p *simpleParser) HasNext() bool {
-	panic("implement me")
-}
-
-func (p *simpleParser) Next() *ast.SqlStmt {
-	if !p.HasNext() {
-		panic("no more statements, check with HasNext() before calling Next()")
+func (p *simpleParser) Next() (*ast.SQLStmt, []error, bool) {
+	if !p.scanner.HasNext() {
+		return nil, nil, false
 	}
-	panic("implement me")
+	errs := &errorReporter{
+		p: p,
+	}
+	stmt := p.parseSQLStatement(errs)
+	return stmt, errs.errs, true
 }
 
-func (p *simpleParser) expect(t token.Type) (token.Token, bool) {
+// skipUntil skips tokens until a token is of one of the given types. That token
+// will not be consumed, every other token will be consumed and an unexpected
+// token error will be reported.
+func (p *simpleParser) skipUntil(r reporter, types ...token.Type) {
+	for {
+		next, ok := p.lookahead()
+		if !ok || next.Type() == token.StatementSeparator {
+			return
+		}
+		for _, typ := range types {
+			if next.Type() == typ {
+				break
+			}
+		}
+		r.unexpectedToken(types...)
+		p.consumeToken()
+	}
+}
+
+func (p *simpleParser) lookahead() (next token.Token, hasNext bool) {
 	if !p.scanner.HasNext() {
 		return nil, false
 	}
 
-	// check if the next token's type matches
-	tk := p.scanner.Peek()
-	if tk.Type() == t {
-		return p.scanner.Next(), true // if it matches, consume the token
-	}
-	return tk, false
+	return p.scanner.Peek(), true
 }
 
-func (p *simpleParser) parseSqlStatement() *ast.SqlStmt {
-	_, _ = p.expect(token.KeywordExplain)
-	// TODO(TimSatke): QUERY PLAN
+func (p *simpleParser) lookaheadWithType(typ token.Type) (token.Token, bool) {
+	next, hasNext := p.lookahead()
+	return next, hasNext && next.Type() == typ
+}
 
-	if !p.scanner.HasNext() {
-		panic("implement error handling")
+func (p *simpleParser) consumeToken() {
+	_ = p.scanner.Next()
+}
+
+func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
+	stmt = &ast.SQLStmt{}
+
+	if next, ok := p.lookaheadWithType(token.KeywordExplain); ok {
+		stmt.Explain = next
+		p.consumeToken()
+
+		if next, ok := p.lookaheadWithType(token.KeywordQuery); ok {
+			stmt.Query = next
+			p.consumeToken()
+
+			if next, ok := p.lookaheadWithType(token.KeywordPlan); ok {
+				stmt.Plan = next
+				p.consumeToken()
+			} else {
+				r.unexpectedToken(token.KeywordPlan)
+				// At this point, just assume that 'QUERY' was a mistake. Don't
+				// abort, because it's very unlikely that 'PLAN' occurs
+				// somewhere, so assume that the user meant to input 'EXPLAIN
+				// <statement>' instead of 'EXPLAIN QUERY PLAN <statement>'.
+			}
+		}
 	}
 
-	next := p.scanner.Next()
-	switch next.Type() {
-	default:
-		panic("implement next rules")
+	retry := true
+	for retry {
+		retry = false
+
+		next, hasNext := p.lookahead()
+		if !hasNext || next.Type() == token.StatementSeparator || next.Type() == token.EOF {
+			r.prematureEOF()
+			return
+		}
+
+		switch next.Type() {
+		case token.KeywordAlter:
+			stmt.AlterTableStmt = p.parseAlterTableStmt(r)
+		default:
+			r.unhandledToken(next)
+			retry = true
+		}
 	}
 
+	panic("didn't return a statement even after retrying all tokens")
+}
+
+func (p *simpleParser) parseAlterTableStmt(r reporter) *ast.AlterTableStmt {
 	panic("implement me")
 }
