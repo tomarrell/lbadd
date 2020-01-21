@@ -162,4 +162,6 @@ const (
 	KeywordWindow
 	KeywordWith
 	KeywordWithout
+
+	Literal
 )
