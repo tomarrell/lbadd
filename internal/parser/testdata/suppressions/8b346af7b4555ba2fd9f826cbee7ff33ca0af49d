@@ -1,0 +1,9 @@
+panic: implement me
+github.com/tomarrell/lbadd/internal/parser/scanner.(*scanner).Peek
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).lookahead
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).lookaheadWithType
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseSQLStatement
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).Next
+github.com/tomarrell/lbadd/internal/parser.Fuzz
+go-fuzz-dep.Main
+main.main
