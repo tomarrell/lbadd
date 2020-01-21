@@ -10,10 +10,11 @@ func (s sentinel) Error() string { return string(s) }
 
 // parser errors
 const (
-	ErrIncompleteStatement = sentinel("incomplete statement")
-	ErrPrematureEOF        = sentinel("unexpectedly reached EOF")
-	ErrUnexpectedToken     = sentinel("unexpected token")
-	ErrUnknownToken        = sentinel("unknown token")
+	ErrIncompleteStatement  = sentinel("incomplete statement")
+	ErrPrematureEOF         = sentinel("unexpectedly reached EOF")
+	ErrUnexpectedToken      = sentinel("unexpected token")
+	ErrUnknownToken         = sentinel("unknown token")
+	ErrUnsupportedConstruct = sentinel("unsupported construct")
 )
 
 type Parser interface {
