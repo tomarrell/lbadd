@@ -454,7 +454,87 @@ type (
 // Other
 type (
 	Expr struct {
-		// TODO(TimSatke)
+		LiteralValue   token.Token
+		BindParameter  token.Token
+		SchemaName     token.Token
+		Period1        token.Token
+		TableName      token.Token
+		Period2        token.Token
+		ColumnName     token.Token
+		UnaryOperator  token.Token
+		Expr1          *Expr
+		BinaryOperator token.Token
+		Expr2          *Expr
+		FunctionName   token.Token
+		LeftParen      token.Token
+		Asterisk       token.Token
+		Distinct       token.Token
+		Expr           []*Expr
+		RightParen     token.Token
+		FilterClause   *FilterClause
+		OverClause     *OverClause
+		Cast           token.Token
+		As             token.Token
+		TypeName       token.Token
+		Collate        token.Token
+		CollationName  token.Token
+		Not            token.Token
+		Like           token.Token
+		Glob           token.Token
+		Regexp         token.Token
+		Match          token.Token
+		Escape         token.Token
+		Expr3          *Expr
+		Isnull         token.Token
+		Notnull        token.Token
+		Null           token.Token
+		Is             token.Token
+		Between        token.Token
+		In             token.Token
+		SelectStmt     *SelectStmt
+		TableFunction  token.Token
+		Exists         token.Token
+		Case           token.Token
+		When           token.Token
+		Then           token.Token
+		Else           token.Token
+		Expr4          *Expr
+		End            token.Token
+		RaiseFunction  *RaiseFunction
+	}
+
+	FilterClause struct {
+		Filter     token.Token
+		LeftParen  token.Token
+		Where      token.Token
+		Expr       *Expr
+		RightParen token.Token
+	}
+
+	OverClause struct {
+		Over           token.Token
+		WindowName     token.Token
+		LeftParen      token.Token
+		BaseWindowName token.Token
+		Partition      token.Token
+		By             token.Token
+		Expr           []*Expr
+		Order          token.Token
+		OrderingTerm   []*OrderingTerm
+		FrameSpec      *FrameSpec
+		RightParen     token.Token
+	}
+
+	RaiseFunction struct {
+		Raise        token.Token
+		LeftParen    token.Token
+		Ignore       token.Token
+		Rollback     token.Token
+		Abort        token.Token
+		Fail         token.Token
+		Comma        token.Token
+		ErrorMessage token.Token
+		RightParen   token.Token
 	}
 
 	OrderingTerm struct {
