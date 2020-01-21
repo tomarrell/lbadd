@@ -148,6 +148,6 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 	panic("didn't return a statement even after retrying all tokens")
 }
 
-func (p *simpleParser) parseAlterTableStmt(r reporter) *ast.AlterTableStmt {
+func (p *simpleParser) parseAlterTableStmt(r reporter) (stmt *ast.AlterTableStmt) {
 	panic("implement me")
 }
