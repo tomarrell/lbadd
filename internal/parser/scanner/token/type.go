@@ -15,6 +15,10 @@ const (
 	// (if not already done) the AST, as he know knows of all tokens.
 	EOF
 
+	// StatementSeparator is the type of tokens that represent a single
+	// semicolon, as a single semicolon separates multiple sql statements.
+	StatementSeparator
+
 	KeywordAbort
 	KeywordAction
 	KeywordAdd
@@ -43,9 +47,9 @@ const (
 	KeywordCreate
 	KeywordCross
 	KeywordCurrent
-	KeywordCurrent_date
-	KeywordCurrent_time
-	KeywordCurrent_timestamp
+	KeywordCurrentDate
+	KeywordCurrentTime
+	KeywordCurrentTimestamp
 	KeywordDatabase
 	KeywordDefault
 	KeywordDeferrable
