@@ -16,5 +16,8 @@ func Fuzz(data []byte) int {
 			panic("stmt must never be nil")
 		}
 	}
+	if foundErrors {
+		return 0
+	}
 	return 1
 }
