@@ -4,8 +4,9 @@ import (
 	"github.com/tomarrell/lbadd/internal/parser/scanner/token"
 )
 
-// Statement
+// All AST nodes.
 type (
+	// SQLStmt as in the SQLite grammar.
 	SQLStmt struct {
 		Explain token.Token
 		Query   token.Token
@@ -29,18 +30,17 @@ type (
 		DropTriggerStmt        *DropTriggerStmt
 		DropViewStmt           *DropViewStmt
 		InsertStmt             *InsertStmt
-		// not supported
-		// PragmaStmt             *PragmaStmt
-		ReindexStmt       *ReindexStmt
-		ReleaseStmt       *ReleaseStmt
-		RollbackStmt      *RollbackStmt
-		SavepointStmt     *SavepointStmt
-		SelectStmt        *SelectStmt
-		UpdateStmt        *UpdateStmt
-		UpdateStmtLimited *UpdateStmtLimited
-		VacuumStmt        *VacuumStmt
+		ReindexStmt            *ReindexStmt
+		ReleaseStmt            *ReleaseStmt
+		RollbackStmt           *RollbackStmt
+		SavepointStmt          *SavepointStmt
+		SelectStmt             *SelectStmt
+		UpdateStmt             *UpdateStmt
+		UpdateStmtLimited      *UpdateStmtLimited
+		VacuumStmt             *VacuumStmt
 	}
 
+	// AlterTableStmt as in the SQLite grammar.
 	AlterTableStmt struct {
 		Alter         token.Token
 		Table         token.Token
@@ -57,6 +57,7 @@ type (
 		ColumnDef     *ColumnDef
 	}
 
+	// AnalyzeStmt as in the SQLite grammar.
 	AnalyzeStmt struct {
 		Analyze          token.Token
 		SchemaName       token.Token
@@ -64,6 +65,7 @@ type (
 		Period           token.Token
 	}
 
+	// AttachStmt as in the SQLite grammar.
 	AttachStmt struct {
 		Attach     token.Token
 		Database   token.Token
@@ -72,6 +74,7 @@ type (
 		SchemaName token.Token
 	}
 
+	// BeginStmt as in the SQLite grammar.
 	BeginStmt struct {
 		Begin       token.Token
 		Deferred    token.Token
@@ -80,12 +83,14 @@ type (
 		Transaction token.Token
 	}
 
+	// CommitStmt as in the SQLite grammar.
 	CommitStmt struct {
 		Commit      token.Token
 		End         token.Token
 		Transaction token.Token
 	}
 
+	// CreateIndexStmt as in the SQLite grammar.
 	CreateIndexStmt struct {
 		Create         token.Token
 		Unique         token.Token
@@ -105,6 +110,7 @@ type (
 		Expr           *Expr
 	}
 
+	// CreateTableStmt as in the SQLite grammar.
 	CreateTableStmt struct {
 		Create          token.Token
 		Temp            token.Token
@@ -126,6 +132,7 @@ type (
 		SelectStmt      *SelectStmt
 	}
 
+	// CreateTriggerStmt as in the SQLite grammar.
 	CreateTriggerStmt struct {
 		Create      token.Token
 		Temp        token.Token
@@ -161,6 +168,7 @@ type (
 		End         token.Token
 	}
 
+	// CreateViewStmt as in the SQLite grammar.
 	CreateViewStmt struct {
 		Create     token.Token
 		Temp       token.Token
@@ -179,6 +187,7 @@ type (
 		SelectStmt *SelectStmt
 	}
 
+	// CreateVirtualTableStmt as in the SQLite grammar.
 	CreateVirtualTableStmt struct {
 		Create         token.Token
 		Virtual        token.Token
@@ -196,6 +205,7 @@ type (
 		RightParen     token.Token
 	}
 
+	// DeleteStmt as in the SQLite grammar.
 	DeleteStmt struct {
 		WithClause         *WithClause
 		Delete             token.Token
@@ -205,6 +215,7 @@ type (
 		Expr               *Expr
 	}
 
+	// DeleteStmtLimited as in the SQLite grammar.
 	DeleteStmtLimited struct {
 		*DeleteStmt
 		Order        token.Token
@@ -217,12 +228,14 @@ type (
 		Expr3        *Expr
 	}
 
+	// DetachStmt as in the SQLite grammar.
 	DetachStmt struct {
 		Detach     token.Token
 		Database   token.Token
 		SchemaName token.Token
 	}
 
+	// DropIndexStmt as in the SQLite grammar.
 	DropIndexStmt struct {
 		Drop       token.Token
 		Index      token.Token
@@ -233,6 +246,7 @@ type (
 		IndexName  token.Token
 	}
 
+	// DropTableStmt as in the SQLite grammar.
 	DropTableStmt struct {
 		Drop       token.Token
 		Table      token.Token
@@ -243,6 +257,7 @@ type (
 		TableName  token.Token
 	}
 
+	// DropTriggerStmt as in the SQLite grammar.
 	DropTriggerStmt struct {
 		Drop        token.Token
 		Trigger     token.Token
@@ -253,6 +268,7 @@ type (
 		TriggerName token.Token
 	}
 
+	// DropViewStmt as in the SQLite grammar.
 	DropViewStmt struct {
 		Drop       token.Token
 		View       token.Token
@@ -263,6 +279,7 @@ type (
 		ViewName   token.Token
 	}
 
+	// QualifiedTableName as in the SQLite grammar.
 	QualifiedTableName struct {
 		SchemaName token.Token
 		Period     token.Token
@@ -275,6 +292,7 @@ type (
 		IndexName  token.Token
 	}
 
+	// InsertStmt as in the SQLite grammar.
 	InsertStmt struct {
 		WithClause               *WithClause
 		Insert                   token.Token
@@ -300,12 +318,14 @@ type (
 		UpsertClause             *UpsertClause
 	}
 
+	// ParenthesizedExpressions as in the SQLite grammar.
 	ParenthesizedExpressions struct {
 		LeftParen  token.Token
 		Exprs      []*Expr
 		RightParen token.Token
 	}
 
+	// ReindexStmt as in the SQLite grammar.
 	ReindexStmt struct {
 		Reindex          token.Token
 		CollationName    token.Token
@@ -314,17 +334,20 @@ type (
 		TableOrIndexName token.Token
 	}
 
+	// SavepointStmt as in the SQLite grammar.
 	SavepointStmt struct {
 		Savepoint     token.Token
 		SavepointName token.Token
 	}
 
+	// ReleaseStmt as in the SQLite grammar.
 	ReleaseStmt struct {
 		Release       token.Token
 		Savepoint     token.Token
 		SavepointName token.Token
 	}
 
+	// RollbackStmt as in the SQLite grammar.
 	RollbackStmt struct {
 		Rollback      token.Token
 		Transaction   token.Token
@@ -333,6 +356,7 @@ type (
 		SavepointName token.Token
 	}
 
+	// SelectStmt as in the SQLite grammar.
 	SelectStmt struct {
 		With                  token.Token
 		Recursive             token.Token
@@ -348,6 +372,7 @@ type (
 		Expr2                 *Expr
 	}
 
+	// SelectCore as in the SQLite grammar.
 	SelectCore struct {
 		Select                   token.Token
 		Distinct                 token.Token
@@ -370,6 +395,7 @@ type (
 		CompoundOperator         *CompoundOperator
 	}
 
+	// UpdateStmt as in the SQLite grammar.
 	UpdateStmt struct {
 		WithClause         *WithClause
 		Update             token.Token
@@ -386,6 +412,7 @@ type (
 		Expr               *Expr
 	}
 
+	// UpdateSetter as in the SQLite grammar.
 	UpdateSetter struct {
 		ColumnName     token.Token
 		ColumnNameList *ColumnNameList
@@ -393,6 +420,7 @@ type (
 		Expr           *Expr
 	}
 
+	// UpdateStmtLimited as in the SQLite grammar.
 	UpdateStmtLimited struct {
 		*UpdateStmt
 		Order        token.Token
@@ -405,6 +433,7 @@ type (
 		Expr2        *Expr
 	}
 
+	// UpsertClause as in the SQLite grammar.
 	UpsertClause struct {
 		On            token.Token
 		Conflict      token.Token
@@ -422,6 +451,7 @@ type (
 		Expr2         *Expr
 	}
 
+	// VacuumStmt as in the SQLite grammar.
 	VacuumStmt struct {
 		Vacuum     token.Token
 		SchemaName token.Token
@@ -429,12 +459,14 @@ type (
 		Filename   token.Token
 	}
 
+	// WithClause as in the SQLite grammar.
 	WithClause struct {
 		With         token.Token
 		Recursive    token.Token
 		RecursiveCte []*RecursiveCte
 	}
 
+	// RecursiveCte as in the SQLite grammar.
 	RecursiveCte struct {
 		CteTableName *CteTableName
 		As           token.Token
@@ -443,16 +475,15 @@ type (
 		RightParen   token.Token
 	}
 
+	// CteTableName as in the SQLite grammar.
 	CteTableName struct {
 		TableName  token.Token
 		LeftParen  token.Token
 		ColumnName []token.Token
 		RightParen token.Token
 	}
-)
 
-// Other
-type (
+	// Expr as in the SQLite grammar.
 	Expr struct {
 		LiteralValue   token.Token
 		BindParameter  token.Token
@@ -475,7 +506,6 @@ type (
 		OverClause     *OverClause
 		Cast           token.Token
 		As             token.Token
-		TypeName       token.Token
 		Collate        token.Token
 		CollationName  token.Token
 		Not            token.Token
@@ -503,6 +533,7 @@ type (
 		RaiseFunction  *RaiseFunction
 	}
 
+	// FilterClause as in the SQLite grammar.
 	FilterClause struct {
 		Filter     token.Token
 		LeftParen  token.Token
@@ -511,6 +542,7 @@ type (
 		RightParen token.Token
 	}
 
+	// OverClause as in the SQLite grammar.
 	OverClause struct {
 		Over           token.Token
 		WindowName     token.Token
@@ -525,6 +557,7 @@ type (
 		RightParen     token.Token
 	}
 
+	// RaiseFunction as in the SQLite grammar.
 	RaiseFunction struct {
 		Raise        token.Token
 		LeftParen    token.Token
@@ -537,6 +570,7 @@ type (
 		RightParen   token.Token
 	}
 
+	// OrderingTerm as in the SQLite grammar.
 	OrderingTerm struct {
 		Expr          *Expr
 		Collate       token.Token
@@ -548,6 +582,7 @@ type (
 		Last          token.Token
 	}
 
+	// ResultColumn as in the SQLite grammar.
 	ResultColumn struct {
 		Expr        *Expr
 		As          token.Token
@@ -556,16 +591,15 @@ type (
 		TableName   token.Token
 		Period      token.Token
 	}
-)
 
-// Window
-type (
+	// NamedWindow as in the SQLite grammar.
 	NamedWindow struct {
 		WindowName token.Token
 		As         token.Token
 		WindowDefn *WindowDefn
 	}
 
+	// WindowDefn as in the SQLite grammar.
 	WindowDefn struct {
 		LeftParen      token.Token
 		BaseWindowName token.Token
@@ -578,6 +612,7 @@ type (
 		RightParen     token.Token
 	}
 
+	// FrameSpec as in the SQLite grammar.
 	FrameSpec struct {
 		Range      token.Token
 		Rows       token.Token
@@ -604,10 +639,8 @@ type (
 		Group      token.Token
 		Ties       token.Token
 	}
-)
 
-// Table
-type (
+	// TableConstraint as in the SQLite grammar.
 	TableConstraint struct {
 		Constraint       token.Token
 		Name             token.Token
@@ -625,6 +658,7 @@ type (
 		ForeignKeyClause *ForeignKeyClause
 	}
 
+	// ForeignKeyClause as in the SQLite grammar.
 	ForeignKeyClause struct {
 		References   token.Token
 		ForeignTable token.Token
@@ -650,6 +684,7 @@ type (
 		Immediate    token.Token
 	}
 
+	// CommonTableExpression as in the SQLite grammar.
 	CommonTableExpression struct {
 		TableName   token.Token
 		LeftParen1  token.Token
@@ -661,6 +696,7 @@ type (
 		RightParen2 token.Token
 	}
 
+	// CompoundOperator as in the SQLite grammar.
 	CompoundOperator struct {
 		Union     token.Token
 		All       token.Token
@@ -668,6 +704,7 @@ type (
 		Except    token.Token
 	}
 
+	// TableOrSubquery as in the SQLite grammar.
 	TableOrSubquery struct {
 		SchemaName        token.Token
 		Period            token.Token
@@ -686,21 +723,21 @@ type (
 		TableOrSubquery   []*TableOrSubquery
 		SelectStmt        *SelectStmt
 	}
-)
 
-// Join
-type (
+	// JoinClause as in the SQLite grammar.
 	JoinClause struct {
 		TableOrSubquery *TableOrSubquery
 		JoinClausePart  *JoinClausePart
 	}
 
+	// JoinClausePart as in the SQLite grammar.
 	JoinClausePart struct {
 		JoinOperator    *JoinOperator
 		TableOrSubquery *TableOrSubquery
 		JoinConstraint  *JoinConstraint
 	}
 
+	// JoinConstraint as in the SQLite grammar.
 	JoinConstraint struct {
 		On         token.Token
 		Expr       *Expr
@@ -710,6 +747,7 @@ type (
 		RightParen token.Token
 	}
 
+	// JoinOperator as in the SQLite grammar.
 	JoinOperator struct {
 		Comma   token.Token
 		Natural token.Token
@@ -719,16 +757,14 @@ type (
 		Cross   token.Token
 		Join    token.Token
 	}
-)
 
-// Column
-type (
+	// ColumnDef as in the SQLite grammar.
 	ColumnDef struct {
 		ColumnName       token.Token
-		TypeName         *TypeName
 		ColumnConstraint []*ColumnConstraint
 	}
 
+	// ColumnConstraint as in the SQLite grammar.
 	ColumnConstraint struct {
 		Constraint       token.Token
 		Name             token.Token
@@ -753,12 +789,14 @@ type (
 		ForeignKeyClause *ForeignKeyClause
 	}
 
+	// ColumnNameList as in the SQLite grammar.
 	ColumnNameList struct {
 		LeftParen  token.Token
 		ColumnName []token.Token
 		RightParen token.Token
 	}
 
+	// ConflictClause as in the SQLite grammar.
 	ConflictClause struct {
 		On       token.Token
 		Conflict token.Token
@@ -769,6 +807,7 @@ type (
 		Replace  token.Token
 	}
 
+	// TypeName as in the SQLite grammar.
 	TypeName struct {
 		Name          []token.Token
 		LeftParen     token.Token
@@ -778,6 +817,7 @@ type (
 		RightParen    token.Token
 	}
 
+	// IndexedColumn as in the SQLite grammar.
 	IndexedColumn struct {
 		ColumnName    token.Token
 		Expr          *Expr

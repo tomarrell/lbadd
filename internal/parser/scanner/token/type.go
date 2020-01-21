@@ -1,8 +1,11 @@
 package token
 
 //go:generate stringer -type=Type
+
+// Type is the type of a token.
 type Type uint16
 
+// All available token types.
 const (
 	Unknown Type = iota
 	// Error indicates that a syntax error has been detected by the lexical

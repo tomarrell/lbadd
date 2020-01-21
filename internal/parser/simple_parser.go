@@ -69,6 +69,7 @@ type simpleParser struct {
 	scanner scanner.Scanner
 }
 
+// New creates new ready to use parser.
 func New(input string) Parser {
 	return &simpleParser{
 		scanner: scanner.New([]rune(input)),
