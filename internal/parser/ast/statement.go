@@ -29,15 +29,16 @@ type (
 		DropTriggerStmt        *DropTriggerStmt
 		DropViewStmt           *DropViewStmt
 		InsertStmt             *InsertStmt
-		PragmaStmt             *PragmaStmt
-		ReindexStmt            *ReindexStmt
-		ReleaseStmt            *ReleaseStmt
-		RollbackStmt           *RollbackStmt
-		SavepointStmt          *SavepointStmt
-		SelectStmt             *SelectStmt
-		UpdateStmt             *UpdateStmt
-		UpdateStmtLimited      *UpdateStmtLimited
-		VacuumStmt             *VacuumStmt
+		// not supported
+		// PragmaStmt             *PragmaStmt
+		ReindexStmt       *ReindexStmt
+		ReleaseStmt       *ReleaseStmt
+		RollbackStmt      *RollbackStmt
+		SavepointStmt     *SavepointStmt
+		SelectStmt        *SelectStmt
+		UpdateStmt        *UpdateStmt
+		UpdateStmtLimited *UpdateStmtLimited
+		VacuumStmt        *VacuumStmt
 	}
 
 	AlterTableStmt struct {
@@ -83,14 +84,6 @@ type (
 		Commit      token.Token
 		End         token.Token
 		Transaction token.Token
-	}
-
-	RollbackStmt struct {
-		Rollback      token.Token
-		Transaction   token.Token
-		To            token.Token
-		Savepoint     token.Token
-		SavepointName token.Token
 	}
 
 	CreateIndexStmt struct {
@@ -213,26 +206,438 @@ type (
 	}
 
 	DeleteStmtLimited struct {
-		WithClause         *WithClause
-		Delete             token.Token
-		From               token.Token
-		QualifiedTableName *QualifiedTableName
-		Where              token.Token
-		Expr1              *Expr
-		Order              token.Token
-		By                 token.Token
-		OrderingTerm       []*OrderingTerm
-		Limit              token.Token
-		Expr2              *Expr
-		Offset             token.Token
-		Comma              token.Token
-		Expr3              *Expr
+		*DeleteStmt
+		Order        token.Token
+		By           token.Token
+		OrderingTerm []*OrderingTerm
+		Limit        token.Token
+		Expr2        *Expr
+		Offset       token.Token
+		Comma        token.Token
+		Expr3        *Expr
 	}
 
 	DetachStmt struct {
 		Detach     token.Token
 		Database   token.Token
 		SchemaName token.Token
+	}
+
+	DropIndexStmt struct {
+		Drop       token.Token
+		Index      token.Token
+		If         token.Token
+		Exists     token.Token
+		SchemaName token.Token
+		Period     token.Token
+		IndexName  token.Token
+	}
+
+	DropTableStmt struct {
+		Drop       token.Token
+		Table      token.Token
+		If         token.Token
+		Exists     token.Token
+		SchemaName token.Token
+		Period     token.Token
+		TableName  token.Token
+	}
+
+	DropTriggerStmt struct {
+		Drop        token.Token
+		Trigger     token.Token
+		If          token.Token
+		Exists      token.Token
+		SchemaName  token.Token
+		Period      token.Token
+		TriggerName token.Token
+	}
+
+	DropViewStmt struct {
+		Drop       token.Token
+		View       token.Token
+		If         token.Token
+		Exists     token.Token
+		SchemaName token.Token
+		Period     token.Token
+		ViewName   token.Token
+	}
+
+	QualifiedTableName struct {
+		SchemaName token.Token
+		Period     token.Token
+		TableName  token.Token
+		As         token.Token
+		Alias      token.Token
+		Not        token.Token
+		Indexed    token.Token
+		By         token.Token
+		IndexName  token.Token
+	}
+
+	InsertStmt struct {
+		WithClause               *WithClause
+		Insert                   token.Token
+		Or                       token.Token
+		Replace                  token.Token
+		Rollback                 token.Token
+		Abort                    token.Token
+		Fail                     token.Token
+		Ignore                   token.Token
+		Into                     token.Token
+		SchemaName               token.Token
+		Period                   token.Token
+		TableName                token.Token
+		As                       token.Token
+		Alias                    token.Token
+		LeftParen1               token.Token
+		ColumnName               []token.Token
+		RightParen2              token.Token
+		Default                  token.Token
+		Values                   token.Token
+		SelectStmt               *SelectStmt
+		ParenthesizedExpressions *[]ParenthesizedExpressions
+		UpsertClause             *UpsertClause
+	}
+
+	ParenthesizedExpressions struct {
+		LeftParen  token.Token
+		Exprs      []*Expr
+		RightParen token.Token
+	}
+
+	ReindexStmt struct {
+		Reindex          token.Token
+		CollationName    token.Token
+		SchemaName       token.Token
+		Period           token.Token
+		TableOrIndexName token.Token
+	}
+
+	SavepointStmt struct {
+		Savepoint     token.Token
+		SavepointName token.Token
+	}
+
+	ReleaseStmt struct {
+		Release       token.Token
+		Savepoint     token.Token
+		SavepointName token.Token
+	}
+
+	RollbackStmt struct {
+		Rollback      token.Token
+		Transaction   token.Token
+		To            token.Token
+		Savepoint     token.Token
+		SavepointName token.Token
+	}
+
+	SelectStmt struct {
+		With                  token.Token
+		Recursive             token.Token
+		CommonTableExpression []*CommonTableExpression
+		SelectCore            []*SelectCore
+		Order                 token.Token
+		By                    token.Token
+		OrderingTerm          []*OrderingTerm
+		Limit                 token.Token
+		Expr1                 *Expr
+		Offset                token.Token
+		Comma                 token.Token
+		Expr2                 *Expr
+	}
+
+	SelectCore struct {
+		Select                   token.Token
+		Distinct                 token.Token
+		All                      token.Token
+		ResultColumn             []*ResultColumn
+		From                     token.Token
+		JoinClause               *JoinClause
+		TableOrSubquery          []*TableOrSubquery
+		Where                    token.Token
+		Expr1                    *Expr
+		Group                    token.Token
+		By                       token.Token
+		Expr2                    []*Expr
+		Having                   token.Token
+		Expr3                    *Expr
+		Window                   token.Token
+		NamedWindow              []*NamedWindow
+		Values                   token.Token
+		ParenthesizedExpressions []*ParenthesizedExpressions
+		CompoundOperator         *CompoundOperator
+	}
+
+	UpdateStmt struct {
+		WithClause         *WithClause
+		Update             token.Token
+		Or                 token.Token
+		Rollback           token.Token
+		Abort              token.Token
+		Replace            token.Token
+		Fail               token.Token
+		Ignore             token.Token
+		QualifiedTableName *QualifiedTableName
+		Set                token.Token
+		UpdateSetter       []*UpdateSetter
+		Where              token.Token
+		Expr               *Expr
+	}
+
+	UpdateSetter struct {
+		ColumnName     token.Token
+		ColumnNameList *ColumnNameList
+		Assign         token.Token
+		Expr           *Expr
+	}
+
+	UpdateStmtLimited struct {
+		*UpdateStmt
+		Order        token.Token
+		By           token.Token
+		OrderingTerm []token.Token
+		Limit        token.Token
+		Expr1        *Expr
+		Offset       token.Token
+		Comma        token.Token
+		Expr2        *Expr
+	}
+
+	UpsertClause struct {
+		On            token.Token
+		Conflict      token.Token
+		LeftParen     token.Token
+		IndexedColumn []*IndexedColumn
+		RightParen    token.Token
+		Where1        token.Token
+		Expr1         *Expr
+		Do            token.Token
+		Nothing       token.Token
+		Update        token.Token
+		Set           token.Token
+		UpdateSetter  []*UpdateSetter
+		Where2        token.Token
+		Expr2         *Expr
+	}
+
+	VacuumStmt struct {
+		Vacuum     token.Token
+		SchemaName token.Token
+		Into       token.Token
+		Filename   token.Token
+	}
+
+	WithClause struct {
+		With         token.Token
+		Recursive    token.Token
+		RecursiveCte []*RecursiveCte
+	}
+
+	RecursiveCte struct {
+		CteTableName *CteTableName
+		As           token.Token
+		LeftParen    token.Token
+		SelectStmt   *SelectStmt
+		RightParen   token.Token
+	}
+
+	CteTableName struct {
+		TableName  token.Token
+		LeftParen  token.Token
+		ColumnName []token.Token
+		RightParen token.Token
+	}
+)
+
+// Other
+type (
+	Expr struct {
+		// TODO(TimSatke)
+	}
+
+	OrderingTerm struct {
+		Expr          *Expr
+		Collate       token.Token
+		CollationName token.Token
+		Asc           token.Token
+		Desc          token.Token
+		Nulls         token.Token
+		First         token.Token
+		Last          token.Token
+	}
+
+	ResultColumn struct {
+		Expr        *Expr
+		As          token.Token
+		ColumnAlias token.Token
+		Asterisk    token.Token
+		TableName   token.Token
+		Period      token.Token
+	}
+)
+
+// Window
+type (
+	NamedWindow struct {
+		WindowName token.Token
+		As         token.Token
+		WindowDefn *WindowDefn
+	}
+
+	WindowDefn struct {
+		LeftParen      token.Token
+		BaseWindowName token.Token
+		Partition      token.Token
+		By             token.Token
+		Expr           []*Expr
+		Order          token.Token
+		OrderingTerm   []*OrderingTerm
+		FrameSpec      *FrameSpec
+		RightParen     token.Token
+	}
+
+	FrameSpec struct {
+		Range      token.Token
+		Rows       token.Token
+		Groups     token.Token
+		Between    token.Token
+		Unbounded1 token.Token
+		Preceding1 token.Token
+		Expr1      *Expr
+		Current1   token.Token
+		Row1       token.Token
+		Following1 token.Token
+		And        token.Token
+		Expr2      *Expr
+		Preceding2 token.Token
+		Current2   token.Token
+		Row2       token.Token
+		Following2 token.Token
+		Unbounded2 token.Token
+		Exclude    token.Token
+		No         token.Token
+		Others     token.Token
+		Current3   token.Token
+		Row3       token.Token
+		Group      token.Token
+		Ties       token.Token
+	}
+)
+
+// Table
+type (
+	TableConstraint struct {
+		Constraint       token.Token
+		Name             token.Token
+		Primary          token.Token
+		Key              token.Token
+		Unique           token.Token
+		LeftParen        token.Token
+		RightParen       token.Token
+		IndexedColumn    []*IndexedColumn
+		ConflictClause   *ConflictClause
+		Check            token.Token
+		Expr             *Expr
+		Foreign          token.Token
+		ColumnName       []token.Token
+		ForeignKeyClause *ForeignKeyClause
+	}
+
+	ForeignKeyClause struct {
+		References   token.Token
+		ForeignTable token.Token
+		LeftParen    token.Token
+		ColumnName   []token.Token
+		RightParen   token.Token
+		On           token.Token
+		Delete       token.Token
+		Update       token.Token
+		Set          token.Token
+		Null         token.Token
+		Default      token.Token
+		Cascade      token.Token
+		Restrict     token.Token
+		No           token.Token
+		Action       token.Token
+		Match        token.Token
+		Name         token.Token
+		Not          token.Token
+		Deferrable   token.Token
+		Initially    token.Token
+		Deferred     token.Token
+		Immediate    token.Token
+	}
+
+	CommonTableExpression struct {
+		TableName   token.Token
+		LeftParen1  token.Token
+		ColumnName  []token.Token
+		RightParen1 token.Token
+		As          token.Token
+		LeftParen2  token.Token
+		SelectStmt  *SelectStmt
+		RightParen2 token.Token
+	}
+
+	CompoundOperator struct {
+		Union     token.Token
+		All       token.Token
+		Intersect token.Token
+		Except    token.Token
+	}
+
+	TableOrSubquery struct {
+		SchemaName        token.Token
+		Period            token.Token
+		TableName         token.Token
+		As                token.Token
+		TableAlias        token.Token
+		Not               token.Token
+		Indexed           token.Token
+		By                token.Token
+		IndexName         token.Token
+		TableFunctionName token.Token
+		LeftParen         token.Token
+		Expr              []*Expr
+		RightParen        token.Token
+		JoinClause        *JoinClause
+		TableOrSubquery   []*TableOrSubquery
+		SelectStmt        *SelectStmt
+	}
+)
+
+// Join
+type (
+	JoinClause struct {
+		TableOrSubquery *TableOrSubquery
+		JoinClausePart  *JoinClausePart
+	}
+
+	JoinClausePart struct {
+		JoinOperator    *JoinOperator
+		TableOrSubquery *TableOrSubquery
+		JoinConstraint  *JoinConstraint
+	}
+
+	JoinConstraint struct {
+		On         token.Token
+		Expr       *Expr
+		Using      token.Token
+		LeftParen  token.Token
+		ColumnName []token.Token
+		RightParen token.Token
+	}
+
+	JoinOperator struct {
+		Comma   token.Token
+		Natural token.Token
+		Left    token.Token
+		Outer   token.Token
+		Inner   token.Token
+		Cross   token.Token
+		Join    token.Token
 	}
 )
 
@@ -261,11 +666,17 @@ type (
 		Expr             *Expr
 		RightParen       token.Token
 		Default          token.Token
-		SignedNumber     *SignedNumber
+		SignedNumber     token.Token
 		LiteralValue     token.Token
 		Collate          token.Token
 		CollationName    token.Token
 		ForeignKeyClause *ForeignKeyClause
+	}
+
+	ColumnNameList struct {
+		LeftParen  token.Token
+		ColumnName []token.Token
+		RightParen token.Token
 	}
 
 	ConflictClause struct {
@@ -281,15 +692,18 @@ type (
 	TypeName struct {
 		Name          []token.Token
 		LeftParen     token.Token
-		SignedNumber1 *SignedNumber
+		SignedNumber1 token.Token
 		Comma         token.Token
-		SignedNumber2 *SignedNumber
+		SignedNumber2 token.Token
 		RightParen    token.Token
 	}
 
-	SignedNumber struct {
-		Plus           token.Token
-		Minus          token.Token
-		NumericLiteral token.Token
+	IndexedColumn struct {
+		ColumnName    token.Token
+		Expr          *Expr
+		Collate       token.Token
+		CollationName token.Token
+		Asc           token.Token
+		Desc          token.Token
 	}
 )
