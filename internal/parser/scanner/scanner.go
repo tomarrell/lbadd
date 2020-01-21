@@ -68,10 +68,51 @@ func (s *scanner) Next() token.Token {
 	// if s.done() {
 	// 	return token.New(s.line, s.col, s.pos-s.start, s.pos, token.Error, fmt.Sprintf("Scanner closed. Can't read from it."))
 	// }
-
 	switch s.peek() {
+	case 'A':
+		return scanAKeyword(s)
+	case 'B':
+		return scanBKeyword(s)
+	case 'C':
+		return scanCKeyword(s)
+	case 'D':
+		return scanDKeyword(s)
+	case 'E':
+		return scanEKeyword(s)
+	case 'F':
+		return scanFKeyword(s)
+	case 'G':
+		return scanGKeyword(s)
+	case 'H':
+		return scanHKeyword(s)
+	case 'I':
+		return scanIKeyword(s)
+	case 'J':
+		return scanJKeyword(s)
+	case 'K':
+		return scanKKeyword(s)
+	case 'L':
+		return scanLKeyword(s)
+	case 'M':
+		return scanMKeyword(s)
+	case 'N':
+		return scanNKeyword(s)
+	case 'O':
+		return scanOKeyword(s)
+	case 'P':
+		return scanPKeyword(s)
+	case 'Q':
+		return scanQKeyword(s)
+	case 'R':
+		return scanRKeyword(s)
 	case 'S':
-		return scanSelectOperator(s)
+		return scanSKeyword(s)
+	case 'T':
+		return scanTKeyword(s)
+	case 'U':
+		return scanUKeyword(s)
+	case 'V':
+		return scanVKeyword(s)
 	// case ' ':
 	// 	return scanSpace(s)
 	// case '"':
