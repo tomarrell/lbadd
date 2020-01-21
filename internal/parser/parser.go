@@ -12,6 +12,7 @@ func (s sentinel) Error() string { return string(s) }
 const (
 	ErrIncompleteStatement  = sentinel("incomplete statement")
 	ErrPrematureEOF         = sentinel("unexpectedly reached EOF")
+	ErrScanner              = sentinel("scanner")
 	ErrUnexpectedToken      = sentinel("unexpected token")
 	ErrUnknownToken         = sentinel("unknown token")
 	ErrUnsupportedConstruct = sentinel("unsupported construct")
