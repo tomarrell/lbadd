@@ -72,62 +72,62 @@ func (s *scanner) Next() token.Token {
 	switch s.peek() {
 	case 'S':
 		return scanSelectOperator(s)
-	case ' ':
-		return scanSpace(s)
-	case '"':
-		return scanDoubleQuote(s)
-	case '%':
-		return scanPercent(s)
-	case '&':
-		return scanAmpersand(s)
-	case '\'':
-		return scanQuote(s)
-	case '(':
-		return scanLeftParanthesis(s)
-	case ')':
-		return scanRightParanthesis(s)
-	case '*':
-		return scanAsterisk(s)
-	case '+':
-		return scanPlusSign(s)
-	case ',':
-		return scanComma(s)
-	case '-':
-		return scanMinusSign(s)
-	case '.':
-		return scanPeriod(s)
-	case '/':
-		return scanSolidus(s)
-	case '\\':
-		return scanReverseSolidus(s)
-	case ':':
-		return scanColon(s)
-	case ';':
-		return scanSemiColon(s)
-	case '<':
-		return scanLessThanOperator(s)
-	case '=':
-		return scanEqualsOperator(s)
-	case '>':
-		return scanGreaterThanOperator(s)
-	case '?':
-		return scanQuestioMarkOrTrigraphs(s)
-	case '[':
-		return scanLeftBracket(s)
-	case ']':
-		return scanRightBracket(s)
-	case '^':
-		return scanCircumflex(s)
-	case '_':
-		return scanUnderscore(s)
-	case '|':
-		return scanVerticalBar(s)
-	case '{':
-		return scanLeftBrace(s)
-	case '}':
-		return scanRightBrace(s)
-	case '$':
-		return scanDollarSign(s)
+	// case ' ':
+	// 	return scanSpace(s)
+	// case '"':
+	// 	return scanDoubleQuote(s)
+	// case '%':
+	// 	return scanPercent(s)
+	// case '&':
+	// 	return scanAmpersand(s)
+	// case '\'':
+	// 	return scanQuote(s)
+	// case '(':
+	// 	return scanLeftParanthesis(s)
+	// case ')':
+	// 	return scanRightParanthesis(s)
+	// case '*':
+	// 	return scanAsterisk(s)
+	// case '+':
+	// 	return scanPlusSign(s)
+	// case ',':
+	// 	return scanComma(s)
+	// case '-':
+	// 	return scanMinusSign(s)
+	// case '.':
+	// 	return scanPeriod(s)
+	// case '/':
+	// 	return scanSolidus(s)
+	// case '\\':
+	// 	return scanReverseSolidus(s)
+	// case ':':
+	// 	return scanColon(s)
+	// case ';':
+	// 	return scanSemiColon(s)
+	// case '<':
+	// 	return scanLessThanOperator(s)
+	// case '=':
+	// 	return scanEqualsOperator(s)
+	// case '>':
+	// 	return scanGreaterThanOperator(s)
+	// case '?':
+	// 	return scanQuestioMarkOrTrigraphs(s)
+	// case '[':
+	// 	return scanLeftBracket(s)
+	// case ']':
+	// 	return scanRightBracket(s)
+	// case '^':
+	// 	return scanCircumflex(s)
+	// case '_':
+	// 	return scanUnderscore(s)
+	// case '|':
+	// 	return scanVerticalBar(s)
+	// case '{':
+	// 	return scanLeftBrace(s)
+	// case '}':
+	// 	return scanRightBrace(s)
+	// case '$':
+	// 	return scanDollarSign(s)
 	default:
 		fmt.Println("TBI")
 	}
@@ -247,4 +247,14 @@ func createToken(line, col, start, pos int, t token.Type, value string, s *scann
 	token := token.New(line, col, start, pos-start, t, value)
 	s.start = pos
 	return token
+}
+
+// seekNext returns the position of the end of a keyword.
+// It takes the start position of the keyword.
+func (s *scanner) seekNext(start int) int {
+	start++
+	for s.input[start] != ' ' {
+		start++
+	}
+	return start
 }
