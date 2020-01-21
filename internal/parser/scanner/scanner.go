@@ -2,9 +2,9 @@ package scanner
 
 import (
 	"fmt"
+
 	"github.com/tomarrell/lbadd/internal/parser/scanner/matcher"
 	"github.com/tomarrell/lbadd/internal/parser/scanner/token"
-	"io"
 )
 
 // Scanner is the interface that describes a scanner.
@@ -12,7 +12,6 @@ type Scanner interface {
 	HasNext() bool
 	Next() token.Token
 	Peek() token.Token
-	io.Closer
 }
 
 type scanner struct {
