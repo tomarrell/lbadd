@@ -177,6 +177,10 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 	case token.StatementSeparator:
 		r.incompleteStatement()
 		p.consumeToken()
+	case token.KeywordPragma:
+		// we don't support pragmas, as we don't need them yet
+		r.unsupportedConstruct(next)
+		p.skipUntilNoError(token.StatementSeparator, token.EOF)
 	default:
 		r.unsupportedConstruct(next)
 		p.skipUntilNoError(token.StatementSeparator, token.EOF)
