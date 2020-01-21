@@ -17,6 +17,8 @@ const (
 	ErrUnsupportedConstruct = sentinel("unsupported construct")
 )
 
+// Parser describes a parser that returns (maybe multiple) SQLStatements from a
+// given input.
 type Parser interface {
 	// Next returns stmt=<statement>, errs=nil, ok=true if a statement was
 	// parsed successfully without any parse errors. If there were parse errors,
