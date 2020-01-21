@@ -13,6 +13,15 @@ type errorReporter struct {
 	sealed bool
 }
 
+func (r *errorReporter) incompleteStatement() {
+	next, ok := r.p.lookahead()
+	if !ok {
+		r.errs = append(r.errs, fmt.Errorf("%w: EOF", ErrIncompleteStatement))
+	} else {
+		r.errs = append(r.errs, fmt.Errorf("%w: %s at (%d:%d) offset %d length %d", ErrIncompleteStatement, next.Type().String(), next.Line(), next.Col(), next.Offset(), next.Length()))
+	}
+}
+
 func (r *errorReporter) prematureEOF() {
 	r.errs = append(r.errs, fmt.Errorf("%w", ErrPrematureEOF))
 	r.sealed = true
@@ -40,6 +49,7 @@ func (r *errorReporter) unhandledToken(t token.Token) {
 }
 
 type reporter interface {
+	incompleteStatement()
 	prematureEOF()
 	unexpectedToken(expected ...token.Type)
 	unhandledToken(t token.Token)
@@ -72,12 +82,12 @@ func (p *simpleParser) Next() (*ast.SQLStmt, []error, bool) {
 func (p *simpleParser) skipUntil(r reporter, types ...token.Type) {
 	for {
 		next, ok := p.lookahead()
-		if !ok || next.Type() == token.StatementSeparator {
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 			return
 		}
 		for _, typ := range types {
 			if next.Type() == typ {
-				break
+				return
 			}
 		}
 		r.unexpectedToken(types...)
@@ -126,26 +136,47 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 		}
 	}
 
-	retry := true
-	for retry {
-		retry = false
+	p.skipUntil(r,
+		token.KeywordAlter,
+		token.KeywordAnalyze,
+		token.KeywordAttach,
+		token.KeywordBegin,
+		token.KeywordCommit,
+		token.KeywordCreate,
+		token.KeywordDelete,
+		token.KeywordDetach,
+		token.KeywordDrop,
+		token.KeywordInsert,
+		token.KeywordPragma,
+		token.KeywordReindex,
+		token.KeywordRelease,
+		token.KeywordRollback,
+		token.KeywordSavepoint,
+		token.KeywordSelect,
+		token.KeywordUpdate,
+		token.KeywordVacuum,
+	)
 
-		next, hasNext := p.lookahead()
-		if !hasNext || next.Type() == token.StatementSeparator || next.Type() == token.EOF {
-			r.prematureEOF()
-			return
-		}
-
-		switch next.Type() {
-		case token.KeywordAlter:
-			stmt.AlterTableStmt = p.parseAlterTableStmt(r)
-		default:
-			r.unhandledToken(next)
-			retry = true
-		}
+	next, ok := p.lookahead()
+	if !ok || next.Type() == token.EOF {
+		r.prematureEOF()
+		return stmt
 	}
 
-	panic("didn't return a statement even after retrying all tokens")
+	switch next.Type() {
+	case token.KeywordAlter:
+		stmt.AlterTableStmt = p.parseAlterTableStmt(r)
+	case token.StatementSeparator:
+		r.incompleteStatement()
+		p.consumeToken()
+	}
+
+	next, ok = p.lookahead()
+	if ok && (next.Type() != token.StatementSeparator || next.Type() != token.EOF) {
+		r.unexpectedToken(token.StatementSeparator, token.EOF)
+	}
+
+	return stmt
 }
 
 func (p *simpleParser) parseAlterTableStmt(r reporter) (stmt *ast.AlterTableStmt) {
