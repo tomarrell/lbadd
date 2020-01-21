@@ -8,6 +8,7 @@ type Token interface {
 	Lengther
 	Typer
 	Valuer
+	IsLiteraler
 }
 
 // Positioner describes something that has a 1-based line and col, and a 0-based
@@ -31,6 +32,11 @@ type Typer interface {
 // Valuer describes something that has a string value.
 type Valuer interface {
 	Value() string
+}
+
+// IsLiteraler tells whether the token is a literal
+type IsLiteraler interface {
+	IsLiteral() bool
 }
 
 var _ Token = (*tok)(nil) // ensure that tok implements Token
@@ -77,6 +83,10 @@ func (t tok) Type() Type {
 
 func (t tok) Value() string {
 	return t.value
+}
+
+func (t tok) IsLiteral() bool {
+	return t.IsLiteral()
 }
 
 func (t tok) String() string {
