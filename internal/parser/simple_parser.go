@@ -136,26 +136,7 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 		}
 	}
 
-	p.skipUntil(r,
-		token.KeywordAlter,
-		token.KeywordAnalyze,
-		token.KeywordAttach,
-		token.KeywordBegin,
-		token.KeywordCommit,
-		token.KeywordCreate,
-		token.KeywordDelete,
-		token.KeywordDetach,
-		token.KeywordDrop,
-		token.KeywordInsert,
-		token.KeywordPragma,
-		token.KeywordReindex,
-		token.KeywordRelease,
-		token.KeywordRollback,
-		token.KeywordSavepoint,
-		token.KeywordSelect,
-		token.KeywordUpdate,
-		token.KeywordVacuum,
-	)
+	p.skipUntil(r, token.KeywordAlter, token.KeywordAnalyze, token.KeywordAttach, token.KeywordBegin, token.KeywordCommit, token.KeywordCreate, token.KeywordDelete, token.KeywordDetach, token.KeywordDrop, token.KeywordInsert, token.KeywordPragma, token.KeywordReindex, token.KeywordRelease, token.KeywordRollback, token.KeywordSavepoint, token.KeywordSelect, token.KeywordUpdate, token.KeywordVacuum)
 
 	next, ok := p.lookahead()
 	if !ok || next.Type() == token.EOF {
