@@ -13,8 +13,17 @@ type errorReporter struct {
 	sealed bool
 }
 
+func (r *errorReporter) incompleteStatement() {
+	next, ok := r.p.lookahead()
+	if !ok {
+		r.errorf("%w: EOF", ErrIncompleteStatement)
+	} else {
+		r.errorf("%w: %s at (%d:%d) offset %d length %d", ErrIncompleteStatement, next.Type().String(), next.Line(), next.Col(), next.Offset(), next.Length())
+	}
+}
+
 func (r *errorReporter) prematureEOF() {
-	r.errs = append(r.errs, fmt.Errorf("%w", ErrPrematureEOF))
+	r.errorf("%w", ErrPrematureEOF)
 	r.sealed = true
 }
 
@@ -26,23 +35,32 @@ func (r *errorReporter) unexpectedToken(expected ...token.Type) {
 	if !ok || next.Type() == token.EOF {
 		// use this instead of r.prematureEOF() because we can add the
 		// information about what tokens were expected
-		r.errs = append(r.errs, fmt.Errorf("%w: expected %s", ErrPrematureEOF, expected))
+		r.errorf("%w: expected %s", ErrPrematureEOF, expected)
 		r.sealed = true
 		return
 	}
 
-	r.errs = append(r.errs, fmt.Errorf("%w: got %s but expected one of %s at (%d:%d) offset %d length %d", ErrUnexpectedToken, next, expected, next.Line(), next.Col(), next.Offset(), next.Length()))
+	r.errorf("%w: got %s but expected one of %s at (%d:%d) offset %d length %d", ErrUnexpectedToken, next, expected, next.Line(), next.Col(), next.Offset(), next.Length())
 }
 
 func (r *errorReporter) unhandledToken(t token.Token) {
-	r.errs = append(r.errs, fmt.Errorf("%w: %s(%s) at (%d:%d) offset %d lenght %d", ErrUnknownToken, t.Type().String(), t.Value(), t.Line(), t.Col(), t.Offset(), t.Length()))
-	r.sealed = true
+	r.errorf("%w: %s(%s) at (%d:%d) offset %d lenght %d", ErrUnknownToken, t.Type().String(), t.Value(), t.Line(), t.Col(), t.Offset(), t.Length())
+}
+
+func (r *errorReporter) unsupportedConstruct(t token.Token) {
+	r.errorf("%w: %s(%s) at (%d:%d) offset %d lenght %d", ErrUnsupportedConstruct, t.Type().String(), t.Value(), t.Line(), t.Col(), t.Offset(), t.Length())
+}
+
+func (r *errorReporter) errorf(format string, args ...interface{}) {
+	r.errs = append(r.errs, fmt.Errorf(format, args...))
 }
 
 type reporter interface {
+	incompleteStatement()
 	prematureEOF()
 	unexpectedToken(expected ...token.Type)
 	unhandledToken(t token.Token)
+	unsupportedConstruct(t token.Token)
 }
 
 var _ Parser = (*simpleParser)(nil) // ensure that simpleParser implements Parser
@@ -51,16 +69,20 @@ type simpleParser struct {
 	scanner scanner.Scanner
 }
 
-func New() Parser {
-	return &simpleParser{}
+// New creates new ready to use parser.
+func New(input string) Parser {
+	return &simpleParser{
+		scanner: scanner.New([]rune(input)),
+	}
 }
 
 func (p *simpleParser) Next() (*ast.SQLStmt, []error, bool) {
 	if !p.scanner.HasNext() {
-		return nil, nil, false
+		return nil, []error{}, false
 	}
 	errs := &errorReporter{
-		p: p,
+		p:    p,
+		errs: []error{},
 	}
 	stmt := p.parseSQLStatement(errs)
 	return stmt, errs.errs, true
@@ -72,15 +94,30 @@ func (p *simpleParser) Next() (*ast.SQLStmt, []error, bool) {
 func (p *simpleParser) skipUntil(r reporter, types ...token.Type) {
 	for {
 		next, ok := p.lookahead()
-		if !ok || next.Type() == token.StatementSeparator {
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 			return
 		}
 		for _, typ := range types {
 			if next.Type() == typ {
-				break
+				return
 			}
 		}
 		r.unexpectedToken(types...)
+		p.consumeToken()
+	}
+}
+
+func (p *simpleParser) skipUntilNoError(types ...token.Type) {
+	for {
+		next, ok := p.lookahead()
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+			return
+		}
+		for _, typ := range types {
+			if next.Type() == typ {
+				return
+			}
+		}
 		p.consumeToken()
 	}
 }
@@ -119,35 +156,45 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 			} else {
 				r.unexpectedToken(token.KeywordPlan)
 				// At this point, just assume that 'QUERY' was a mistake. Don't
-				// abort, because it's very unlikely that 'PLAN' occurs
-				// somewhere, so assume that the user meant to input 'EXPLAIN
-				// <statement>' instead of 'EXPLAIN QUERY PLAN <statement>'.
+				// abort. It's very unlikely that 'PLAN' occurs somewhere, so
+				// assume that the user meant to input 'EXPLAIN <statement>'
+				// instead of 'EXPLAIN QUERY PLAN <statement>'.
 			}
 		}
 	}
 
-	retry := true
-	for retry {
-		retry = false
+	// according to the grammar, these are the tokens that initiate a statement
+	p.skipUntil(r, token.KeywordAlter, token.KeywordAnalyze, token.KeywordAttach, token.KeywordBegin, token.KeywordCommit, token.KeywordCreate, token.KeywordDelete, token.KeywordDetach, token.KeywordDrop, token.KeywordInsert, token.KeywordPragma, token.KeywordReindex, token.KeywordRelease, token.KeywordRollback, token.KeywordSavepoint, token.KeywordSelect, token.KeywordUpdate, token.KeywordVacuum)
 
-		next, hasNext := p.lookahead()
-		if !hasNext || next.Type() == token.StatementSeparator || next.Type() == token.EOF {
-			r.prematureEOF()
-			return
-		}
-
-		switch next.Type() {
-		case token.KeywordAlter:
-			stmt.AlterTableStmt = p.parseAlterTableStmt(r)
-		default:
-			r.unhandledToken(next)
-			retry = true
-		}
+	next, ok := p.lookahead()
+	if !ok || next.Type() == token.EOF {
+		r.prematureEOF()
+		return stmt
 	}
 
-	panic("didn't return a statement even after retrying all tokens")
+	switch next.Type() {
+	case token.KeywordAlter:
+		stmt.AlterTableStmt = p.parseAlterTableStmt(r)
+	case token.StatementSeparator:
+		r.incompleteStatement()
+		p.consumeToken()
+	case token.KeywordPragma:
+		// we don't support pragmas, as we don't need them yet
+		r.unsupportedConstruct(next)
+		p.skipUntilNoError(token.StatementSeparator, token.EOF)
+	default:
+		r.unsupportedConstruct(next)
+		p.skipUntilNoError(token.StatementSeparator, token.EOF)
+	}
+
+	next, ok = p.lookahead()
+	if ok && (next.Type() != token.StatementSeparator || next.Type() != token.EOF) {
+		r.unexpectedToken(token.StatementSeparator, token.EOF)
+	}
+
+	return stmt
 }
 
-func (p *simpleParser) parseAlterTableStmt(r reporter) *ast.AlterTableStmt {
+func (p *simpleParser) parseAlterTableStmt(r reporter) (stmt *ast.AlterTableStmt) {
 	panic("implement me")
 }
