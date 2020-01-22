@@ -5,7 +5,7 @@ import (
 )
 
 func Test_hasNext(t *testing.T) {
-	t.SkipNow()
+	// t.SkipNow()
 
 	input := "SELECT "
 	scanner := New([]rune(input))

@@ -44,6 +44,7 @@ type checkpoint struct {
 
 // New returns a new scanner
 func New(input []rune) Scanner {
+	LoadTrie()
 	return &scanner{
 		input: input,
 		start: 0,
@@ -64,56 +65,55 @@ func (s *scanner) HasNext() bool {
 // Next reads the next token. This is basically starting from the initial state until a
 // token gets emitted. If an error occurs, simply return an error token.
 func (s *scanner) Next() token.Token {
-	// if s.done() {
-	// 	return token.New(s.line, s.col, s.pos-s.start, s.pos, token.Error, fmt.Sprintf("Scanner closed. Can't read from it."))
-	// }
-	switch s.peek() {
-	case 'A':
-		return scanAKeyword(s)
-	case 'B':
-		return scanBKeyword(s)
-	case 'C':
-		return scanCKeyword(s)
-	case 'D':
-		return scanDKeyword(s)
-	case 'E':
-		return scanEKeyword(s)
-	case 'F':
-		return scanFKeyword(s)
-	case 'G':
-		return scanGKeyword(s)
-	case 'H':
-		return scanHKeyword(s)
-	case 'I':
-		return scanIKeyword(s)
-	case 'J':
-		return scanJKeyword(s)
-	case 'K':
-		return scanKKeyword(s)
-	case 'L':
-		return scanLKeyword(s)
-	case 'M':
-		return scanMKeyword(s)
-	case 'N':
-		return scanNKeyword(s)
-	case 'O':
-		return scanOKeyword(s)
-	case 'P':
-		return scanPKeyword(s)
-	case 'Q':
-		return scanQKeyword(s)
-	case 'R':
-		return scanRKeyword(s)
+	var token token.Token
+
+	switch s.peekRune() {
+	// case 'A':
+	// 	return scanAKeyword(s)
+	// case 'B':
+	// 	return scanBKeyword(s)
+	// case 'C':
+	// 	return scanCKeyword(s)
+	// case 'D':
+	// 	return scanDKeyword(s)
+	// case 'E':
+	// 	return scanEKeyword(s)
+	// case 'F':
+	// 	return scanFKeyword(s)
+	// case 'G':
+	// 	return scanGKeyword(s)
+	// case 'H':
+	// 	return scanHKeyword(s)
+	// case 'I':
+	// 	return scanIKeyword(s)
+	// case 'J':
+	// 	return scanJKeyword(s)
+	// case 'K':
+	// 	return scanKKeyword(s)
+	// case 'L':
+	// 	return scanLKeyword(s)
+	// case 'M':
+	// 	return scanMKeyword(s)
+	// case 'N':
+	// 	return scanNKeyword(s)
+	// case 'O':
+	// 	return scanOKeyword(s)
+	// case 'P':
+	// 	return scanPKeyword(s)
+	// case 'Q':
+	// 	return scanQKeyword(s)
+	// case 'R':
+	// 	return scanRKeyword(s)
 	case 'S':
 		return scanSKeyword(s)
-	case 'T':
-		return scanTKeyword(s)
-	case 'U':
-		return scanUKeyword(s)
-	case 'V':
-		return scanVKeyword(s)
-	// case ' ':
-	// 	return scanSpace(s)
+	// case 'T':
+	// 	return scanTKeyword(s)
+	// case 'U':
+	// 	return scanUKeyword(s)
+	// case 'V':
+	// 	return scanVKeyword(s)
+	case ' ':
+		scanSpace(s)
 	// case '"':
 	// 	return scanDoubleQuote(s)
 	// case '%':
@@ -169,9 +169,9 @@ func (s *scanner) Next() token.Token {
 	// case '$':
 	// 	return scanDollarSign(s)
 	default:
-		fmt.Println("TBI")
+
 	}
-	return nil
+	return token
 }
 
 func (s *scanner) Peek() token.Token {
@@ -215,7 +215,7 @@ func (s *scanner) next() rune {
 }
 
 // peek returns the next rune of the scanners input without consuming it.
-func (s *scanner) peek() rune {
+func (s *scanner) peekRune() rune {
 	return s.input[s.pos]
 }
 
@@ -283,18 +283,25 @@ func (s *scanner) peekString(str string) bool {
 }
 
 // createToken creates a token with given parameters
-func createToken(line, col, start, pos int, t token.Type, value string, s *scanner) token.Token {
-	token := token.New(line, col, start, pos-start, t, value)
-	s.start = pos
-	return token
+func (s *scanner) createToken(t token.Type) token.Token {
+	tk := token.New(s.line, s.col, s.start, s.pos, t, string(s.input[s.start:s.pos]))
+	s.start = s.pos
+	return tk
 }
 
 // seekNext returns the position of the end of a keyword.
 // It takes the start position of the keyword.
 func (s *scanner) seekNext(start int) int {
-	start++
-	for s.input[start] != ' ' {
+	// start++
+	for start < len(s.input) && s.input[start] != ' ' {
+		fmt.Println(string(s.input[start]))
 		start++
 	}
 	return start
 }
+
+// func (s *scanner) unexpectedRune(expected ...rune) token.Token {
+// 	tk := token.New(s.line, s.col, s.start, s.pos, token.Error, fmt.Sprintf("unexpected rune '%s', expected one of %s", s.input[s.pos], expected))
+// 	s.start = s.pos
+// 	return tk
+// }

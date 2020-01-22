@@ -1,8 +1,21 @@
 package scanner
 
 import (
+	"fmt"
+
+	// "github.com/dghubble/trie"
+	"github.com/tomarrell/lbadd/internal/parser/scanner/matcher"
 	"github.com/tomarrell/lbadd/internal/parser/scanner/token"
 )
+
+// LoadTrie inserts all keywords on to the trie
+func LoadTrie() {
+	trie := NewRuneTrie()
+	for k, v := range keywordsWithS {
+		trie.Put(k, v)
+	}
+	fmt.Println(trie.Get("SELECS"))
+}
 
 var keywordsWithA map[string]token.Type = map[string]token.Type{
 	"ABORT":          token.KeywordAbort,
@@ -215,14 +228,13 @@ var keywordsWithW map[string]token.Type = map[string]token.Type{
 	"WITHOUT": token.KeywordWithout,
 }
 
-// func scanSpace(s *scanner) token.Token {
-// 	s.accept(matcher.String(" "))
-// 	return createToken(s.line, s.col, s.start, s.pos, token.SQLSpecialCharacter, string(s.input[s.start:s.pos]), s)
-// }
+func scanSpace(s *scanner) {
+	s.accept(matcher.String(" "))
+}
 
 // func scanDoubleQuote(s *scanner) token.Token {
 // 	s.accept(matcher.String("\""))
-// 	return createToken(s.line, s.col, s.start, s.pos, token.SQLSpecialCharacter, string(s.input[s.start:s.pos]), s)
+// 	return createToken(token.SQLSpecialCharacter)
 // }
 
 // func scanPercent(s *scanner) token.Token {
@@ -356,231 +368,231 @@ var keywordsWithW map[string]token.Type = map[string]token.Type{
 // 	return createToken(s.line, s.col, s.start, s.pos, token.SQLSpecialCharacter, string(s.input[s.start:s.pos]), s)
 // }
 
-func scanAKeyword(s *scanner) token.Token {
-	input := string(s.input[s.start:s.seekNext(s.start)])
-	if _, ok := keywordsWithA[input]; ok {
-		s.acceptString(input)
-		return createToken(s.line, s.col, s.start, s.pos, keywordsWithA[input], input, s)
-	}
-	// return an error that this doesnt exist
-	return createToken(s.line, s.col, s.start, s.pos, token.KeywordSelect, string(s.input[s.start:s.pos]), s)
-}
+// func scanAKeyword(s *scanner) token.Token {
+// 	nextRune := s.seekNext(s.start)
+// 	input := string(s.input[s.start:nextRune])
+// 	if _, ok := keywordsWithA[input]; ok {
+// 		s.acceptString(input)
+// 		return s.createToken(keywordsWithA[input])
+// 	}
+// 	return s.unexpectedRune(s.input[s.start:nextRune])
+// }
 
-func scanBKeyword(s *scanner) token.Token {
-	input := string(s.input[s.start:s.seekNext(s.start)])
-	if _, ok := keywordsWithB[input]; ok {
-		s.acceptString(input)
-		return createToken(s.line, s.col, s.start, s.pos, keywordsWithB[input], input, s)
-	}
-	// return an error that this doesnt exist
-	return createToken(s.line, s.col, s.start, s.pos, token.KeywordSelect, string(s.input[s.start:s.pos]), s)
-}
+// func scanBKeyword(s *scanner) token.Token {
+// 	nextRune := s.seekNext(s.start)
+// 	input := string(s.input[s.start:nextRune])
+// 	if _, ok := keywordsWithB[input]; ok {
+// 		s.acceptString(input)
+// 		return s.createToken(keywordsWithB[input])
+// 	}
+// 	return s.unexpectedRune(s.input[s.start:nextRune])
+// }
 
-func scanCKeyword(s *scanner) token.Token {
-	input := string(s.input[s.start:s.seekNext(s.start)])
-	if _, ok := keywordsWithC[input]; ok {
-		s.acceptString(input)
-		return createToken(s.line, s.col, s.start, s.pos, keywordsWithC[input], input, s)
-	}
-	// return an error that this doesnt exist
-	return createToken(s.line, s.col, s.start, s.pos, token.KeywordSelect, string(s.input[s.start:s.pos]), s)
-}
+// func scanCKeyword(s *scanner) token.Token {
+// 	nextRune := s.seekNext(s.start)
+// 	input := string(s.input[s.start:nextRune])
+// 	if _, ok := keywordsWithC[input]; ok {
+// 		s.acceptString(input)
+// 		return s.createToken(keywordsWithC[input])
+// 	}
+// 	return s.unexpectedRune(s.input[s.start:nextRune])
+// }
 
-func scanDKeyword(s *scanner) token.Token {
-	input := string(s.input[s.start:s.seekNext(s.start)])
-	if _, ok := keywordsWithD[input]; ok {
-		s.acceptString(input)
-		return createToken(s.line, s.col, s.start, s.pos, keywordsWithD[input], input, s)
-	}
-	// return an error that this doesnt exist
-	return createToken(s.line, s.col, s.start, s.pos, token.KeywordSelect, string(s.input[s.start:s.pos]), s)
-}
+// func scanDKeyword(s *scanner) token.Token {
+// 	nextRune := s.seekNext(s.start)
+// 	input := string(s.input[s.start:nextRune])
+// 	if _, ok := keywordsWithD[input]; ok {
+// 		s.acceptString(input)
+// 		return s.createToken(keywordsWithD[input])
+// 	}
+// 	return s.unexpectedRune(s.input[s.start:nextRune])
+// }
 
-func scanEKeyword(s *scanner) token.Token {
-	input := string(s.input[s.start:s.seekNext(s.start)])
-	if _, ok := keywordsWithE[input]; ok {
-		s.acceptString(input)
-		return createToken(s.line, s.col, s.start, s.pos, keywordsWithE[input], input, s)
-	}
-	// return an error that this doesnt exist
-	return createToken(s.line, s.col, s.start, s.pos, token.KeywordSelect, string(s.input[s.start:s.pos]), s)
-}
+// func scanEKeyword(s *scanner) token.Token {
+// 	nextRune := s.seekNext(s.start)
+// 	input := string(s.input[s.start:nextRune])
+// 	if _, ok := keywordsWithE[input]; ok {
+// 		s.acceptString(input)
+// 		return s.createToken(keywordsWithE[input])
+// 	}
+// 	return s.unexpectedRune(s.input[s.start:nextRune])
+// }
 
-func scanFKeyword(s *scanner) token.Token {
-	input := string(s.input[s.start:s.seekNext(s.start)])
-	if _, ok := keywordsWithF[input]; ok {
-		s.acceptString(input)
-		return createToken(s.line, s.col, s.start, s.pos, keywordsWithF[input], input, s)
-	}
-	// return an error that this doesnt exist
-	return createToken(s.line, s.col, s.start, s.pos, token.KeywordSelect, string(s.input[s.start:s.pos]), s)
-}
+// func scanFKeyword(s *scanner) token.Token {
+// 	nextRune := s.seekNext(s.start)
+// 	input := string(s.input[s.start:nextRune])
+// 	if _, ok := keywordsWithF[input]; ok {
+// 		s.acceptString(input)
+// 		return s.createToken(keywordsWithF[input])
+// 	}
+// 	return s.unexpectedRune(s.input[s.start:nextRune])
+// }
 
-func scanGKeyword(s *scanner) token.Token {
-	input := string(s.input[s.start:s.seekNext(s.start)])
-	if _, ok := keywordsWithG[input]; ok {
-		s.acceptString(input)
-		return createToken(s.line, s.col, s.start, s.pos, keywordsWithG[input], input, s)
-	}
-	// return an error that this doesnt exist
-	return createToken(s.line, s.col, s.start, s.pos, token.KeywordSelect, string(s.input[s.start:s.pos]), s)
-}
+// func scanGKeyword(s *scanner) token.Token {
+// 	nextRune := s.seekNext(s.start)
+// 	input := string(s.input[s.start:nextRune])
+// 	if _, ok := keywordsWithG[input]; ok {
+// 		s.acceptString(input)
+// 		return s.createToken(keywordsWithG[input])
+// 	}
+// 	return s.unexpectedRune(s.input[s.start:nextRune])
+// }
 
-func scanHKeyword(s *scanner) token.Token {
-	input := string(s.input[s.start:s.seekNext(s.start)])
-	if _, ok := keywordsWithH[input]; ok {
-		s.acceptString(input)
-		return createToken(s.line, s.col, s.start, s.pos, keywordsWithH[input], input, s)
-	}
-	// return an error that this doesnt exist
-	return createToken(s.line, s.col, s.start, s.pos, token.KeywordSelect, string(s.input[s.start:s.pos]), s)
-}
+// func scanHKeyword(s *scanner) token.Token {
+// 	nextRune := s.seekNext(s.start)
+// 	input := string(s.input[s.start:nextRune])
+// 	if _, ok := keywordsWithH[input]; ok {
+// 		s.acceptString(input)
+// 		return s.createToken(keywordsWithH[input])
+// 	}
+// 	return s.unexpectedRune(s.input[s.start:nextRune])
+// }
 
-func scanIKeyword(s *scanner) token.Token {
-	input := string(s.input[s.start:s.seekNext(s.start)])
-	if _, ok := keywordsWithI[input]; ok {
-		s.acceptString(input)
-		return createToken(s.line, s.col, s.start, s.pos, keywordsWithI[input], input, s)
-	}
-	// return an error that this doesnt exist
-	return createToken(s.line, s.col, s.start, s.pos, token.KeywordSelect, string(s.input[s.start:s.pos]), s)
-}
+// func scanIKeyword(s *scanner) token.Token {
+// 	nextRune := s.seekNext(s.start)
+// 	input := string(s.input[s.start:nextRune])
+// 	if _, ok := keywordsWithI[input]; ok {
+// 		s.acceptString(input)
+// 		return s.createToken(keywordsWithI[input])
+// 	}
+// 	return s.unexpectedRune(s.input[s.start:nextRune])
+// }
 
-func scanJKeyword(s *scanner) token.Token {
-	input := string(s.input[s.start:s.seekNext(s.start)])
-	if _, ok := keywordsWithJ[input]; ok {
-		s.acceptString(input)
-		return createToken(s.line, s.col, s.start, s.pos, keywordsWithJ[input], input, s)
-	}
-	// return an error that this doesnt exist
-	return createToken(s.line, s.col, s.start, s.pos, token.KeywordSelect, string(s.input[s.start:s.pos]), s)
-}
+// func scanJKeyword(s *scanner) token.Token {
+// 	nextRune := s.seekNext(s.start)
+// 	input := string(s.input[s.start:nextRune])
+// 	if _, ok := keywordsWithJ[input]; ok {
+// 		s.acceptString(input)
+// 		return s.createToken(keywordsWithJ[input])
+// 	}
+// 	return s.unexpectedRune(s.input[s.start:nextRune])
+// }
 
-func scanKKeyword(s *scanner) token.Token {
-	input := string(s.input[s.start:s.seekNext(s.start)])
-	if _, ok := keywordsWithK[input]; ok {
-		s.acceptString(input)
-		return createToken(s.line, s.col, s.start, s.pos, keywordsWithK[input], input, s)
-	}
-	// return an error that this doesnt exist
-	return createToken(s.line, s.col, s.start, s.pos, token.KeywordSelect, string(s.input[s.start:s.pos]), s)
-}
+// func scanKKeyword(s *scanner) token.Token {
+// 	nextRune := s.seekNext(s.start)
+// 	input := string(s.input[s.start:nextRune])
+// 	if _, ok := keywordsWithK[input]; ok {
+// 		s.acceptString(input)
+// 		return s.createToken(keywordsWithK[input])
+// 	}
+// 	return s.unexpectedRune(s.input[s.start:nextRune])
+// }
 
-func scanLKeyword(s *scanner) token.Token {
-	input := string(s.input[s.start:s.seekNext(s.start)])
-	if _, ok := keywordsWithL[input]; ok {
-		s.acceptString(input)
-		return createToken(s.line, s.col, s.start, s.pos, keywordsWithL[input], input, s)
-	}
-	// return an error that this doesnt exist
-	return createToken(s.line, s.col, s.start, s.pos, token.KeywordSelect, string(s.input[s.start:s.pos]), s)
-}
+// func scanLKeyword(s *scanner) token.Token {
+// 	nextRune := s.seekNext(s.start)
+// 	input := string(s.input[s.start:nextRune])
+// 	if _, ok := keywordsWithL[input]; ok {
+// 		s.acceptString(input)
+// 		return s.createToken(keywordsWithL[input])
+// 	}
+// 	return s.unexpectedRune(s.input[s.start:nextRune])
+// }
 
-func scanMKeyword(s *scanner) token.Token {
-	input := string(s.input[s.start:s.seekNext(s.start)])
-	if _, ok := keywordsWithM[input]; ok {
-		s.acceptString(input)
-		return createToken(s.line, s.col, s.start, s.pos, keywordsWithM[input], input, s)
-	}
-	// return an error that this doesnt exist
-	return createToken(s.line, s.col, s.start, s.pos, token.KeywordSelect, string(s.input[s.start:s.pos]), s)
-}
+// func scanMKeyword(s *scanner) token.Token {
+// 	nextRune := s.seekNext(s.start)
+// 	input := string(s.input[s.start:nextRune])
+// 	if _, ok := keywordsWithM[input]; ok {
+// 		s.acceptString(input)
+// 		return s.createToken(keywordsWithM[input])
+// 	}
+// 	return s.unexpectedRune(s.input[s.start:nextRune])
+// }
 
-func scanNKeyword(s *scanner) token.Token {
-	input := string(s.input[s.start:s.seekNext(s.start)])
-	if _, ok := keywordsWithN[input]; ok {
-		s.acceptString(input)
-		return createToken(s.line, s.col, s.start, s.pos, keywordsWithN[input], input, s)
-	}
-	// return an error that this doesnt exist
-	return createToken(s.line, s.col, s.start, s.pos, token.KeywordSelect, string(s.input[s.start:s.pos]), s)
-}
+// func scanNKeyword(s *scanner) token.Token {
+// 	nextRune := s.seekNext(s.start)
+// 	input := string(s.input[s.start:nextRune])
+// 	if _, ok := keywordsWithN[input]; ok {
+// 		s.acceptString(input)
+// 		return s.createToken(keywordsWithN[input])
+// 	}
+// 	return s.unexpectedRune(s.input[s.start:nextRune])
+// }
 
-func scanOKeyword(s *scanner) token.Token {
-	input := string(s.input[s.start:s.seekNext(s.start)])
-	if _, ok := keywordsWithO[input]; ok {
-		s.acceptString(input)
-		return createToken(s.line, s.col, s.start, s.pos, keywordsWithO[input], input, s)
-	}
-	// return an error that this doesnt exist
-	return createToken(s.line, s.col, s.start, s.pos, token.KeywordSelect, string(s.input[s.start:s.pos]), s)
-}
+// func scanOKeyword(s *scanner) token.Token {
+// 	nextRune := s.seekNext(s.start)
+// 	input := string(s.input[s.start:nextRune])
+// 	if _, ok := keywordsWithO[input]; ok {
+// 		s.acceptString(input)
+// 		return s.createToken(keywordsWithO[input])
+// 	}
+// 	return s.unexpectedRune(s.input[s.start:nextRune])
+// }
 
-func scanPKeyword(s *scanner) token.Token {
-	input := string(s.input[s.start:s.seekNext(s.start)])
-	if _, ok := keywordsWithP[input]; ok {
-		s.acceptString(input)
-		return createToken(s.line, s.col, s.start, s.pos, keywordsWithP[input], input, s)
-	}
-	// return an error that this doesnt exist
-	return createToken(s.line, s.col, s.start, s.pos, token.KeywordSelect, string(s.input[s.start:s.pos]), s)
-}
+// func scanPKeyword(s *scanner) token.Token {
+// 	nextRune := s.seekNext(s.start)
+// 	input := string(s.input[s.start:nextRune])
+// 	if _, ok := keywordsWithP[input]; ok {
+// 		s.acceptString(input)
+// 		return s.createToken(keywordsWithP[input])
+// 	}
+// 	return s.unexpectedRune(s.input[s.start:nextRune])
+// }
 
-func scanQKeyword(s *scanner) token.Token {
-	input := string(s.input[s.start:s.seekNext(s.start)])
-	if _, ok := keywordsWithQ[input]; ok {
-		s.acceptString(input)
-		return createToken(s.line, s.col, s.start, s.pos, keywordsWithQ[input], input, s)
-	}
-	// return an error that this doesnt exist
-	return createToken(s.line, s.col, s.start, s.pos, token.KeywordSelect, string(s.input[s.start:s.pos]), s)
-}
+// func scanQKeyword(s *scanner) token.Token {
+// 	nextRune := s.seekNext(s.start)
+// 	input := string(s.input[s.start:nextRune])
+// 	if _, ok := keywordsWithQ[input]; ok {
+// 		s.acceptString(input)
+// 		return s.createToken(keywordsWithQ[input])
+// 	}
+// 	return s.unexpectedRune(s.input[s.start:nextRune])
+// }
 
-func scanRKeyword(s *scanner) token.Token {
-	input := string(s.input[s.start:s.seekNext(s.start)])
-	if _, ok := keywordsWithR[input]; ok {
-		s.acceptString(input)
-		return createToken(s.line, s.col, s.start, s.pos, keywordsWithR[input], input, s)
-	}
-	// return an error that this doesnt exist
-	return createToken(s.line, s.col, s.start, s.pos, token.KeywordSelect, string(s.input[s.start:s.pos]), s)
-}
+// func scanRKeyword(s *scanner) token.Token {
+// 	nextRune := s.seekNext(s.start)
+// 	input := string(s.input[s.start:nextRune])
+// 	if _, ok := keywordsWithR[input]; ok {
+// 		s.acceptString(input)
+// 		return s.createToken(keywordsWithR[input])
+// 	}
+// 	return s.unexpectedRune(s.input[s.start:nextRune])
+// }
 
 func scanSKeyword(s *scanner) token.Token {
-	input := string(s.input[s.start:s.seekNext(s.start)])
+	nextRune := s.seekNext(s.start)
+	input := string(s.input[s.start:nextRune])
 	if _, ok := keywordsWithS[input]; ok {
 		s.acceptString(input)
-		return createToken(s.line, s.col, s.start, s.pos, keywordsWithS[input], input, s)
+		return s.createToken(keywordsWithS[input])
 	}
-	// return an error that this doesnt exist
-	return createToken(s.line, s.col, s.start, s.pos, token.KeywordSelect, string(s.input[s.start:s.pos]), s)
+	return s.createToken(keywordsWithS[input])
 }
 
-func scanTKeyword(s *scanner) token.Token {
-	input := string(s.input[s.start:s.seekNext(s.start)])
-	if _, ok := keywordsWithT[input]; ok {
-		s.acceptString(input)
-		return createToken(s.line, s.col, s.start, s.pos, keywordsWithT[input], input, s)
-	}
-	// return an error that this doesnt exist
-	return createToken(s.line, s.col, s.start, s.pos, token.KeywordSelect, string(s.input[s.start:s.pos]), s)
-}
+// func scanTKeyword(s *scanner) token.Token {
+// 	nextRune := s.seekNext(s.start)
+// 	input := string(s.input[s.start:nextRune])
+// 	if _, ok := keywordsWithT[input]; ok {
+// 		s.acceptString(input)
+// 		return s.createToken(keywordsWithT[input])
+// 	}
+// 	return s.unexpectedRune(s.input[s.start:nextRune])
+// }
 
-func scanUKeyword(s *scanner) token.Token {
-	input := string(s.input[s.start:s.seekNext(s.start)])
-	if _, ok := keywordsWithU[input]; ok {
-		s.acceptString(input)
-		return createToken(s.line, s.col, s.start, s.pos, keywordsWithU[input], input, s)
-	}
-	// return an error that this doesnt exist
-	return createToken(s.line, s.col, s.start, s.pos, token.KeywordSelect, string(s.input[s.start:s.pos]), s)
-}
-func scanVKeyword(s *scanner) token.Token {
-	input := string(s.input[s.start:s.seekNext(s.start)])
-	if _, ok := keywordsWithV[input]; ok {
-		s.acceptString(input)
-		return createToken(s.line, s.col, s.start, s.pos, keywordsWithV[input], input, s)
-	}
-	// return an error that this doesnt exist
-	return createToken(s.line, s.col, s.start, s.pos, token.KeywordSelect, string(s.input[s.start:s.pos]), s)
-}
+// func scanUKeyword(s *scanner) token.Token {
+// 	nextRune := s.seekNext(s.start)
+// 	input := string(s.input[s.start:nextRune])
+// 	if _, ok := keywordsWithU[input]; ok {
+// 		s.acceptString(input)
+// 		return s.createToken(keywordsWithU[input])
+// 	}
+// 	return s.unexpectedRune(s.input[s.start:nextRune])
+// }
+// func scanVKeyword(s *scanner) token.Token {
+// 	nextRune := s.seekNext(s.start)
+// 	input := string(s.input[s.start:nextRune])
+// 	if _, ok := keywordsWithV[input]; ok {
+// 		s.acceptString(input)
+// 		return s.createToken(keywordsWithV[input])
+// 	}
+// 	return s.unexpectedRune(s.input[s.start:nextRune])
+// }
 
-func scanWKeyword(s *scanner) token.Token {
-	input := string(s.input[s.start:s.seekNext(s.start)])
-	if _, ok := keywordsWithW[input]; ok {
-		s.acceptString(input)
-		return createToken(s.line, s.col, s.start, s.pos, keywordsWithW[input], input, s)
-	}
-	// return an error that this doesnt exist
-	return createToken(s.line, s.col, s.start, s.pos, token.KeywordSelect, string(s.input[s.start:s.pos]), s)
-}
+// func scanWKeyword(s *scanner) token.Token {
+// 	nextRune := s.seekNext(s.start)
+// 	input := string(s.input[s.start:nextRune])
+// 	if _, ok := keywordsWithW[input]; ok {
+// 		s.acceptString(input)
+// 		return s.createToken(keywordsWithW[input])
+// 	}
+// 	return s.unexpectedRune(s.input[s.start:nextRune])
+// }
