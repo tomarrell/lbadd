@@ -855,7 +855,7 @@ func TestNode_isFull(t *testing.T) {
 	}
 }
 
-func TestNode_canSteal(t *testing.T) {
+func TestNode_canStealEntry(t *testing.T) {
 	type fields struct {
 		parent   *node
 		entries  []*entry
@@ -882,7 +882,7 @@ func TestNode_canSteal(t *testing.T) {
 				children: tt.fields.children,
 			}
 
-			got := n.canSteal(tt.args.order)
+			got := n.canStealEntry(tt.args.order)
 			assert.Equal(t, tt.want, got)
 		})
 	}

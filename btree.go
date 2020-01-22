@@ -12,7 +12,8 @@ package lbadd
 
 import (
 	"fmt"
-	"math"
+
+	"github.com/davecgh/go-spew/spew"
 )
 
 const defaultOrder = 3
@@ -174,14 +175,13 @@ func (b *btree) remove(k key) (removed bool) {
 
 // removeNode takes a node and key and bool, and recursively deletes
 // k from the node, while maintaining the order invariants
-func (b *btree) removeNode(node *node, k key) (removed bool) {
-	idx, exists := search(node.entries, k)
+func (b *btree) removeNode(n *node, k key) (removed bool) {
+	idx, exists := search(n.entries, k)
 
 	// If the node is not a leaf, we need to continue traversal
-	if !node.isLeaf() {
+	if !n.isLeaf() {
 		// If it exists, the idx is one less than what we need
-		fmt.Println("traversing to on child index", idx)
-		return b.removeNode(node.children[idx], k)
+		return b.removeNode(n.children[idx], k)
 	}
 
 	// Otherwise, we check if the entry exists, and return if it doesn't
@@ -190,50 +190,109 @@ func (b *btree) removeNode(node *node, k key) (removed bool) {
 	}
 
 	// Ok, so we've found the key, now we need to remove it.
-	node.entries = append(node.entries[:idx-1], node.entries[idx:]...)
+	n.entries = append(n.entries[:idx-1], n.entries[idx:]...)
 	b.size--
 
 	// Now we need to check if we've caused an underflow
-	if node.isUnderflowed(b.order) {
-		// Can steal from the left leaf sibling
-		lleaf, exists := node.leftSibling(k)
-		if exists && lleaf.canSteal(b.order) {
-			panic("can steal from left sibling")
-		}
+	if n.isUnderflowed(b.order) {
+		n.recursiveBalance(k, b.order)
 
-		// Can steal from the right leaf sibling
-		rleaf, exists := node.rightSibling(k)
-		if exists && rleaf.canSteal(b.order) {
-			// Append the right sibling's first entry to this node
-			node.entries = append(node.entries, rleaf.entries[0])
-			// Remove the right sibling's first entry
-			rleaf.entries = rleaf.entries[1:]
-			// Replace the parent key to the right sibling's first entry's key
-			node.parent.entries[idx-1] = &entry{rleaf.entries[0].key, nil}
-			return true
-		}
-
-		// Can't steal from either left or right, so we're going to have to merge
-		fmt.Println("found nothing to steal")
-
-		// Try to merge left
-		_, exists = node.leftSibling(k)
-		if exists {
-			panic("can merge into left sibling")
-		}
-
-		dest, exists := node.rightSibling(k)
-		if exists {
-			fmt.Println(dest)
-			panic("can merge into right sibling")
-		}
-
-		return false
+		return true
 	} else {
 		fmt.Println("no underflow")
 	}
 
 	return true
+}
+
+func (n *node) recursiveBalance(k key, order int) {
+	spew.Println()
+	spew.Println("balancing node with entries", n.entries, "and key", k)
+	if n.isRoot() {
+		spew.Println("at root")
+		return
+	}
+
+	idx, exists := search(n.entries, k)
+	// Can steal from the left leaf sibling
+	lleaf, exists := n.leftSibling(k)
+	if exists && lleaf.canStealEntry(order) {
+		spew.Println("can steal from left leaf")
+		// Take the parent's key and prepend it to this node
+		n.entries = append([]*entry{n.parent.entries[idx]}, n.entries...)
+		// Set the parent's key to the key of the last entry in the sibling
+		n.parent.entries[idx] = &entry{lleaf.entries[len(lleaf.entries)-1].key, nil}
+		// Remove the left sibling's last entry
+		lleaf.entries = lleaf.entries[:len(lleaf.entries)-1]
+
+		// If the node isn't a leaf, we need to steal the sibling's rightmost child
+		// as well, making sure it knows who its new parent is
+		if !n.isLeaf() {
+			stolen := lleaf.children[len(lleaf.children)-1]
+			stolen.parent = n
+			n.children = append([]*node{stolen}, n.children...)
+			lleaf.children = lleaf.children[:len(lleaf.children)-1]
+		}
+
+		spew.Println()
+		spew.Println("after surgery")
+		spew.Println("entries", n.entries)
+		spew.Println("child count", len(n.children))
+		spew.Println("left entries", lleaf.entries)
+		spew.Println("left count", len(lleaf.children))
+		spew.Println()
+
+		return
+	}
+
+	// Can steal from the right leaf sibling
+	rleaf, exists := n.rightSibling(k)
+	if exists && rleaf.canStealEntry(order) {
+		spew.Println("can steal from right leaf")
+		// Append the right sibling's first entry to this node
+		n.entries = append(n.entries, rleaf.entries[0])
+		// Remove the right sibling's first entry
+		rleaf.entries = rleaf.entries[1:]
+		// Replace the parent key to the right sibling's first entry's key
+		n.parent.entries[idx] = &entry{rleaf.entries[0].key, nil}
+		return
+	}
+
+	// Try to merge left
+	_, exists = n.leftSibling(k)
+	if exists {
+		spew.Println("merging with left node")
+		panic("can merge left")
+	}
+
+	// Try to merge right
+	rdest, exists := n.rightSibling(k)
+	if exists {
+		spew.Println("merging with right node")
+		// Create a new node, which is the combination of the two nodes to merge
+		mergedNode := &node{
+			parent:   rdest.parent,
+			entries:  append(n.entries, rdest.entries...),
+			children: append(n.children, rdest.children...),
+		}
+
+		// Check if removing a child from the parent would cause it to underflow
+		parIdx, _ := search(n.parent.entries, k)
+		spew.Println("the parent index is: ", parIdx)
+		spew.Println("the number of parent children is: ", len(n.parent.children))
+
+		n.parent.entries = append(n.parent.entries[:parIdx], n.parent.entries[parIdx+1:]...)
+		n.parent.children = append(n.parent.children[:parIdx], n.parent.children[parIdx+1:]...)
+		n.parent.children[parIdx] = mergedNode
+
+		// Check if parent now has too few children, and recursively merge
+		if n.parent.isUnderflowed(order) {
+			n.parent.recursiveBalance(k, order)
+			return
+		}
+
+		panic("can merge right")
+	}
 }
 
 //
@@ -293,6 +352,12 @@ func (n *node) isLeaf() bool {
 	return len(n.children) == 0
 }
 
+// isRoot returns whether or not the current node is the
+// root of the tree
+func (n *node) isRoot() bool {
+	return n.parent == nil
+}
+
 // isFull returns a bool indication whether the node
 // already contains the maximum number of entries
 // allowed for a given order
@@ -302,20 +367,28 @@ func (n *node) isFull(order int) bool {
 
 // canSteal returns a bool indicating whether or not
 // the node contains enough entries to be able to take one
-func (n *node) canSteal(order int) bool {
-	return len(n.entries) > int(math.Ceil(float64(order)/2.0))
+func (n *node) canStealEntry(order int) bool {
+	if n.isLeaf() {
+		return len(n.entries) > order/2
+	}
+
+	return len(n.children) > order/2
 }
 
 // Returns true when the node has too few entries to
 // satisfy the order invariant, given a specific order
 func (n *node) isUnderflowed(order int) bool {
-	return len(n.entries) < int(math.Ceil(float64(order)/2.0))
+	if n.isLeaf() {
+		return len(n.entries) < order/2
+	}
+
+	return len(n.children) < order/2
 }
 
 // returns whether the node can successfully be split into
 // two children while maintaining the invariants
 func (n *node) canSplit(order int) bool {
-	return float64(len(n.entries)) >= 2*math.Ceil(float64(order)/2.0)
+	return len(n.children) >= 2*order
 }
 
 // leftSibling returns the left sibling if it exists, indicating such
