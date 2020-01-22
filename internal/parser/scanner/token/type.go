@@ -168,5 +168,6 @@ const (
 
 	Literal
 
-	Operator
+	UnaryOperator
+	BinaryOperator
 )
