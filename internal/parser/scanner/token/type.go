@@ -167,4 +167,6 @@ const (
 	KeywordWithout
 
 	Literal
+
+	Operator
 )
