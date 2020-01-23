@@ -167,4 +167,7 @@ const (
 	KeywordWithout
 
 	Literal
+
+	UnaryOperator
+	BinaryOperator
 )
