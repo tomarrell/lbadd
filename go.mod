@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/dghubble/trie v0.0.0-20190708005417-09498fbfbadb
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/stretchr/testify v1.4.0
 	golang.org/x/text v0.3.2
