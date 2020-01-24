@@ -1,45 +1,75 @@
 package scanner
 
 import (
-	"fmt"
+	"strings"
 
-	// "github.com/dghubble/trie"
 	"github.com/tomarrell/lbadd/internal/parser/scanner/matcher"
 	"github.com/tomarrell/lbadd/internal/parser/scanner/token"
 )
 
-// LoadTrie inserts all keywords on to the trie
-func LoadTrie() {
-	trie := NewRuneTrie()
-	for k, v := range keywordsWithS {
-		trie.Put(k, v)
-	}
-	fmt.Println(trie.Get("SELECS"))
+var keywordsWithA = []string{
+	"ABORT",
+	"ACTION",
+	"ADD",
+	"AFTER",
+	"ALL",
+	"ALTER",
+	"ANALYZE",
+	"AND",
+	"AS",
+	"ASC",
+	"ATTACH",
+	"AUTO",
 }
 
-var keywordsWithA map[string]token.Type = map[string]token.Type{
-	"ABORT":          token.KeywordAbort,
-	"ACTION":         token.KeywordAction,
-	"ADD":            token.KeywordAdd,
-	"AFTER":          token.KeywordAdd,
-	"ALL":            token.KeywordAll,
-	"ALTER":          token.KeywordAlter,
-	"ANALYZE":        token.KeywordAnalyze,
-	"AND":            token.KeywordAnd,
-	"AS":             token.KeywordAnd,
-	"ASC":            token.KeywordAsc,
-	"ATTACH":         token.KeywordAttach,
-	"AUTO INCREMENT": token.KeywordAutoincrement,
+var keywordMapWithA map[string]token.Type = map[string]token.Type{
+	"ABORT":   token.KeywordAbort,
+	"ACTION":  token.KeywordAction,
+	"ADD":     token.KeywordAdd,
+	"AFTER":   token.KeywordAdd,
+	"ALL":     token.KeywordAll,
+	"ALTER":   token.KeywordAlter,
+	"ANALYZE": token.KeywordAnalyze,
+	"AND":     token.KeywordAnd,
+	"AS":      token.KeywordAnd,
+	"ASC":     token.KeywordAsc,
+	"ATTACH":  token.KeywordAttach,
+	"AUTO":    token.KeywordAuto,
 }
 
-var keywordsWithB map[string]token.Type = map[string]token.Type{
+var keywordsWithB = []string{
+	"BEFORE",
+	"BEGIN",
+	"BETWEEN",
+	"BY",
+}
+
+var keywordMapWithB map[string]token.Type = map[string]token.Type{
 	"BEFORE":  token.KeywordBefore,
 	"BEGIN":   token.KeywordBegin,
 	"BETWEEN": token.KeywordBetween,
 	"BY":      token.KeywordBy,
 }
 
-var keywordsWithC map[string]token.Type = map[string]token.Type{
+var keywordsWithC = []string{
+	"CASCADE",
+	"CASE",
+	"CAST",
+	"CHECK",
+	"COLLATE",
+	"COLUMN",
+	"COMMIT",
+	"CONFLICT",
+	"CONSTRAINT",
+	"CREATE",
+	"CROSS",
+	"CURRENT",
+	"CURRENT_DATE",
+	"CURRENT_TIME",
+	"CURRENT_TIMESTAMP",
+}
+
+var keywordMapWithC map[string]token.Type = map[string]token.Type{
 	"CASCADE":           token.KeywordCascade,
 	"CASE":              token.KeywordCase,
 	"CAST":              token.KeywordCast,
@@ -57,7 +87,20 @@ var keywordsWithC map[string]token.Type = map[string]token.Type{
 	"CURRENT_TIMESTAMP": token.KeywordCurrentTimestamp,
 }
 
-var keywordsWithD map[string]token.Type = map[string]token.Type{
+var keywordsWithD = []string{
+	"DATABASE",
+	"DEFAULT",
+	"DEFERRABLE",
+	"DEFERRED",
+	"DELETE",
+	"DESC",
+	"DETACH",
+	"DISTINCT",
+	"DO",
+	"DROP",
+}
+
+var keywordMapWithD map[string]token.Type = map[string]token.Type{
 	"DATABASE":   token.KeywordDatabase,
 	"DEFAULT":    token.KeywordDefault,
 	"DEFERRABLE": token.KeywordDeferrable,
@@ -70,7 +113,19 @@ var keywordsWithD map[string]token.Type = map[string]token.Type{
 	"DROP":       token.KeywordDrop,
 }
 
-var keywordsWithE map[string]token.Type = map[string]token.Type{
+var keywordsWithE = []string{
+	"EACH",
+	"ELSE",
+	"END",
+	"ESCAPE",
+	"EXCEPT",
+	"EXCLUDE",
+	"EXCLUSIVE",
+	"EXISTS",
+	"EXPLAIN",
+}
+
+var keywordMapWithE map[string]token.Type = map[string]token.Type{
 	"EACH":      token.KeywordEach,
 	"ELSE":      token.KeywordElse,
 	"END":       token.KeywordEnd,
@@ -82,7 +137,18 @@ var keywordsWithE map[string]token.Type = map[string]token.Type{
 	"EXPLAIN":   token.KeywordExplain,
 }
 
-var keywordsWithF map[string]token.Type = map[string]token.Type{
+var keywordsWithF = []string{
+	"FAIL",
+	"FILTER",
+	"FIRST",
+	"FOLLOWING",
+	"FOR",
+	"FOREIGN",
+	"FROM",
+	"FULL",
+}
+
+var keywordMapWithF map[string]token.Type = map[string]token.Type{
 	"FAIL":      token.KeywordFail,
 	"FILTER":    token.KeywordFilter,
 	"FIRST":     token.KeywordFirst,
@@ -93,17 +159,44 @@ var keywordsWithF map[string]token.Type = map[string]token.Type{
 	"FULL":      token.KeywordFull,
 }
 
-var keywordsWithG map[string]token.Type = map[string]token.Type{
+var keywordsWithG = []string{
+	"GLOB",
+	"GROUP",
+	"GROUPS",
+}
+
+var keywordMapWithG map[string]token.Type = map[string]token.Type{
 	"GLOB":   token.KeywordGlob,
 	"GROUP":  token.KeywordGroup,
 	"GROUPS": token.KeywordGroups,
 }
 
-var keywordsWithH map[string]token.Type = map[string]token.Type{
+var keywordsWithH = []string{
+	"HAVING",
+}
+
+var keywordMapWithH map[string]token.Type = map[string]token.Type{
 	"HAVING": token.KeywordHaving,
 }
 
-var keywordsWithI map[string]token.Type = map[string]token.Type{
+var keywordsWithI = []string{
+	"IF",
+	"IGNORE",
+	"IMMEDIATE",
+	"IN",
+	"INDEX",
+	"INDEXED",
+	"INITIALLY",
+	"INNER",
+	"INSERT",
+	"INSTEAD",
+	"INTERSECT",
+	"INTO",
+	"IS",
+	"ISNULL",
+}
+
+var keywordMapWithI map[string]token.Type = map[string]token.Type{
 	"IF":        token.KeywordIf,
 	"IGNORE":    token.KeywordIgnore,
 	"IMMEDIATE": token.KeywordImmediate,
@@ -120,26 +213,54 @@ var keywordsWithI map[string]token.Type = map[string]token.Type{
 	"ISNULL":    token.KeywordIsnull,
 }
 
-var keywordsWithJ map[string]token.Type = map[string]token.Type{
+var keywordsWithJ = []string{
+	"JOIN",
+}
+
+var keywordMapWithJ map[string]token.Type = map[string]token.Type{
 	"JOIN": token.KeywordJoin,
 }
 
-var keywordsWithK map[string]token.Type = map[string]token.Type{
+var keywordsWithK = []string{
+	"KEY",
+}
+
+var keywordMapWithK map[string]token.Type = map[string]token.Type{
 	"KEY": token.KeywordKey,
 }
 
-var keywordsWithL map[string]token.Type = map[string]token.Type{
+var keywordsWithL = []string{
+	"LAST",
+	"LEFT",
+	"LIKE",
+	"LIMIT",
+}
+
+var keywordMapWithL map[string]token.Type = map[string]token.Type{
 	"LAST":  token.KeywordLast,
 	"LEFT":  token.KeywordLeft,
 	"LIKE":  token.KeywordLike,
 	"LIMIT": token.KeywordLimit,
 }
 
-var keywordsWithM map[string]token.Type = map[string]token.Type{
+var keywordsWithM = []string{
+	"MATCH",
+}
+
+var keywordMapWithM map[string]token.Type = map[string]token.Type{
 	"MATCH": token.KeywordMatch,
 }
 
-var keywordsWithN map[string]token.Type = map[string]token.Type{
+var keywordsWithN = []string{
+	"NATURAL",
+	"NO",
+	"NOT",
+	"NOTHING",
+	"NOTNULL",
+	"NULL",
+}
+
+var keywordMapWithN map[string]token.Type = map[string]token.Type{
 	"NATURAL": token.KeywordNatural,
 	"NO":      token.KeywordNo,
 	"NOT":     token.KeywordNot,
@@ -148,7 +269,18 @@ var keywordsWithN map[string]token.Type = map[string]token.Type{
 	"NULL":    token.KeywordNull,
 }
 
-var keywordsWithO map[string]token.Type = map[string]token.Type{
+var keywordsWithO = []string{
+	"OF",
+	"OFFSET",
+	"ON",
+	"OR",
+	"ORDER",
+	"OTHERS",
+	"OUTER",
+	"OVER",
+}
+
+var keywordMapWithO map[string]token.Type = map[string]token.Type{
 	"OF":     token.KeywordOf,
 	"OFFSET": token.KeywordOffset,
 	"ON":     token.KeywordOn,
@@ -159,7 +291,15 @@ var keywordsWithO map[string]token.Type = map[string]token.Type{
 	"OVER":   token.KeywordOver,
 }
 
-var keywordsWithP map[string]token.Type = map[string]token.Type{
+var keywordsWithP = []string{
+	"PARTITION",
+	"PLAN",
+	"PRAGMA",
+	"PRECEDING",
+	"PRIMARY",
+}
+
+var keywordMapWithP map[string]token.Type = map[string]token.Type{
 	"PARTITION": token.KeywordPartition,
 	"PLAN":      token.KeywordPlan,
 	"PRAGMA":    token.KeywordPragma,
@@ -167,11 +307,32 @@ var keywordsWithP map[string]token.Type = map[string]token.Type{
 	"PRIMARY":   token.KeywordPrimary,
 }
 
-var keywordsWithQ map[string]token.Type = map[string]token.Type{
+var keywordsWithQ = []string{
+	"QUERY",
+}
+
+var keywordMapWithQ map[string]token.Type = map[string]token.Type{
 	"QUERY": token.KeywordQuery,
 }
 
-var keywordsWithR map[string]token.Type = map[string]token.Type{
+var keywordsWithR = []string{
+	"RAISE",
+	"RANGE",
+	"RECURSIVE",
+	"REFERENCES",
+	"REGEXP",
+	"REINDEX",
+	"RELEASE",
+	"RENAME",
+	"REPLACE",
+	"RESTRICT",
+	"RIGHT",
+	"ROLLBACK",
+	"ROW",
+	"ROWS",
+}
+
+var keywordMapWithR map[string]token.Type = map[string]token.Type{
 	"RAISE":      token.KeywordRaise,
 	"RANGE":      token.KeywordRange,
 	"RECURSIVE":  token.KeywordRecursive,
@@ -188,13 +349,30 @@ var keywordsWithR map[string]token.Type = map[string]token.Type{
 	"ROWS":       token.KeywordRows,
 }
 
-var keywordsWithS map[string]token.Type = map[string]token.Type{
+var keywordsWithS = []string{
+	"SAVEPOINT",
+	"SELECT",
+	"SET",
+}
+
+var keywordMapWithS map[string]token.Type = map[string]token.Type{
 	"SAVEPOINT": token.KeywordSavepoint,
 	"SELECT":    token.KeywordSelect,
 	"SET":       token.KeywordSet,
 }
 
-var keywordsWithT map[string]token.Type = map[string]token.Type{
+var keywordsWithT = []string{
+	"TABLE",
+	"TEMP",
+	"TEMPORARY",
+	"THEN",
+	"TIES",
+	"TO",
+	"TRANSACTION",
+	"TRIGGER",
+}
+
+var keywordMapWithT map[string]token.Type = map[string]token.Type{
 	"TABLE":       token.KeywordTable,
 	"TEMP":        token.KeywordTemp,
 	"TEMPORARY":   token.KeywordTemporary,
@@ -205,7 +383,15 @@ var keywordsWithT map[string]token.Type = map[string]token.Type{
 	"TRIGGER":     token.KeywordTrigger,
 }
 
-var keywordsWithU map[string]token.Type = map[string]token.Type{
+var keywordsWithU = []string{
+	"UNBOUNDED",
+	"UNION",
+	"UNIQUE",
+	"UPDATE",
+	"USING",
+}
+
+var keywordMapWithU map[string]token.Type = map[string]token.Type{
 	"UNBOUNDED": token.KeywordUnbounded,
 	"UNION":     token.KeywordUnion,
 	"UNIQUE":    token.KeywordUnique,
@@ -213,14 +399,29 @@ var keywordsWithU map[string]token.Type = map[string]token.Type{
 	"USING":     token.KeywordUsing,
 }
 
-var keywordsWithV map[string]token.Type = map[string]token.Type{
+var keywordsWithV = []string{
+	"VACUUM",
+	"VALUES",
+	"VIEW",
+	"VIRTUAL",
+}
+
+var keywordMapWithV map[string]token.Type = map[string]token.Type{
 	"VACUUM":  token.KeywordVacuum,
 	"VALUES":  token.KeywordValues,
 	"VIEW":    token.KeywordView,
 	"VIRTUAL": token.KeywordVirtual,
 }
 
-var keywordsWithW map[string]token.Type = map[string]token.Type{
+var keywordsWithW = []string{
+	"WHEN",
+	"WHERE",
+	"WINDOW",
+	"WITH",
+	"WITHOUT",
+}
+
+var keywordMapWithW map[string]token.Type = map[string]token.Type{
 	"WHEN":    token.KeywordWhen,
 	"WHERE":   token.KeywordWhere,
 	"WINDOW":  token.KeywordWindow,
@@ -368,231 +569,527 @@ func scanSpace(s *scanner) {
 // 	return createToken(s.line, s.col, s.start, s.pos, token.SQLSpecialCharacter, string(s.input[s.start:s.pos]), s)
 // }
 
-// func scanAKeyword(s *scanner) token.Token {
-// 	nextRune := s.seekNext(s.start)
-// 	input := string(s.input[s.start:nextRune])
-// 	if _, ok := keywordsWithA[input]; ok {
-// 		s.acceptString(input)
-// 		return s.createToken(keywordsWithA[input])
-// 	}
-// 	return s.unexpectedRune(s.input[s.start:nextRune])
-// }
+func scanAKeyword(s *scanner) token.Token {
+	nextRune := s.seekNext(s.start)
+	input := s.input[s.start:nextRune]
+	for _, k := range keywordsWithA {
+		keyword := strings.Split(k, "")
+		j := 0
+		length := len(input)
+		if length > len(keyword) {
+			length = len(keyword)
+		}
+		for i := 0; i < length; i++ {
+			if keyword[i] == string(input[i]) {
+				j++
+			}
+		}
+		if j == len(keyword) {
+			s.acceptString(string(input))
+			return s.createToken(keywordMapWithA[k])
+		}
+	}
+	return s.unexpectedRune()
+}
 
-// func scanBKeyword(s *scanner) token.Token {
-// 	nextRune := s.seekNext(s.start)
-// 	input := string(s.input[s.start:nextRune])
-// 	if _, ok := keywordsWithB[input]; ok {
-// 		s.acceptString(input)
-// 		return s.createToken(keywordsWithB[input])
-// 	}
-// 	return s.unexpectedRune(s.input[s.start:nextRune])
-// }
+func scanBKeyword(s *scanner) token.Token {
+	nextRune := s.seekNext(s.start)
+	input := s.input[s.start:nextRune]
+	for _, k := range keywordsWithB {
+		keyword := strings.Split(k, "")
+		j := 0
+		length := len(input)
+		if length > len(keyword) {
+			length = len(keyword)
+		}
+		for i := 0; i < length; i++ {
+			if keyword[i] == string(input[i]) {
+				j++
+			}
+		}
+		if j == len(keyword) {
+			s.acceptString(string(input))
+			return s.createToken(keywordMapWithB[k])
+		}
+	}
+	return s.unexpectedRune()
+}
 
-// func scanCKeyword(s *scanner) token.Token {
-// 	nextRune := s.seekNext(s.start)
-// 	input := string(s.input[s.start:nextRune])
-// 	if _, ok := keywordsWithC[input]; ok {
-// 		s.acceptString(input)
-// 		return s.createToken(keywordsWithC[input])
-// 	}
-// 	return s.unexpectedRune(s.input[s.start:nextRune])
-// }
+func scanCKeyword(s *scanner) token.Token {
+	nextRune := s.seekNext(s.start)
+	input := s.input[s.start:nextRune]
+	for _, k := range keywordsWithC {
+		keyword := strings.Split(k, "")
+		j := 0
+		length := len(input)
+		if length > len(keyword) {
+			length = len(keyword)
+		}
+		for i := 0; i < length; i++ {
+			if keyword[i] == string(input[i]) {
+				j++
+			}
+		}
+		if j == len(keyword) {
+			s.acceptString(string(input))
+			return s.createToken(keywordMapWithC[k])
+		}
+	}
+	return s.unexpectedRune()
+}
 
-// func scanDKeyword(s *scanner) token.Token {
-// 	nextRune := s.seekNext(s.start)
-// 	input := string(s.input[s.start:nextRune])
-// 	if _, ok := keywordsWithD[input]; ok {
-// 		s.acceptString(input)
-// 		return s.createToken(keywordsWithD[input])
-// 	}
-// 	return s.unexpectedRune(s.input[s.start:nextRune])
-// }
+func scanDKeyword(s *scanner) token.Token {
+	nextRune := s.seekNext(s.start)
+	input := s.input[s.start:nextRune]
+	for _, k := range keywordsWithD {
+		keyword := strings.Split(k, "")
+		j := 0
+		length := len(input)
+		if length > len(keyword) {
+			length = len(keyword)
+		}
+		for i := 0; i < length; i++ {
+			if keyword[i] == string(input[i]) {
+				j++
+			}
+		}
+		if j == len(keyword) {
+			s.acceptString(string(input))
+			return s.createToken(keywordMapWithD[k])
+		}
+	}
+	return s.unexpectedRune()
+}
 
-// func scanEKeyword(s *scanner) token.Token {
-// 	nextRune := s.seekNext(s.start)
-// 	input := string(s.input[s.start:nextRune])
-// 	if _, ok := keywordsWithE[input]; ok {
-// 		s.acceptString(input)
-// 		return s.createToken(keywordsWithE[input])
-// 	}
-// 	return s.unexpectedRune(s.input[s.start:nextRune])
-// }
+func scanEKeyword(s *scanner) token.Token {
+	nextRune := s.seekNext(s.start)
+	input := s.input[s.start:nextRune]
+	for _, k := range keywordsWithE {
+		keyword := strings.Split(k, "")
+		j := 0
+		length := len(input)
+		if length > len(keyword) {
+			length = len(keyword)
+		}
+		for i := 0; i < length; i++ {
+			if keyword[i] == string(input[i]) {
+				j++
+			}
+		}
+		if j == len(keyword) {
+			s.acceptString(string(input))
+			return s.createToken(keywordMapWithE[k])
+		}
+	}
+	return s.unexpectedRune()
+}
 
-// func scanFKeyword(s *scanner) token.Token {
-// 	nextRune := s.seekNext(s.start)
-// 	input := string(s.input[s.start:nextRune])
-// 	if _, ok := keywordsWithF[input]; ok {
-// 		s.acceptString(input)
-// 		return s.createToken(keywordsWithF[input])
-// 	}
-// 	return s.unexpectedRune(s.input[s.start:nextRune])
-// }
+func scanFKeyword(s *scanner) token.Token {
+	nextRune := s.seekNext(s.start)
+	input := s.input[s.start:nextRune]
+	for _, k := range keywordsWithF {
+		keyword := strings.Split(k, "")
+		j := 0
+		length := len(input)
+		if length > len(keyword) {
+			length = len(keyword)
+		}
+		for i := 0; i < length; i++ {
+			if keyword[i] == string(input[i]) {
+				j++
+			}
+		}
+		if j == len(keyword) {
+			s.acceptString(string(input))
+			return s.createToken(keywordMapWithF[k])
+		}
+	}
+	return s.unexpectedRune()
+}
 
-// func scanGKeyword(s *scanner) token.Token {
-// 	nextRune := s.seekNext(s.start)
-// 	input := string(s.input[s.start:nextRune])
-// 	if _, ok := keywordsWithG[input]; ok {
-// 		s.acceptString(input)
-// 		return s.createToken(keywordsWithG[input])
-// 	}
-// 	return s.unexpectedRune(s.input[s.start:nextRune])
-// }
+func scanGKeyword(s *scanner) token.Token {
+	nextRune := s.seekNext(s.start)
+	input := s.input[s.start:nextRune]
+	for _, k := range keywordsWithG {
+		keyword := strings.Split(k, "")
+		j := 0
+		length := len(input)
+		if length > len(keyword) {
+			length = len(keyword)
+		}
+		for i := 0; i < length; i++ {
+			if keyword[i] == string(input[i]) {
+				j++
+			}
+		}
+		if j == len(keyword) {
+			s.acceptString(string(input))
+			return s.createToken(keywordMapWithG[k])
+		}
+	}
+	return s.unexpectedRune()
+}
 
-// func scanHKeyword(s *scanner) token.Token {
-// 	nextRune := s.seekNext(s.start)
-// 	input := string(s.input[s.start:nextRune])
-// 	if _, ok := keywordsWithH[input]; ok {
-// 		s.acceptString(input)
-// 		return s.createToken(keywordsWithH[input])
-// 	}
-// 	return s.unexpectedRune(s.input[s.start:nextRune])
-// }
+func scanHKeyword(s *scanner) token.Token {
+	nextRune := s.seekNext(s.start)
+	input := s.input[s.start:nextRune]
+	for _, k := range keywordsWithH {
+		keyword := strings.Split(k, "")
+		j := 0
+		length := len(input)
+		if length > len(keyword) {
+			length = len(keyword)
+		}
+		for i := 0; i < length; i++ {
+			if keyword[i] == string(input[i]) {
+				j++
+			}
+		}
+		if j == len(keyword) {
+			s.acceptString(string(input))
+			return s.createToken(keywordMapWithH[k])
+		}
+	}
+	return s.unexpectedRune()
+}
 
-// func scanIKeyword(s *scanner) token.Token {
-// 	nextRune := s.seekNext(s.start)
-// 	input := string(s.input[s.start:nextRune])
-// 	if _, ok := keywordsWithI[input]; ok {
-// 		s.acceptString(input)
-// 		return s.createToken(keywordsWithI[input])
-// 	}
-// 	return s.unexpectedRune(s.input[s.start:nextRune])
-// }
+func scanIKeyword(s *scanner) token.Token {
+	nextRune := s.seekNext(s.start)
+	input := s.input[s.start:nextRune]
+	for _, k := range keywordsWithI {
+		keyword := strings.Split(k, "")
+		j := 0
+		length := len(input)
+		if length > len(keyword) {
+			length = len(keyword)
+		}
+		for i := 0; i < length; i++ {
+			if keyword[i] == string(input[i]) {
+				j++
+			}
+		}
+		if j == len(keyword) {
+			s.acceptString(string(input))
+			return s.createToken(keywordMapWithI[k])
+		}
+	}
+	return s.unexpectedRune()
+}
 
-// func scanJKeyword(s *scanner) token.Token {
-// 	nextRune := s.seekNext(s.start)
-// 	input := string(s.input[s.start:nextRune])
-// 	if _, ok := keywordsWithJ[input]; ok {
-// 		s.acceptString(input)
-// 		return s.createToken(keywordsWithJ[input])
-// 	}
-// 	return s.unexpectedRune(s.input[s.start:nextRune])
-// }
+func scanJKeyword(s *scanner) token.Token {
+	nextRune := s.seekNext(s.start)
+	input := s.input[s.start:nextRune]
+	for _, k := range keywordsWithJ {
+		keyword := strings.Split(k, "")
+		j := 0
+		length := len(input)
+		if length > len(keyword) {
+			length = len(keyword)
+		}
+		for i := 0; i < length; i++ {
+			if keyword[i] == string(input[i]) {
+				j++
+			}
+		}
+		if j == len(keyword) {
+			s.acceptString(string(input))
+			return s.createToken(keywordMapWithJ[k])
+		}
+	}
+	return s.unexpectedRune()
+}
 
-// func scanKKeyword(s *scanner) token.Token {
-// 	nextRune := s.seekNext(s.start)
-// 	input := string(s.input[s.start:nextRune])
-// 	if _, ok := keywordsWithK[input]; ok {
-// 		s.acceptString(input)
-// 		return s.createToken(keywordsWithK[input])
-// 	}
-// 	return s.unexpectedRune(s.input[s.start:nextRune])
-// }
+func scanKKeyword(s *scanner) token.Token {
+	nextRune := s.seekNext(s.start)
+	input := s.input[s.start:nextRune]
+	for _, k := range keywordsWithK {
+		keyword := strings.Split(k, "")
+		j := 0
+		length := len(input)
+		if length > len(keyword) {
+			length = len(keyword)
+		}
+		for i := 0; i < length; i++ {
+			if keyword[i] == string(input[i]) {
+				j++
+			}
+		}
+		if j == len(keyword) {
+			s.acceptString(string(input))
+			return s.createToken(keywordMapWithK[k])
+		}
+	}
+	return s.unexpectedRune()
+}
 
-// func scanLKeyword(s *scanner) token.Token {
-// 	nextRune := s.seekNext(s.start)
-// 	input := string(s.input[s.start:nextRune])
-// 	if _, ok := keywordsWithL[input]; ok {
-// 		s.acceptString(input)
-// 		return s.createToken(keywordsWithL[input])
-// 	}
-// 	return s.unexpectedRune(s.input[s.start:nextRune])
-// }
+func scanLKeyword(s *scanner) token.Token {
+	nextRune := s.seekNext(s.start)
+	input := s.input[s.start:nextRune]
+	for _, k := range keywordsWithL {
+		keyword := strings.Split(k, "")
+		j := 0
+		for i := range keyword {
+			if keyword[i] == string(input[i]) {
+				j++
+			}
+		}
+		if j == len(keyword) {
+			s.acceptString(string(input))
+			return s.createToken(keywordMapWithL[k])
+		}
+	}
+	s.acceptString(string(input))
+	return s.createToken(token.KeywordAbort)
+}
 
-// func scanMKeyword(s *scanner) token.Token {
-// 	nextRune := s.seekNext(s.start)
-// 	input := string(s.input[s.start:nextRune])
-// 	if _, ok := keywordsWithM[input]; ok {
-// 		s.acceptString(input)
-// 		return s.createToken(keywordsWithM[input])
-// 	}
-// 	return s.unexpectedRune(s.input[s.start:nextRune])
-// }
+func scanMKeyword(s *scanner) token.Token {
+	nextRune := s.seekNext(s.start)
+	input := s.input[s.start:nextRune]
+	for _, k := range keywordsWithM {
+		keyword := strings.Split(k, "")
+		j := 0
+		length := len(input)
+		if length > len(keyword) {
+			length = len(keyword)
+		}
+		for i := 0; i < length; i++ {
+			if keyword[i] == string(input[i]) {
+				j++
+			}
+		}
+		if j == len(keyword) {
+			s.acceptString(string(input))
+			return s.createToken(keywordMapWithM[k])
+		}
+	}
+	return s.unexpectedRune()
+}
 
-// func scanNKeyword(s *scanner) token.Token {
-// 	nextRune := s.seekNext(s.start)
-// 	input := string(s.input[s.start:nextRune])
-// 	if _, ok := keywordsWithN[input]; ok {
-// 		s.acceptString(input)
-// 		return s.createToken(keywordsWithN[input])
-// 	}
-// 	return s.unexpectedRune(s.input[s.start:nextRune])
-// }
+func scanNKeyword(s *scanner) token.Token {
+	nextRune := s.seekNext(s.start)
+	input := s.input[s.start:nextRune]
+	for _, k := range keywordsWithN {
+		keyword := strings.Split(k, "")
+		j := 0
+		length := len(input)
+		if length > len(keyword) {
+			length = len(keyword)
+		}
+		for i := 0; i < length; i++ {
+			if keyword[i] == string(input[i]) {
+				j++
+			}
+		}
+		if j == len(keyword) {
+			s.acceptString(string(input))
+			return s.createToken(keywordMapWithN[k])
+		}
+	}
+	return s.unexpectedRune()
+}
 
-// func scanOKeyword(s *scanner) token.Token {
-// 	nextRune := s.seekNext(s.start)
-// 	input := string(s.input[s.start:nextRune])
-// 	if _, ok := keywordsWithO[input]; ok {
-// 		s.acceptString(input)
-// 		return s.createToken(keywordsWithO[input])
-// 	}
-// 	return s.unexpectedRune(s.input[s.start:nextRune])
-// }
+func scanOKeyword(s *scanner) token.Token {
+	nextRune := s.seekNext(s.start)
+	input := s.input[s.start:nextRune]
+	for _, k := range keywordsWithO {
+		keyword := strings.Split(k, "")
+		j := 0
+		length := len(input)
+		if length > len(keyword) {
+			length = len(keyword)
+		}
+		for i := 0; i < length; i++ {
+			if keyword[i] == string(input[i]) {
+				j++
+			}
+		}
+		if j == len(keyword) {
+			s.acceptString(string(input))
+			return s.createToken(keywordMapWithO[k])
+		}
+	}
+	return s.unexpectedRune()
+}
 
-// func scanPKeyword(s *scanner) token.Token {
-// 	nextRune := s.seekNext(s.start)
-// 	input := string(s.input[s.start:nextRune])
-// 	if _, ok := keywordsWithP[input]; ok {
-// 		s.acceptString(input)
-// 		return s.createToken(keywordsWithP[input])
-// 	}
-// 	return s.unexpectedRune(s.input[s.start:nextRune])
-// }
+func scanPKeyword(s *scanner) token.Token {
+	nextRune := s.seekNext(s.start)
+	input := s.input[s.start:nextRune]
+	for _, k := range keywordsWithP {
+		keyword := strings.Split(k, "")
+		j := 0
+		length := len(input)
+		if length > len(keyword) {
+			length = len(keyword)
+		}
+		for i := 0; i < length; i++ {
+			if keyword[i] == string(input[i]) {
+				j++
+			}
+		}
+		if j == len(keyword) {
+			s.acceptString(string(input))
+			return s.createToken(keywordMapWithP[k])
+		}
+	}
+	return s.unexpectedRune()
+}
 
-// func scanQKeyword(s *scanner) token.Token {
-// 	nextRune := s.seekNext(s.start)
-// 	input := string(s.input[s.start:nextRune])
-// 	if _, ok := keywordsWithQ[input]; ok {
-// 		s.acceptString(input)
-// 		return s.createToken(keywordsWithQ[input])
-// 	}
-// 	return s.unexpectedRune(s.input[s.start:nextRune])
-// }
+func scanQKeyword(s *scanner) token.Token {
+	nextRune := s.seekNext(s.start)
+	input := s.input[s.start:nextRune]
+	for _, k := range keywordsWithQ {
+		keyword := strings.Split(k, "")
+		j := 0
+		length := len(input)
+		if length > len(keyword) {
+			length = len(keyword)
+		}
+		for i := 0; i < length; i++ {
+			if keyword[i] == string(input[i]) {
+				j++
+			}
+		}
+		if j == len(keyword) {
+			s.acceptString(string(input))
+			return s.createToken(keywordMapWithQ[k])
+		}
+	}
+	return s.unexpectedRune()
+}
 
-// func scanRKeyword(s *scanner) token.Token {
-// 	nextRune := s.seekNext(s.start)
-// 	input := string(s.input[s.start:nextRune])
-// 	if _, ok := keywordsWithR[input]; ok {
-// 		s.acceptString(input)
-// 		return s.createToken(keywordsWithR[input])
-// 	}
-// 	return s.unexpectedRune(s.input[s.start:nextRune])
-// }
+func scanRKeyword(s *scanner) token.Token {
+	nextRune := s.seekNext(s.start)
+	input := s.input[s.start:nextRune]
+	for _, k := range keywordsWithR {
+		keyword := strings.Split(k, "")
+		j := 0
+		length := len(input)
+		if length > len(keyword) {
+			length = len(keyword)
+		}
+		for i := 0; i < length; i++ {
+			if keyword[i] == string(input[i]) {
+				j++
+			}
+		}
+		if j == len(keyword) {
+			s.acceptString(string(input))
+			return s.createToken(keywordMapWithR[k])
+		}
+	}
+	return s.unexpectedRune()
+}
 
 func scanSKeyword(s *scanner) token.Token {
 	nextRune := s.seekNext(s.start)
-	input := string(s.input[s.start:nextRune])
-	if _, ok := keywordsWithS[input]; ok {
-		s.acceptString(input)
-		return s.createToken(keywordsWithS[input])
+	input := s.input[s.start:nextRune]
+	for _, k := range keywordsWithS {
+		keyword := strings.Split(k, "")
+		j := 0
+		length := len(input)
+		if length > len(keyword) {
+			length = len(keyword)
+		}
+		for i := 0; i < length; i++ {
+			if keyword[i] == string(input[i]) {
+				j++
+			}
+		}
+		if j == len(keyword) {
+			s.acceptString(string(input))
+			return s.createToken(keywordMapWithS[k])
+		}
 	}
-	return s.createToken(keywordsWithS[input])
+	return s.unexpectedRune()
 }
 
-// func scanTKeyword(s *scanner) token.Token {
-// 	nextRune := s.seekNext(s.start)
-// 	input := string(s.input[s.start:nextRune])
-// 	if _, ok := keywordsWithT[input]; ok {
-// 		s.acceptString(input)
-// 		return s.createToken(keywordsWithT[input])
-// 	}
-// 	return s.unexpectedRune(s.input[s.start:nextRune])
-// }
+func scanTKeyword(s *scanner) token.Token {
+	nextRune := s.seekNext(s.start)
+	input := s.input[s.start:nextRune]
+	for _, k := range keywordsWithT {
+		keyword := strings.Split(k, "")
+		j := 0
+		length := len(input)
+		if length > len(keyword) {
+			length = len(keyword)
+		}
+		for i := 0; i < length; i++ {
+			if keyword[i] == string(input[i]) {
+				j++
+			}
+		}
+		if j == len(keyword) {
+			s.acceptString(string(input))
+			return s.createToken(keywordMapWithT[k])
+		}
+	}
+	return s.unexpectedRune()
+}
 
-// func scanUKeyword(s *scanner) token.Token {
-// 	nextRune := s.seekNext(s.start)
-// 	input := string(s.input[s.start:nextRune])
-// 	if _, ok := keywordsWithU[input]; ok {
-// 		s.acceptString(input)
-// 		return s.createToken(keywordsWithU[input])
-// 	}
-// 	return s.unexpectedRune(s.input[s.start:nextRune])
-// }
-// func scanVKeyword(s *scanner) token.Token {
-// 	nextRune := s.seekNext(s.start)
-// 	input := string(s.input[s.start:nextRune])
-// 	if _, ok := keywordsWithV[input]; ok {
-// 		s.acceptString(input)
-// 		return s.createToken(keywordsWithV[input])
-// 	}
-// 	return s.unexpectedRune(s.input[s.start:nextRune])
-// }
+func scanUKeyword(s *scanner) token.Token {
+	nextRune := s.seekNext(s.start)
+	input := s.input[s.start:nextRune]
+	for _, k := range keywordsWithU {
+		keyword := strings.Split(k, "")
+		j := 0
+		length := len(input)
+		if length > len(keyword) {
+			length = len(keyword)
+		}
+		for i := 0; i < length; i++ {
+			if keyword[i] == string(input[i]) {
+				j++
+			}
+		}
+		if j == len(keyword) {
+			s.acceptString(string(input))
+			return s.createToken(keywordMapWithU[k])
+		}
+	}
+	return s.unexpectedRune()
+}
+func scanVKeyword(s *scanner) token.Token {
+	nextRune := s.seekNext(s.start)
+	input := s.input[s.start:nextRune]
+	for _, k := range keywordsWithV {
+		keyword := strings.Split(k, "")
+		j := 0
+		length := len(input)
+		if length > len(keyword) {
+			length = len(keyword)
+		}
+		for i := 0; i < length; i++ {
+			if keyword[i] == string(input[i]) {
+				j++
+			}
+		}
+		if j == len(keyword) {
+			s.acceptString(string(input))
+			return s.createToken(keywordMapWithV[k])
+		}
+	}
+	return s.unexpectedRune()
+}
 
-// func scanWKeyword(s *scanner) token.Token {
-// 	nextRune := s.seekNext(s.start)
-// 	input := string(s.input[s.start:nextRune])
-// 	if _, ok := keywordsWithW[input]; ok {
-// 		s.acceptString(input)
-// 		return s.createToken(keywordsWithW[input])
-// 	}
-// 	return s.unexpectedRune(s.input[s.start:nextRune])
-// }
+func scanWKeyword(s *scanner) token.Token {
+	nextRune := s.seekNext(s.start)
+	input := s.input[s.start:nextRune]
+	for _, k := range keywordsWithW {
+		keyword := strings.Split(k, "")
+		j := 0
+		length := len(input)
+		if length > len(keyword) {
+			length = len(keyword)
+		}
+		for i := 0; i < length; i++ {
+			if keyword[i] == string(input[i]) {
+				j++
+			}
+		}
+		if j == len(keyword) {
+			s.acceptString(string(input))
+			return s.createToken(keywordMapWithW[k])
+		}
+	}
+	return s.unexpectedRune()
+}

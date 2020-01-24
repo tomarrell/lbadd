@@ -33,7 +33,7 @@ const (
 	KeywordAs
 	KeywordAsc
 	KeywordAttach
-	KeywordAutoincrement
+	KeywordAuto
 	KeywordBefore
 	KeywordBegin
 	KeywordBetween
@@ -88,6 +88,7 @@ const (
 	KeywordIgnore
 	KeywordImmediate
 	KeywordIn
+	KeywordIncrement
 	KeywordIndex
 	KeywordIndexed
 	KeywordInitially
