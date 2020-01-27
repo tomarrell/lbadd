@@ -234,10 +234,10 @@ func (s *scanner) createToken(t token.Type) token.Token {
 	return tk
 }
 
-// seekNext returns the position of the end of a keyword.
+// seekNextPos returns the position of the end of a keyword.
 // It takes the start position of the keyword.
-func (s *scanner) seekNext(start int) int {
-	for start < len(s.input) && s.input[start] != ' ' { //} Whitespace.Matches(s.input[start]) {
+func (s *scanner) seekNextPos(start int) int {
+	for start < len(s.input) && !whiteSpace.Matches(s.input[start]) {
 		start++
 	}
 	return start

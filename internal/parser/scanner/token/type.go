@@ -98,7 +98,6 @@ const (
 	KeywordIntersect
 	KeywordInto
 	KeywordIs
-	KeywordIsnull
 	KeywordJoin
 	KeywordKey
 	KeywordLast

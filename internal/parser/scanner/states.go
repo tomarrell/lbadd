@@ -84,7 +84,6 @@ var keywordSlice = []string{
 	"INTERSECT",
 	"INTO",
 	"IS",
-	"ISNULL",
 	"JOIN",
 	"KEY",
 	"LAST",
@@ -227,7 +226,6 @@ var keywordMap map[string]token.Type = map[string]token.Type{
 	"INTERSECT":         token.KeywordIntersect,
 	"INTO":              token.KeywordInto,
 	"IS":                token.KeywordIs,
-	"ISNULL":            token.KeywordIsnull,
 	"JOIN":              token.KeywordJoin,
 	"KEY":               token.KeywordKey,
 	"LAST":              token.KeywordLast,
@@ -409,7 +407,7 @@ func (s *scanner) consumeRune() {
 // }
 
 func (s *scanner) scanKeyword() token.Token {
-	nextPos := s.seekNext(s.start)
+	nextPos := s.seekNextPos(s.start)
 	input := []rune(strings.ToUpper(string(s.input[s.start:nextPos])))
 	for _, k := range keywordSlice {
 		keyword := []rune(k)
