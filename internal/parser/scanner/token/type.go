@@ -110,7 +110,6 @@ const (
 	KeywordNo
 	KeywordNot
 	KeywordNothing
-	KeywordNotnull
 	KeywordNull
 	KeywordNulls
 	KeywordOf
