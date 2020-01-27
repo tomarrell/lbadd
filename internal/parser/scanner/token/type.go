@@ -170,4 +170,5 @@ const (
 
 	UnaryOperator
 	BinaryOperator
+	Delimiter
 )
