@@ -761,6 +761,7 @@ type (
 	// ColumnDef as in the SQLite grammar.
 	ColumnDef struct {
 		ColumnName       token.Token
+		TypeName         *TypeName
 		ColumnConstraint []*ColumnConstraint
 	}
 
@@ -811,10 +812,16 @@ type (
 	TypeName struct {
 		Name          []token.Token
 		LeftParen     token.Token
-		SignedNumber1 token.Token
+		SignedNumber1 *SignedNumber
 		Comma         token.Token
-		SignedNumber2 token.Token
+		SignedNumber2 *SignedNumber
 		RightParen    token.Token
+	}
+
+	// SignedNumber as in the SQLite grammar.
+	SignedNumber struct {
+		Sign           token.Token
+		NumericLiteral token.Token
 	}
 
 	// IndexedColumn as in the SQLite grammar.

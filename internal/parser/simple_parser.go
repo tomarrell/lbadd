@@ -47,6 +47,22 @@ func (r *errorReporter) unexpectedToken(expected ...token.Type) {
 	r.errorf("%w: got %s but expected one of %s at (%d:%d) offset %d length %d", ErrUnexpectedToken, next, expected, next.Line(), next.Col(), next.Offset(), next.Length())
 }
 
+func (r *errorReporter) unexpectedSingleRuneToken(typ token.Type, expected ...rune) {
+	if r.sealed {
+		return
+	}
+	next, ok := r.p.unsafeLowLevelLookahead()
+	if !ok || next.Type() == token.EOF {
+		// use this instead of r.prematureEOF() because we can add the
+		// information about what tokens were expected
+		r.errorf("%w: expected %s (more precisely one of %v)", ErrPrematureEOF, typ, expected)
+		r.sealed = true
+		return
+	}
+
+	r.errorf("%w: got %s but expected one of %s at (%d:%d) offset %d length %d", ErrUnexpectedToken, next, typ, next.Line(), next.Col(), next.Offset(), next.Length())
+}
+
 func (r *errorReporter) unhandledToken(t token.Token) {
 	r.errorf("%w: %s(%s) at (%d:%d) offset %d lenght %d", ErrUnknownToken, t.Type().String(), t.Value(), t.Line(), t.Col(), t.Offset(), t.Length())
 }
@@ -64,6 +80,7 @@ type reporter interface {
 	incompleteStatement()
 	prematureEOF()
 	unexpectedToken(expected ...token.Type)
+	unexpectedSingleRuneToken(typ token.Type, expected ...rune)
 	unhandledToken(t token.Token)
 	unsupportedConstruct(t token.Token)
 }
@@ -157,6 +174,7 @@ func (p *simpleParser) lookahead(r reporter) (next token.Token, ok bool) {
 	for ok && next.Type() == token.Error {
 		r.errorToken(next)
 		p.consumeToken()
+		next, ok = p.unsafeLowLevelLookahead()
 	}
 
 	if !ok || next.Type() == token.EOF {
@@ -405,5 +423,115 @@ func (p *simpleParser) parseAlterTableStmt(r reporter) (stmt *ast.AlterTableStmt
 }
 
 func (p *simpleParser) parseColumnDef(r reporter) (def *ast.ColumnDef) {
-	panic("implement me")
+	def = &ast.ColumnDef{}
+
+	if next, ok := p.lookaheadWithType(r, token.Literal); ok {
+		def.ColumnName = next
+		p.consumeToken()
+
+		if _, ok := p.lookaheadWithType(r, token.Literal); ok {
+			def.TypeName = p.parseTypeName(r)
+		}
+
+		for {
+			if _, ok := p.lookaheadWithType(r, token.KeywordConstraint); ok {
+				def.ColumnConstraint = append(def.ColumnConstraint, p.parseColumnConstraint(r))
+			} else {
+				break
+			}
+		}
+	}
+	return
+}
+
+func (p *simpleParser) parseTypeName(r reporter) (name *ast.TypeName) {
+	name = &ast.TypeName{}
+
+	// one or more name
+	if next, ok := p.lookaheadWithType(r, token.Literal); ok {
+		name.Name = append(name.Name, next)
+		p.consumeToken()
+	} else {
+		r.unexpectedToken(token.Literal)
+	}
+	for {
+		if next, ok := p.lookaheadWithType(r, token.Literal); ok {
+			name.Name = append(name.Name, next)
+			p.consumeToken()
+		} else {
+			break
+		}
+	}
+
+	if next, ok := p.lookaheadWithType(r, token.Delimiter); ok {
+		if next.Value() == "(" {
+			name.LeftParen = next
+			p.consumeToken()
+
+			name.SignedNumber1 = p.parseSignedNumber(r)
+		} else {
+			r.unexpectedToken(token.Delimiter)
+		}
+	} else {
+		return
+	}
+
+	if next, ok := p.lookaheadWithType(r, token.Delimiter); ok {
+		switch next.Value() {
+		case ",":
+			name.Comma = next
+			p.consumeToken()
+
+			name.SignedNumber2 = p.parseSignedNumber(r)
+			next, ok = p.lookaheadWithType(r, token.Delimiter)
+			if !ok {
+				return
+			}
+			fallthrough
+		case ")":
+			name.RightParen = next
+			p.consumeToken()
+		}
+	} else {
+		return
+	}
+
+	return
+}
+
+func (p *simpleParser) parseSignedNumber(r reporter) (num *ast.SignedNumber) {
+	num = &ast.SignedNumber{}
+
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	switch next.Type() {
+	case token.UnaryOperator:
+		num.Sign = next
+		p.consumeToken()
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() != token.Literal {
+			r.unexpectedToken(token.Literal)
+			return
+		}
+		fallthrough
+	case token.Literal:
+		num.NumericLiteral = next
+		p.consumeToken()
+	default:
+		r.unexpectedToken(token.UnaryOperator, token.Literal)
+		return
+	}
+	return
+}
+
+func (p *simpleParser) parseColumnConstraint(r reporter) (constr *ast.ColumnConstraint) {
+	constr = &ast.ColumnConstraint{}
+
+	return
 }
