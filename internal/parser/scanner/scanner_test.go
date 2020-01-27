@@ -1,169 +1,39 @@
 package scanner
 
 import (
+	"fmt"
 	"testing"
 )
 
 func Test_hasNext(t *testing.T) {
-	for _, k := range keywordsWithA {
+	for _, k := range keywordSlice {
 		input := k
 		scanner := New([]rune(input))
 		for scanner.HasNext() {
 			scanner.Next()
 		}
 	}
-	for _, k := range keywordsWithB {
-		input := k
-		scanner := New([]rune(input))
-		for scanner.HasNext() {
-			scanner.Next()
+}
+
+func Test_tokenSequence(t *testing.T) {
+	input := "SelEc FroM"
+	var desiredOutput = []string{"SelEct", "FroM"}
+	var output []string
+	scanner := New([]rune(input))
+	for scanner.HasNext() {
+		token := scanner.Next()
+		if token != nil {
+			output = append(output, token.Value())
 		}
 	}
-	for _, k := range keywordsWithC {
-		input := k
-		scanner := New([]rune(input))
-		for scanner.HasNext() {
-			scanner.Next()
+
+	for i, k := range desiredOutput {
+		if k != output[i] {
+			t.Fail()
 		}
 	}
-	for _, k := range keywordsWithD {
-		input := k
-		scanner := New([]rune(input))
-		for scanner.HasNext() {
-			scanner.Next()
-		}
-	}
-	for _, k := range keywordsWithE {
-		input := k
-		scanner := New([]rune(input))
-		for scanner.HasNext() {
-			scanner.Next()
-		}
-	}
-	for _, k := range keywordsWithF {
-		input := k
-		scanner := New([]rune(input))
-		for scanner.HasNext() {
-			scanner.Next()
-		}
-	}
-	for _, k := range keywordsWithG {
-		input := k
-		scanner := New([]rune(input))
-		for scanner.HasNext() {
-			scanner.Next()
-		}
-	}
-	for _, k := range keywordsWithH {
-		input := k
-		scanner := New([]rune(input))
-		for scanner.HasNext() {
-			scanner.Next()
-		}
-	}
-	for _, k := range keywordsWithI {
-		input := k
-		scanner := New([]rune(input))
-		for scanner.HasNext() {
-			scanner.Next()
-		}
-	}
-	for _, k := range keywordsWithJ {
-		input := k
-		scanner := New([]rune(input))
-		for scanner.HasNext() {
-			scanner.Next()
-		}
-	}
-	for _, k := range keywordsWithK {
-		input := k
-		scanner := New([]rune(input))
-		for scanner.HasNext() {
-			scanner.Next()
-		}
-	}
-	for _, k := range keywordsWithL {
-		input := k
-		scanner := New([]rune(input))
-		for scanner.HasNext() {
-			scanner.Next()
-		}
-	}
-	for _, k := range keywordsWithM {
-		input := k
-		scanner := New([]rune(input))
-		for scanner.HasNext() {
-			scanner.Next()
-		}
-	}
-	for _, k := range keywordsWithN {
-		input := k
-		scanner := New([]rune(input))
-		for scanner.HasNext() {
-			scanner.Next()
-		}
-	}
-	for _, k := range keywordsWithO {
-		input := k
-		scanner := New([]rune(input))
-		for scanner.HasNext() {
-			scanner.Next()
-		}
-	}
-	for _, k := range keywordsWithP {
-		input := k
-		scanner := New([]rune(input))
-		for scanner.HasNext() {
-			scanner.Next()
-		}
-	}
-	for _, k := range keywordsWithQ {
-		input := k
-		scanner := New([]rune(input))
-		for scanner.HasNext() {
-			scanner.Next()
-		}
-	}
-	for _, k := range keywordsWithR {
-		input := k
-		scanner := New([]rune(input))
-		for scanner.HasNext() {
-			scanner.Next()
-		}
-	}
-	for _, k := range keywordsWithS {
-		input := k
-		scanner := New([]rune(input))
-		for scanner.HasNext() {
-			scanner.Next()
-		}
-	}
-	for _, k := range keywordsWithT {
-		input := k
-		scanner := New([]rune(input))
-		for scanner.HasNext() {
-			scanner.Next()
-		}
-	}
-	for _, k := range keywordsWithU {
-		input := k
-		scanner := New([]rune(input))
-		for scanner.HasNext() {
-			scanner.Next()
-		}
-	}
-	for _, k := range keywordsWithV {
-		input := k
-		scanner := New([]rune(input))
-		for scanner.HasNext() {
-			scanner.Next()
-		}
-	}
-	for _, k := range keywordsWithW {
-		input := k
-		scanner := New([]rune(input))
-		for scanner.HasNext() {
-			scanner.Next()
-		}
+
+	if t.Failed() {
+		fmt.Printf("Expected %v, obtained %v\n", desiredOutput, output)
 	}
 }

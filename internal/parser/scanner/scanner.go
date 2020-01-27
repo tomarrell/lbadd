@@ -1,8 +1,6 @@
 package scanner
 
 import (
-	"fmt"
-
 	"github.com/tomarrell/lbadd/internal/parser/scanner/matcher"
 	"github.com/tomarrell/lbadd/internal/parser/scanner/token"
 )
@@ -56,123 +54,69 @@ func New(input []rune) Scanner {
 
 // HasNext checks for existance of next token, returns true if exists, false otherwise.
 func (s *scanner) HasNext() bool {
-	if s.done() {
-		return false
-	}
-	return true
+	return !s.done()
 }
 
 // Next reads the next token. This is basically starting from the initial state until a
 // token gets emitted. If an error occurs, simply return an error token.
 func (s *scanner) Next() token.Token {
-	var token token.Token
-	switch s.peekRune() {
-	case 'A':
-		return scanAKeyword(s)
-	case 'B':
-		return scanBKeyword(s)
-	case 'C':
-		return scanCKeyword(s)
-	case 'D':
-		return scanDKeyword(s)
-	case 'E':
-		return scanEKeyword(s)
-	case 'F':
-		return scanFKeyword(s)
-	case 'G':
-		return scanGKeyword(s)
-	case 'H':
-		return scanHKeyword(s)
-	case 'I':
-		return scanIKeyword(s)
-	case 'J':
-		return scanJKeyword(s)
-	case 'K':
-		return scanKKeyword(s)
-	case 'L':
-		return scanLKeyword(s)
-	case 'M':
-		return scanMKeyword(s)
-	case 'N':
-		return scanNKeyword(s)
-	case 'O':
-		return scanOKeyword(s)
-	case 'P':
-		return scanPKeyword(s)
-	case 'Q':
-		return scanQKeyword(s)
-	case 'R':
-		return scanRKeyword(s)
-	case 'S':
-		return scanSKeyword(s)
-	case 'T':
-		return scanTKeyword(s)
-	case 'U':
-		return scanUKeyword(s)
-	case 'V':
-		return scanVKeyword(s)
-	case 'W':
-		return scanWKeyword(s)
-	case ' ':
-		scanSpace(s)
-	// case '"':
-	// 	return scanDoubleQuote(s)
-	// case '%':
-	// 	return scanPercent(s)
-	// case '&':
-	// 	return scanAmpersand(s)
-	// case '\'':
-	// 	return scanQuote(s)
-	// case '(':
-	// 	return scanLeftParanthesis(s)
-	// case ')':
-	// 	return scanRightParanthesis(s)
-	// case '*':
-	// 	return scanAsterisk(s)
-	// case '+':
-	// 	return scanPlusSign(s)
-	// case ',':
-	// 	return scanComma(s)
-	// case '-':
-	// 	return scanMinusSign(s)
-	// case '.':
-	// 	return scanPeriod(s)
-	// case '/':
-	// 	return scanSolidus(s)
-	// case '\\':
-	// 	return scanReverseSolidus(s)
-	// case ':':
-	// 	return scanColon(s)
-	// case ';':
-	// 	return scanSemiColon(s)
-	// case '<':
-	// 	return scanLessThanOperator(s)
-	// case '=':
-	// 	return scanEqualsOperator(s)
-	// case '>':
-	// 	return scanGreaterThanOperator(s)
-	// case '?':
-	// 	return scanQuestioMarkOrTrigraphs(s)
-	// case '[':
-	// 	return scanLeftBracket(s)
-	// case ']':
-	// 	return scanRightBracket(s)
-	// case '^':
-	// 	return scanCircumflex(s)
-	// case '_':
-	// 	return scanUnderscore(s)
-	// case '|':
-	// 	return scanVerticalBar(s)
-	// case '{':
-	// 	return scanLeftBrace(s)
-	// case '}':
-	// 	return scanRightBrace(s)
-	// case '$':
-	// 	return scanDollarSign(s)
+	next := s.peekRune()
+	switch next {
+	case ';':
+		s.consumeRune()
+		return s.createToken(token.StatementSeparator)
+	case '|', '*', '/', '%', '<', '>', '&', '=', '!', '~':
+		return s.scanOperator()
 	default:
-		fmt.Println("DEF")
+		if ('a' <= next && next <= 'w') ||
+			('A' <= next && next <= 'W') {
+			return s.scanKeyword()
+		}
+		if whiteSpace.Matches(next) {
+			return s.scanSpace()
+		}
+		return s.scanLiteral()
+		// case '"':
+		// 	return scanDoubleQuote(s)
+		// case '\'':
+		// 	return scanQuote(s)
+		// case '(':
+		// 	return scanLeftParanthesis(s)
+		// case ')':
+		// 	return scanRightParanthesis(s)
+		// case ',':
+		// 	return scanComma(s)
+		// case '.':
+		// 	return scanPeriod(s)
+		// case '/':
+		// 	return scanSolidus(s)
+		// case '\\':
+		// 	return scanReverseSolidus(s)
+		// case ':':
+		// 	return scanColon(s)
+		// case ';':
+		// 	return scanSemiColon(s)
+		// case '?':
+		// 	return scanQuestioMarkOrTrigraphs(s)
+		// case '[':
+		// 	return scanLeftBracket(s)
+		// case ']':
+		// 	return scanRightBracket(s)
+		// case '^':
+		// 	return scanCircumflex(s)
+		// case '_':
+		// 	return scanUnderscore(s)
+		// case '|':
+		// 	return scanVerticalBar(s)
+		// case '{':
+		// 	return scanLeftBrace(s)
+		// case '}':
+		// 	return scanRightBrace(s)
+		// case '$':
+		// 	return scanDollarSign(s)
+
 	}
-	return token
+	return nil
 }
 
 func (s *scanner) Peek() token.Token {
@@ -285,7 +229,7 @@ func (s *scanner) peekString(str string) bool {
 
 // createToken creates a token with given parameters
 func (s *scanner) createToken(t token.Type) token.Token {
-	tk := token.New(s.line, s.col, s.start, s.pos, t, string(s.input[s.start:s.pos]))
+	tk := token.New(s.line, s.col, s.start, s.pos-s.start, t, string(s.input[s.start:s.pos]))
 	s.start = s.pos
 	return tk
 }
@@ -293,16 +237,14 @@ func (s *scanner) createToken(t token.Type) token.Token {
 // seekNext returns the position of the end of a keyword.
 // It takes the start position of the keyword.
 func (s *scanner) seekNext(start int) int {
-	// start++
-	for start < len(s.input) && s.input[start] != ' ' {
-		fmt.Println(string(s.input[start]))
+	for start < len(s.input) && s.input[start] != ' ' { //} Whitespace.Matches(s.input[start]) {
 		start++
 	}
 	return start
 }
 
-func (s *scanner) unexpectedRune() token.Token {
-	tk := token.New(s.line, s.col, s.start, s.pos, token.Error, fmt.Sprintf("unexpected rune '%v'", s.input[s.pos]))
+func (s *scanner) unexpectedRune(value string) token.Token {
+	tk := token.New(s.line, s.col, s.start, s.pos, token.Error, value)
 	s.start = s.pos
 	return tk
 }
