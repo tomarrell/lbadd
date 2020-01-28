@@ -79,10 +79,6 @@ func (t tok) Value() string {
 	return t.value
 }
 
-func (t tok) IsLiteral() bool {
-	return t.IsLiteral()
-}
-
 func (t tok) String() string {
 	return fmt.Sprintf("%s(%s)", t.typ.String(), t.value)
 }
