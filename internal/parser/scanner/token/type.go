@@ -80,6 +80,7 @@ const (
 	KeywordForeign
 	KeywordFrom
 	KeywordFull
+	KeywordGenerated
 	KeywordGlob
 	KeywordGroup
 	KeywordGroups
