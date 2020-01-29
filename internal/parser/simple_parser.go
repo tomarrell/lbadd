@@ -91,8 +91,8 @@ type simpleParser struct {
 	scanner scanner.Scanner
 }
 
-// New creates new ready to use parser.
-func New(input string) Parser {
+// NewSimpleParser creates new ready to use parser.
+func NewSimpleParser(input string) Parser {
 	return &simpleParser{
 		scanner: scanner.New([]rune(input)),
 	}
@@ -157,9 +157,13 @@ func (p *simpleParser) unsafeLowLevelLookahead() (next token.Token, hasNext bool
 	return p.scanner.Peek(), true
 }
 
-func (p *simpleParser) lookaheadWithType(r reporter, typ token.Type) (token.Token, bool) {
+func (p *simpleParser) lookaheadWithType(r reporter, typ ...token.Type) (token.Token, bool) {
 	next, hasNext := p.lookahead(r)
-	return next, hasNext && next.Type() == typ
+	contains := false
+	for _, t := range typ {
+		contains = contains || (next.Type() == t)
+	}
+	return next, hasNext && contains
 }
 
 // lookahead performs a lookahead while consuming any error or statement

@@ -155,7 +155,7 @@ func TestSingleStatementParse(t *testing.T) {
 		t.Run(input.Query[0:11], func(t *testing.T) {
 			assert := assert.New(t)
 
-			p := New(input.Query)
+			p := NewSimpleParser(input.Query)
 
 			stmt, errs, ok := p.Next()
 			assert.True(ok, "expected exactly one statement")
@@ -177,7 +177,7 @@ func TestParserGolden(t *testing.T) {
 	}
 	for _, input := range inputs {
 		t.Run(input.Name, func(t *testing.T) {
-			p := New(input.Query)
+			p := NewSimpleParser(input.Query)
 
 			for {
 				stmt, errs, ok := p.Next()
