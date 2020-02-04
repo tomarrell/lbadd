@@ -1,6 +1,9 @@
 package scanner
 
 import (
+	"errors"
+	"unicode"
+
 	"github.com/tomarrell/lbadd/internal/parser/scanner/matcher"
 	"github.com/tomarrell/lbadd/internal/parser/scanner/token"
 )
@@ -64,57 +67,18 @@ func (s *scanner) Next() token.Token {
 	switch next {
 	case ';':
 		s.consumeRune()
-		return s.createToken(token.StatementSeparator)
-	case '|', '*', '/', '%', '<', '>', '&', '=', '!', '~':
+		return s.createToken(token.StatementSeparator, ";")
+	case '|', '*', '/', '%', '<', '>', '&', '=', '!', '~', '+', '-':
 		return s.scanOperator()
 	default:
 		if ('a' <= next && next <= 'w') ||
 			('A' <= next && next <= 'W') {
 			return s.scanKeyword()
 		}
-		if whiteSpace.Matches(next) {
+		if unicode.IsSpace(next) {
 			return s.scanSpace()
 		}
 		return s.scanLiteral()
-		// case '"':
-		// 	return scanDoubleQuote(s)
-		// case '\'':
-		// 	return scanQuote(s)
-		// case '(':
-		// 	return scanLeftParanthesis(s)
-		// case ')':
-		// 	return scanRightParanthesis(s)
-		// case ',':
-		// 	return scanComma(s)
-		// case '.':
-		// 	return scanPeriod(s)
-		// case '/':
-		// 	return scanSolidus(s)
-		// case '\\':
-		// 	return scanReverseSolidus(s)
-		// case ':':
-		// 	return scanColon(s)
-		// case ';':
-		// 	return scanSemiColon(s)
-		// case '?':
-		// 	return scanQuestioMarkOrTrigraphs(s)
-		// case '[':
-		// 	return scanLeftBracket(s)
-		// case ']':
-		// 	return scanRightBracket(s)
-		// case '^':
-		// 	return scanCircumflex(s)
-		// case '_':
-		// 	return scanUnderscore(s)
-		// case '|':
-		// 	return scanVerticalBar(s)
-		// case '{':
-		// 	return scanLeftBrace(s)
-		// case '}':
-		// 	return scanRightBrace(s)
-		// case '$':
-		// 	return scanDollarSign(s)
-
 	}
 	return nil
 }
@@ -228,23 +192,43 @@ func (s *scanner) peekString(str string) bool {
 }
 
 // createToken creates a token with given parameters
-func (s *scanner) createToken(t token.Type) token.Token {
-	tk := token.New(s.line, s.col, s.start, s.pos-s.start, t, string(s.input[s.start:s.pos]))
+func (s *scanner) createToken(t token.Type, value string) token.Token {
+	tk := token.New(s.line, s.col, s.start, s.pos-s.start, t, value)
 	s.start = s.pos
 	return tk
 }
 
-// seekNextPos returns the position of the end of a keyword.
+// seekTokenEnd returns the position of the end of a keyword.
 // It takes the start position of the keyword.
-func (s *scanner) seekNextPos(start int) int {
-	for start < len(s.input) && !whiteSpace.Matches(s.input[start]) {
+func (s *scanner) seekTokenEnd(start int) int {
+	for start < len(s.input) && !unicode.IsSpace(s.input[start]) { //!whiteSpace.Matches(s.input[start]) {
 		start++
 	}
 	return start
 }
 
+// unexpectedRune is returned when the combination/sequence of a set of
+// runes is not expected. The value argument contains all the valid
+// sequence of runes encountered till now and is consumed on execution
+// of this function.
 func (s *scanner) unexpectedRune(value string) token.Token {
 	tk := token.New(s.line, s.col, s.start, s.pos, token.Error, value)
 	s.start = s.pos
+	s.acceptString(value)
 	return tk
+}
+
+// peekNextRune returns the next rune in order in the input.
+// It checks for the end of input and existance of space(s)
+// as the next rune. A rune is returned successfully only if
+// there is no whitespace or end of input encountered. In other
+// cases an error is returned.
+func (s *scanner) peekNextRune() (rune, error) {
+	if s.start < len(s.input)-1 {
+		r := s.input[s.start+1]
+		if !unicode.IsSpace(r) {
+			return r, nil
+		}
+	}
+	return '\\', errors.New("No desired input found")
 }

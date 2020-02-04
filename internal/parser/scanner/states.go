@@ -2,7 +2,6 @@ package scanner
 
 import (
 	"strings"
-	"unicode"
 
 	"github.com/tomarrell/lbadd/internal/parser/scanner/matcher"
 	"github.com/tomarrell/lbadd/internal/parser/scanner/token"
@@ -292,18 +291,20 @@ var keywordMap map[string]token.Type = map[string]token.Type{
 	"WITHOUT":           token.KeywordWithout,
 }
 
-var (
-	whiteSpace            = matcher.Merge(formFeed, noBreakSpace, space, horizontalTab, unicodeSpace, verticalTab, zeroWidthJoiner, zeroWidthNoBreakSpace, zeroWidthNonJoiner)
-	formFeed              = matcher.RuneWithDesc("<FF>", '\u000C')
-	noBreakSpace          = matcher.RuneWithDesc("<NBSP>", '\u00A0')
-	space                 = matcher.RuneWithDesc("<SP>", '\u0020')
-	horizontalTab         = matcher.RuneWithDesc("<TAB>", '\u0009')
-	unicodeSpace          = matcher.New("<USP>", unicode.Z)
-	verticalTab           = matcher.RuneWithDesc("<VT>", '\u000B')
-	zeroWidthJoiner       = matcher.RuneWithDesc("<ZWJ>", '\u200D')
-	zeroWidthNoBreakSpace = matcher.RuneWithDesc("<ZWNBSP>", '\uFEFF')
-	zeroWidthNonJoiner    = matcher.RuneWithDesc("<ZWNJ>", '\u200C')
-)
+var operatorsSlice = []string{
+	"|",
+	"*",
+	"/",
+	"%",
+	"+",
+	"-",
+	"<",
+	">",
+	"&",
+	"=",
+	"!",
+	"~",
+}
 
 func (s *scanner) consumeRune() {
 	s.col++
@@ -407,7 +408,8 @@ func (s *scanner) consumeRune() {
 // }
 
 func (s *scanner) scanKeyword() token.Token {
-	nextPos := s.seekNextPos(s.start)
+	nextPos := s.seekTokenEnd(s.start)
+	inputString := string(s.input[s.start:nextPos])
 	input := []rune(strings.ToUpper(string(s.input[s.start:nextPos])))
 	for _, k := range keywordSlice {
 		keyword := []rune(k)
@@ -422,21 +424,82 @@ func (s *scanner) scanKeyword() token.Token {
 			}
 		}
 		if j == len(keyword) {
-			s.acceptString(string(s.input[s.start:nextPos]))
-			return s.createToken(keywordMap[k])
+			s.acceptString(inputString)
+			return s.createToken(keywordMap[k], inputString)
 		}
 	}
+	s.acceptString(inputString)
 	s.start = nextPos
 	s.pos = nextPos
-	return s.unexpectedRune(string(input))
+	return s.createToken(token.Literal, inputString)
 }
 
 func (s *scanner) scanOperator() token.Token {
-	return s.unexpectedRune("nil")
+	input := string(s.input[s.start])
+	for _, op := range operatorsSlice {
+		if op == input {
+			if input == "~" || input == "+" || input == "-" {
+				s.acceptString(string(input))
+				return s.createToken(token.UnaryOperator, input)
+			} else {
+				nextRune, err := s.peekNextRune()
+				if err == nil {
+					switch input {
+					case "<":
+						switch nextRune {
+						case '>', '<', '=':
+							input += string(nextRune)
+						default:
+							return s.unexpectedRune(input)
+						}
+					case "|":
+						if nextRune == '|' {
+							input += string(nextRune)
+						}
+					case ">":
+						switch nextRune {
+						case '>', '=':
+							input += string(nextRune)
+						default:
+							return s.unexpectedRune(input)
+						}
+					case "!":
+						if nextRune == '=' {
+							input += string(nextRune)
+							s.acceptString(input)
+							return s.createToken(token.BinaryOperator, input)
+						}
+						// special case than above, we return early because
+						// '!' is not an operator but ONLY '!=' is.
+						return s.unexpectedRune(input)
+					case "=":
+						if nextRune == '=' {
+							input += string(nextRune)
+						}
+						// in this case, both '=' and '==' are opreators.
+					}
+				} else {
+					switch input {
+					case "*", "/", "%", "+", "-", "&", "|", "=", "<", ">":
+						s.acceptString(input)
+						return s.createToken(token.BinaryOperator, input)
+					default:
+						return s.unexpectedRune(input)
+					}
+				}
+				s.acceptString(input)
+				return s.createToken(token.BinaryOperator, input)
+			}
+		}
+	}
+	return s.unexpectedRune(string(input))
 }
 
 func (s *scanner) scanLiteral() token.Token {
-	return s.unexpectedRune("nil")
+	nextPos := s.seekTokenEnd(s.start)
+	input := s.input[s.start:nextPos]
+	s.acceptString(string(input))
+	return s.createToken(token.Literal, string(input))
 }
 
 func (s *scanner) scanSpace() token.Token {
