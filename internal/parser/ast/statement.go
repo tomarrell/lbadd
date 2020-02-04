@@ -788,6 +788,11 @@ type (
 		Collate          token.Token
 		CollationName    token.Token
 		ForeignKeyClause *ForeignKeyClause
+		Generated        token.Token
+		Always           token.Token
+		As               token.Token
+		Stored           token.Token
+		Virtual          token.Token
 	}
 
 	// ColumnNameList as in the SQLite grammar.
