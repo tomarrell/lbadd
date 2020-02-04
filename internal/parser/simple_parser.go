@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+
 	"github.com/tomarrell/lbadd/internal/parser/ast"
 	"github.com/tomarrell/lbadd/internal/parser/scanner"
 	"github.com/tomarrell/lbadd/internal/parser/scanner/token"
@@ -701,6 +702,8 @@ func (p *simpleParser) parseForeignKeyClause(r reporter) (clause *ast.ForeignKey
 }
 
 func (p *simpleParser) parseConflictClause(r reporter) (clause *ast.ConflictClause) {
+	clause = &ast.ConflictClause{}
+
 	next, ok := p.optionalLookahead(r)
 	if !ok {
 		return
