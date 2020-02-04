@@ -441,55 +441,55 @@ func (s *scanner) scanOperator() token.Token {
 			if input == "~" || input == "+" || input == "-" {
 				s.acceptString(string(input))
 				return s.createToken(token.UnaryOperator, input)
-			} else {
-				nextRune, err := s.peekNextRune()
-				if err == nil {
-					switch input {
-					case "<":
-						switch nextRune {
-						case '>', '<', '=':
-							input += string(nextRune)
-						default:
-							return s.unexpectedRune(input)
-						}
-					case "|":
-						if nextRune == '|' {
-							input += string(nextRune)
-						}
-					case ">":
-						switch nextRune {
-						case '>', '=':
-							input += string(nextRune)
-						default:
-							return s.unexpectedRune(input)
-						}
-					case "!":
-						if nextRune == '=' {
-							input += string(nextRune)
-							s.acceptString(input)
-							return s.createToken(token.BinaryOperator, input)
-						}
-						// special case than above, we return early because
-						// '!' is not an operator but ONLY '!=' is.
-						return s.unexpectedRune(input)
-					case "=":
-						if nextRune == '=' {
-							input += string(nextRune)
-						}
-						// in this case, both '=' and '==' are opreators.
-					}
-				} else {
-					switch input {
-					case "*", "/", "%", "+", "-", "&", "|", "=", "<", ">":
-						s.acceptString(input)
-						return s.createToken(token.BinaryOperator, input)
+			}
+			nextRune, err := s.peekNextRune()
+			if err == nil {
+				switch input {
+				case "<":
+					switch nextRune {
+					case '>', '<', '=':
+						input += string(nextRune)
 					default:
 						return s.unexpectedRune(input)
 					}
+				case "|":
+					if nextRune == '|' {
+						input += string(nextRune)
+					}
+				case ">":
+					switch nextRune {
+					case '>', '=':
+						input += string(nextRune)
+					default:
+						return s.unexpectedRune(input)
+					}
+				case "!":
+					if nextRune == '=' {
+						input += string(nextRune)
+						s.acceptString(input)
+						return s.createToken(token.BinaryOperator, input)
+					}
+					// special case than above, we return early because
+					// '!' is not an operator but ONLY '!=' is.
+					return s.unexpectedRune(input)
+				case "=":
+					if nextRune == '=' {
+						input += string(nextRune)
+					}
+					// in this case, both '=' and '==' are opreators.
 				}
-				s.acceptString(input)
-				return s.createToken(token.BinaryOperator, input)
+			} else {
+				switch input {
+				case "*", "/", "%", "+", "-", "&", "|", "=", "<", ">":
+					s.acceptString(input)
+					return s.createToken(token.BinaryOperator, input)
+				default:
+					return s.unexpectedRune(input)
+				}
 			}
+			s.acceptString(input)
+			return s.createToken(token.BinaryOperator, input)
+
 		}
 	}
 	return s.unexpectedRune(string(input))
