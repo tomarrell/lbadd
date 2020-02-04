@@ -157,10 +157,10 @@ func (p *simpleParser) unsafeLowLevelLookahead() (next token.Token, hasNext bool
 	return p.scanner.Peek(), true
 }
 
-func (p *simpleParser) lookaheadWithType(r reporter, typ ...token.Type) (token.Token, bool) {
+func (p *simpleParser) lookaheadWithType(r reporter, typ token.Type /* ensure at compile time that at least one type is specified */, typs ...token.Type) (token.Token, bool) {
 	next, hasNext := p.lookahead(r)
-	contains := false
-	for _, t := range typ {
+	contains := next.Type() == typ
+	for _, t := range typs {
 		contains = contains || (next.Type() == t)
 	}
 	return next, hasNext && contains
@@ -172,14 +172,7 @@ func (p *simpleParser) lookaheadWithType(r reporter, typ ...token.Type) (token.T
 // without reporting any more errors. If ok=false, this means that the next
 // token was either a StatementSeparator or EOF, and an error has been reported.
 func (p *simpleParser) lookahead(r reporter) (next token.Token, ok bool) {
-	next, ok = p.unsafeLowLevelLookahead()
-
-	// drain all error tokens
-	for ok && next.Type() == token.Error {
-		r.errorToken(next)
-		p.consumeToken()
-		next, ok = p.unsafeLowLevelLookahead()
-	}
+	next, ok = p.optionalLookahead(r)
 
 	if !ok || next.Type() == token.EOF {
 		r.prematureEOF()
@@ -189,6 +182,21 @@ func (p *simpleParser) lookahead(r reporter) (next token.Token, ok bool) {
 		ok = false
 	}
 	return
+}
+
+// optionalLookahead performs a lookahead while consuming any error token. If
+// this returns ok=false, no more tokens are available.
+func (p *simpleParser) optionalLookahead(r reporter) (next token.Token, ok bool) {
+	next, ok = p.unsafeLowLevelLookahead()
+
+	// drain all error tokens
+	for ok && next.Type() == token.Error {
+		r.errorToken(next)
+		p.consumeToken()
+		next, ok = p.unsafeLowLevelLookahead()
+	}
+
+	return next, ok
 }
 
 func (p *simpleParser) consumeToken() {
@@ -438,7 +446,7 @@ func (p *simpleParser) parseColumnDef(r reporter) (def *ast.ColumnDef) {
 		}
 
 		for {
-			if _, ok := p.lookaheadWithType(r, token.KeywordConstraint); ok {
+			if _, ok := p.lookaheadWithType(r, token.KeywordConstraint, token.KeywordPrimary, token.KeywordNot, token.KeywordUnique, token.KeywordCheck, token.KeywordDefault, token.KeywordCollate, token.KeywordGenerated, token.KeywordReferences); ok {
 				def.ColumnConstraint = append(def.ColumnConstraint, p.parseColumnConstraint(r))
 			} else {
 				break
@@ -537,5 +545,217 @@ func (p *simpleParser) parseSignedNumber(r reporter) (num *ast.SignedNumber) {
 func (p *simpleParser) parseColumnConstraint(r reporter) (constr *ast.ColumnConstraint) {
 	constr = &ast.ColumnConstraint{}
 
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordConstraint {
+		constr.Constraint = next
+		p.consumeToken()
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Literal {
+			constr.Name = next
+			p.consumeToken()
+		} else {
+			r.unexpectedToken(token.Literal)
+			// report that the token was unexpected, but continue as if the
+			// missing literal token was present
+		}
+	} else {
+		switch next.Type() {
+		case token.KeywordPrimary:
+			// PRIMARY
+			constr.Primary = next
+			p.consumeToken()
+
+			// KEY
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordKey {
+				constr.Key = next
+				p.consumeToken()
+			} else {
+				r.unexpectedToken(token.KeywordKey)
+			}
+
+			// ASC, DESC
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordAsc {
+				constr.Asc = next
+				p.consumeToken()
+			} else if next.Type() == token.KeywordDesc {
+				constr.Desc = next
+				p.consumeToken()
+			}
+
+			// conflict clause
+			constr.ConflictClause = p.parseConflictClause(r)
+
+			// AUTOINCREMENT
+			next, ok = p.optionalLookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordAutoincrement {
+				constr.Autoincrement = next
+				p.consumeToken()
+			}
+
+		case token.KeywordNot:
+			// NOT
+			constr.Not = next
+			p.consumeToken()
+
+			// NULL
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() != token.KeywordNull {
+				constr.Null = next
+				p.consumeToken()
+			} else {
+				r.unexpectedToken(token.KeywordNull)
+			}
+
+			// conflict clause
+			constr.ConflictClause = p.parseConflictClause(r)
+
+		case token.KeywordUnique:
+			// UNIQUE
+			constr.Unique = next
+			p.consumeToken()
+
+			// conflict clause
+			constr.ConflictClause = p.parseConflictClause(r)
+
+		case token.KeywordCheck:
+			// CHECK
+			constr.Check = next
+			p.consumeToken()
+
+			// left paren
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.Delimiter && next.Value() == "(" {
+				constr.LeftParen = next
+				p.consumeToken()
+			} else {
+				r.unexpectedSingleRuneToken(token.Delimiter, '(')
+				// assume that the opening paren has been omitted, report the
+				// error but proceed as if it was found
+			}
+
+			// expr
+			constr.Expr = p.parseExpression(r)
+
+			// right paren
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.Delimiter && next.Value() == ")" {
+				constr.RightParen = next
+				p.consumeToken()
+			} else {
+				r.unexpectedSingleRuneToken(token.Delimiter, ')')
+				// assume that the opening paren has been omitted, report the
+				// error but proceed as if it was found
+			}
+
+		case token.KeywordDefault:
+			constr.Default = next
+			p.consumeToken()
+
+		case token.KeywordCollate:
+			constr.Collate = next
+			p.consumeToken()
+
+		case token.KeywordGenerated:
+			constr.Generated = next
+			p.consumeToken()
+
+		case token.KeywordReferences:
+			constr.ForeignKeyClause = p.parseForeignKeyClause(r)
+		default:
+			r.unexpectedToken(token.KeywordPrimary, token.KeywordNot, token.KeywordUnique, token.KeywordCheck, token.KeywordDefault, token.KeywordCollate, token.KeywordGenerated, token.KeywordReferences)
+		}
+	}
+
 	return
+}
+
+func (p *simpleParser) parseForeignKeyClause(r reporter) (clause *ast.ForeignKeyClause) {
+	panic("implement me")
+}
+
+func (p *simpleParser) parseConflictClause(r reporter) (clause *ast.ConflictClause) {
+	next, ok := p.optionalLookahead(r)
+	if !ok {
+		return
+	}
+
+	// ON
+	if next.Type() == token.KeywordOn {
+		clause.On = next
+		p.consumeToken()
+	} else {
+		// if there's no 'ON' token, the empty production is assumed, which is
+		// why no error is reported here
+		return
+	}
+
+	// CONFLICT
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordConflict {
+		clause.Conflict = next
+		p.consumeToken()
+	} else {
+		r.unexpectedToken(token.KeywordConflict)
+		return
+	}
+
+	// ROLLBACK, ABORT, FAIL, IGNORE, REPLACE
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	switch next.Type() {
+	case token.KeywordRollback:
+		clause.Rollback = next
+		p.consumeToken()
+	case token.KeywordAbort:
+		clause.Abort = next
+		p.consumeToken()
+	case token.KeywordFail:
+		clause.Fail = next
+		p.consumeToken()
+	case token.KeywordIgnore:
+		clause.Ignore = next
+		p.consumeToken()
+	case token.KeywordReplace:
+		clause.Replace = next
+		p.consumeToken()
+	default:
+		r.unexpectedToken(token.KeywordRollback, token.KeywordAbort, token.KeywordFail, token.KeywordIgnore, token.KeywordReplace)
+	}
+	return
+}
+
+func (p *simpleParser) parseExpression(r reporter) (expr *ast.Expr) {
+	panic("implement me")
 }
