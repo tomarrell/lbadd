@@ -36,3 +36,7 @@ type Parser interface {
 	// stmt=nil, errs=nil, ok=false.
 	Next() (stmt *ast.SQLStmt, errs []error, ok bool)
 }
+
+func New(input string) Parser {
+	return NewSimpleParser(input)
+}
