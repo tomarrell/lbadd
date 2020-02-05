@@ -23,8 +23,6 @@ func TestMain(m *testing.M) {
 }
 
 func TestSingleStatementParse(t *testing.T) {
-	t.SkipNow() // skipped until scanner is functional
-
 	inputs := []struct {
 		Query string
 		Stmt  *ast.SQLStmt
