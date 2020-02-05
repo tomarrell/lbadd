@@ -8,6 +8,7 @@ import (
 	"github.com/TimSatke/golden"
 	"github.com/stretchr/testify/assert"
 	"github.com/tomarrell/lbadd/internal/parser/ast"
+	"github.com/tomarrell/lbadd/internal/parser/ast/tool/cmp"
 	"github.com/tomarrell/lbadd/internal/parser/scanner/token"
 )
 
@@ -153,12 +154,12 @@ func TestSingleStatementParse(t *testing.T) {
 		t.Run(input.Query[0:11], func(t *testing.T) {
 			assert := assert.New(t)
 
-			p := NewSimpleParser(input.Query)
+			p := New(input.Query)
 
 			stmt, errs, ok := p.Next()
 			assert.True(ok, "expected exactly one statement")
 			assert.Nil(errs)
-			assert.Equal(input.Stmt, stmt)
+			assert.Nil(cmp.CompareAST(input.Stmt, stmt))
 
 			_, _, ok = p.Next()
 			assert.False(ok, "expected only one statement")

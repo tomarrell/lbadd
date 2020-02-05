@@ -1,0 +1,44 @@
+([]cmp.Delta) (len=6 cap=6) {
+ (cmp.Delta) {
+  Path: (string) (len=28) "SQLStmt.AlterTableStmt.Alter",
+  Typ: (cmp.DeltaType) TokenValue,
+  Message: (string) (len=31) "difference in attribute 'Value'",
+  Left: (token.tok) KeywordAlter(ALTER),
+  Right: (token.tok) KeywordAlter(alter)
+ },
+ (cmp.Delta) {
+  Path: (string) (len=28) "SQLStmt.AlterTableStmt.Table",
+  Typ: (cmp.DeltaType) TokenValue,
+  Message: (string) (len=31) "difference in attribute 'Value'",
+  Left: (token.tok) KeywordTable(TABLE),
+  Right: (token.tok) KeywordTable(table)
+ },
+ (cmp.Delta) {
+  Path: (string) (len=32) "SQLStmt.AlterTableStmt.TableName",
+  Typ: (cmp.DeltaType) TokenPosition,
+  Message: (string) (len=29) "difference in attribute 'Col'",
+  Left: (token.tok) Literal(users),
+  Right: (token.tok) Literal(users)
+ },
+ (cmp.Delta) {
+  Path: (string) (len=32) "SQLStmt.AlterTableStmt.TableName",
+  Typ: (cmp.DeltaType) TokenPosition,
+  Message: (string) (len=32) "difference in attribute 'Offset'",
+  Left: (token.tok) Literal(users),
+  Right: (token.tok) Literal(users)
+ },
+ (cmp.Delta) {
+  Path: (string) (len=29) "SQLStmt.AlterTableStmt.Rename",
+  Typ: (cmp.DeltaType) TokenValue,
+  Message: (string) (len=31) "difference in attribute 'Value'",
+  Left: (token.tok) KeywordRename(RENAME),
+  Right: (token.tok) KeywordRename(rename)
+ },
+ (cmp.Delta) {
+  Path: (string) (len=25) "SQLStmt.AlterTableStmt.To",
+  Typ: (cmp.DeltaType) TokenValue,
+  Message: (string) (len=31) "difference in attribute 'Value'",
+  Left: (token.tok) KeywordTo(TO),
+  Right: (token.tok) KeywordTo(to)
+ }
+}
