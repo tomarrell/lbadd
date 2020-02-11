@@ -2,16 +2,14 @@ package scanner
 
 import (
 	"fmt"
-	"math/rand"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/tomarrell/lbadd/internal/parser/scanner/token"
 )
 
 func Test_hasNext(t *testing.T) {
-	for _, k := range keywordSlice {
+	for k := range keywordMap {
 		input := k
 		scanner := New([]rune(input))
 		for scanner.HasNext() {
@@ -22,196 +20,120 @@ func Test_hasNext(t *testing.T) {
 
 func Test_specificTokenSequence(t *testing.T) {
 	input := "SelEct FroMs"
-	desiredOutput := []string{
-		"SelEct",
-		"FroMs",
+	desiredOutputToken := []token.Token{
+		token.New(1, 1, 0, 6, token.KeywordSelect, "SelEct"),
+		token.New(1, 8, 7, 5, token.Literal, "FroMs"),
 	}
-	desiredOutputType := []token.Type{
-		token.KeywordSelect,
-		token.KeywordFrom,
-	}
-	testSingleString(input, desiredOutput, desiredOutputType, t)
-}
-
-func Test_randomTokenSequence(t *testing.T) {
-	size := 5
-	randomSequence, randomSequenceArray := generateRandomKeywords(size)
-	var scannerOutput []string
-	scanner := New([]rune(randomSequence))
-	for scanner.HasNext() {
-		token := scanner.Next()
-		if token != nil {
-			scannerOutput = append(scannerOutput, token.Value())
-		}
-	}
-	for i, k := range scannerOutput {
-		if k != randomSequenceArray[i] {
-			t.Fail()
-		}
-	}
-
-	if t.Failed() {
-		fmt.Printf("Expected %v, obtained %v\n", randomSequenceArray, scannerOutput)
-	} else {
-		fmt.Printf("Tested on: %v\n", randomSequenceArray)
-	}
+	testSingleString(input, desiredOutputToken, t)
 }
 
 func Test_scanOperator(t *testing.T) {
-	desiredOutput := []string{
-		"||",
-		"*",
-		"/",
-		"%",
-		"+",
-		"-",
-		"<<",
-		">>",
-		"&",
-		"|",
-		"<",
-		"<=",
-		">=",
-		"=",
-		"==",
-		"!=",
-		"<>",
-		"~",
-	}
-	desiredOutputType := []token.Type{
-		token.BinaryOperator,
-		token.BinaryOperator,
-		token.BinaryOperator,
-		token.BinaryOperator,
-		token.UnaryOperator,
-		token.UnaryOperator,
-		token.BinaryOperator,
-		token.BinaryOperator,
-		token.BinaryOperator,
-		token.BinaryOperator,
-		token.BinaryOperator,
-		token.BinaryOperator,
-		token.BinaryOperator,
-		token.BinaryOperator,
-		token.BinaryOperator,
-		token.BinaryOperator,
-		token.BinaryOperator,
-		token.UnaryOperator,
+	desiredOutputToken := []token.Token{
+		token.New(1, 1, 0, 2, token.BinaryOperator, "||"),
+		token.New(1, 1, 0, 1, token.BinaryOperator, "*"),
+		token.New(1, 1, 0, 1, token.BinaryOperator, "/"),
+		token.New(1, 1, 0, 1, token.BinaryOperator, "%"),
+		token.New(1, 1, 0, 1, token.UnaryOperator, "+"),
+		token.New(1, 1, 0, 1, token.UnaryOperator, "-"),
+		token.New(1, 1, 0, 2, token.BinaryOperator, "<<"),
+		token.New(1, 1, 0, 2, token.BinaryOperator, ">>"),
+		token.New(1, 1, 0, 1, token.BinaryOperator, "&"),
+		token.New(1, 1, 0, 1, token.BinaryOperator, "|"),
+		token.New(1, 1, 0, 1, token.BinaryOperator, "<"),
+		token.New(1, 1, 0, 2, token.BinaryOperator, "<="),
+		token.New(1, 1, 0, 2, token.BinaryOperator, ">="),
+		token.New(1, 1, 0, 1, token.BinaryOperator, "="),
+		token.New(1, 1, 0, 2, token.BinaryOperator, "=="),
+		token.New(1, 1, 0, 2, token.BinaryOperator, "!="),
+		token.New(1, 1, 0, 2, token.BinaryOperator, "<>"),
+		token.New(1, 1, 0, 1, token.UnaryOperator, "~"),
 	}
 
-	var scannerOutput []token.Type
-	for i := range desiredOutput {
-		scanner := New([]rune(desiredOutput[i]))
+	var scannerOutput []token.Token
+	for i := range desiredOutputToken {
+		scanner := New([]rune(desiredOutputToken[i].Value()))
 		for scanner.HasNext() {
 			nextToken := scanner.Next()
 			if nextToken.Type() == token.Error {
 				t.Errorf("Error token recieved - %v\n", nextToken.Value())
 			} else {
-				scannerOutput = append(scannerOutput, nextToken.Type())
+				scannerOutput = append(scannerOutput, nextToken)
 			}
 		}
 	}
 
-	for i, op := range desiredOutputType {
+	for i, op := range desiredOutputToken {
 		if op != scannerOutput[i] {
-			t.Errorf("Expected %v, obtained %v\n", op, scannerOutput[i])
+			t.Errorf("Expected column %v, obtained %v\n", op.Col(), scannerOutput[i].Col())
+			t.Errorf("Expected length %v, obtained %v\n", op.Length(), scannerOutput[i].Length())
+			t.Errorf("Expected line %v, obtained %v\n", op.Line(), scannerOutput[i].Line())
+			t.Errorf("Expected offset %v, obtained %v\n", op.Offset(), scannerOutput[i].Offset())
+			t.Errorf("Expected type %v, obtained %v\n", op.Type(), scannerOutput[i].Type())
+			t.Errorf("Expected value %v, obtained %v\n", op.Value(), scannerOutput[i].Value())
 		}
 	}
 
 	if t.Failed() {
-		fmt.Printf("Expected %v, obtained %v\n", desiredOutputType, scannerOutput)
+		fmt.Printf("Expected tokens %v, obtained %v\n", desiredOutputToken, scannerOutput)
 	} else {
-		fmt.Printf("Tested on: %v\n", desiredOutput)
+		fmt.Printf("Tested on: %v\n", desiredOutputToken)
 	}
 }
 
 func Test_multipleSequences(t *testing.T) {
 	inputSequences := []string{
 		"SELECT    *      FROM      users",
-		"SELECT       FROM || & +7 59 \"foobar\"",
+		"SELECT      FROM || & +7 59 \"foobar\"",
 	}
-	desiredOutput := [][]string{
-		[]string{
-			"SELECT",
-			"*",
-			"FROM",
-			"users",
+	desiredOutputToken := [][]token.Token{
+		[]token.Token{
+			token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+			token.New(1, 11, 10, 1, token.BinaryOperator, "*"),
+			token.New(1, 18, 17, 4, token.KeywordFrom, "FROM"),
+			token.New(1, 28, 27, 5, token.Literal, "users"),
 		},
-		[]string{
-			"SELECT",
-			"FROM",
-			"||",
-			"&",
-			"+",
-			"7",
-			"59",
-			"\"foobar\"",
-		},
-	}
-	desiredOutputType := [][]token.Type{
-		[]token.Type{
-			token.KeywordSelect,
-			token.BinaryOperator,
-			token.KeywordFrom,
-			token.Literal,
-		},
-		[]token.Type{
-			token.KeywordSelect,
-			token.KeywordFrom,
-			token.BinaryOperator,
-			token.BinaryOperator,
-			token.UnaryOperator,
-			token.Literal,
-			token.Literal,
-			token.Literal,
+		[]token.Token{
+			token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+			token.New(1, 13, 12, 4, token.KeywordFrom, "FROM"),
+			token.New(1, 18, 17, 2, token.BinaryOperator, "||"),
+			token.New(1, 21, 20, 1, token.BinaryOperator, "&"),
+			token.New(1, 23, 22, 1, token.UnaryOperator, "+"),
+			token.New(1, 24, 23, 1, token.Literal, "7"),
+			token.New(1, 26, 25, 2, token.Literal, "59"),
+			token.New(1, 29, 28, 8, token.Literal, "\"foobar\""),
 		},
 	}
 	for i, k := range inputSequences {
-		testSingleString(k, desiredOutput[i], desiredOutputType[i], t)
+		testSingleString(k, desiredOutputToken[i], t)
 	}
 }
 
-func generateRandomKeywords(size int) (string, []string) {
-	var randKeywordArray []string
-	randomKeywords := ""
-	rand.Seed(time.Now().UnixNano())
-	for i := 0; i < size; i++ {
-		keyword := keywordSlice[rand.Intn(len(keywordSlice))]
-		randKeywordArray = append(randKeywordArray, keyword)
-		randomKeywords += keyword
-		randomKeywords += " "
-	}
-	return randomKeywords, randKeywordArray
-}
-
-func testSingleString(input string, desiredOutput []string, desiredOutputType []token.Type, t *testing.T) {
-	var scannerOutput []string
-	var scannerOutputType []token.Type
+func testSingleString(input string, desiredOutputToken []token.Token, t *testing.T) {
+	var scannerOutput []token.Token
 	scanner := New([]rune(input))
 	for scanner.HasNext() {
 		nextToken := scanner.Next()
 		if nextToken != nil {
 			if nextToken.Type() != token.Error {
-				scannerOutput = append(scannerOutput, nextToken.Value())
-				scannerOutputType = append(scannerOutputType, nextToken.Type())
+				scannerOutput = append(scannerOutput, nextToken)
 			} else {
 				t.Errorf("Error token recieved - %v\n", nextToken.Value())
 			}
 		}
 	}
-
-	for i, k := range desiredOutputType {
-		if k != scannerOutputType[i] {
-			t.Errorf("Mismatch in desired (%v) and output (%v) token types\n", k, scannerOutputType[i])
+	for i, op := range desiredOutputToken {
+		if op != scannerOutput[i] {
+			t.Errorf("Expected column %v, obtained %v\n", op.Col(), scannerOutput[i].Col())
+			t.Errorf("Expected length %v, obtained %v\n", op.Length(), scannerOutput[i].Length())
+			t.Errorf("Expected line %v, obtained %v\n", op.Line(), scannerOutput[i].Line())
+			t.Errorf("Expected offset %v, obtained %v\n", op.Offset(), scannerOutput[i].Offset())
+			t.Errorf("Expected type %v, obtained %v\n", op.Type(), scannerOutput[i].Type())
+			t.Errorf("Expected value %v, obtained %v\n", op.Value(), scannerOutput[i].Value())
 		}
-		if desiredOutput[i] != scannerOutput[i] {
-			t.Errorf("Mismatch in desired (%v) and output (%v) tokens\n", desiredOutput[i], scannerOutput[i])
-		}
-		fmt.Printf("%v %v %v %v\n", k, scannerOutputType[i], desiredOutput[i], scannerOutput[i])
 	}
 
 	if t.Failed() {
-		fmt.Printf("Expected %v, obtained %v\n", desiredOutput, scannerOutput)
+		fmt.Printf("Expected tokens%v, obtained %v\n", desiredOutputToken, scannerOutput)
 	} else {
 		fmt.Printf("Tested on: %v\n", input)
 	}

@@ -47,10 +47,11 @@ type checkpoint struct {
 func New(input []rune) Scanner {
 	// LoadTrie()
 	return &scanner{
-		input: input,
-		start: 0,
-		pos:   0,
-
+		input:  input,
+		start:  0,
+		pos:    0,
+		line:   1,
+		col:    1,
 		closed: false,
 	}
 }
@@ -66,7 +67,7 @@ func (s *scanner) Next() token.Token {
 	next := s.peekRune()
 	switch next {
 	case ';':
-		s.consumeRune()
+		s.acceptString(string(next))
 		return s.createToken(token.StatementSeparator, ";")
 	case '|', '*', '/', '%', '<', '>', '&', '=', '!', '~', '+', '-':
 		return s.scanOperator()
@@ -80,7 +81,6 @@ func (s *scanner) Next() token.Token {
 		}
 		return s.scanLiteral()
 	}
-	return nil
 }
 
 func (s *scanner) Peek() token.Token {
@@ -119,11 +119,12 @@ func (s *scanner) next() rune {
 	}
 	// update current scanner position
 	s.pos++
-
+	s.start++
+	s.col++
 	return next
 }
 
-// peek returns the next rune of the scanners input without consuming it.
+// peek returns the current rune of the scanners input without consuming it.
 func (s *scanner) peekRune() rune {
 	return s.input[s.pos]
 }
@@ -193,7 +194,7 @@ func (s *scanner) peekString(str string) bool {
 
 // createToken creates a token with given parameters
 func (s *scanner) createToken(t token.Type, value string) token.Token {
-	tk := token.New(s.line, s.col, s.start, s.pos-s.start, t, value)
+	tk := token.New(s.line, s.start+1, s.start, s.pos-s.start, t, value)
 	s.start = s.pos
 	return tk
 }
@@ -201,7 +202,7 @@ func (s *scanner) createToken(t token.Type, value string) token.Token {
 // seekTokenEnd returns the position of the end of a keyword.
 // It takes the start position of the keyword.
 func (s *scanner) seekTokenEnd(start int) int {
-	for start < len(s.input) && !unicode.IsSpace(s.input[start]) { //!whiteSpace.Matches(s.input[start]) {
+	for start < len(s.input) && !unicode.IsSpace(s.input[start]) {
 		start++
 	}
 	return start
@@ -211,24 +212,24 @@ func (s *scanner) seekTokenEnd(start int) int {
 // runes is not expected. The value argument contains all the valid
 // sequence of runes encountered till now and is consumed on execution
 // of this function.
-func (s *scanner) unexpectedRune(value string) token.Token {
-	tk := token.New(s.line, s.col, s.start, s.pos, token.Error, value)
+func (s *scanner) unexpectedRune(unexpectedRune rune) token.Token {
+	tk := token.New(s.line, s.col, s.start, s.pos, token.Error, string(unexpectedRune))
 	s.start = s.pos
-	s.acceptString(value)
 	return tk
 }
 
-// peekNextRune returns the next rune in order in the input.
-// It checks for the end of input and existance of space(s)
-// as the next rune. A rune is returned successfully only if
-// there is no whitespace or end of input encountered. In other
-// cases an error is returned.
+// peekNextRune returns the next rune in order in the input,
+// without consuming it. It checks for the end of input and
+// existance of space(s) as the next rune. A rune is returned
+// successfully only if there is no whitespace or end of input
+// encountered. In other cases an error is returned along
+// with the rune '0'.
 func (s *scanner) peekNextRune() (rune, error) {
-	if s.start < len(s.input)-1 {
-		r := s.input[s.start+1]
+	if s.pos < len(s.input)-1 {
+		r := s.input[s.pos+1]
 		if !unicode.IsSpace(r) {
 			return r, nil
 		}
 	}
-	return '\\', errors.New("No desired input found")
+	return '0', errors.New("No desired input found")
 }

@@ -3,151 +3,8 @@ package scanner
 import (
 	"strings"
 
-	"github.com/tomarrell/lbadd/internal/parser/scanner/matcher"
 	"github.com/tomarrell/lbadd/internal/parser/scanner/token"
 )
-
-var keywordSlice = []string{
-	"ABORT",
-	"ACTION",
-	"ADD",
-	"AFTER",
-	"ALL",
-	"ALTER",
-	"ANALYZE",
-	"AND",
-	"AS",
-	"ASC",
-	"ATTACH",
-	"AUTO",
-	"BEFORE",
-	"BEGIN",
-	"BETWEEN",
-	"BY",
-	"CASCADE",
-	"CASE",
-	"CAST",
-	"CHECK",
-	"COLLATE",
-	"COLUMN",
-	"COMMIT",
-	"CONFLICT",
-	"CONSTRAINT",
-	"CREATE",
-	"CROSS",
-	"CURRENT",
-	"CURRENT_DATE",
-	"CURRENT_TIME",
-	"CURRENT_TIMESTAMP",
-	"DATABASE",
-	"DEFAULT",
-	"DEFERRABLE",
-	"DEFERRED",
-	"DELETE",
-	"DESC",
-	"DETACH",
-	"DISTINCT",
-	"DO",
-	"DROP",
-	"EACH",
-	"ELSE",
-	"END",
-	"ESCAPE",
-	"EXCEPT",
-	"EXCLUDE",
-	"EXCLUSIVE",
-	"EXISTS",
-	"EXPLAIN",
-	"FAIL",
-	"FILTER",
-	"FIRST",
-	"FOLLOWING",
-	"FOR",
-	"FOREIGN",
-	"FROM",
-	"FULL",
-	"GLOB",
-	"GROUP",
-	"GROUPS",
-	"HAVING",
-	"IF",
-	"IGNORE",
-	"IMMEDIATE",
-	"IN",
-	"INDEX",
-	"INDEXED",
-	"INITIALLY",
-	"INNER",
-	"INSERT",
-	"INSTEAD",
-	"INTERSECT",
-	"INTO",
-	"IS",
-	"JOIN",
-	"KEY",
-	"LAST",
-	"LEFT",
-	"LIKE",
-	"LIMIT",
-	"MATCH",
-	"NATURAL",
-	"NO",
-	"NOT",
-	"NOTHING",
-	"OF",
-	"OFFSET",
-	"ON",
-	"OR",
-	"ORDER",
-	"OTHERS",
-	"OUTER",
-	"OVER",
-	"PARTITION",
-	"PLAN",
-	"PRAGMA",
-	"PRECEDING",
-	"PRIMARY",
-	"QUERY",
-	"RAISE",
-	"RANGE",
-	"RECURSIVE",
-	"REFERENCES",
-	"REGEXP",
-	"REINDEX",
-	"RELEASE",
-	"RENAME",
-	"REPLACE",
-	"RESTRICT",
-	"RIGHT",
-	"ROLLBACK",
-	"ROW",
-	"ROWS",
-	"SAVEPOINT",
-	"SELECT",
-	"SET",
-	"TABLE",
-	"TEMP",
-	"TEMPORARY",
-	"THEN",
-	"TIES",
-	"TO",
-	"TRANSACTION",
-	"TRIGGER",
-	"UNBOUNDED",
-	"UNION",
-	"UNIQUE",
-	"UPDATE",
-	"USING",
-	"VACUUM",
-	"VALUES",
-	"VIEW",
-	"VIRTUAL",
-	"WHEN",
-	"WHERE",
-	"WINDOW",
-	"WITH",
-	"WITHOUT",
-}
 
 var keywordMap map[string]token.Type = map[string]token.Type{
 	"ABORT":             token.KeywordAbort,
@@ -306,132 +163,20 @@ var operatorsSlice = []string{
 	"~",
 }
 
-func (s *scanner) consumeRune() {
-	s.col++
-	s.accept(matcher.String(" "))
-}
-
-// func scanDoubleQuote(s *scanner) token.Token {
-// 	s.accept(matcher.String("\""))
-// 	return createToken(token.SQLSpecialCharacter)
-// }
-
-// func scanQuote(s *scanner) token.Token {
-// 	s.accept(matcher.String("'"))
-// 	return createToken(s.line, s.col, s.start, s.pos, token.SQLSpecialCharacter, string(s.input[s.start:s.pos]), s)
-// }
-
-// func scanLeftParanthesis(s *scanner) token.Token {
-// 	s.accept(matcher.String("("))
-// 	return createToken(s.line, s.col, s.start, s.pos, token.SQLSpecialCharacter, string(s.input[s.start:s.pos]), s)
-// }
-
-// func scanRightParanthesis(s *scanner) token.Token {
-// 	s.accept(matcher.String(")"))
-// 	return createToken(s.line, s.col, s.start, s.pos, token.SQLSpecialCharacter, string(s.input[s.start:s.pos]), s)
-// }
-
-// func scanComma(s *scanner) token.Token {
-// 	s.accept(matcher.String(":true,"))
-// 	return createToken(s.line, s.col, s.start, s.pos, token.SQLSpecialCharacter, string(s.input[s.start:s.pos]), s)
-// }
-
-// func scanPeriod(s *scanner) token.Token {
-// 	s.accept(matcher.String("."))
-// 	return createToken(s.line, s.col, s.start, s.pos, token.SQLSpecialCharacter, string(s.input[s.start:s.pos]), s)
-// }
-
-// func scanSolidus(s *scanner) token.Token {
-// 	s.accept(matcher.String("/"))
-// 	return createToken(s.line, s.col, s.start, s.pos, token.SQLSpecialCharacter, string(s.input[s.start:s.pos]), s)
-// }
-
-// func scanReverseSolidus(s *scanner) token.Token {
-// 	s.accept(matcher.String("\\"))
-// 	return createToken(s.line, s.col, s.start, s.pos, token.SQLSpecialCharacter, string(s.input[s.start:s.pos]), s)
-// }
-
-// func scanColon(s *scanner) token.Token {
-// 	s.accept(matcher.String(":"))
-// 	return createToken(s.line, s.col, s.start, s.pos, token.SQLSpecialCharacter, string(s.input[s.start:s.pos]), s)
-// }
-
-// func scanSemiColon(s *scanner) token.Token {
-// 	s.accept(matcher.String(";"))
-// 	return createToken(s.line, s.col, s.start, s.pos, token.SQLSpecialCharacter, string(s.input[s.start:s.pos]), s)
-// }
-
-// // needs more work
-// func scanQuestioMarkOrTrigraphs(s *scanner) token.Token {
-// 	s.accept(matcher.String("="))
-// 	return createToken(s.line, s.col, s.start, s.pos, token.SQLSpecialCharacter, string(s.input[s.start:s.pos]), s)
-// }
-
-// func scanLeftBracket(s *scanner) token.Token {
-// 	s.accept(matcher.String("["))
-// 	return createToken(s.line, s.col, s.start, s.pos, token.SQLSpecialCharacter, string(s.input[s.start:s.pos]), s)
-// }
-
-// func scanRightBracket(s *scanner) token.Token {
-// 	s.accept(matcher.String("]"))
-// 	return createToken(s.line, s.col, s.start, s.pos, token.SQLSpecialCharacter, string(s.input[s.start:s.pos]), s)
-// }
-
-// func scanCircumflex(s *scanner) token.Token {
-// 	s.accept(matcher.String("^"))
-// 	return createToken(s.line, s.col, s.start, s.pos, token.SQLSpecialCharacter, string(s.input[s.start:s.pos]), s)
-// }
-
-// func scanUnderscore(s *scanner) token.Token {
-// 	s.accept(matcher.String("_"))
-// 	return createToken(s.line, s.col, s.start, s.pos, token.SQLSpecialCharacter, string(s.input[s.start:s.pos]), s)
-// }
-
-// func scanVerticalBar(s *scanner) token.Token {
-// 	s.accept(matcher.String("|"))
-// 	return createToken(s.line, s.col, s.start, s.pos, token.SQLSpecialCharacter, string(s.input[s.start:s.pos]), s)
-// }
-
-// func scanLeftBrace(s *scanner) token.Token {
-// 	s.accept(matcher.String("{"))
-// 	return createToken(s.line, s.col, s.start, s.pos, token.SQLSpecialCharacter, string(s.input[s.start:s.pos]), s)
-// }
-
-// func scanRightBrace(s *scanner) token.Token {
-// 	s.accept(matcher.String("}"))
-// 	return createToken(s.line, s.col, s.start, s.pos, token.SQLSpecialCharacter, string(s.input[s.start:s.pos]), s)
-// }
-
-// func scanDollarSign(s *scanner) token.Token {
-// 	s.accept(matcher.String("$"))
-// 	return createToken(s.line, s.col, s.start, s.pos, token.SQLSpecialCharacter, string(s.input[s.start:s.pos]), s)
-// }
-
+// scanKeyword checks for matching keywords from the accepted
+// list of keywords of the SQL.
 func (s *scanner) scanKeyword() token.Token {
 	nextPos := s.seekTokenEnd(s.start)
-	inputString := string(s.input[s.start:nextPos])
-	input := []rune(strings.ToUpper(string(s.input[s.start:nextPos])))
-	for _, k := range keywordSlice {
-		keyword := []rune(k)
-		j := 0
-		length := len(input)
-		if length > len(keyword) {
-			length = len(keyword)
-		}
-		for i := 0; i < length; i++ {
-			if keyword[i] == input[i] {
-				j++
-			}
-		}
-		if j == len(keyword) {
-			s.acceptString(inputString)
-			return s.createToken(keywordMap[k], inputString)
+	input := string(s.input[s.start:nextPos])
+	for k, v := range keywordMap {
+		if k == strings.ToUpper(input) {
+			s.acceptString(input)
+			return s.createToken(v, input)
 		}
 	}
-	s.acceptString(inputString)
-	s.start = nextPos
-	s.pos = nextPos
-	return s.createToken(token.Literal, inputString)
+	s.acceptString(input)
+	s.col = s.start + 1
+	return s.createToken(token.Literal, input)
 }
 
 func (s *scanner) scanOperator() token.Token {
@@ -439,7 +184,7 @@ func (s *scanner) scanOperator() token.Token {
 	for _, op := range operatorsSlice {
 		if op == input {
 			if input == "~" || input == "+" || input == "-" {
-				s.acceptString(string(input))
+				s.acceptString(input)
 				return s.createToken(token.UnaryOperator, input)
 			}
 			nextRune, err := s.peekNextRune()
@@ -450,7 +195,8 @@ func (s *scanner) scanOperator() token.Token {
 					case '>', '<', '=':
 						input += string(nextRune)
 					default:
-						return s.unexpectedRune(input)
+						s.acceptString(input)
+						return s.unexpectedRune(nextRune)
 					}
 				case "|":
 					if nextRune == '|' {
@@ -461,7 +207,8 @@ func (s *scanner) scanOperator() token.Token {
 					case '>', '=':
 						input += string(nextRune)
 					default:
-						return s.unexpectedRune(input)
+						s.acceptString(input)
+						return s.unexpectedRune(nextRune)
 					}
 				case "!":
 					if nextRune == '=' {
@@ -471,12 +218,13 @@ func (s *scanner) scanOperator() token.Token {
 					}
 					// special case than above, we return early because
 					// '!' is not an operator but ONLY '!=' is.
-					return s.unexpectedRune(input)
+					s.acceptString(input)
+					return s.unexpectedRune(nextRune)
 				case "=":
 					if nextRune == '=' {
 						input += string(nextRune)
 					}
-					// in this case, both '=' and '==' are opreators.
+					// in this case, both '=' and '==' are operators.
 				}
 			} else {
 				switch input {
@@ -484,7 +232,8 @@ func (s *scanner) scanOperator() token.Token {
 					s.acceptString(input)
 					return s.createToken(token.BinaryOperator, input)
 				default:
-					return s.unexpectedRune(input)
+					s.acceptString(input)
+					return s.unexpectedRune(nextRune)
 				}
 			}
 			s.acceptString(input)
@@ -492,7 +241,8 @@ func (s *scanner) scanOperator() token.Token {
 
 		}
 	}
-	return s.unexpectedRune(string(input))
+	s.acceptString(input)
+	return s.unexpectedRune(s.input[s.start])
 }
 
 func (s *scanner) scanLiteral() token.Token {
@@ -507,7 +257,9 @@ func (s *scanner) scanSpace() token.Token {
 		s.line++
 		s.col = 1
 	}
+	s.start++
 	s.pos++
+	s.col++
 	s.start = s.pos
 	return nil
 }
