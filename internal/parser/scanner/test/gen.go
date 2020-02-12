@@ -1080,16 +1080,24 @@ func generateLiteral(offset int) token.Token {
 		value:  "\"" + buf.String() + "\"",
 	}
 }
+
+var unaryOperators = []string{"-", "+", "~"}
+
 func generateUnaryOperator(offset int) token.Token {
 	return genTok{
 		offset: offset,
 		typ:    token.UnaryOperator,
+		value:  unaryOperators[rng.Intn(len(unaryOperators))],
 	}
 }
+
+var binaryOperators = []string{"||", "*", "/", "%", "+", "-", "<<", ">>", "&", "|", "<", "<=", ">", ">=", "=", "==", "!=", "<>"}
+
 func generateBinaryOperator(offset int) token.Token {
 	return genTok{
 		offset: offset,
 		typ:    token.BinaryOperator,
+		value:  binaryOperators[rng.Intn(len(binaryOperators))],
 	}
 }
 func generateDelimiter(offset int) token.Token {
@@ -1416,6 +1424,10 @@ func generateTokenForType(offset int, typ token.Type) token.Token {
 		return generateKeywordWithout(offset)
 	case token.Literal:
 		return generateLiteral(offset)
+	case token.UnaryOperator:
+		return generateUnaryOperator(offset)
+	case token.BinaryOperator:
+		return generateBinaryOperator(offset)
 	default:
 	}
 	return generateStatementSeparator(offset)
