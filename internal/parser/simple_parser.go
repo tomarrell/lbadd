@@ -100,7 +100,7 @@ func NewSimpleParser(input string) Parser {
 }
 
 func (p *simpleParser) Next() (*ast.SQLStmt, []error, bool) {
-	if !p.scanner.HasNext() {
+	if p.scanner.Peek().Type() == token.EOF {
 		return nil, []error{}, false
 	}
 	errs := &errorReporter{
@@ -151,7 +151,7 @@ func (p *simpleParser) skipUntil(types ...token.Type) {
 // should occur after an EOF token). Any other token will be returned with
 // next=<token>,hasNext=true.
 func (p *simpleParser) unsafeLowLevelLookahead() (next token.Token, hasNext bool) {
-	if !p.scanner.HasNext() {
+	if p.scanner.Peek().Type() == token.EOF {
 		return nil, false
 	}
 

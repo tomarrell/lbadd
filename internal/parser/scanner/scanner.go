@@ -9,7 +9,6 @@ import (
 
 // Scanner is the interface that describes a scanner.
 type Scanner interface {
-	HasNext() bool
 	Next() token.Token
 	Peek() token.Token
 }
