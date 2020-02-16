@@ -10,15 +10,6 @@ type Token interface {
 	Valuer
 }
 
-func Equal(t1, t2 Token) bool {
-	return t1.Line() == t2.Line() &&
-		t1.Col() == t2.Col() &&
-		t1.Offset() == t2.Offset() &&
-		t1.Length() == t2.Length() &&
-		t1.Type() == t2.Type() &&
-		t1.Value() == t2.Value()
-}
-
 // Positioner describes something that has a 1-based line and col, and a 0-based
 // offset.
 type Positioner interface {
