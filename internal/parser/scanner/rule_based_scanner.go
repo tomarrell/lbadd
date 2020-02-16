@@ -10,16 +10,23 @@ import (
 
 var _ Scanner = (*ruleBasedScanner)(nil)
 
+var defaultLinefeed = matcher.RuneWithDesc("\\n", '\n')
+
 type ruleBasedScanner struct {
 	input []rune
 
 	cache token.Token
 
 	whitespaceDetector matcher.M
+	linefeedDetector   matcher.M
 	rules              []ruleset.Rule
 
-	start int
-	pos   int
+	start     int
+	startLine int
+	startCol  int
+	pos       int
+	line      int
+	col       int
 }
 
 func NewRuleBased(input []rune, ruleset ruleset.Ruleset) *ruleBasedScanner {
@@ -27,10 +34,19 @@ func NewRuleBased(input []rune, ruleset ruleset.Ruleset) *ruleBasedScanner {
 		input:              input,
 		cache:              nil,
 		whitespaceDetector: ruleset.WhitespaceDetector,
+		linefeedDetector:   defaultLinefeed,
 		rules:              ruleset.Rules,
 		start:              0,
+		startLine:          1,
+		startCol:           1,
 		pos:                0,
+		line:               1,
+		col:                1,
 	}
+}
+
+func (s *ruleBasedScanner) LinefeedDetector(linefeedDetector matcher.M) {
+	s.linefeedDetector = linefeedDetector
 }
 
 func (s *ruleBasedScanner) Next() token.Token {
@@ -111,8 +127,10 @@ func (s *ruleBasedScanner) createToken(t token.Type) token.Token {
 }
 
 func (s *ruleBasedScanner) createTokenWithValue(t token.Type, val string) token.Token {
-	tok := token.New(-1, -1, s.start, s.start-s.pos, t, val)
+	tok := token.New(s.startLine, s.startCol, s.start, s.pos-s.start, t, val)
 	s.start = s.pos
+	s.startLine = s.line
+	s.startCol = s.col
 	return tok
 }
 
@@ -126,5 +144,11 @@ func (s *ruleBasedScanner) Lookahead() (rune, bool) {
 }
 
 func (s *ruleBasedScanner) ConsumeRune() {
+	if s.linefeedDetector.Matches(s.input[s.pos]) {
+		s.line++
+		s.col = 1
+	} else {
+		s.col++
+	}
 	s.pos++
 }
