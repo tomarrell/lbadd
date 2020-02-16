@@ -9,11 +9,23 @@ import (
 )
 
 var (
+	// Default is the ruleset that this application uses by default. The rules
+	// are inspired by Sqlite, however they do not care as much about
+	// compatibility with other database systems, and are therefore simpler to
+	// read and write.
 	Default = Ruleset{
-		WhitespaceDetector: defaultWhitespaceDetector,
+		WhitespaceDetector: defaultWhitespaceDetector.Matches,
+		LinefeedDetector:   defaultLinefeedDetector,
 		Rules:              defaultRules,
 	}
+	// defaultWhitespaceDetector matches all the the whitespaces that this ruleset allows
 	defaultWhitespaceDetector = matcher.New("whitespace", unicode.Space)
+	// defaultLinefeedDetector is the linefeed detector that this ruleset allows
+	defaultLinefeedDetector = func(r rune) bool { return r == '\n' }
+	// defaultIdentifierStart matches the allowed first letters of an identifier
+	defaultIdentifierStart = matcher.New("ID_Start", unicode.Other_ID_Start)
+	// defaultIdentifierContinue matches the allowed letters of an identifier that occur after the first letter
+	defaultIdentifierContinue = matcher.New("ID_Continue", unicode.Other_ID_Continue)
 	defaultRules              = []Rule{
 		FuncRule(defaultKeywordsRule),
 	}

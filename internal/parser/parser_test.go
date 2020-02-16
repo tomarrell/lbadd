@@ -158,7 +158,9 @@ func TestSingleStatementParse(t *testing.T) {
 
 			stmt, errs, ok := p.Next()
 			assert.True(ok, "expected exactly one statement")
-			assert.Nil(errs)
+			for _, err := range errs {
+				assert.Nil(err)
+			}
 			assert.Nil(cmp.CompareAST(input.Stmt, stmt))
 
 			_, _, ok = p.Next()

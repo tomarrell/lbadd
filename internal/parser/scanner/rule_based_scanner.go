@@ -3,22 +3,19 @@ package scanner
 import (
 	"fmt"
 
-	"github.com/tomarrell/lbadd/internal/parser/scanner/matcher"
 	"github.com/tomarrell/lbadd/internal/parser/scanner/ruleset"
 	"github.com/tomarrell/lbadd/internal/parser/scanner/token"
 )
 
 var _ Scanner = (*ruleBasedScanner)(nil)
 
-var defaultLinefeed = matcher.RuneWithDesc("\\n", '\n')
-
 type ruleBasedScanner struct {
 	input []rune
 
 	cache token.Token
 
-	whitespaceDetector matcher.M
-	linefeedDetector   matcher.M
+	whitespaceDetector ruleset.DetectorFunc
+	linefeedDetector   ruleset.DetectorFunc
 	rules              []ruleset.Rule
 
 	start     int
@@ -34,7 +31,7 @@ func NewRuleBased(input []rune, ruleset ruleset.Ruleset) *ruleBasedScanner {
 		input:              input,
 		cache:              nil,
 		whitespaceDetector: ruleset.WhitespaceDetector,
-		linefeedDetector:   defaultLinefeed,
+		linefeedDetector:   ruleset.LinefeedDetector,
 		rules:              ruleset.Rules,
 		start:              0,
 		startLine:          1,
@@ -43,10 +40,6 @@ func NewRuleBased(input []rune, ruleset ruleset.Ruleset) *ruleBasedScanner {
 		line:               1,
 		col:                1,
 	}
-}
-
-func (s *ruleBasedScanner) LinefeedDetector(linefeedDetector matcher.M) {
-	s.linefeedDetector = linefeedDetector
 }
 
 func (s *ruleBasedScanner) Next() token.Token {
@@ -92,7 +85,7 @@ func (s *ruleBasedScanner) applyRule() token.Token {
 func (s *ruleBasedScanner) seekNextWhitespace() {
 	for {
 		next, ok := s.Lookahead()
-		if !ok || s.whitespaceDetector.Matches(next) {
+		if !ok || s.whitespaceDetector(next) {
 			break
 		}
 		s.ConsumeRune()
@@ -102,7 +95,7 @@ func (s *ruleBasedScanner) seekNextWhitespace() {
 func (s *ruleBasedScanner) drainWhitespace() {
 	for {
 		next, ok := s.Lookahead()
-		if !(ok && s.whitespaceDetector.Matches(next)) {
+		if !(ok && s.whitespaceDetector(next)) {
 			break
 		}
 		s.ConsumeRune()
@@ -150,7 +143,7 @@ func (s *ruleBasedScanner) Lookahead() (rune, bool) {
 }
 
 func (s *ruleBasedScanner) ConsumeRune() {
-	if s.linefeedDetector.Matches(s.input[s.pos]) {
+	if s.linefeedDetector(s.input[s.pos]) {
 		s.line++
 		s.col = 1
 	} else {
