@@ -56,8 +56,6 @@ func _TestRuleBasedScannerWithRuleset(input string, ruleset ruleset.Ruleset, wan
 		}
 
 		for i := 0; i < limit; i++ {
-			// TODO: extract ast/tool/cmp to project level and open up so that AST and Tokens can be
-			// compared with it
 			assert.Equal(want[i].Line(), got[i].Line(), "Line doesn't match")
 			assert.Equal(want[i].Col(), got[i].Col(), "Col doesn't match")
 			assert.Equal(want[i].Offset(), got[i].Offset(), "Offset doesn't match")
