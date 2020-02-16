@@ -69,12 +69,38 @@ func compare(left, right interface{}, parent path) (deltas []Delta) {
 	leftElem := leftVal.Elem()
 	rightElem := rightVal.Elem()
 
+	if (leftVal.IsZero() && !rightVal.IsZero()) ||
+		(!leftVal.IsZero() && rightVal.IsZero()) {
+		// one of the values is zero value
+		which := "left"
+		whichNot := "right"
+		p := parent
+
+		if rightVal.IsZero() {
+			which = "right"
+			whichNot = "left"
+			p = append(p, leftVal.Type().Name())
+		} else {
+			p = append(p, rightVal.Type().Name())
+		}
+
+		deltas = append(deltas, Delta{
+			Left:    leftVal.Interface(),
+			Right:   rightVal.Interface(),
+			Path:    p.String(),
+			Typ:     TokenValue,
+			Message: which + " had zero value, while " + whichNot + " didn't",
+		})
+		return
+	}
+
 	if (leftVal.IsNil() && !rightVal.IsNil()) ||
 		(!leftVal.IsNil() && rightVal.IsNil()) {
 		// one of the values is nil
 		which := "left"
 		whichNot := "right"
 		p := parent
+
 		if rightElem.Interface() == nil {
 			which = "right"
 			whichNot = "left"
@@ -84,12 +110,13 @@ func compare(left, right interface{}, parent path) (deltas []Delta) {
 		}
 
 		deltas = append(deltas, Delta{
-			Left:    leftElem.Interface,
+			Left:    leftElem.Interface(),
 			Right:   rightElem.Interface(),
 			Path:    p.String(),
 			Typ:     Nilness,
 			Message: which + " was nil, while " + whichNot + " wasn't",
 		})
+		return
 	} else if leftVal.IsNil() && rightVal.IsNil() {
 		return
 	}
