@@ -26,7 +26,7 @@ func TestRuleBasedScanner(t *testing.T) {
 		},
 	}
 	for _, input := range inputs {
-		t.Run("ruleset=default", _TestRuleBasedScannerWithRuleset(input.query, input.ruleset, input.want))
+		t.Run("ruleset=default/"+input.query, _TestRuleBasedScannerWithRuleset(input.query, input.ruleset, input.want))
 	}
 }
 
