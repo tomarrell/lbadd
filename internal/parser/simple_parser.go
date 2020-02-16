@@ -5,6 +5,7 @@ import (
 
 	"github.com/tomarrell/lbadd/internal/parser/ast"
 	"github.com/tomarrell/lbadd/internal/parser/scanner"
+	"github.com/tomarrell/lbadd/internal/parser/scanner/ruleset"
 	"github.com/tomarrell/lbadd/internal/parser/scanner/token"
 )
 
@@ -95,7 +96,7 @@ type simpleParser struct {
 // NewSimpleParser creates new ready to use parser.
 func NewSimpleParser(input string) Parser {
 	return &simpleParser{
-		scanner: scanner.New([]rune(input)),
+		scanner: scanner.NewRuleBased([]rune(input), ruleset.Default),
 	}
 }
 

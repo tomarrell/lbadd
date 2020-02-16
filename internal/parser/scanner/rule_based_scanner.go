@@ -80,7 +80,7 @@ func (s *ruleBasedScanner) applyRule() token.Token {
 	for _, rule := range s.rules {
 		typ, ok := rule.Apply(s)
 		if ok {
-			return s.createToken(typ)
+			return s.token(typ)
 		}
 	}
 
@@ -107,7 +107,7 @@ func (s *ruleBasedScanner) drainWhitespace() {
 		}
 		s.ConsumeRune()
 	}
-	_ = s.createToken(token.Unknown) // discard consumed tokens
+	_ = s.token(token.Unknown) // discard consumed tokens
 }
 
 func (s *ruleBasedScanner) candidate() string {
@@ -115,23 +115,29 @@ func (s *ruleBasedScanner) candidate() string {
 }
 
 func (s *ruleBasedScanner) eof() token.Token {
-	return s.createTokenWithValue(token.EOF, "EOF")
+	return s.token(token.EOF)
 }
 
 func (s *ruleBasedScanner) unexpectedToken() token.Token {
-	return s.createTokenWithValue(token.Error, fmt.Sprintf("unexpected token '%v' at offset %v", s.candidate(), s.start))
+	return s.errorToken(fmt.Errorf("%w: '%v' at offset %v", ErrUnexpectedToken, s.candidate(), s.start))
 }
 
-func (s *ruleBasedScanner) createToken(t token.Type) token.Token {
-	return s.createTokenWithValue(t, s.candidate())
+func (s *ruleBasedScanner) token(t token.Type) token.Token {
+	tok := token.New(s.startLine, s.startCol, s.start, s.pos-s.start, t, s.candidate())
+	s.updateStartPositions()
+	return tok
 }
 
-func (s *ruleBasedScanner) createTokenWithValue(t token.Type, val string) token.Token {
-	tok := token.New(s.startLine, s.startCol, s.start, s.pos-s.start, t, val)
+func (s *ruleBasedScanner) errorToken(err error) token.Token {
+	tok := token.NewErrorToken(s.startLine, s.startCol, s.start, s.pos-s.start, token.Error, err)
+	s.updateStartPositions()
+	return tok
+}
+
+func (s *ruleBasedScanner) updateStartPositions() {
 	s.start = s.pos
 	s.startLine = s.line
 	s.startCol = s.col
-	return tok
 }
 
 // runeScanner
