@@ -94,11 +94,11 @@ func (s *ruleBasedScanner) applyRule() token.Token {
 	}
 
 	// no rules matched, create an error token
-	s.seekNextWhitespace()
+	s.seekNextWhitespaceOrEOF()
 	return s.unexpectedToken()
 }
 
-func (s *ruleBasedScanner) seekNextWhitespace() {
+func (s *ruleBasedScanner) seekNextWhitespaceOrEOF() {
 	for {
 		next, ok := s.Lookahead()
 		if !ok || s.whitespaceDetector(next) {
