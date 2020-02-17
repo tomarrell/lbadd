@@ -1451,6 +1451,7 @@ func generateScannerInputAndExpectedOutput() (scannerInput string, scannerOutput
 	for i := 0; i < amountOfTokens; i++ {
 		// generate token
 		tok := generateToken(currentOffset)
+		currentOffset += tok.Length() - 1
 
 		// append to results
 		buf.WriteString(tok.Value())
@@ -1458,10 +1459,14 @@ func generateScannerInputAndExpectedOutput() (scannerInput string, scannerOutput
 
 		// generate whitespace
 		whitespaces := rng.Intn(5) + 1
+		currentOffset += whitespaces
 		for i := 0; i < whitespaces; i++ {
 			_, _ = buf.WriteRune(' ')
 		}
 	}
+
+	// EOF token
+	scannerOutput = append(scannerOutput, generateEOF(currentOffset))
 
 	scannerInput = buf.String()
 	return
