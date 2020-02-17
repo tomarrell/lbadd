@@ -155,15 +155,6 @@ func (p *simpleParser) unsafeLowLevelLookahead() (next token.Token, hasNext bool
 	return p.scanner.Peek(), true
 }
 
-func (p *simpleParser) lookaheadWithType(r reporter, typ token.Type /* ensure at compile time that at least one type is specified */, typs ...token.Type) (token.Token, bool) {
-	next, hasNext := p.lookahead(r)
-	contains := next.Type() == typ
-	for _, t := range typs {
-		contains = contains || (next.Type() == t)
-	}
-	return next, hasNext && contains
-}
-
 // lookahead performs a lookahead while consuming any error or statement
 // separator token, and reports an EOF, Error or IncompleteStatement if
 // appropriate. If this returns ok=false, return from your parse function
@@ -204,15 +195,15 @@ func (p *simpleParser) consumeToken() {
 func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 	stmt = &ast.SQLStmt{}
 
-	if next, ok := p.lookaheadWithType(r, token.KeywordExplain); ok {
+	if next, ok := p.lookahead(r); ok && next.Type() == token.KeywordExplain {
 		stmt.Explain = next
 		p.consumeToken()
 
-		if next, ok := p.lookaheadWithType(r, token.KeywordQuery); ok {
+		if next, ok := p.lookahead(r); ok && next.Type() == token.KeywordQuery {
 			stmt.Query = next
 			p.consumeToken()
 
-			if next, ok := p.lookaheadWithType(r, token.KeywordPlan); ok {
+			if next, ok := p.lookahead(r); ok && next.Type() == token.KeywordPlan {
 				stmt.Plan = next
 				p.consumeToken()
 			} else {
@@ -435,7 +426,7 @@ func (p *simpleParser) parseAlterTableStmt(r reporter) (stmt *ast.AlterTableStmt
 func (p *simpleParser) parseColumnDef(r reporter) (def *ast.ColumnDef) {
 	def = &ast.ColumnDef{}
 
-	if next, ok := p.lookaheadWithType(r, token.Literal); ok {
+	if next, ok := p.lookahead(r); ok && next.Type() == token.Literal {
 		def.ColumnName = next
 		p.consumeToken()
 
@@ -470,14 +461,14 @@ func (p *simpleParser) parseTypeName(r reporter) (name *ast.TypeName) {
 	name = &ast.TypeName{}
 
 	// one or more name
-	if next, ok := p.lookaheadWithType(r, token.Literal); ok {
+	if next, ok := p.lookahead(r); ok && next.Type() == token.Literal {
 		name.Name = append(name.Name, next)
 		p.consumeToken()
 	} else {
 		r.unexpectedToken(token.Literal)
 	}
 	for {
-		if next, ok := p.lookaheadWithType(r, token.Literal); ok {
+		if next, ok := p.lookahead(r); ok && next.Type() == token.Literal {
 			name.Name = append(name.Name, next)
 			p.consumeToken()
 		} else {
@@ -485,7 +476,7 @@ func (p *simpleParser) parseTypeName(r reporter) (name *ast.TypeName) {
 		}
 	}
 
-	if next, ok := p.lookaheadWithType(r, token.Delimiter); ok {
+	if next, ok := p.lookahead(r); ok && next.Type() == token.Delimiter {
 		if next.Value() == "(" {
 			name.LeftParen = next
 			p.consumeToken()
@@ -498,16 +489,19 @@ func (p *simpleParser) parseTypeName(r reporter) (name *ast.TypeName) {
 		return
 	}
 
-	if next, ok := p.lookaheadWithType(r, token.Delimiter); ok {
+	if next, ok := p.lookahead(r); ok && next.Type() == token.Delimiter {
 		switch next.Value() {
 		case ",":
 			name.Comma = next
 			p.consumeToken()
 
 			name.SignedNumber2 = p.parseSignedNumber(r)
-			next, ok = p.lookaheadWithType(r, token.Delimiter)
+			next, ok = p.lookahead(r)
 			if !ok {
 				return
+			}
+			if next.Type() != token.Delimiter {
+				r.unexpectedToken(token.Delimiter)
 			}
 			fallthrough
 		case ")":
