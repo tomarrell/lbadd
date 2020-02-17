@@ -160,6 +160,9 @@ func (p *simpleParser) unsafeLowLevelLookahead() (next token.Token, hasNext bool
 // appropriate. If this returns ok=false, return from your parse function
 // without reporting any more errors. If ok=false, this means that the next
 // token was either a StatementSeparator or EOF, and an error has been reported.
+//
+// To get any token, even EOF or the a StatementSeparator, use
+// (*simpleParser).optionalLookahead.
 func (p *simpleParser) lookahead(r reporter) (next token.Token, ok bool) {
 	next, ok = p.optionalLookahead(r)
 
