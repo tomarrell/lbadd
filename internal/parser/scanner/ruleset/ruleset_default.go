@@ -27,6 +27,7 @@ var (
 	defaultIdentifierStart = matcher.New("ID_Start", unicode.Other_ID_Start)
 	// defaultIdentifierContinue matches the allowed letters of an identifier that occur after the first letter
 	defaultIdentifierContinue = matcher.New("ID_Continue", unicode.Other_ID_Continue)
+	defaultUnaryOperator      = matcher.String("-+~")
 	defaultRules              = []Rule{
 		FuncRule(defaultStatementSeparatorRule),
 		FuncRule(defaultKeywordsRule),
@@ -56,6 +57,13 @@ func defaultKeywordsRule(s RuneScanner) (token.Type, bool) {
 
 func defaultStatementSeparatorRule(s RuneScanner) (token.Type, bool) {
 	if next, ok := s.Lookahead(); ok && defaultStatementSeparator.Matches(next) {
+		return token.StatementSeparator, true
+	}
+	return token.Unknown, false
+}
+
+func defaultUnaryOperatorRule(s RuneScanner) (token.Type, bool) {
+	if next, ok := s.Lookahead(); ok && defaultUnaryOperator.Matches(next) {
 		return token.StatementSeparator, true
 	}
 	return token.Unknown, false
