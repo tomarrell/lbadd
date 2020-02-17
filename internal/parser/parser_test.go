@@ -6,9 +6,9 @@ import (
 	"testing"
 
 	"github.com/TimSatke/golden"
+	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/assert"
 	"github.com/tomarrell/lbadd/internal/parser/ast"
-	"github.com/tomarrell/lbadd/internal/parser/ast/tool/cmp"
 	"github.com/tomarrell/lbadd/internal/parser/scanner/token"
 )
 
@@ -85,25 +85,25 @@ func TestSingleStatementParse(t *testing.T) {
 							Name: []token.Token{
 								token.New(1, 34, 33, 7, token.Literal, "VARCHAR"),
 							},
-							LeftParen: token.New(1, 41, 40, 1, token.KeywordConstraint, "("),
+							LeftParen: token.New(1, 41, 40, 1, token.Delimiter, "("),
 							SignedNumber1: &ast.SignedNumber{
-								NumericLiteral: token.New(1, 42, 41, 2, token.KeywordConstraint, "15"),
+								NumericLiteral: token.New(1, 42, 41, 2, token.Literal, "15"),
 							},
-							RightParen: token.New(1, 44, 43, 1, token.KeywordConstraint, ")"),
+							RightParen: token.New(1, 44, 43, 1, token.Delimiter, ")"),
 						},
 						ColumnConstraint: []*ast.ColumnConstraint{
 							{
 								Constraint:    token.New(1, 46, 45, 10, token.KeywordConstraint, "CONSTRAINT"),
-								Name:          token.New(1, 57, 56, 2, token.KeywordConstraint, "pk"),
-								Primary:       token.New(1, 60, 59, 7, token.KeywordConstraint, "PRIMARY"),
-								Key:           token.New(1, 68, 67, 3, token.KeywordConstraint, "KEY"),
-								Autoincrement: token.New(1, 72, 71, 13, token.KeywordConstraint, "AUTOINCREMENT"),
+								Name:          token.New(1, 57, 56, 2, token.Literal, "pk"),
+								Primary:       token.New(1, 60, 59, 7, token.KeywordPrimary, "PRIMARY"),
+								Key:           token.New(1, 68, 67, 3, token.KeywordKey, "KEY"),
+								Autoincrement: token.New(1, 72, 71, 13, token.KeywordAutoincrement, "AUTOINCREMENT"),
 							},
 							{
 								Constraint: token.New(1, 86, 85, 10, token.KeywordConstraint, "CONSTRAINT"),
-								Name:       token.New(1, 97, 96, 2, token.KeywordConstraint, "nn"),
-								Not:        token.New(1, 100, 99, 3, token.KeywordConstraint, "NOT"),
-								Null:       token.New(1, 104, 103, 4, token.KeywordConstraint, "NULL"),
+								Name:       token.New(1, 97, 96, 2, token.Literal, "nn"),
+								Not:        token.New(1, 100, 99, 3, token.KeywordNot, "NOT"),
+								Null:       token.New(1, 104, 103, 4, token.KeywordNull, "NULL"),
 							},
 						},
 					},
@@ -124,25 +124,25 @@ func TestSingleStatementParse(t *testing.T) {
 							Name: []token.Token{
 								token.New(1, 27, 26, 7, token.Literal, "VARCHAR"),
 							},
-							LeftParen: token.New(1, 34, 33, 1, token.KeywordConstraint, "("),
+							LeftParen: token.New(1, 34, 33, 1, token.Delimiter, "("),
 							SignedNumber1: &ast.SignedNumber{
 								NumericLiteral: token.New(1, 35, 34, 2, token.KeywordConstraint, "15"),
 							},
-							RightParen: token.New(1, 37, 36, 1, token.KeywordConstraint, ")"),
+							RightParen: token.New(1, 37, 36, 1, token.Delimiter, ")"),
 						},
 						ColumnConstraint: []*ast.ColumnConstraint{
 							{
 								Constraint:    token.New(1, 39, 38, 10, token.KeywordConstraint, "CONSTRAINT"),
-								Name:          token.New(1, 50, 49, 2, token.KeywordConstraint, "pk"),
-								Primary:       token.New(1, 53, 52, 7, token.KeywordConstraint, "PRIMARY"),
-								Key:           token.New(1, 61, 60, 3, token.KeywordConstraint, "KEY"),
-								Autoincrement: token.New(1, 65, 64, 13, token.KeywordConstraint, "AUTOINCREMENT"),
+								Name:          token.New(1, 50, 49, 2, token.Literal, "pk"),
+								Primary:       token.New(1, 53, 52, 7, token.KeywordPrimary, "PRIMARY"),
+								Key:           token.New(1, 61, 60, 3, token.KeywordKey, "KEY"),
+								Autoincrement: token.New(1, 65, 64, 13, token.KeywordAutoincrement, "AUTOINCREMENT"),
 							},
 							{
 								Constraint: token.New(1, 79, 78, 10, token.KeywordConstraint, "CONSTRAINT"),
-								Name:       token.New(1, 90, 89, 2, token.KeywordConstraint, "nn"),
-								Not:        token.New(1, 93, 92, 3, token.KeywordConstraint, "NOT"),
-								Null:       token.New(1, 97, 96, 4, token.KeywordConstraint, "NULL"),
+								Name:       token.New(1, 90, 89, 2, token.Literal, "nn"),
+								Not:        token.New(1, 93, 92, 3, token.KeywordNot, "NOT"),
+								Null:       token.New(1, 97, 96, 4, token.KeywordNull, "NULL"),
 							},
 						},
 					},
@@ -161,7 +161,22 @@ func TestSingleStatementParse(t *testing.T) {
 			for _, err := range errs {
 				assert.Nil(err)
 			}
-			assert.Nil(cmp.CompareAST(input.Stmt, stmt))
+
+			opts := []cmp.Option{
+				cmp.Comparer(func(t1, t2 token.Token) bool {
+					if t1 == t2 {
+						return true
+					}
+					if (t1 == nil && t2 != nil) ||
+						(t1 != nil && t2 == nil) {
+						return false
+					}
+					return t1.Value() == t2.Value()
+				}),
+			}
+
+			t.Log(cmp.Diff(input.Stmt, stmt, opts...))
+			assert.True(cmp.Equal(input.Stmt, stmt, opts...))
 
 			_, _, ok = p.Next()
 			assert.False(ok, "expected only one statement")

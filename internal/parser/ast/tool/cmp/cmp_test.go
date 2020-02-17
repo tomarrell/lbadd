@@ -44,6 +44,7 @@ func TestCompareAST(t *testing.T) {
 		},
 	}
 	output := spew.Sdump(CompareAST(left, right))
+	t.Log(output)
 
 	g := golden.New(t)
 	g.ShouldUpdate = update

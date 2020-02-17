@@ -1,7 +1,6 @@
 package cmp
 
 import (
-	"reflect"
 	"strings"
 
 	"github.com/tomarrell/lbadd/internal/parser/ast"
@@ -57,170 +56,114 @@ type Delta struct {
 // CompareAST compares two ASTs (specifically, two (*ast.SQLStmt)s) against each
 // other, and returns a list of deltas, which will be nil if the ASTs are equal.
 func CompareAST(left, right *ast.SQLStmt) (deltas []Delta) {
-	return compare(left, right, path{})
+	return compareSQLStmt(left, right, append(path{}, "SQLStmt"))
 }
 
 type path []string
 
 func (p path) String() string { return strings.Join(p, ".") }
 
-func compare(left, right interface{}, parent path) (deltas []Delta) {
-	leftVal, rightVal := reflect.ValueOf(left), reflect.ValueOf(right)
-	leftElem := leftVal.Elem()
-	rightElem := rightVal.Elem()
-
-	if (leftVal.IsZero() && !rightVal.IsZero()) ||
-		(!leftVal.IsZero() && rightVal.IsZero()) {
-		// one of the values is zero value
-		which := "left"
-		whichNot := "right"
-		p := parent
-
-		if rightVal.IsZero() {
-			which = "right"
-			whichNot = "left"
-			p = append(p, leftVal.Type().Name())
-		} else {
-			p = append(p, rightVal.Type().Name())
-		}
-
-		deltas = append(deltas, Delta{
-			Left:    leftVal.Interface(),
-			Right:   rightVal.Interface(),
-			Path:    p.String(),
-			Typ:     TokenValue,
-			Message: which + " had zero value, while " + whichNot + " didn't",
-		})
-		return
-	}
-
-	if (leftVal.IsNil() && !rightVal.IsNil()) ||
-		(!leftVal.IsNil() && rightVal.IsNil()) {
-		// one of the values is nil
-		which := "left"
-		whichNot := "right"
-		p := parent
-
-		if rightElem.Interface() == nil {
-			which = "right"
-			whichNot = "left"
-			p = append(p, leftElem.Type().Name())
-		} else {
-			p = append(p, rightElem.Type().Name())
-		}
-
-		deltas = append(deltas, Delta{
-			Left:    leftElem.Interface(),
-			Right:   rightElem.Interface(),
-			Path:    p.String(),
-			Typ:     Nilness,
-			Message: which + " was nil, while " + whichNot + " wasn't",
-		})
-		return
-	} else if leftVal.IsNil() && rightVal.IsNil() {
-		return
-	}
-
-	// both incoming are not nil
-
-	typ := leftElem.Type()
-	if typ != rightElem.Type() {
-		panic("struct types are not equal, thus not comparable")
-	}
-
-	path := append(parent, typ.Name())
-
-	for i := 0; i < typ.NumField(); i++ {
-		leftVal := reflect.ValueOf(left).Elem().Field(i).Interface()
-		rightVal := reflect.ValueOf(right).Elem().Field(i).Interface()
-		if (leftVal == nil && rightVal != nil) ||
-			(leftVal != nil && rightVal == nil) {
-			// only one is nil
-			which := "left"
-			whichNot := "right"
-			if rightVal == nil {
-				which = "right"
-				whichNot = "left"
-			}
-
-			deltas = append(deltas, Delta{
-				Left:    leftVal,
-				Right:   rightVal,
-				Path:    append(path, typ.Field(i).Name).String(),
-				Typ:     Nilness,
-				Message: which + " was nil, while " + whichNot + " wasn't",
-			})
-		} else if leftVal == nil && rightVal == nil {
-			// both are nil, no-op
-		} else {
-			// both are not nil and we have to compare the values
-			tok1, ok1 := leftVal.(token.Token)
-			tok2, ok2 := rightVal.(token.Token)
-			if ok1 && ok2 {
-				deltas = append(deltas, compareToken(tok1, tok2, append(path, typ.Field(i).Name))...)
-			} else {
-				deltas = append(deltas, compare(leftVal, rightVal, path)...)
-			}
-		}
-	}
-
+func compareSQLStmt(left, right *ast.SQLStmt, path path) (deltas []Delta) {
+	deltas = append(deltas, compareTokens(left.Explain, right.Explain, append(path, "Explain"))...)
+	deltas = append(deltas, compareTokens(left.Query, right.Query, append(path, "Query"))...)
+	deltas = append(deltas, compareTokens(left.Plan, right.Plan, append(path, "Plan"))...)
+	deltas = append(deltas, compareAlterTableStmt(left.AlterTableStmt, right.AlterTableStmt, append(path, "AlterTableStmt"))...)
+	// TODO(TimSatke) all other fields
 	return
 }
 
-func compareToken(left, right token.Token, path path) (deltas []Delta) {
-	if left.Col() != right.Col() {
+func compareAlterTableStmt(left, right *ast.AlterTableStmt, path path) (deltas []Delta) {
+	deltas = append(deltas, compareTokens(left.Alter, right.Alter, append(path, "Alter"))...)
+	deltas = append(deltas, compareTokens(left.Table, right.Table, append(path, "Table"))...)
+	deltas = append(deltas, compareTokens(left.SchemaName, right.SchemaName, append(path, "SchemaName"))...)
+	deltas = append(deltas, compareTokens(left.Period, right.Period, append(path, "Period"))...)
+	deltas = append(deltas, compareTokens(left.TableName, right.TableName, append(path, "TableName"))...)
+	deltas = append(deltas, compareTokens(left.Rename, right.Rename, append(path, "Rename"))...)
+	deltas = append(deltas, compareTokens(left.To, right.To, append(path, "To"))...)
+	deltas = append(deltas, compareTokens(left.NewTableName, right.NewTableName, append(path, "NewTableName"))...)
+	deltas = append(deltas, compareTokens(left.Column, right.Column, append(path, "Column"))...)
+	deltas = append(deltas, compareTokens(left.ColumnName, right.ColumnName, append(path, "ColumnName"))...)
+	deltas = append(deltas, compareTokens(left.NewColumnName, right.NewColumnName, append(path, "NewColumnName"))...)
+	deltas = append(deltas, compareTokens(left.Add, right.Add, append(path, "Add"))...)
+	// TODO(TimSatke) compare column def
+	return
+}
+
+func compareTokens(left, right token.Token, path path) (deltas []Delta) {
+	if (left == nil && right != nil) ||
+		(left != nil && right == nil) {
 		deltas = append(deltas, Delta{
+			Path:    path.String(),
+			Typ:     Nilness,
+			Message: "one token was nil while the other one wasn't",
 			Left:    left,
 			Right:   right,
-			Path:    path.String(),
-			Typ:     TokenPosition,
-			Message: "difference in attribute 'Col'",
 		})
 	}
-	if left.Length() != right.Length() {
-		deltas = append(deltas, Delta{
-			Left:    left,
-			Right:   right,
-			Path:    path.String(),
-			Typ:     TokenPosition,
-			Message: "difference in attribute 'Length'",
-		})
+
+	if left == right {
+		return
 	}
+
 	if left.Line() != right.Line() {
 		deltas = append(deltas, Delta{
-			Left:    left,
-			Right:   right,
 			Path:    path.String(),
 			Typ:     TokenPosition,
-			Message: "difference in attribute 'Line'",
+			Message: "lines don't match",
+			Left:    left.Line(),
+			Right:   right.Line(),
 		})
 	}
+
+	if left.Col() != right.Col() {
+		deltas = append(deltas, Delta{
+			Path:    path.String(),
+			Typ:     TokenPosition,
+			Message: "cols don't match",
+			Left:    left.Col(),
+			Right:   right.Col(),
+		})
+	}
+
 	if left.Offset() != right.Offset() {
 		deltas = append(deltas, Delta{
-			Left:    left,
-			Right:   right,
 			Path:    path.String(),
 			Typ:     TokenPosition,
-			Message: "difference in attribute 'Offset'",
+			Message: "offsets don't match",
+			Left:    left.Offset(),
+			Right:   right.Offset(),
 		})
 	}
-	if left.Type() != right.Type() {
+
+	if left.Length() != right.Length() {
 		deltas = append(deltas, Delta{
-			Left:    left,
-			Right:   right,
-			Path:    path.String(),
-			Typ:     TokenPosition,
-			Message: "difference in attribute 'Type'",
-		})
-	}
-	if left.Value() != right.Value() {
-		deltas = append(deltas, Delta{
-			Left:    left,
-			Right:   right,
 			Path:    path.String(),
 			Typ:     TokenValue,
-			Message: "difference in attribute 'Value'",
+			Message: "lengths don't match",
+			Left:    left.Length(),
+			Right:   right.Length(),
 		})
 	}
+
+	if left.Type() != right.Type() {
+		deltas = append(deltas, Delta{
+			Path:    path.String(),
+			Typ:     TokenValue,
+			Message: "types don't match",
+			Left:    left.Type(),
+			Right:   right.Type(),
+		})
+	}
+
+	if left.Value() != right.Value() {
+		deltas = append(deltas, Delta{
+			Path:    path.String(),
+			Typ:     TokenValue,
+			Message: "values don't match",
+			Left:    left.Value(),
+			Right:   right.Value(),
+		})
+	}
+
 	return
 }

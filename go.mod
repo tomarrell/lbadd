@@ -5,6 +5,7 @@ go 1.13
 require (
 	github.com/TimSatke/golden v0.1.1
 	github.com/davecgh/go-spew v1.1.1
+	github.com/google/go-cmp v0.4.0
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/stretchr/testify v1.4.0
 	golang.org/x/text v0.3.2

@@ -2,43 +2,43 @@
  (cmp.Delta) {
   Path: (string) (len=28) "SQLStmt.AlterTableStmt.Alter",
   Typ: (cmp.DeltaType) TokenValue,
-  Message: (string) (len=31) "difference in attribute 'Value'",
-  Left: (token.tok) KeywordAlter(ALTER),
-  Right: (token.tok) KeywordAlter(alter)
+  Message: (string) (len=18) "values don't match",
+  Left: (string) (len=5) "ALTER",
+  Right: (string) (len=5) "alter"
  },
  (cmp.Delta) {
   Path: (string) (len=28) "SQLStmt.AlterTableStmt.Table",
   Typ: (cmp.DeltaType) TokenValue,
-  Message: (string) (len=31) "difference in attribute 'Value'",
-  Left: (token.tok) KeywordTable(TABLE),
-  Right: (token.tok) KeywordTable(table)
+  Message: (string) (len=18) "values don't match",
+  Left: (string) (len=5) "TABLE",
+  Right: (string) (len=5) "table"
  },
  (cmp.Delta) {
   Path: (string) (len=32) "SQLStmt.AlterTableStmt.TableName",
   Typ: (cmp.DeltaType) TokenPosition,
-  Message: (string) (len=29) "difference in attribute 'Col'",
-  Left: (token.tok) Literal(users),
-  Right: (token.tok) Literal(users)
+  Message: (string) (len=16) "cols don't match",
+  Left: (int) 13,
+  Right: (int) 12
  },
  (cmp.Delta) {
   Path: (string) (len=32) "SQLStmt.AlterTableStmt.TableName",
   Typ: (cmp.DeltaType) TokenPosition,
-  Message: (string) (len=32) "difference in attribute 'Offset'",
-  Left: (token.tok) Literal(users),
-  Right: (token.tok) Literal(users)
+  Message: (string) (len=19) "offsets don't match",
+  Left: (int) 12,
+  Right: (int) 11
  },
  (cmp.Delta) {
   Path: (string) (len=29) "SQLStmt.AlterTableStmt.Rename",
   Typ: (cmp.DeltaType) TokenValue,
-  Message: (string) (len=31) "difference in attribute 'Value'",
-  Left: (token.tok) KeywordRename(RENAME),
-  Right: (token.tok) KeywordRename(rename)
+  Message: (string) (len=18) "values don't match",
+  Left: (string) (len=6) "RENAME",
+  Right: (string) (len=6) "rename"
  },
  (cmp.Delta) {
   Path: (string) (len=25) "SQLStmt.AlterTableStmt.To",
   Typ: (cmp.DeltaType) TokenValue,
-  Message: (string) (len=31) "difference in attribute 'Value'",
-  Left: (token.tok) KeywordTo(TO),
-  Right: (token.tok) KeywordTo(to)
+  Message: (string) (len=18) "values don't match",
+  Left: (string) (len=2) "TO",
+  Right: (string) (len=2) "to"
  }
 }

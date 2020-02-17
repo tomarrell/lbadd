@@ -152,10 +152,6 @@ func (p *simpleParser) skipUntil(types ...token.Type) {
 // should occur after an EOF token). Any other token will be returned with
 // next=<token>,hasNext=true.
 func (p *simpleParser) unsafeLowLevelLookahead() (next token.Token, hasNext bool) {
-	if p.scanner.Peek().Type() == token.EOF {
-		return nil, false
-	}
-
 	return p.scanner.Peek(), true
 }
 
@@ -255,7 +251,7 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 	}
 
 	p.searchNext(r, token.StatementSeparator, token.EOF)
-	next, ok = p.lookahead(r)
+	next, ok = p.unsafeLowLevelLookahead()
 	if !ok {
 		return
 	}
@@ -443,12 +439,24 @@ func (p *simpleParser) parseColumnDef(r reporter) (def *ast.ColumnDef) {
 		def.ColumnName = next
 		p.consumeToken()
 
-		if _, ok := p.lookaheadWithType(r, token.Literal); ok {
+		if next, ok = p.lookahead(r); ok && next.Type() == token.Literal {
 			def.TypeName = p.parseTypeName(r)
 		}
 
 		for {
-			if _, ok := p.lookaheadWithType(r, token.KeywordConstraint, token.KeywordPrimary, token.KeywordNot, token.KeywordUnique, token.KeywordCheck, token.KeywordDefault, token.KeywordCollate, token.KeywordGenerated, token.KeywordReferences); ok {
+			next, ok = p.optionalLookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordConstraint ||
+				next.Type() == token.KeywordPrimary ||
+				next.Type() == token.KeywordNot ||
+				next.Type() == token.KeywordUnique ||
+				next.Type() == token.KeywordCheck ||
+				next.Type() == token.KeywordDefault ||
+				next.Type() == token.KeywordCollate ||
+				next.Type() == token.KeywordGenerated ||
+				next.Type() == token.KeywordReferences {
 				def.ColumnConstraint = append(def.ColumnConstraint, p.parseColumnConstraint(r))
 			} else {
 				break
@@ -567,132 +575,154 @@ func (p *simpleParser) parseColumnConstraint(r reporter) (constr *ast.ColumnCons
 			// report that the token was unexpected, but continue as if the
 			// missing literal token was present
 		}
-	} else {
-		switch next.Type() {
-		case token.KeywordPrimary:
-			// PRIMARY
-			constr.Primary = next
-			p.consumeToken()
+	}
 
-			// KEY
-			next, ok = p.lookahead(r)
-			if !ok {
-				return
-			}
-			if next.Type() == token.KeywordKey {
-				constr.Key = next
-				p.consumeToken()
-			} else {
-				r.unexpectedToken(token.KeywordKey)
-			}
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	switch next.Type() {
+	case token.KeywordPrimary:
+		// PRIMARY
+		constr.Primary = next
+		p.consumeToken()
 
-			// ASC, DESC
-			next, ok = p.lookahead(r)
-			if !ok {
-				return
-			}
-			if next.Type() == token.KeywordAsc {
-				constr.Asc = next
-				p.consumeToken()
-			} else if next.Type() == token.KeywordDesc {
-				constr.Desc = next
-				p.consumeToken()
-			}
-
-			// conflict clause
-			constr.ConflictClause = p.parseConflictClause(r)
-
-			// AUTOINCREMENT
-			next, ok = p.optionalLookahead(r)
-			if !ok {
-				return
-			}
-			if next.Type() == token.KeywordAutoincrement {
-				constr.Autoincrement = next
-				p.consumeToken()
-			}
-
-		case token.KeywordNot:
-			// NOT
-			constr.Not = next
-			p.consumeToken()
-
-			// NULL
-			next, ok = p.lookahead(r)
-			if !ok {
-				return
-			}
-			if next.Type() != token.KeywordNull {
-				constr.Null = next
-				p.consumeToken()
-			} else {
-				r.unexpectedToken(token.KeywordNull)
-			}
-
-			// conflict clause
-			constr.ConflictClause = p.parseConflictClause(r)
-
-		case token.KeywordUnique:
-			// UNIQUE
-			constr.Unique = next
-			p.consumeToken()
-
-			// conflict clause
-			constr.ConflictClause = p.parseConflictClause(r)
-
-		case token.KeywordCheck:
-			// CHECK
-			constr.Check = next
-			p.consumeToken()
-
-			// left paren
-			next, ok = p.lookahead(r)
-			if !ok {
-				return
-			}
-			if next.Type() == token.Delimiter && next.Value() == "(" {
-				constr.LeftParen = next
-				p.consumeToken()
-			} else {
-				r.unexpectedSingleRuneToken(token.Delimiter, '(')
-				// assume that the opening paren has been omitted, report the
-				// error but proceed as if it was found
-			}
-
-			// expr
-			constr.Expr = p.parseExpression(r)
-
-			// right paren
-			next, ok = p.lookahead(r)
-			if !ok {
-				return
-			}
-			if next.Type() == token.Delimiter && next.Value() == ")" {
-				constr.RightParen = next
-				p.consumeToken()
-			} else {
-				r.unexpectedSingleRuneToken(token.Delimiter, ')')
-				// assume that the opening paren has been omitted, report the
-				// error but proceed as if it was found
-			}
-
-		case token.KeywordDefault:
-			constr.Default = next
-			p.consumeToken()
-
-		case token.KeywordCollate:
-			constr.Collate = next
-			p.consumeToken()
-
-		case token.KeywordGenerated:
-			constr.Generated = next
-			p.consumeToken()
-
-		case token.KeywordReferences:
-			constr.ForeignKeyClause = p.parseForeignKeyClause(r)
-		default:
-			r.unexpectedToken(token.KeywordPrimary, token.KeywordNot, token.KeywordUnique, token.KeywordCheck, token.KeywordDefault, token.KeywordCollate, token.KeywordGenerated, token.KeywordReferences)
+		// KEY
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
 		}
+		if next.Type() == token.KeywordKey {
+			constr.Key = next
+			p.consumeToken()
+		} else {
+			r.unexpectedToken(token.KeywordKey)
+		}
+
+		// ASC, DESC
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordAsc {
+			constr.Asc = next
+			p.consumeToken()
+		} else if next.Type() == token.KeywordDesc {
+			constr.Desc = next
+			p.consumeToken()
+		}
+
+		// conflict clause
+		next, ok = p.optionalLookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordOn {
+			constr.ConflictClause = p.parseConflictClause(r)
+		}
+
+		// AUTOINCREMENT
+		next, ok = p.optionalLookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordAutoincrement {
+			constr.Autoincrement = next
+			p.consumeToken()
+		}
+
+	case token.KeywordNot:
+		// NOT
+		constr.Not = next
+		p.consumeToken()
+
+		// NULL
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordNull {
+			constr.Null = next
+			p.consumeToken()
+		} else {
+			r.unexpectedToken(token.KeywordNull)
+		}
+
+		// conflict clause
+		next, ok = p.optionalLookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordOn {
+			constr.ConflictClause = p.parseConflictClause(r)
+		}
+
+	case token.KeywordUnique:
+		// UNIQUE
+		constr.Unique = next
+		p.consumeToken()
+
+		// conflict clause
+		next, ok = p.optionalLookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordOn {
+			constr.ConflictClause = p.parseConflictClause(r)
+		}
+
+	case token.KeywordCheck:
+		// CHECK
+		constr.Check = next
+		p.consumeToken()
+
+		// left paren
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Delimiter && next.Value() == "(" {
+			constr.LeftParen = next
+			p.consumeToken()
+		} else {
+			r.unexpectedSingleRuneToken(token.Delimiter, '(')
+			// assume that the opening paren has been omitted, report the
+			// error but proceed as if it was found
+		}
+
+		// expr
+		constr.Expr = p.parseExpression(r)
+
+		// right paren
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Delimiter && next.Value() == ")" {
+			constr.RightParen = next
+			p.consumeToken()
+		} else {
+			r.unexpectedSingleRuneToken(token.Delimiter, ')')
+			// assume that the opening paren has been omitted, report the
+			// error but proceed as if it was found
+		}
+
+	case token.KeywordDefault:
+		constr.Default = next
+		p.consumeToken()
+
+	case token.KeywordCollate:
+		constr.Collate = next
+		p.consumeToken()
+
+	case token.KeywordGenerated:
+		constr.Generated = next
+		p.consumeToken()
+
+	case token.KeywordReferences:
+		constr.ForeignKeyClause = p.parseForeignKeyClause(r)
+	default:
+		r.unexpectedToken(token.KeywordPrimary, token.KeywordNot, token.KeywordUnique, token.KeywordCheck, token.KeywordDefault, token.KeywordCollate, token.KeywordGenerated, token.KeywordReferences)
 	}
 
 	return
