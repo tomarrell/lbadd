@@ -18,6 +18,10 @@ type ruleBasedScanner struct {
 	linefeedDetector   ruleset.DetectorFunc
 	rules              []ruleset.Rule
 
+	state
+}
+
+type state struct {
 	start     int
 	startLine int
 	startCol  int
@@ -33,12 +37,14 @@ func NewRuleBased(input []rune, ruleset ruleset.Ruleset) *ruleBasedScanner {
 		whitespaceDetector: ruleset.WhitespaceDetector,
 		linefeedDetector:   ruleset.LinefeedDetector,
 		rules:              ruleset.Rules,
-		start:              0,
-		startLine:          1,
-		startCol:           1,
-		pos:                0,
-		line:               1,
-		col:                1,
+		state: state{
+			start:     0,
+			startLine: 1,
+			startCol:  1,
+			pos:       0,
+			line:      1,
+			col:       1,
+		},
 	}
 }
 
@@ -53,6 +59,14 @@ func (s *ruleBasedScanner) Peek() token.Token {
 		s.cache = s.computeNext()
 	}
 	return s.cache
+}
+
+func (s *ruleBasedScanner) checkpoint() state {
+	return s.state
+}
+
+func (s *ruleBasedScanner) restore(chck state) {
+	s.state = chck
 }
 
 func (s *ruleBasedScanner) done() bool {
@@ -71,10 +85,12 @@ func (s *ruleBasedScanner) computeNext() token.Token {
 func (s *ruleBasedScanner) applyRule() token.Token {
 	// try to apply all rules in the given order
 	for _, rule := range s.rules {
+		chck := s.checkpoint()
 		typ, ok := rule.Apply(s)
 		if ok {
 			return s.token(typ)
 		}
+		s.restore(chck)
 	}
 
 	// no rules matched, create an error token
