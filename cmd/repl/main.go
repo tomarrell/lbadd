@@ -6,7 +6,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/tomarrell/lbadd"
+	"github.com/tomarrell/lbadd/internal/cli"
 )
 
 func main() {
@@ -27,8 +27,8 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) error {
 		return fmt.Errorf("parse flags: %w", err)
 	}
 
-	r := lbadd.NewRepl()
-	r.Start()
+	cli := cli.New(stdin, stdout, nil) // TODO: pass in a functional executor
+	cli.Start()
 
 	return nil
 }
