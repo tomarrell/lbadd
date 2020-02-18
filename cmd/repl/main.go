@@ -11,7 +11,7 @@ import (
 
 func main() {
 	if err := run(os.Args, os.Stdin, os.Stdout, os.Stderr); err != nil {
-		_, _ = fmt.Fprintf(os.Stdout, "%s\n", err)
+		_, _ = fmt.Fprintf(os.Stderr, "%s\n", err)
 		os.Exit(1)
 	}
 }
