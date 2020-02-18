@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/tomarrell/lbadd/internal/executor/command"
 	"github.com/tomarrell/lbadd/internal/parser"
 )
 
@@ -36,14 +37,14 @@ func (c *simpleCli) Start() {
 			break
 		}
 
-		c.handleCommand(c.scanner.Text())
+		c.handleInput(c.scanner.Text())
 
 		_, _ = fmt.Fprintln(c.out, "")
 	}
 }
 
-func (c *simpleCli) handleCommand(command string) {
-	switch command {
+func (c *simpleCli) handleInput(input string) {
+	switch input {
 	case "help", "h", "?", "\\?":
 		fmt.Print("Available Commands:\n// TODO")
 		return
@@ -52,7 +53,7 @@ func (c *simpleCli) handleCommand(command string) {
 		return
 	}
 
-	parser := parser.New(command)
+	parser := parser.New(input)
 	for {
 		stmt, errs, ok := parser.Next()
 		if !ok {
@@ -61,8 +62,12 @@ func (c *simpleCli) handleCommand(command string) {
 		for _, err := range errs {
 			_, _ = fmt.Fprintf(c.out, "error while parsing command: %v\n", err)
 		}
-		// TODO: define intermediary representation, convert and then execute
-		if err := c.exec.Execute(stmt); err != nil {
+
+		command, err := command.From(stmt)
+		if err != nil {
+			_, _ = fmt.Fprintf(c.out, "error while compiling command: %v\n", err)
+		}
+		if err := c.exec.Execute(command); err != nil {
 			_, _ = fmt.Fprintf(c.out, "error while executing command: %v\n", err)
 		}
 	}

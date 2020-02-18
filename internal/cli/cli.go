@@ -3,7 +3,7 @@ package cli
 import (
 	"io"
 
-	"github.com/tomarrell/lbadd/internal/parser/ast"
+	"github.com/tomarrell/lbadd/internal/executor/command"
 )
 
 // Cli describes a command line interface that can be started and closed. It
@@ -17,7 +17,7 @@ type Cli interface {
 // Executor describes a component that can execute the AST that is produced when
 // parsing the input.
 type Executor interface {
-	Execute(*ast.SQLStmt) error
+	Execute(command.Command) error
 }
 
 // New creates a new Cli that can immediately be started.
