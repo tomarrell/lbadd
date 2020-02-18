@@ -12,6 +12,7 @@ func (s sentinel) Error() string { return string(s) }
 const (
 	ErrIncompleteStatement  = sentinel("incomplete statement")
 	ErrPrematureEOF         = sentinel("unexpectedly reached EOF")
+	ErrScanner              = sentinel("scanner")
 	ErrUnexpectedToken      = sentinel("unexpected token")
 	ErrUnknownToken         = sentinel("unknown token")
 	ErrUnsupportedConstruct = sentinel("unsupported construct")
@@ -34,4 +35,8 @@ type Parser interface {
 	// statements can be returned. Subsequent calls to Next will result in
 	// stmt=nil, errs=nil, ok=false.
 	Next() (stmt *ast.SQLStmt, errs []error, ok bool)
+}
+
+func New(input string) Parser {
+	return NewSimpleParser(input)
 }

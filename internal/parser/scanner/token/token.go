@@ -10,6 +10,11 @@ type Token interface {
 	Valuer
 }
 
+type ErrorToken interface {
+	Token
+	error
+}
+
 // Positioner describes something that has a 1-based line and col, and a 0-based
 // offset.
 type Positioner interface {
@@ -79,10 +84,26 @@ func (t tok) Value() string {
 	return t.value
 }
 
-func (t tok) IsLiteral() bool {
-	return t.IsLiteral()
-}
-
 func (t tok) String() string {
 	return fmt.Sprintf("%s(%s)", t.typ.String(), t.value)
+}
+
+type errorTok struct {
+	Token
+	err error
+}
+
+func NewErrorToken(line, col, offset, length int, typ Type, err error) Token {
+	return errorTok{
+		Token: New(line, col, offset, length, typ, err.Error()),
+		err:   err,
+	}
+}
+
+func (t errorTok) Error() string {
+	return t.String()
+}
+
+func (t errorTok) String() string {
+	return fmt.Sprintf("%s(%s)", t.Type().String(), t.err)
 }
