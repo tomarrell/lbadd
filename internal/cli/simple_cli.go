@@ -61,6 +61,7 @@ func (c *simpleCli) handleCommand(command string) {
 		for _, err := range errs {
 			_, _ = fmt.Fprintf(c.out, "error while parsing command: %v\n", err)
 		}
+		// TODO: define intermediary representation, convert and then execute
 		if err := c.exec.Execute(stmt); err != nil {
 			_, _ = fmt.Fprintf(c.out, "error while executing command: %v\n", err)
 		}
