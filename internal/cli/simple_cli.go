@@ -2,9 +2,11 @@ package cli
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"io"
 
+	"github.com/tomarrell/lbadd/internal/executor"
 	"github.com/tomarrell/lbadd/internal/executor/command"
 	"github.com/tomarrell/lbadd/internal/parser"
 )
@@ -12,17 +14,19 @@ import (
 var _ Cli = (*simpleCli)(nil)
 
 type simpleCli struct {
+	ctx context.Context
+
 	in  io.Reader
 	out io.Writer
 
-	closed  bool
 	scanner *bufio.Scanner
 
-	exec Executor
+	exec executor.Executor
 }
 
-func newSimpleCli(in io.Reader, out io.Writer, exec Executor) *simpleCli {
+func newSimpleCli(ctx context.Context, in io.Reader, out io.Writer, exec executor.Executor) *simpleCli {
 	return &simpleCli{
+		ctx:     ctx,
 		in:      in,
 		out:     out,
 		scanner: bufio.NewScanner(in),
@@ -31,49 +35,75 @@ func newSimpleCli(in io.Reader, out io.Writer, exec Executor) *simpleCli {
 }
 
 func (c *simpleCli) Start() {
-	for !c.closed {
-		_, _ = fmt.Fprint(c.out, "$ ")
+	lines := make(chan string)
+
+	// read from the cli scanner
+	go func() {
 		if !c.scanner.Scan() {
-			break
+			return
 		}
+		lines <- c.scanner.Text()
+	}()
 
-		c.handleInput(c.scanner.Text())
-
-		_, _ = fmt.Fprintln(c.out, "")
+	for {
+		_, _ = fmt.Fprint(c.out, "$ ")
+		select {
+		case line := <-lines:
+			c.handleInput(line)
+		case <-c.ctx.Done():
+			return
+		}
 	}
 }
 
 func (c *simpleCli) handleInput(input string) {
 	switch input {
 	case "help", "h", "?", "\\?":
-		fmt.Print("Available Commands:\n// TODO")
-		return
+		c.printHelp()
 	case "q", "exit", "\\q":
-		fmt.Print("Bye!")
-		return
+		c.quit()
+	default:
+		c.handleSQL(input)
 	}
+}
 
-	parser := parser.New(input)
-	for {
+func (c *simpleCli) printHelp() {
+	fmt.Fprintln(c.out, "Available Commands:\n// TODO")
+}
+
+func (c *simpleCli) quit() {
+	fmt.Fprintln(c.out, "Bye!")
+}
+
+func (c *simpleCli) handleSQL(sqlInput string) {
+	parser := parser.New(sqlInput)
+	for c.ctx.Err() == nil {
+		// parse the input statement
 		stmt, errs, ok := parser.Next()
 		if !ok {
 			break
 		}
+		// print errors to the output
 		for _, err := range errs {
 			_, _ = fmt.Fprintf(c.out, "error while parsing command: %v\n", err)
 		}
-
+		// if there were errors, abandon the statement
+		if errs != nil {
+			continue
+		}
+		// convert AST to IR
 		command, err := command.From(stmt)
 		if err != nil {
 			_, _ = fmt.Fprintf(c.out, "error while compiling command: %v\n", err)
+			continue
 		}
-		if err := c.exec.Execute(command); err != nil {
+		// execute the command
+		result, err := c.exec.Execute(command)
+		if err != nil {
 			_, _ = fmt.Fprintf(c.out, "error while executing command: %v\n", err)
+			continue
 		}
+		// print the result of the command execution to the output
+		_, _ = fmt.Fprintln(c.out, result)
 	}
-}
-
-func (c *simpleCli) Close() error {
-	c.closed = true
-	return nil
 }

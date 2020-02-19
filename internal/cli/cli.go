@@ -1,26 +1,20 @@
 package cli
 
 import (
+	"context"
 	"io"
 
-	"github.com/tomarrell/lbadd/internal/executor/command"
+	"github.com/tomarrell/lbadd/internal/executor"
 )
 
-// Cli describes a command line interface that can be started and closed. It
-// should process commands from a defined input as long as it is running.
-// Processing must stop, when the cli is closed.
+// Cli describes a command line interface that can be started. A Cli runs under
+// a context. Processing must start when the Cli is started and stopped, when
+// the context is canceled.
 type Cli interface {
 	Start()
-	io.Closer
-}
-
-// Executor describes a component that can execute the AST that is produced when
-// parsing the input.
-type Executor interface {
-	Execute(command.Command) error
 }
 
 // New creates a new Cli that can immediately be started.
-func New(in io.Reader, out io.Writer, exec Executor) Cli {
-	return newSimpleCli(in, out, exec)
+func New(ctx context.Context, in io.Reader, out io.Writer, exec executor.Executor) Cli {
+	return newSimpleCli(ctx, in, out, exec)
 }

@@ -15,6 +15,6 @@ func newSimpleExecutor() *simpleExecutor {
 	return &simpleExecutor{}
 }
 
-func (e *simpleExecutor) Execute(cmd command.Command) error {
-	return fmt.Errorf("unimplemented")
+func (e *simpleExecutor) Execute(cmd command.Command) (Result, error) {
+	return nil, fmt.Errorf("unimplemented")
 }
