@@ -15,13 +15,23 @@ func TestRuleBasedScanner(t *testing.T) {
 		want    []token.Token
 	}{
 		{
-			"SELECT FROM WHERE",
+			"SELECT FROM \"WHERE\"",
 			ruleset.Default,
 			[]token.Token{
 				token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
 				token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
-				token.New(1, 13, 12, 5, token.KeywordWhere, "WHERE"),
-				token.New(1, 18, 17, 0, token.EOF, ""),
+				token.New(1, 13, 12, 7, token.Literal, "\"WHERE\""),
+				token.New(1, 20, 19, 0, token.EOF, ""),
+			},
+		},
+		{
+			"SELECT FROM \"WHERE",
+			ruleset.Default,
+			[]token.Token{
+				token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+				token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+				token.New(1, 13, 12, 6, token.Error, "unexpected token: '\"WHERE' at offset 12"),
+				token.New(1, 19, 18, 0, token.EOF, ""),
 			},
 		},
 	}
