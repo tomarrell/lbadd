@@ -1,8 +1,10 @@
-package lbadd
+package database
+
+import "github.com/tomarrell/lbadd/internal/database/storage"
 
 type table struct {
 	name    string
-	store   storage
+	store   storage.Storage
 	columns []column
 }
 

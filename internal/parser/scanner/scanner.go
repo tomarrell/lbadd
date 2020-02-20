@@ -9,6 +9,7 @@ type sentinel string
 
 func (s sentinel) Error() string { return string(s) }
 
+// Constant errors
 const (
 	ErrUnexpectedToken = sentinel("unexpected token")
 )

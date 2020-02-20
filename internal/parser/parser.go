@@ -37,6 +37,8 @@ type Parser interface {
 	Next() (stmt *ast.SQLStmt, errs []error, ok bool)
 }
 
+// New creates a new, ready to use parser, that will parse the given input
+// string.
 func New(input string) Parser {
 	return NewSimpleParser(input)
 }

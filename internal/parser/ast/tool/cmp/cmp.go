@@ -28,6 +28,7 @@ const (
 	TokenPosition
 )
 
+// Delta describes a single difference between two components of an AST.
 type Delta struct {
 	// Path indicates the path within the struct, where the delta is present,
 	// for example:

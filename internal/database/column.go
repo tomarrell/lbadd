@@ -1,4 +1,4 @@
-package lbadd
+package database
 
 // The set of data types that are can be used for columns
 type columnType int
