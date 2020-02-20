@@ -17,7 +17,11 @@ import (
 )
 
 const (
-	ExitAbnormal  = 1
+	// ExitAbnormal is the exit code that the application will return upon
+	// internal abnormal exit.
+	ExitAbnormal = 1
+	// ExitInterrupt is the exit code that the application will return when
+	// aborted by the user.
 	ExitInterrupt = 2
 )
 

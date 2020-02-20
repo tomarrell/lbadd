@@ -67,11 +67,11 @@ func (c *simpleCli) handleInput(input string) {
 }
 
 func (c *simpleCli) printHelp() {
-	fmt.Fprintln(c.out, "Available Commands:\n// TODO")
+	_, _ = fmt.Fprintln(c.out, "Available Commands:\n// TODO")
 }
 
 func (c *simpleCli) quit() {
-	fmt.Fprintln(c.out, "Bye!")
+	_, _ = fmt.Fprintln(c.out, "Bye!")
 }
 
 func (c *simpleCli) handleSQL(sqlInput string) {
