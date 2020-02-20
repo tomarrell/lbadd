@@ -1,4 +1,4 @@
-package lbadd
+package btree
 
 import (
 	"testing"

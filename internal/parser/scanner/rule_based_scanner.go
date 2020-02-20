@@ -30,7 +30,9 @@ type state struct {
 	col       int
 }
 
-func NewRuleBased(input []rune, ruleset ruleset.Ruleset) *ruleBasedScanner {
+// NewRuleBased creates a new, ready to use rule based scanner with the given
+// ruleset, that will process the given input rune slice.
+func NewRuleBased(input []rune, ruleset ruleset.Ruleset) Scanner {
 	return &ruleBasedScanner{
 		input:              input,
 		cache:              nil,

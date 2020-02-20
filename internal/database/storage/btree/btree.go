@@ -1,19 +1,9 @@
-// Btree contains the btree struct, which is used as the primary data store of
-// the database.
-//
-// The btree supports 3 primary operations:
-// - get: given a key, retrieve the corresponding entry
-// - put: given a key and a value, create an entry in the btree
-// - remove: given a key, remove the corresponding entry in the tree if it
-// exists
-
-package lbadd
+package btree
 
 const defaultOrder = 3
 
-// storage defines the interface to be implemented by
-// the b-tree
-type storage interface {
+// Btree describes a btree.
+type Btree interface {
 	get(k key) (v *entry, exists bool)
 	insert(k key, v value)
 	remove(k key) (removed bool)
