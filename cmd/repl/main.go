@@ -63,7 +63,7 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) error {
 	}()
 
 	// Initialize a root logger
-	file, err := os.OpenFile(*logfile, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0666)
+	file, err := os.OpenFile(*logfile, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0600)
 	if err != nil {
 		return fmt.Errorf("open logfile: %w", err)
 	}
