@@ -48,7 +48,7 @@ func _TestRuleBasedScannerWithRuleset(input string, ruleset ruleset.Ruleset, wan
 			}
 		}
 
-		assert.Equalf(len(want), len(got), "did not receive as much tokens as expected (expected %d, but got %d)", len(want), len(got))
+		assert.Equalf(len(want), len(got), "did not receive as many tokens as expected (expected %d, but got %d)", len(want), len(got))
 
 		limit := len(want)
 		if len(got) < limit {
