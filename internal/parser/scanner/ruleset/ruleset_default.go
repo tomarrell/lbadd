@@ -82,6 +82,9 @@ func defaultUnaryOperatorRule(s RuneScanner) (token.Type, bool) {
 	return token.Unknown, false
 }
 
+// defaultBinaryOperatorRule scans binary operators. Since binary opeators
+// can be of length one and two, it first checks for former, then latter
+// and allows the best of the two conditions.
 func defaultBinaryOperatorRule(s RuneScanner) (token.Type, bool) {
 	if next, ok := s.Lookahead(); ok && defaultBinaryOperator.Matches(next) {
 		s.ConsumeRune()
@@ -115,10 +118,18 @@ func defaultQuotedLiteralRule(s RuneScanner) (token.Type, bool) {
 		if !ok {
 			return token.Unknown, false
 		}
-		if next == quoteType {
+		if next == '\\' {
+			s.ConsumeRune()
+			next, ok = s.Lookahead()
+			if !ok {
+				return token.Unknown, false
+			}
+			s.ConsumeRune()
+		} else if next == quoteType {
 			break
+		} else {
+			s.ConsumeRune()
 		}
-		s.ConsumeRune()
 	}
 	s.ConsumeRune()
 	return token.Literal, true

@@ -49,6 +49,77 @@ func TestRuleBasedScanner(t *testing.T) {
 				token.New(1, 37, 36, 0, token.EOF, ""),
 			},
 		},
+		{
+			"SELECT FROM 'WHERE'",
+			ruleset.Default,
+			[]token.Token{
+				token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+				token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+				token.New(1, 13, 12, 7, token.Literal, "'WHERE'"),
+				token.New(1, 20, 19, 0, token.EOF, ""),
+			},
+		},
+		{
+			"SELECT \"myCol FROM \"myTable\"",
+			ruleset.Default,
+			[]token.Token{
+				token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+				token.New(1, 8, 7, 13, token.Literal, `"myCol FROM "`),
+				token.New(1, 21, 20, 7, token.Literal, "myTable"),
+				token.New(1, 28, 27, 1, token.Error, "unexpected token: '\"' at offset 27"),
+				token.New(1, 29, 28, 0, token.EOF, ""),
+			},
+		},
+		{
+			"SELECT \" FROM",
+			ruleset.Default,
+			[]token.Token{
+				token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+				token.New(1, 8, 7, 1, token.Error, `unexpected token: '"' at offset 7`),
+				token.New(1, 10, 9, 4, token.KeywordFrom, "FROM"),
+				token.New(1, 14, 13, 0, token.EOF, ""),
+			},
+		},
+		{
+			`SELECT FROM "this \" can be anything"`,
+			ruleset.Default,
+			[]token.Token{
+				token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+				token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+				token.New(1, 13, 12, 25, token.Literal, `"this \" can be anything"`),
+				token.New(1, 38, 37, 0, token.EOF, ""),
+			},
+		},
+		{
+			`SELECT FROM 'this \" can be anything'`,
+			ruleset.Default,
+			[]token.Token{
+				token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+				token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+				token.New(1, 13, 12, 25, token.Literal, `'this \" can be anything'`),
+				token.New(1, 38, 37, 0, token.EOF, ""),
+			},
+		},
+		{
+			`SELECT FROM 'this \' can be anything'`,
+			ruleset.Default,
+			[]token.Token{
+				token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+				token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+				token.New(1, 13, 12, 25, token.Literal, `'this \' can be anything'`),
+				token.New(1, 38, 37, 0, token.EOF, ""),
+			},
+		},
+		{
+			`SELECT FROM "this \' can be anything"`,
+			ruleset.Default,
+			[]token.Token{
+				token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+				token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+				token.New(1, 13, 12, 25, token.Literal, `"this \' can be anything"`),
+				token.New(1, 38, 37, 0, token.EOF, ""),
+			},
+		},
 	}
 	for _, input := range inputs {
 		t.Run("ruleset=default/"+input.query, _TestRuleBasedScannerWithRuleset(input.query, input.ruleset, input.want))
