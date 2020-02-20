@@ -10,10 +10,8 @@ test: ## Runs the unit test suite
 lint: ## Runs the linters
 	golint;
 	errcheck;
-	gosec ./...;
-
-	# TODO re-enable staticcheck
-	# staticcheck;
+	gosec -quiet ./...;
+	staticcheck;
 
 
 ## Help display.
