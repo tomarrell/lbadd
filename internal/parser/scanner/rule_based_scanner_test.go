@@ -34,6 +34,21 @@ func TestRuleBasedScanner(t *testing.T) {
 				token.New(1, 19, 18, 0, token.EOF, ""),
 			},
 		},
+		{
+			"SELECT      FROM || & +7 59 \"foobar\"",
+			ruleset.Default,
+			[]token.Token{
+				token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+				token.New(1, 13, 12, 4, token.KeywordFrom, "FROM"),
+				token.New(1, 18, 17, 2, token.BinaryOperator, "||"),
+				token.New(1, 21, 20, 1, token.BinaryOperator, "&"),
+				token.New(1, 23, 22, 1, token.UnaryOperator, "+"),
+				token.New(1, 24, 23, 1, token.Literal, "7"),
+				token.New(1, 26, 25, 2, token.Literal, "59"),
+				token.New(1, 29, 28, 8, token.Literal, "\"foobar\""),
+				token.New(1, 37, 36, 0, token.EOF, ""),
+			},
+		},
 	}
 	for _, input := range inputs {
 		t.Run("ruleset=default/"+input.query, _TestRuleBasedScannerWithRuleset(input.query, input.ruleset, input.want))
@@ -57,7 +72,6 @@ func _TestRuleBasedScannerWithRuleset(input string, ruleset ruleset.Ruleset, wan
 				break
 			}
 		}
-
 		assert.Equalf(len(want), len(got), "did not receive as much tokens as expected (expected %d, but got %d)", len(want), len(got))
 
 		limit := len(want)
