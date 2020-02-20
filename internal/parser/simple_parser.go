@@ -44,11 +44,11 @@ func (r *errorReporter) unexpectedToken(expected ...token.Type) {
 }
 
 func (r *errorReporter) unhandledToken(t token.Token) {
-	r.errorf("%w: %s(%s) at (%d:%d) offset %d lenght %d", ErrUnknownToken, t.Type().String(), t.Value(), t.Line(), t.Col(), t.Offset(), t.Length())
+	r.errorf("%w: %s(%s) at (%d:%d) offset %d length %d", ErrUnknownToken, t.Type().String(), t.Value(), t.Line(), t.Col(), t.Offset(), t.Length())
 }
 
 func (r *errorReporter) unsupportedConstruct(t token.Token) {
-	r.errorf("%w: %s(%s) at (%d:%d) offset %d lenght %d", ErrUnsupportedConstruct, t.Type().String(), t.Value(), t.Line(), t.Col(), t.Offset(), t.Length())
+	r.errorf("%w: %s(%s) at (%d:%d) offset %d length %d", ErrUnsupportedConstruct, t.Type().String(), t.Value(), t.Line(), t.Col(), t.Offset(), t.Length())
 }
 
 func (r *errorReporter) errorf(format string, args ...interface{}) {
