@@ -7,9 +7,12 @@ import (
 	"github.com/tomarrell/lbadd/internal/executor"
 )
 
-// Cli describes a command line interface that can be started. A Cli runs under
-// a context. Processing must start when the Cli is started and stopped, when
+// Cli describes a command line interface that can be started. A cli runs under
+// a context. Processing must start when the cli is started and stopped, when
 // the context is canceled.
+//
+// A cli is a way to interact with the database, with the indirection of an
+// (executor.Executor).
 type Cli interface {
 	Start()
 }
