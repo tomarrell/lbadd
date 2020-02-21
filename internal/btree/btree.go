@@ -47,19 +47,34 @@ func NewBtreeOrder(order int) *Btree {
 	}
 }
 
+type levels map[int]struct {
+	entries []Entry
+}
+
 // Output the btree as a string representation
 func (b *Btree) String() string {
 	out := ""
 
-	out += "R: "
+	out += "R:\n"
 	out += b.root.String()
 	out += "\n"
 
 	queue := b.root.children
+	currWidth := len(b.root.children)
+	nextWidth := 0
+
 	// Breadth traversal
 	for len(queue) > 0 {
+		if currWidth == 0 {
+			out += "\n"
+			currWidth = nextWidth
+		} else {
+			currWidth--
+		}
+
 		// pop from front of queue and append the popped nodes children
 		n := queue[0]
+		nextWidth += len(n.children)
 		queue = append(queue[1:], n.children...)
 
 		out += n.String()

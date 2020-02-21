@@ -23,7 +23,7 @@ func (e *Entry) Value() Value {
 
 func (e *Entry) String() string {
 	if e.value != nil {
-		return fmt.Sprintf("%v:%v", e.key, e.value)
+		return fmt.Sprintf("\033[1m%v\033[0m", e.key)
 	}
 	return fmt.Sprintf("%v", e.key)
 }
