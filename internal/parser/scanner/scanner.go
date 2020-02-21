@@ -4,14 +4,14 @@ import (
 	"github.com/tomarrell/lbadd/internal/parser/scanner/token"
 )
 
-// sentinel allows constant errors
-type sentinel string
+// Error allows constant errors
+type Error string
 
-func (s sentinel) Error() string { return string(s) }
+func (s Error) Error() string { return string(s) }
 
 // Constant errors
 const (
-	ErrUnexpectedToken = sentinel("unexpected token")
+	ErrUnexpectedToken = Error("unexpected token")
 )
 
 // Scanner is the interface that describes a scanner.

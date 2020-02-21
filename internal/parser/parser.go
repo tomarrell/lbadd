@@ -4,18 +4,18 @@ import (
 	"github.com/tomarrell/lbadd/internal/parser/ast"
 )
 
-type sentinel string
+type Error string
 
-func (s sentinel) Error() string { return string(s) }
+func (s Error) Error() string { return string(s) }
 
 // parser errors
 const (
-	ErrIncompleteStatement  = sentinel("incomplete statement")
-	ErrPrematureEOF         = sentinel("unexpectedly reached EOF")
-	ErrScanner              = sentinel("scanner")
-	ErrUnexpectedToken      = sentinel("unexpected token")
-	ErrUnknownToken         = sentinel("unknown token")
-	ErrUnsupportedConstruct = sentinel("unsupported construct")
+	ErrIncompleteStatement  = Error("incomplete statement")
+	ErrPrematureEOF         = Error("unexpectedly reached EOF")
+	ErrScanner              = Error("scanner")
+	ErrUnexpectedToken      = Error("unexpected token")
+	ErrUnknownToken         = Error("unknown token")
+	ErrUnsupportedConstruct = Error("unsupported construct")
 )
 
 // Parser describes a parser that returns (maybe multiple) SQLStatements from a
