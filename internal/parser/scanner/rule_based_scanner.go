@@ -96,18 +96,8 @@ func (s *ruleBasedScanner) applyRule() token.Token {
 	}
 
 	// no rules matched, create an error token
-	s.seekNextWhitespaceOrEOF()
+	s.ConsumeRune() // skip the one offending rune
 	return s.unexpectedToken()
-}
-
-func (s *ruleBasedScanner) seekNextWhitespaceOrEOF() {
-	for {
-		next, ok := s.Lookahead()
-		if !ok || s.whitespaceDetector(next) {
-			break
-		}
-		s.ConsumeRune()
-	}
 }
 
 func (s *ruleBasedScanner) drainWhitespace() {
