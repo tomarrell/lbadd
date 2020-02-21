@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/tomarrell/lbadd/internal/btree"
 )
 
 func Test_executor_execute(t *testing.T) {
@@ -67,7 +68,7 @@ func Test_executor_executeCreateTable(t *testing.T) {
 			wantTables: map[string]table{
 				"users": {
 					name:    "users",
-					store:   newBtreeOrder(order),
+					store:   btree.NewBtreeOrder(order),
 					columns: []column{},
 				},
 			},
@@ -85,7 +86,7 @@ func Test_executor_executeCreateTable(t *testing.T) {
 			wantTables: map[string]table{
 				"users": {
 					name:  "users",
-					store: newBtreeOrder(order),
+					store: btree.NewBtreeOrder(order),
 					columns: []column{
 						{
 							dataType:   columnTypeString,
@@ -109,7 +110,7 @@ func Test_executor_executeCreateTable(t *testing.T) {
 			wantTables: map[string]table{
 				"users": {
 					name:  "users",
-					store: newBtreeOrder(order),
+					store: btree.NewBtreeOrder(order),
 					columns: []column{
 						{
 							dataType:   columnTypeString,
@@ -170,7 +171,7 @@ func Test_executor_executeSelect(t *testing.T) {
 	order := 3
 	mockTable := table{
 		name:  "user",
-		store: newBtreeOrder(order),
+		store: btree.NewBtreeOrder(order),
 		columns: []column{
 			{
 				dataType:   columnTypeInt,
@@ -184,7 +185,7 @@ func Test_executor_executeSelect(t *testing.T) {
 			},
 		},
 	}
-	mockTable.store.insert(0, "John Smith")
+	mockTable.store.Insert(0, "John Smith")
 
 	tests := []struct {
 		name    string

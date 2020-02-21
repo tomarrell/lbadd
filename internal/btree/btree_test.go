@@ -1,4 +1,4 @@
-package lbadd
+package btree
 
 import (
 	"fmt"
@@ -7,17 +7,17 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestBTree(t *testing.T) {
+func TestBtree(t *testing.T) {
 	t.Skip()
 	cases := []struct {
 		name   string
-		insert []entry
-		get    []entry
+		insert []Entry
+		get    []Entry
 	}{
 		{
 			name:   "set and get",
-			insert: []entry{{1, 1}},
-			get:    []entry{{1, 1}},
+			insert: []Entry{{1, 1}},
+			get:    []Entry{{1, 1}},
 		},
 	}
 
@@ -25,17 +25,17 @@ func TestBTree(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			bt := newBtreeOrder(order)
+			bt := NewBtreeOrder(order)
 
 			for _, e := range tc.insert {
-				bt.insert(e.key, e.value)
+				bt.Insert(e.key, e.value)
 			}
 
 			for _, g := range tc.get {
 				assert.Equal(t,
 					g.value,
-					func() *entry {
-						e, _ := bt.get(g.key)
+					func() *Entry {
+						e, _ := bt.Get(g.key)
 						return e
 					}(),
 				)
@@ -48,8 +48,8 @@ func TestGet(t *testing.T) {
 	cases := []struct {
 		name       string
 		root       *node
-		key        key
-		wantEntry  *entry
+		key        Key
+		wantEntry  *Entry
 		wantExists bool
 	}{
 		{
@@ -64,44 +64,44 @@ func TestGet(t *testing.T) {
 		},
 		{
 			name:       "entries only in root",
-			root:       &node{entries: []*entry{{1, 1}, {2, 2}, {3, 3}}},
+			root:       &node{entries: []*Entry{{1, 1}, {2, 2}, {3, 3}}},
 			key:        2,
-			wantEntry:  &entry{2, 2},
+			wantEntry:  &Entry{2, 2},
 			wantExists: true,
 		},
 		{
-			name: "entry one level deep left of root",
+			name: "Entry one level deep left of root",
 			root: &node{
-				entries: []*entry{{2, nil}},
+				entries: []*Entry{{2, nil}},
 				children: []*node{
-					{entries: []*entry{{1, 1}}},
-					{entries: []*entry{{2, 2}, {3, 3}}},
+					{entries: []*Entry{{1, 1}}},
+					{entries: []*Entry{{2, 2}, {3, 3}}},
 				},
 			},
 			key:        1,
-			wantEntry:  &entry{1, 1},
+			wantEntry:  &Entry{1, 1},
 			wantExists: true,
 		},
 		{
-			name: "entry one level deep right of root",
+			name: "Entry one level deep right of root",
 			root: &node{
-				entries: []*entry{{2, nil}},
+				entries: []*Entry{{2, nil}},
 				children: []*node{
-					{entries: []*entry{{1, 1}}},
-					{entries: []*entry{{2, 2}, {3, 3}}},
+					{entries: []*Entry{{1, 1}}},
+					{entries: []*Entry{{2, 2}, {3, 3}}},
 				},
 			},
 			key:        3,
-			wantEntry:  &entry{3, 3},
+			wantEntry:  &Entry{3, 3},
 			wantExists: true,
 		},
 		{
-			name: "depth > 1 and key not exist",
+			name: "depth > 1 and Key not exist",
 			root: &node{
-				entries: []*entry{{2, 2}},
+				entries: []*Entry{{2, 2}},
 				children: []*node{
-					{entries: []*entry{{1, 1}}},
-					{entries: []*entry{{2, 2}, {3, 3}}},
+					{entries: []*Entry{{1, 1}}},
+					{entries: []*Entry{{2, 2}, {3, 3}}},
 				},
 			},
 			key:        4,
@@ -110,33 +110,33 @@ func TestGet(t *testing.T) {
 		{
 			name: "depth = 3 found",
 			root: &node{
-				entries: []*entry{{2, nil}},
+				entries: []*Entry{{2, nil}},
 				children: []*node{
-					{entries: []*entry{{1, 1}}},
+					{entries: []*Entry{{1, 1}}},
 					{
-						entries: []*entry{{3, nil}},
+						entries: []*Entry{{3, nil}},
 						children: []*node{
-							{entries: []*entry{{2, 2}}},
-							{entries: []*entry{{3, 3}, {4, 4}}},
+							{entries: []*Entry{{2, 2}}},
+							{entries: []*Entry{{3, 3}, {4, 4}}},
 						},
 					},
 				},
 			},
 			key:        4,
-			wantEntry:  &entry{4, 4},
+			wantEntry:  &Entry{4, 4},
 			wantExists: true,
 		},
 		{
 			name: "depth = 3 not found",
 			root: &node{
-				entries: []*entry{{2, nil}},
+				entries: []*Entry{{2, nil}},
 				children: []*node{
-					{entries: []*entry{{1, 1}}},
+					{entries: []*Entry{{1, 1}}},
 					{
-						entries: []*entry{{3, nil}},
+						entries: []*Entry{{3, nil}},
 						children: []*node{
-							{entries: []*entry{{2, 2}}},
-							{entries: []*entry{{3, 3}, {4, 4}}},
+							{entries: []*Entry{{2, 2}}},
+							{entries: []*Entry{{3, 3}, {4, 4}}},
 						},
 					},
 				},
@@ -148,11 +148,11 @@ func TestGet(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			btree := newBtree()
-			btree.root = tc.root
+			b := NewBtree()
+			b.root = tc.root
 
-			entry, exists := btree.get(tc.key)
-			assert.Equal(t, tc.wantEntry, entry)
+			Entry, exists := b.Get(tc.key)
+			assert.Equal(t, tc.wantEntry, Entry)
 			assert.Equal(t, tc.wantExists, exists)
 		})
 	}
@@ -161,42 +161,42 @@ func TestGet(t *testing.T) {
 func TestKeySearch(t *testing.T) {
 	cases := []struct {
 		name    string
-		entries []*entry
-		key     key
+		entries []*Entry
+		key     Key
 		exists  bool
 		index   int
 	}{
 		{
 			name:    "single value",
-			entries: []*entry{{key: 1}},
+			entries: []*Entry{{key: 1}},
 			key:     2,
 			exists:  false,
 			index:   1,
 		},
 		{
 			name:    "single value, already exists",
-			entries: []*entry{{key: 1}},
+			entries: []*Entry{{key: 1}},
 			key:     1,
 			exists:  true,
 			index:   1,
 		},
 		{
 			name:    "already exists",
-			entries: []*entry{{key: 1}, {key: 2}, {key: 4}, {key: 5}},
+			entries: []*Entry{{key: 1}, {key: 2}, {key: 4}, {key: 5}},
 			key:     4,
 			exists:  true,
 			index:   3,
 		},
 		{
 			name:    "doc example",
-			entries: []*entry{{key: 1}, {key: 2}, {key: 4}},
+			entries: []*Entry{{key: 1}, {key: 2}, {key: 4}},
 			key:     3,
 			exists:  false,
 			index:   2,
 		},
 		{
 			name:    "no entries",
-			entries: []*entry{},
+			entries: []*Entry{},
 			key:     2,
 			exists:  false,
 			index:   0,
@@ -224,55 +224,55 @@ func TestNodeSplit(t *testing.T) {
 	}{
 		{
 			name:  "simple node",
-			input: &node{parent: parent, entries: []*entry{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}}},
+			input: &node{parent: parent, entries: []*Entry{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}}},
 			expected: &node{
 				parent:  parent,
-				entries: []*entry{{3, nil}},
+				entries: []*Entry{{3, nil}},
 				children: []*node{
-					{entries: []*entry{{1, 1}, {2, 2}}},
-					{entries: []*entry{{3, 3}, {4, 4}, {5, 5}}},
+					{entries: []*Entry{{1, 1}, {2, 2}}},
+					{entries: []*Entry{{3, 3}, {4, 4}, {5, 5}}},
 				},
 			},
 		},
 		{
 			name:  "even entries node",
-			input: &node{parent: parent, entries: []*entry{{1, 1}, {2, 2}, {3, 3}, {4, 4}}},
+			input: &node{parent: parent, entries: []*Entry{{1, 1}, {2, 2}, {3, 3}, {4, 4}}},
 			expected: &node{
 				parent:  parent,
-				entries: []*entry{{3, nil}},
+				entries: []*Entry{{3, nil}},
 				children: []*node{
-					{entries: []*entry{{1, 1}, {2, 2}}},
-					{entries: []*entry{{3, 3}, {4, 4}}},
+					{entries: []*Entry{{1, 1}, {2, 2}}},
+					{entries: []*Entry{{3, 3}, {4, 4}}},
 				},
 			},
 		},
 		{
 			name:  "no parent",
-			input: &node{entries: []*entry{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}}},
+			input: &node{entries: []*Entry{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}}},
 			root:  true,
 			expected: &node{
-				entries: []*entry{{3, nil}},
+				entries: []*Entry{{3, nil}},
 				children: []*node{
-					{entries: []*entry{{1, 1}, {2, 2}}},
-					{entries: []*entry{{3, 3}, {4, 4}, {5, 5}}},
+					{entries: []*Entry{{1, 1}, {2, 2}}},
+					{entries: []*Entry{{3, 3}, {4, 4}, {5, 5}}},
 				},
 			},
 		},
 		{
 			name:  "empty node",
-			input: &node{parent: parent, entries: []*entry{}},
+			input: &node{parent: parent, entries: []*Entry{}},
 			expected: &node{
 				parent:   parent,
-				entries:  []*entry{},
+				entries:  []*Entry{},
 				children: []*node{},
 			},
 		},
 		{
-			name:  "single entry",
-			input: &node{parent: parent, entries: []*entry{{1, 1}}},
+			name:  "single Entry",
+			input: &node{parent: parent, entries: []*Entry{{1, 1}}},
 			expected: &node{
 				parent:   parent,
-				entries:  []*entry{{1, nil}},
+				entries:  []*Entry{{1, nil}},
 				children: []*node{},
 			},
 		},
@@ -302,7 +302,7 @@ func TestInsertNode(t *testing.T) {
 	}
 	type args struct {
 		node  *node
-		entry *entry
+		Entry *Entry
 	}
 
 	tests := []struct {
@@ -313,111 +313,111 @@ func TestInsertNode(t *testing.T) {
 		wantInserted bool
 	}{
 		{
-			name:         "insert single entry",
+			name:         "insert single Entry",
 			fields:       fields{},
-			args:         args{&node{}, &entry{1, 1}},
+			args:         args{&node{}, &Entry{1, 1}},
 			wantSize:     1,
 			wantInserted: true,
 		},
 		{
-			name:         "entry already exists",
+			name:         "Entry already exists",
 			fields:       fields{size: 1},
-			args:         args{&node{entries: []*entry{{1, 1}}}, &entry{1, 1}},
+			args:         args{&node{entries: []*Entry{{1, 1}}}, &Entry{1, 1}},
 			wantSize:     1,
 			wantInserted: false,
 		},
 		{
-			name:   "entry exists one level down right",
+			name:   "Entry exists one level down right",
 			fields: fields{size: 2},
 			args: args{
 				&node{
-					entries: []*entry{{2, nil}},
+					entries: []*Entry{{2, nil}},
 					children: []*node{
-						{entries: []*entry{{1, 1}}},
-						{entries: []*entry{{2, 2}}},
+						{entries: []*Entry{{1, 1}}},
+						{entries: []*Entry{{2, 2}}},
 					},
 				},
-				&entry{2, 2},
+				&Entry{2, 2},
 			},
 			wantSize:     2,
 			wantInserted: false,
 		},
 		{
-			name:   "entry exists one level down right unbalanced",
+			name:   "Entry exists one level down right unbalanced",
 			fields: fields{size: 2},
 			args: args{
 				&node{
-					entries: []*entry{{1, nil}},
+					entries: []*Entry{{1, nil}},
 					children: []*node{
 						{},
-						{entries: []*entry{{1, 1}, {2, 2}}},
+						{entries: []*Entry{{1, 1}, {2, 2}}},
 					},
 				},
-				&entry{2, 2},
+				&Entry{2, 2},
 			},
 			wantSize:     2,
 			wantInserted: false,
 		},
 		{
-			name:   "entry exists one level down left",
+			name:   "Entry exists one level down left",
 			fields: fields{size: 2},
 			args: args{
 				&node{
-					entries: []*entry{{2, nil}},
+					entries: []*Entry{{2, nil}},
 					children: []*node{
-						{entries: []*entry{{1, 1}}},
-						{entries: []*entry{{2, 2}}},
+						{entries: []*Entry{{1, 1}}},
+						{entries: []*Entry{{2, 2}}},
 					},
 				},
-				&entry{1, 1},
+				&Entry{1, 1},
 			},
 			wantSize:     2,
 			wantInserted: false,
 		},
 		{
-			name:   "entry inserted one level down right",
+			name:   "Entry inserted one level down right",
 			fields: fields{size: 2},
 			args: args{
 				&node{
-					entries: []*entry{{3, nil}},
+					entries: []*Entry{{3, nil}},
 					children: []*node{
-						{entries: []*entry{{1, 1}}},
-						{entries: []*entry{{3, 3}}},
+						{entries: []*Entry{{1, 1}}},
+						{entries: []*Entry{{3, 3}}},
 					},
 				},
-				&entry{4, 4},
+				&Entry{4, 4},
 			},
 			wantSize:     3,
 			wantInserted: true,
 		},
 		{
-			name:   "entry inserted one level down left, would overflow",
+			name:   "Entry inserted one level down left, would overflow",
 			fields: fields{size: 6},
 			args: args{
 				&node{
-					entries: []*entry{{10, nil}},
+					entries: []*Entry{{10, nil}},
 					children: []*node{
-						{entries: []*entry{{3, 3}, {4, 4}, {5, 5}, {6, 6}, {7, 7}}},
-						{entries: []*entry{{10, 10}}},
+						{entries: []*Entry{{3, 3}, {4, 4}, {5, 5}, {6, 6}, {7, 7}}},
+						{entries: []*Entry{{10, 10}}},
 					},
 				},
-				&entry{1, 1},
+				&Entry{1, 1},
 			},
 			wantSize:     7,
 			wantInserted: true,
 		},
 		{
-			name:   "entry inserted one level down right, would more than overflow",
+			name:   "Entry inserted one level down right, would more than overflow",
 			fields: fields{size: 4},
 			args: args{
 				&node{
-					entries: []*entry{{10, nil}},
+					entries: []*Entry{{10, nil}},
 					children: []*node{
-						{entries: []*entry{{3, 3}, {4, 4}, {5, 5}}},
-						{entries: []*entry{{10, 10}, {11, 11}, {12, 12}, {13, 13}, {14, 14}, {15, 15}, {16, 16}, {17, 17}, {18, 18}, {19, 19}, {29, 29}}},
+						{entries: []*Entry{{3, 3}, {4, 4}, {5, 5}}},
+						{entries: []*Entry{{10, 10}, {11, 11}, {12, 12}, {13, 13}, {14, 14}, {15, 15}, {16, 16}, {17, 17}, {18, 18}, {19, 19}, {29, 29}}},
 					},
 				},
-				&entry{30, 30},
+				&Entry{30, 30},
 			},
 			wantSize:     5,
 			wantInserted: true,
@@ -426,13 +426,13 @@ func TestInsertNode(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			b := &btree{
+			b := &Btree{
 				root:  tt.fields.root,
 				size:  tt.fields.size,
 				order: 3,
 			}
 
-			got := b.insertNode(tt.args.node, tt.args.entry)
+			got := b.insertNode(tt.args.node, tt.args.Entry)
 			assert.Equal(t, tt.wantInserted, got)
 			assert.Equal(t, tt.wantSize, b.size)
 		})
@@ -446,7 +446,7 @@ func TestRemove(t *testing.T) {
 		order int
 	}
 	type args struct {
-		k key
+		k Key
 	}
 
 	tests := []struct {
@@ -464,11 +464,11 @@ func TestRemove(t *testing.T) {
 			wantSize:    0,
 		},
 		{
-			name: "remove entry from root",
+			name: "remove Entry from root",
 			fields: fields{
 				size: 1,
 				root: &node{
-					entries: []*entry{{1, 1}},
+					entries: []*Entry{{1, 1}},
 				},
 			},
 			args:        args{k: 1},
@@ -476,14 +476,14 @@ func TestRemove(t *testing.T) {
 			wantSize:    0,
 		},
 		{
-			name: "entry doesn't exist",
+			name: "Entry doesn't exist",
 			fields: fields{
 				size:  2,
 				order: 2,
 				root: &node{
-					entries: []*entry{{2, 2}},
+					entries: []*Entry{{2, 2}},
 					children: []*node{
-						{entries: []*entry{{1, 1}}},
+						{entries: []*Entry{{1, 1}}},
 						{},
 					},
 				},
@@ -493,35 +493,35 @@ func TestRemove(t *testing.T) {
 			wantSize:    2,
 		},
 		{
-			name: "entry multiple levels down",
+			name: "Entry multiple levels down",
 			fields: fields{
 				size:  21,
 				order: 2,
 				root: &node{
-					entries: []*entry{{30, nil}, {60, nil}},
+					entries: []*Entry{{30, nil}, {60, nil}},
 					children: []*node{
 						{
-							entries: []*entry{{10, nil}, {20, nil}},
+							entries: []*Entry{{10, nil}, {20, nil}},
 							children: []*node{
-								{entries: []*entry{{2, 2}, {4, 4}}},
-								{entries: []*entry{{12, 12}, {18, 18}}},
-								{entries: []*entry{{21, 21}, {28, 28}, {29, 29}}},
+								{entries: []*Entry{{2, 2}, {4, 4}}},
+								{entries: []*Entry{{12, 12}, {18, 18}}},
+								{entries: []*Entry{{21, 21}, {28, 28}, {29, 29}}},
 							},
 						},
 						{
-							entries: []*entry{{40, nil}, {50, nil}},
+							entries: []*Entry{{40, nil}, {50, nil}},
 							children: []*node{
-								{entries: []*entry{{34, 34}, {36, 36}, {37, 37}}},
-								{entries: []*entry{{41, 41}, {43, 43}}},
-								{entries: []*entry{{58, 58}, {59, 59}}},
+								{entries: []*Entry{{34, 34}, {36, 36}, {37, 37}}},
+								{entries: []*Entry{{41, 41}, {43, 43}}},
+								{entries: []*Entry{{58, 58}, {59, 59}}},
 							},
 						},
 						{
-							entries: []*entry{{70, nil}, {80, nil}},
+							entries: []*Entry{{70, nil}, {80, nil}},
 							children: []*node{
-								{entries: []*entry{{65, 65}, {68, 68}, {69, 69}}},
-								{entries: []*entry{{70, 70}, {71, 71}}},
-								{entries: []*entry{{80, 80}, {100, 100}}},
+								{entries: []*Entry{{65, 65}, {68, 68}, {69, 69}}},
+								{entries: []*Entry{{70, 70}, {71, 71}}},
+								{entries: []*Entry{{80, 80}, {100, 100}}},
 							},
 						},
 					},
@@ -532,35 +532,35 @@ func TestRemove(t *testing.T) {
 			wantSize:    20,
 		},
 		{
-			name: "entry multi level doesn't exist",
+			name: "Entry multi level doesn't exist",
 			fields: fields{
 				size:  21,
 				order: 2,
 				root: &node{
-					entries: []*entry{{30, nil}, {60, nil}},
+					entries: []*Entry{{30, nil}, {60, nil}},
 					children: []*node{
 						{
-							entries: []*entry{{10, nil}, {20, nil}},
+							entries: []*Entry{{10, nil}, {20, nil}},
 							children: []*node{
-								{entries: []*entry{{2, 2}, {4, 4}}},
-								{entries: []*entry{{12, 12}, {18, 18}}},
-								{entries: []*entry{{21, 21}, {28, 28}, {29, 29}}},
+								{entries: []*Entry{{2, 2}, {4, 4}}},
+								{entries: []*Entry{{12, 12}, {18, 18}}},
+								{entries: []*Entry{{21, 21}, {28, 28}, {29, 29}}},
 							},
 						},
 						{
-							entries: []*entry{{40, nil}, {50, nil}},
+							entries: []*Entry{{40, nil}, {50, nil}},
 							children: []*node{
-								{entries: []*entry{{34, 34}, {36, 36}, {37, 37}}},
-								{entries: []*entry{{41, 41}, {43, 43}}},
-								{entries: []*entry{{58, 58}, {59, 59}}},
+								{entries: []*Entry{{34, 34}, {36, 36}, {37, 37}}},
+								{entries: []*Entry{{41, 41}, {43, 43}}},
+								{entries: []*Entry{{58, 58}, {59, 59}}},
 							},
 						},
 						{
-							entries: []*entry{{70, nil}, {80, nil}},
+							entries: []*Entry{{70, nil}, {80, nil}},
 							children: []*node{
-								{entries: []*entry{{65, 65}, {68, 68}, {69, 69}}},
-								{entries: []*entry{{70, 70}, {71, 71}}},
-								{entries: []*entry{{80, 80}, {100, 100}}},
+								{entries: []*Entry{{65, 65}, {68, 68}, {69, 69}}},
+								{entries: []*Entry{{70, 70}, {71, 71}}},
+								{entries: []*Entry{{80, 80}, {100, 100}}},
 							},
 						},
 					},
@@ -574,13 +574,13 @@ func TestRemove(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			b := &btree{
+			b := &Btree{
 				root:  tt.fields.root,
 				size:  tt.fields.size,
 				order: tt.fields.order,
 			}
 
-			gotRemoved := b.remove(tt.args.k)
+			gotRemoved := b.Remove(tt.args.k)
 			assert.Equal(t, tt.wantRemoved, gotRemoved)
 			assert.Equal(t, tt.wantSize, b.size)
 		})
@@ -590,75 +590,75 @@ func TestRemove(t *testing.T) {
 func TestRemove_structure(t *testing.T) {
 	t.Skip()
 	order := 3
-	tree := func() *btree {
-		return &btree{
+	tree := func() *Btree {
+		return &Btree{
 			order: order,
 			size:  8,
 			root: repairParents(t, &node{
 				parent:  nil,
-				entries: []*entry{{5, nil}, {10, nil}},
+				entries: []*Entry{{5, nil}, {10, nil}},
 				children: []*node{
-					{entries: []*entry{{1, 1}, {2, 2}, {3, 3}}},
-					{entries: []*entry{{5, 5}, {7, 7}}},
-					{entries: []*entry{{10, 10}, {20, 20}, {21, 21}}},
+					{entries: []*Entry{{1, 1}, {2, 2}, {3, 3}}},
+					{entries: []*Entry{{5, 5}, {7, 7}}},
+					{entries: []*Entry{{10, 10}, {20, 20}, {21, 21}}},
 				},
 			}, nil),
 		}
 	}
 
 	tests := []struct {
-		name      string
-		haveTree  *btree
-		removeKey key
-		wantTree  *btree
+		name     string
+		haveTree *Btree
+		remove   Key
+		wantTree *Btree
 	}{
 		{
-			name:      "remove entry from left leaf, no underflow",
-			haveTree:  tree(),
-			removeKey: 3,
-			wantTree: &btree{
+			name:     "remove Entry from left leaf, no underflow",
+			haveTree: tree(),
+			remove:   3,
+			wantTree: &Btree{
 				order: order,
 				size:  7,
 				root: repairParents(t, &node{
-					entries: []*entry{{5, nil}, {10, nil}},
+					entries: []*Entry{{5, nil}, {10, nil}},
 					children: []*node{
-						{entries: []*entry{{1, 1}, {2, 2}}},
-						{entries: []*entry{{5, 5}, {7, 7}}},
-						{entries: []*entry{{10, 10}, {20, 20}, {21, 21}}},
+						{entries: []*Entry{{1, 1}, {2, 2}}},
+						{entries: []*Entry{{5, 5}, {7, 7}}},
+						{entries: []*Entry{{10, 10}, {20, 20}, {21, 21}}},
 					},
 				}, nil),
 			},
 		},
 		{
-			name:      "entry doesn't exist",
-			haveTree:  tree(),
-			removeKey: 9,
-			wantTree: &btree{
+			name:     "Entry doesn't exist",
+			haveTree: tree(),
+			remove:   9,
+			wantTree: &Btree{
 				order: order,
 				size:  8,
 				root: repairParents(t, &node{
-					entries: []*entry{{5, nil}, {10, nil}},
+					entries: []*Entry{{5, nil}, {10, nil}},
 					children: []*node{
-						{entries: []*entry{{1, 1}, {2, 2}, {3, 3}}},
-						{entries: []*entry{{5, 5}, {7, 7}}},
-						{entries: []*entry{{10, 10}, {20, 20}, {21, 21}}},
+						{entries: []*Entry{{1, 1}, {2, 2}, {3, 3}}},
+						{entries: []*Entry{{5, 5}, {7, 7}}},
+						{entries: []*Entry{{10, 10}, {20, 20}, {21, 21}}},
 					},
 				}, nil),
 			},
 		},
 		{
-			name:      "remove entry from middle leaf, trigger underflow, have enough to combine",
-			haveTree:  tree(),
-			removeKey: 7,
-			wantTree: &btree{
+			name:     "remove Entry from middle leaf, trigger underflow, have enough to combine",
+			haveTree: tree(),
+			remove:   7,
+			wantTree: &Btree{
 				order: order,
 				size:  7,
 				root: repairParents(t, &node{
-					entries: []*entry{{3, nil}, {10, nil}},
+					entries: []*Entry{{3, nil}, {10, nil}},
 					children: []*node{
-						{entries: []*entry{{1, 1}, {2, 2}}},
-						{entries: []*entry{{3, 3}, {5, 5}}},
-						{entries: []*entry{{10, 10}, {20, 20}, {21, 21}}},
+						{entries: []*Entry{{1, 1}, {2, 2}}},
+						{entries: []*Entry{{3, 3}, {5, 5}}},
+						{entries: []*Entry{{10, 10}, {20, 20}, {21, 21}}},
 					},
 				}, nil),
 			},
@@ -667,7 +667,7 @@ func TestRemove_structure(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.haveTree.remove(tt.removeKey)
+			tt.haveTree.Remove(tt.remove)
 
 			assert.Equal(t, tt.wantTree, tt.haveTree)
 		})
@@ -676,26 +676,26 @@ func TestRemove_structure(t *testing.T) {
 
 func TestRemove_structure_2(t *testing.T) {
 	order := 4
-	tree := func() *btree {
-		return &btree{
+	tree := func() *Btree {
+		return &Btree{
 			order: order,
 			size:  11,
 			root: repairParents(t, &node{
-				entries: []*entry{{13, nil}},
+				entries: []*Entry{{13, nil}},
 				children: []*node{
 					{
-						entries: []*entry{{9, nil}, {11, nil}},
+						entries: []*Entry{{9, nil}, {11, nil}},
 						children: []*node{
-							{entries: []*entry{{1, 1}, {4, 4}}},
-							{entries: []*entry{{9, 9}, {10, 10}}},
-							{entries: []*entry{{11, 11}, {12, 12}}},
+							{entries: []*Entry{{1, 1}, {4, 4}}},
+							{entries: []*Entry{{9, 9}, {10, 10}}},
+							{entries: []*Entry{{11, 11}, {12, 12}}},
 						},
 					},
 					{
-						entries: []*entry{{16, nil}},
+						entries: []*Entry{{16, nil}},
 						children: []*node{
-							{entries: []*entry{{13, 13}, {15, 15}}},
-							{entries: []*entry{{16, 16}, {20, 20}, {25, 25}}},
+							{entries: []*Entry{{13, 13}, {15, 15}}},
+							{entries: []*Entry{{16, 16}, {20, 20}, {25, 25}}},
 						},
 					},
 				},
@@ -704,34 +704,34 @@ func TestRemove_structure_2(t *testing.T) {
 	}
 
 	tests := []struct {
-		name       string
-		haveTree   *btree
-		removeKeys []key
-		wantTree   *btree
+		name     string
+		haveTree *Btree
+		remove   []Key
+		wantTree *Btree
 	}{
 		{
-			name:       "remove 13",
-			haveTree:   tree(),
-			removeKeys: []key{13},
-			wantTree: &btree{
+			name:     "remove 13",
+			haveTree: tree(),
+			remove:   []Key{13},
+			wantTree: &Btree{
 				order: order,
 				size:  10,
 				root: repairParents(t, &node{
-					entries: []*entry{{13, nil}},
+					entries: []*Entry{{13, nil}},
 					children: []*node{
 						{
-							entries: []*entry{{9, nil}, {11, nil}},
+							entries: []*Entry{{9, nil}, {11, nil}},
 							children: []*node{
-								{entries: []*entry{{1, 1}, {4, 4}}},
-								{entries: []*entry{{9, 9}, {10, 10}}},
-								{entries: []*entry{{11, 11}, {12, 12}}},
+								{entries: []*Entry{{1, 1}, {4, 4}}},
+								{entries: []*Entry{{9, 9}, {10, 10}}},
+								{entries: []*Entry{{11, 11}, {12, 12}}},
 							},
 						},
 						{
-							entries: []*entry{{20, nil}},
+							entries: []*Entry{{20, nil}},
 							children: []*node{
-								{entries: []*entry{{15, 15}, {16, 16}}},
-								{entries: []*entry{{20, 20}, {25, 25}}},
+								{entries: []*Entry{{15, 15}, {16, 16}}},
+								{entries: []*Entry{{20, 20}, {25, 25}}},
 							},
 						},
 					},
@@ -739,28 +739,51 @@ func TestRemove_structure_2(t *testing.T) {
 			},
 		},
 		{
-			name:       "remove 13, 15",
-			haveTree:   tree(),
-			removeKeys: []key{13, 15},
-			wantTree: &btree{
+			name:     "remove 13, 15",
+			haveTree: tree(),
+			remove:   []Key{13, 15},
+			wantTree: &Btree{
 				order: order,
 				size:  9,
 				root: repairParents(t, &node{
-					entries: []*entry{{11, nil}},
+					entries: []*Entry{{11, nil}},
 					children: []*node{
 						{
-							entries: []*entry{{9, nil}},
+							entries: []*Entry{{9, nil}},
 							children: []*node{
-								{entries: []*entry{{1, 1}, {4, 4}}},
-								{entries: []*entry{{9, 9}, {10, 10}}},
+								{entries: []*Entry{{1, 1}, {4, 4}}},
+								{entries: []*Entry{{9, 9}, {10, 10}}},
 							},
 						},
 						{
-							entries: []*entry{{13, nil}},
+							entries: []*Entry{{13, nil}},
 							children: []*node{
-								{entries: []*entry{{11, 11}, {12, 12}}},
-								{entries: []*entry{{16, 16}, {20, 20}, {25, 25}}},
+								{entries: []*Entry{{11, 11}, {12, 12}}},
+								{entries: []*Entry{{16, 16}, {20, 20}, {25, 25}}},
 							},
+						},
+					},
+				}, nil),
+			},
+		},
+		{
+			name:     "remove 13, 15, 1",
+			haveTree: tree(),
+			remove:   []Key{13, 15, 1},
+			wantTree: &Btree{
+				order: order,
+				size:  8,
+				root: repairParents(t, &node{
+					entries: []*Entry{{11, nil}, {13, nil}},
+					children: []*node{
+						{
+							entries: []*Entry{{4, 4}, {9, 9}, {10, 10}},
+						},
+						{
+							entries: []*Entry{{11, 11}, {12, 12}},
+						},
+						{
+							entries: []*Entry{{16, 16}, {20, 20}, {25, 25}},
 						},
 					},
 				}, nil),
@@ -770,10 +793,8 @@ func TestRemove_structure_2(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			fmt.Println()
-			fmt.Println("Removing keys", tt.removeKeys)
-			for _, k := range tt.removeKeys {
-				assert.True(t, tt.haveTree.remove(k))
+			for _, k := range tt.remove {
+				assert.True(t, tt.haveTree.Remove(k))
 			}
 
 			assert.Equal(t, tt.wantTree, tt.haveTree)
@@ -784,7 +805,7 @@ func TestRemove_structure_2(t *testing.T) {
 func TestNode_isFull(t *testing.T) {
 	type fields struct {
 		parent   *node
-		entries  []*entry
+		entries  []*Entry
 		children []*node
 	}
 	type args struct {
@@ -799,43 +820,43 @@ func TestNode_isFull(t *testing.T) {
 	}{
 		{
 			name:   "order 3, node not full",
-			fields: fields{entries: []*entry{}},
+			fields: fields{entries: []*Entry{}},
 			args:   args{order: 3},
 			want:   false,
 		},
 		{
 			name:   "order 3, node full",
-			fields: fields{entries: []*entry{{1, 1}, {2, 2}, {3, 3}}},
+			fields: fields{entries: []*Entry{{1, 1}, {2, 2}, {3, 3}}},
 			args:   args{order: 3},
 			want:   true,
 		},
 		{
 			name:   "order 3, node nearly full",
-			fields: fields{entries: []*entry{{1, 1}, {2, 2}}},
+			fields: fields{entries: []*Entry{{1, 1}, {2, 2}}},
 			args:   args{order: 3},
 			want:   false,
 		},
 		{
 			name:   "order 3, node over filled (bug case)",
-			fields: fields{entries: []*entry{{1, 1}, {2, 2}, {3, 3}, {4, 4}}},
+			fields: fields{entries: []*Entry{{1, 1}, {2, 2}, {3, 3}, {4, 4}}},
 			args:   args{order: 3},
 			want:   true,
 		},
 		{
 			name:   "order 5, node full",
-			fields: fields{entries: []*entry{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}}},
+			fields: fields{entries: []*Entry{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}}},
 			args:   args{order: 5},
 			want:   true,
 		},
 		{
 			name:   "order 5, node almost full",
-			fields: fields{entries: []*entry{{1, 1}, {2, 2}, {3, 3}, {4, 4}}},
+			fields: fields{entries: []*Entry{{1, 1}, {2, 2}, {3, 3}, {4, 4}}},
 			args:   args{order: 5},
 			want:   false,
 		},
 		{
 			name:   "order 5, node empty",
-			fields: fields{entries: []*entry{}},
+			fields: fields{entries: []*Entry{}},
 			args:   args{order: 5},
 			want:   false,
 		},
@@ -858,7 +879,7 @@ func TestNode_isFull(t *testing.T) {
 func TestNode_canStealEntry(t *testing.T) {
 	type fields struct {
 		parent   *node
-		entries  []*entry
+		entries  []*Entry
 		children []*node
 	}
 	type args struct {
@@ -888,7 +909,7 @@ func TestNode_canStealEntry(t *testing.T) {
 	}
 }
 
-func Test_btree_getAll(t *testing.T) {
+func Test_Btree_getAll(t *testing.T) {
 	type fields struct {
 		root *node
 		size int
@@ -898,19 +919,19 @@ func Test_btree_getAll(t *testing.T) {
 	}
 
 	root := &node{}
-	root.entries = []*entry{{4, 4}, {8, 8}}
+	root.entries = []*Entry{{4, 4}, {8, 8}}
 	root.children = []*node{
 		{
 			parent:  root,
-			entries: []*entry{{0, 0}, {1, 1}, {2, 2}},
+			entries: []*Entry{{0, 0}, {1, 1}, {2, 2}},
 		},
 		{
 			parent:  root,
-			entries: []*entry{{5, 5}, {7, 7}},
+			entries: []*Entry{{5, 5}, {7, 7}},
 		},
 		{
 			parent:  root,
-			entries: []*entry{{9, 9}, {11, 11}, {12, 12}},
+			entries: []*Entry{{9, 9}, {11, 11}, {12, 12}},
 		},
 	}
 
@@ -920,37 +941,37 @@ func Test_btree_getAll(t *testing.T) {
 		name   string
 		fields fields
 		args   args
-		want   []*entry
+		want   []*Entry
 	}{
 		{
 			name:   "empty tree returns empty entries",
 			fields: fields{size: 0},
 			args:   args{limit: 10},
-			want:   []*entry{},
+			want:   []*Entry{},
 		},
 		{
 			name:   "limit of 0 returns empty entries",
 			fields: f,
 			args:   args{limit: 0},
-			want:   []*entry{},
+			want:   []*Entry{},
 		},
 		{
 			name:   "returns all entries up to limit",
 			fields: f,
 			args:   args{limit: 0},
-			want:   []*entry{},
+			want:   []*Entry{},
 		},
 		// TODO add more cases
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			b := &btree{
+			b := &Btree{
 				root: tt.fields.root,
 				size: tt.fields.size,
 			}
 
-			got := b.getAll(tt.args.limit)
+			got := b.GetAll(tt.args.limit)
 			assert.Equal(t, tt.want, got)
 		})
 	}
@@ -959,7 +980,7 @@ func Test_btree_getAll(t *testing.T) {
 func Test_node_canSplit(t *testing.T) {
 	type fields struct {
 		parent   *node
-		entries  []*entry
+		entries  []*Entry
 		children []*node
 	}
 	type args struct {
@@ -990,7 +1011,7 @@ func Test_node_canSplit(t *testing.T) {
 func Test_node_isUnderflowed(t *testing.T) {
 	type fields struct {
 		parent   *node
-		entries  []*entry
+		entries  []*Entry
 		children []*node
 	}
 	type args struct {
@@ -1021,7 +1042,7 @@ func Test_node_isUnderflowed(t *testing.T) {
 func Test_node_isLeaf(t *testing.T) {
 	type fields struct {
 		parent   *node
-		entries  []*entry
+		entries  []*Entry
 		children []*node
 	}
 
@@ -1051,7 +1072,7 @@ func Test_node_leftSibling(t *testing.T) {
 		parent *node
 	}
 	type args struct {
-		k key
+		k Key
 	}
 
 	tests := []struct {
@@ -1065,7 +1086,7 @@ func Test_node_leftSibling(t *testing.T) {
 			name: "no siblings",
 			fields: fields{
 				parent: &node{
-					entries:  []*entry{},
+					entries:  []*Entry{},
 					children: []*node{},
 				},
 			},
@@ -1077,40 +1098,40 @@ func Test_node_leftSibling(t *testing.T) {
 			name: "left sibling exists",
 			fields: fields{
 				parent: &node{
-					entries: []*entry{{3, nil}},
+					entries: []*Entry{{3, nil}},
 					children: []*node{
-						{entries: []*entry{{0, 0}, {1, 1}}},
-						{entries: []*entry{{3, 3}, {4, 4}}},
+						{entries: []*Entry{{0, 0}, {1, 1}}},
+						{entries: []*Entry{{3, 3}, {4, 4}}},
 					},
 				},
 			},
 			args:        args{k: 4},
-			wantSibling: &node{entries: []*entry{{0, 0}, {1, 1}}},
+			wantSibling: &node{entries: []*Entry{{0, 0}, {1, 1}}},
 			wantExists:  true,
 		},
 		{
 			name: "left sibling with parent on edge",
 			fields: fields{
 				parent: &node{
-					entries: []*entry{{3, nil}},
+					entries: []*Entry{{3, nil}},
 					children: []*node{
-						{entries: []*entry{{0, 0}, {1, 1}}},
-						{entries: []*entry{{3, 3}, {4, 4}}},
+						{entries: []*Entry{{0, 0}, {1, 1}}},
+						{entries: []*Entry{{3, 3}, {4, 4}}},
 					},
 				},
 			},
 			args:        args{k: 3},
-			wantSibling: &node{entries: []*entry{{0, 0}, {1, 1}}},
+			wantSibling: &node{entries: []*Entry{{0, 0}, {1, 1}}},
 			wantExists:  true,
 		},
 		{
 			name: "no left siblings, node is already leftmost",
 			fields: fields{
 				parent: &node{
-					entries: []*entry{{3, nil}},
+					entries: []*Entry{{3, nil}},
 					children: []*node{
-						{entries: []*entry{{0, 0}, {1, 1}}},
-						{entries: []*entry{{3, 3}, {4, 4}}},
+						{entries: []*Entry{{0, 0}, {1, 1}}},
+						{entries: []*Entry{{3, 3}, {4, 4}}},
 					},
 				},
 			},
@@ -1140,7 +1161,7 @@ func Test_node_rightSibling(t *testing.T) {
 		parent *node
 	}
 	type args struct {
-		k key
+		k Key
 	}
 
 	tests := []struct {
@@ -1154,7 +1175,7 @@ func Test_node_rightSibling(t *testing.T) {
 			name: "no siblings",
 			fields: fields{
 				parent: &node{
-					entries:  []*entry{},
+					entries:  []*Entry{},
 					children: []*node{},
 				},
 			},
@@ -1166,40 +1187,40 @@ func Test_node_rightSibling(t *testing.T) {
 			name: "right sibling exists",
 			fields: fields{
 				parent: &node{
-					entries: []*entry{{3, nil}},
+					entries: []*Entry{{3, nil}},
 					children: []*node{
-						{entries: []*entry{{0, 0}, {1, 1}}},
-						{entries: []*entry{{3, 3}, {4, 4}}},
+						{entries: []*Entry{{0, 0}, {1, 1}}},
+						{entries: []*Entry{{3, 3}, {4, 4}}},
 					},
 				},
 			},
 			args:        args{k: 1},
-			wantSibling: &node{entries: []*entry{{3, 3}, {4, 4}}},
+			wantSibling: &node{entries: []*Entry{{3, 3}, {4, 4}}},
 			wantExists:  true,
 		},
 		{
 			name: "right sibling with parent on edge",
 			fields: fields{
 				parent: &node{
-					entries: []*entry{{3, nil}},
+					entries: []*Entry{{3, nil}},
 					children: []*node{
-						{entries: []*entry{{0, 0}, {1, 1}}},
-						{entries: []*entry{{3, 3}, {4, 4}}},
+						{entries: []*Entry{{0, 0}, {1, 1}}},
+						{entries: []*Entry{{3, 3}, {4, 4}}},
 					},
 				},
 			},
 			args:        args{k: 2},
-			wantSibling: &node{entries: []*entry{{3, 3}, {4, 4}}},
+			wantSibling: &node{entries: []*Entry{{3, 3}, {4, 4}}},
 			wantExists:  true,
 		},
 		{
 			name: "no right siblings, node is already rightmost",
 			fields: fields{
 				parent: &node{
-					entries: []*entry{{3, nil}},
+					entries: []*Entry{{3, nil}},
 					children: []*node{
-						{entries: []*entry{{0, 0}, {1, 1}}},
-						{entries: []*entry{{3, 3}, {4, 4}}},
+						{entries: []*Entry{{0, 0}, {1, 1}}},
+						{entries: []*Entry{{3, 3}, {4, 4}}},
 					},
 				},
 			},

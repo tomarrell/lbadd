@@ -3,6 +3,8 @@ package lbadd
 import (
 	"fmt"
 	"regexp"
+
+	"github.com/tomarrell/lbadd/internal/btree"
 )
 
 // Contains a command and associated information required to execute such command
@@ -86,7 +88,7 @@ func (e *executor) executeCreateTable(instr instruction) (result, error) {
 
 	e.db.tables[instr.table] = table{
 		name:    instr.table,
-		store:   newBtreeOrder(e.cfg.order),
+		store:   btree.NewBtreeOrder(e.cfg.order),
 		columns: cols,
 	}
 
