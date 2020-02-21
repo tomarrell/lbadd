@@ -1,7 +1,6 @@
 package btree
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -1143,8 +1142,6 @@ func Test_node_leftSibling(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			fmt.Println()
-			fmt.Println(tt.name)
 			n := &node{
 				parent: tt.fields.parent,
 			}
@@ -1232,8 +1229,6 @@ func Test_node_rightSibling(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			fmt.Println()
-			fmt.Println(tt.name)
 			n := &node{
 				parent: tt.fields.parent,
 			}

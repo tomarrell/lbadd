@@ -15,5 +15,7 @@ func (l *level) String() string {
 		out += fmt.Sprintf("%v", e)
 	}
 
+	out += "]"
+
 	return out
 }

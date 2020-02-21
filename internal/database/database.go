@@ -1,7 +1,5 @@
 package database
 
-import "github.com/tomarrell/lbadd/internal/database/storage"
-
 import "github.com/tomarrell/lbadd/internal/btree"
 
 type key = btree.Key
@@ -21,7 +19,7 @@ type storage interface {
 
 type table struct {
 	name    string
-	store   storage.Storage
+	store   storage
 	columns []column
 }
 
