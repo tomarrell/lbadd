@@ -24,6 +24,122 @@ func TestRuleBasedScanner(t *testing.T) {
 				token.New(1, 18, 17, 0, token.EOF, ""),
 			},
 		},
+		{
+			"SELECT FROM \"WHERE\"",
+			ruleset.Default,
+			[]token.Token{
+				token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+				token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+				token.New(1, 13, 12, 7, token.Literal, "\"WHERE\""),
+				token.New(1, 20, 19, 0, token.EOF, ""),
+			},
+		},
+		{
+			"SELECT FROM \"WHERE",
+			ruleset.Default,
+			[]token.Token{
+				token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+				token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+				token.New(1, 13, 12, 1, token.Error, `unexpected token: '"' at offset 12`),
+				token.New(1, 14, 13, 5, token.KeywordWhere, "WHERE"),
+				token.New(1, 19, 18, 0, token.EOF, ""),
+			},
+		},
+		{
+			"SELECT      FROM || & +7 59 \"foobar\"",
+			ruleset.Default,
+			[]token.Token{
+				token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+				token.New(1, 13, 12, 4, token.KeywordFrom, "FROM"),
+				token.New(1, 18, 17, 2, token.BinaryOperator, "||"),
+				token.New(1, 21, 20, 1, token.BinaryOperator, "&"),
+				token.New(1, 23, 22, 1, token.UnaryOperator, "+"),
+				token.New(1, 24, 23, 1, token.Literal, "7"),
+				token.New(1, 26, 25, 2, token.Literal, "59"),
+				token.New(1, 29, 28, 8, token.Literal, "\"foobar\""),
+				token.New(1, 37, 36, 0, token.EOF, ""),
+			},
+		},
+		{
+			"SELECT FROM 'WHERE'",
+			ruleset.Default,
+			[]token.Token{
+				token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+				token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+				token.New(1, 13, 12, 7, token.Literal, "'WHERE'"),
+				token.New(1, 20, 19, 0, token.EOF, ""),
+			},
+		},
+		{
+			"SELECT \"myCol FROM \"myTable\"",
+			ruleset.Default,
+			[]token.Token{
+				token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+				token.New(1, 8, 7, 13, token.Literal, `"myCol FROM "`),
+				token.New(1, 21, 20, 7, token.Literal, "myTable"),
+				token.New(1, 28, 27, 1, token.Error, "unexpected token: '\"' at offset 27"),
+				token.New(1, 29, 28, 0, token.EOF, ""),
+			},
+		},
+		{
+			"SELECT \" FROM",
+			ruleset.Default,
+			[]token.Token{
+				token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+				token.New(1, 8, 7, 1, token.Error, `unexpected token: '"' at offset 7`),
+				token.New(1, 10, 9, 4, token.KeywordFrom, "FROM"),
+				token.New(1, 14, 13, 0, token.EOF, ""),
+			},
+		},
+		{
+			`SELECT FROM "this \" can be anything"`,
+			ruleset.Default,
+			[]token.Token{
+				token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+				token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+				token.New(1, 13, 12, 25, token.Literal, `"this \" can be anything"`),
+				token.New(1, 38, 37, 0, token.EOF, ""),
+			},
+		},
+		{
+			`SELECT FROM 'this \' can be anything'`,
+			ruleset.Default,
+			[]token.Token{
+				token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+				token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+				token.New(1, 13, 12, 25, token.Literal, `'this \' can be anything'`),
+				token.New(1, 38, 37, 0, token.EOF, ""),
+			},
+		},
+		{
+			`|| * / % + - ~ << >> & | < <= > >= = == != <> !>> >>`,
+			ruleset.Default,
+			[]token.Token{
+				token.New(1, 1, 0, 2, token.BinaryOperator, "||"),
+				token.New(1, 4, 3, 1, token.BinaryOperator, "*"),
+				token.New(1, 6, 5, 1, token.BinaryOperator, "/"),
+				token.New(1, 8, 7, 1, token.BinaryOperator, "%"),
+				token.New(1, 10, 9, 1, token.UnaryOperator, "+"),
+				token.New(1, 12, 11, 1, token.UnaryOperator, "-"),
+				token.New(1, 14, 13, 1, token.UnaryOperator, "~"),
+				token.New(1, 16, 15, 2, token.BinaryOperator, "<<"),
+				token.New(1, 19, 18, 2, token.BinaryOperator, ">>"),
+				token.New(1, 22, 21, 1, token.BinaryOperator, "&"),
+				token.New(1, 24, 23, 1, token.BinaryOperator, "|"),
+				token.New(1, 26, 25, 1, token.BinaryOperator, "<"),
+				token.New(1, 28, 27, 2, token.BinaryOperator, "<="),
+				token.New(1, 31, 30, 1, token.BinaryOperator, ">"),
+				token.New(1, 33, 32, 2, token.BinaryOperator, ">="),
+				token.New(1, 36, 35, 1, token.BinaryOperator, "="),
+				token.New(1, 38, 37, 2, token.BinaryOperator, "=="),
+				token.New(1, 41, 40, 2, token.BinaryOperator, "!="),
+				token.New(1, 44, 43, 2, token.BinaryOperator, "<>"),
+				token.New(1, 47, 46, 1, token.Error, "unexpected token: '!' at offset 46"),
+				token.New(1, 48, 47, 2, token.BinaryOperator, ">>"),
+				token.New(1, 51, 50, 2, token.BinaryOperator, ">>"),
+				token.New(1, 53, 52, 0, token.EOF, ""),
+			},
+		},
 	}
 	for _, input := range inputs {
 		t.Run("ruleset=default/"+input.query, _TestRuleBasedScannerWithRuleset(input.query, input.ruleset, input.want))
@@ -47,8 +163,7 @@ func _TestRuleBasedScannerWithRuleset(input string, ruleset ruleset.Ruleset, wan
 				break
 			}
 		}
-
-		assert.Equalf(len(want), len(got), "did not receive as many tokens as expected (expected %d, but got %d)", len(want), len(got))
+		assert.Equalf(len(want), len(got), "did not receive as much tokens as expected (expected %d, but got %d)", len(want), len(got))
 
 		limit := len(want)
 		if len(got) < limit {
