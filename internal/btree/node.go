@@ -21,9 +21,6 @@ func (n *node) String() string {
 }
 
 func (n *node) recursiveBalance(k Key, order int, b *Btree) {
-	fmt.Println(b.String())
-	fmt.Println()
-
 	if n.isRoot() {
 		return
 	}
@@ -181,4 +178,17 @@ func (n *node) split() *node {
 		entries:  []*Entry{{n.entries[mid].key, nil}},
 		children: append(n.children, left, right),
 	}
+}
+
+// depth returns the depth of the current node from the root
+func (n *node) depth() int {
+	count := 0
+	par := n.parent
+
+	for !par.isRoot() {
+		count++
+		par = par.parent
+	}
+
+	return count
 }

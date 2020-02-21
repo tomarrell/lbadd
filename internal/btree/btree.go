@@ -1,8 +1,6 @@
 package btree
 
 import (
-	"fmt"
-
 	"github.com/davecgh/go-spew/spew"
 )
 
@@ -47,40 +45,35 @@ func NewBtreeOrder(order int) *Btree {
 func (b *Btree) String() string {
 	out := ""
 
-	queue := b.root.children
-	currWidth := len(b.root.children)
-	nextWidth := 0
-	depth := 1
-	levelMap := levels{
-		0: {entries: [][]*Entry{b.root.entries}},
-	}
+	var lvls = make(levels)
+	queue := [][]*node{b.root.children}
 
-	// Breadth traversal
+	// While there are still items in the queue, iterate over them
 	for len(queue) > 0 {
-		if currWidth == 0 {
-			depth++
-			currWidth = nextWidth
-		} else {
-			currWidth--
+		var p []*node
+		p, queue = queue[0], queue[1:]
+
+		var (
+			groups []levelGroup
+			depth  int
+		)
+
+		// For each node in the set of children
+		for i, node := range p {
+			depth = node.depth()
+
+			// add its children to the queue
+			queue = append(queue, node.children)
+			groups = append(groups, levelGroup{
+				parIdx:  i,
+				entries: node.entries,
+			})
 		}
 
-		// pop from front of queue and append the popped nodes children
-		n := queue[0]
-		nextWidth += len(n.children)
-		queue = append(queue[1:], n.children...)
-
-		if _, ok := levelMap[depth]; !ok {
-			levelMap[depth] = &level{}
-		}
-
-		fmt.Println("adding entries", n.entries)
-		levelMap[depth].entries = append(levelMap[depth].entries, n.entries)
+		lvls[depth] = append(lvls[depth], groups)
 	}
 
-	for i := 0; i < depth+1; i++ {
-		v := levelMap[i]
-		spew.Println(i, *v)
-	}
+	spew.Println(b.Height())
 
 	return out
 }
@@ -197,6 +190,20 @@ func (b *Btree) removeNode(n *node, k Key) (removed bool) {
 	}
 
 	return true
+}
+
+// Height returns the height of the Btree, i.e. the maximum distance between the
+// root node and the leaf nodes.
+func (b *Btree) Height() int {
+	count := 0
+	child := b.root.children[0]
+
+	for !child.isLeaf() {
+		count++
+		child = child.children[0]
+	}
+
+	return count
 }
 
 //

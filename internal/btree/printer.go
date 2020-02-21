@@ -2,17 +2,22 @@ package btree
 
 import "fmt"
 
-type levels map[int]*level
+type levels map[int][][]levelGroup
 
-type level struct {
-	entries [][]*Entry
+type levelGroup struct {
+	parIdx  int
+	entries []*Entry
 }
 
-func (l *level) String() string {
-	out := "["
+func (l *levelGroup) String() string {
+	if len(l.entries) == 0 {
+		return "[]"
+	}
 
-	for _, e := range l.entries {
-		out += fmt.Sprintf("%v", e)
+	out := fmt.Sprintf("[%v", l.entries[0])
+
+	for _, e := range l.entries[1:] {
+		out += fmt.Sprintf(" %v", e)
 	}
 
 	out += "]"
