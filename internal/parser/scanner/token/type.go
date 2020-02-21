@@ -80,6 +80,7 @@ const (
 	KeywordForeign
 	KeywordFrom
 	KeywordFull
+	KeywordGenerated
 	KeywordGlob
 	KeywordGroup
 	KeywordGroups
@@ -167,4 +168,8 @@ const (
 	KeywordWithout
 
 	Literal
+
+	UnaryOperator
+	BinaryOperator
+	Delimiter
 )
