@@ -6,7 +6,7 @@
 // - get: given a key, retrieve the corresponding entry
 // - put: given a key and a value, create an entry in the btree
 // - remove: given a key, remove the corresponding entry in the tree if it
-// exists
+//   exists
 
 package lbadd
 
@@ -35,8 +35,8 @@ type (
 	value interface{}
 )
 
-// node defines the stuct which contains keys (entries) and
-// the child nodes of a particular node in the b-tree
+// node defines the stuct which contains keys (entries) and the child nodes of a
+// particular node in the b-tree
 type node struct {
 	parent   *node
 	entries  []*entry
@@ -84,9 +84,8 @@ func newBtreeOrder(order int) *btree {
 	}
 }
 
-// get searches for a specific key in the btree,
-// returning a pointer to the resulting entry
-// and a boolean as to whether it exists in the tree
+// get searches for a specific key in the btree, returning a pointer to the
+// resulting entry and a boolean as to whether it exists in the tree
 func (b *btree) get(k key) (result *entry, exists bool) {
 	if b.root == nil || len(b.root.entries) == 0 {
 		return nil, false
@@ -108,8 +107,8 @@ func (b *btree) getNode(node *node, k key) (result *entry, exists bool) {
 	return b.getNode(node.children[i], k)
 }
 
-// insert takes a key and value, creats a new
-// entry and inserts it in the tree according to the key
+// insert takes a key and value, creats a new entry and inserts it in the tree
+// according to the key
 func (b *btree) insert(k key, v value) {
 	if b.root == nil {
 		b.size++
@@ -140,9 +139,8 @@ func (b *btree) insertNode(node *node, entry *entry) (inserted bool) {
 		return false
 	}
 
-	// If the node is a leaf node, add entry to the entries list
-	// We can guarantee that we have room as it would otherwise have
-	// been split.
+	// If the node is a leaf node, add entry to the entries list We can guarantee
+	// that we have room as it would otherwise have been split.
 	if node.isLeaf() {
 		node.entries = append(node.entries, nil)
 		copy(node.entries[idx+1:], node.entries[idx:])
@@ -151,10 +149,8 @@ func (b *btree) insertNode(node *node, entry *entry) (inserted bool) {
 		return true
 	}
 
-	// The node is not a leaf, so we we need to check
-	// if the appropriate child is already full,
-	// and conditionally split it. Otherwise traverse
-	// to that child.
+	// The node is not a leaf, so we we need to check if the appropriate child is
+	// already full, and conditionally split it. Otherwise traverse to that child.
 	if node.children[idx].isFull(b.order) {
 		node.children[idx] = node.children[idx].split()
 	}
@@ -162,9 +158,8 @@ func (b *btree) insertNode(node *node, entry *entry) (inserted bool) {
 	return b.insertNode(node.children[idx], entry)
 }
 
-// remove tries to delete an entry from the tree, and
-// returns true if the entry was removed, and false if
-// the key was not found in the tree
+// remove tries to delete an entry from the tree, and returns true if the entry
+// was removed, and false if the key was not found in the tree
 func (b *btree) remove(k key) (removed bool) {
 	if b.root == nil {
 		return false
@@ -173,9 +168,11 @@ func (b *btree) remove(k key) (removed bool) {
 	return b.removeNode(b.root, k)
 }
 
-// removeNode takes a node and key and bool, and recursively deletes
-// k from the node, while maintaining the order invariants
+// removeNode takes a node and key and bool, and recursively deletes k from the
+// node, while maintaining the order invariants
 func (b *btree) removeNode(n *node, k key) (removed bool) {
+	spew.Println("Removing", k)
+
 	idx, exists := search(n.entries, k)
 
 	// If the node is not a leaf, we need to continue traversal
@@ -319,9 +316,8 @@ func (b *btree) getBetween(low, high key, limit int) []*entry {
 	panic("unimplemented")
 }
 
-// search takes a slice of entries and a key, and returns
-// the position that the key would fit relative to all
-// other entries' keys.
+// search takes a slice of entries and a key, and returns the position that the
+// key would fit relative to all other entries' keys.
 // e.g.
 //       b.search([1, 2, 4], 3) => (2, false)
 func search(entries []*entry, k key) (index int, exists bool) {
@@ -352,21 +348,19 @@ func (n *node) isLeaf() bool {
 	return len(n.children) == 0
 }
 
-// isRoot returns whether or not the current node is the
-// root of the tree
+// isRoot returns whether or not the current node is the root of the tree
 func (n *node) isRoot() bool {
 	return n.parent == nil
 }
 
-// isFull returns a bool indication whether the node
-// already contains the maximum number of entries
-// allowed for a given order
+// isFull returns a bool indication whether the node already contains the
+// maximum number of entries allowed for a given order
 func (n *node) isFull(order int) bool {
 	return len(n.entries) >= order
 }
 
-// canSteal returns a bool indicating whether or not
-// the node contains enough entries to be able to take one
+// canSteal returns a bool indicating whether or not the node contains enough
+// entries to be able to take one
 func (n *node) canStealEntry(order int) bool {
 	if n.isLeaf() {
 		return len(n.entries) > order/2
@@ -375,8 +369,8 @@ func (n *node) canStealEntry(order int) bool {
 	return len(n.children) > order/2
 }
 
-// Returns true when the node has too few entries to
-// satisfy the order invariant, given a specific order
+// Returns true when the node has too few entries to satisfy the order
+// invariant, given a specific order
 func (n *node) isUnderflowed(order int) bool {
 	if n.isLeaf() {
 		return len(n.entries) < order/2
@@ -385,8 +379,8 @@ func (n *node) isUnderflowed(order int) bool {
 	return len(n.children) < order/2
 }
 
-// returns whether the node can successfully be split into
-// two children while maintaining the invariants
+// returns whether the node can successfully be split into two children while
+// maintaining the invariants
 func (n *node) canSplit(order int) bool {
 	return len(n.children) >= 2*order
 }
@@ -412,9 +406,8 @@ func (n *node) rightSibling(k key) (sibling *node, exists bool) {
 	return n.parent.children[parIdx+1], true
 }
 
-// Splits a full node to have a single, median,
-// entry, and two child nodes containing the left
-// and right halves of the entries
+// Splits a full node to have a single, median, entry, and two child nodes
+// containing the left and right halves of the entries
 func (n *node) split() *node {
 	if len(n.entries) == 0 {
 		return n
