@@ -4,7 +4,7 @@ import (
 	"github.com/tomarrell/lbadd/internal/parser/scanner/token"
 )
 
-// Error allows constant errors
+// Error allows constant errors.
 type Error string
 
 func (s Error) Error() string { return string(s) }

@@ -4,6 +4,7 @@ import (
 	"github.com/tomarrell/lbadd/internal/parser/ast"
 )
 
+// Error allows constant errors.
 type Error string
 
 func (s Error) Error() string { return string(s) }
