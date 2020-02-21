@@ -15,6 +15,16 @@ func TestRuleBasedScanner(t *testing.T) {
 		want    []token.Token
 	}{
 		{
+			"SELECT FROM WHERE",
+			ruleset.Default,
+			[]token.Token{
+				token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+				token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+				token.New(1, 13, 12, 5, token.KeywordWhere, "WHERE"),
+				token.New(1, 18, 17, 0, token.EOF, ""),
+			},
+		},
+		{
 			"SELECT FROM \"WHERE\"",
 			ruleset.Default,
 			[]token.Token{
