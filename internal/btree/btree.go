@@ -10,6 +10,8 @@
 
 package btree
 
+import "github.com/davecgh/go-spew/spew"
+
 const defaultOrder = 3
 
 // btree is an implementation of a B+tree with the following invariants
@@ -47,26 +49,22 @@ func NewBtreeOrder(order int) *Btree {
 	}
 }
 
-type levels map[int]struct {
-	entries []Entry
-}
-
 // Output the btree as a string representation
 func (b *Btree) String() string {
 	out := ""
 
-	out += "R:\n"
-	out += b.root.String()
-	out += "\n"
-
 	queue := b.root.children
 	currWidth := len(b.root.children)
 	nextWidth := 0
+	depth := 1
+	levelMap := levels{
+		0: {entries: [][]*Entry{b.root.entries}},
+	}
 
 	// Breadth traversal
 	for len(queue) > 0 {
 		if currWidth == 0 {
-			out += "\n"
+			depth++
 			currWidth = nextWidth
 		} else {
 			currWidth--
@@ -77,7 +75,16 @@ func (b *Btree) String() string {
 		nextWidth += len(n.children)
 		queue = append(queue[1:], n.children...)
 
-		out += n.String()
+		if _, ok := levelMap[depth]; !ok {
+			levelMap[depth] = &level{}
+		}
+
+		levelMap[depth].entries = append(levelMap[depth].entries, n.entries)
+	}
+
+	for i := 0; i < depth+1; i++ {
+		v := levelMap[i]
+		spew.Println(i, *v)
 	}
 
 	return out
