@@ -86,13 +86,48 @@ func defaultUnaryOperatorRule(s RuneScanner) (token.Type, bool) {
 // can be of length one and two, it first checks for former, then latter
 // and allows the best of the two conditions.
 func defaultBinaryOperatorRule(s RuneScanner) (token.Type, bool) {
-	if next, ok := s.Lookahead(); ok && defaultBinaryOperator.Matches(next) {
+	if first, ok := s.Lookahead(); ok && defaultBinaryOperator.Matches(first) {
 		s.ConsumeRune()
-		if next, ok = s.Lookahead(); ok && defaultBinaryOperator.Matches(next) {
-			s.ConsumeRune()
+		if first == '*' || first == '/' || first == '%' || first == '&' {
+			return token.BinaryOperator, true
+		} else if next, ok := s.Lookahead(); ok && defaultBinaryOperator.Matches(next) {
+			switch first {
+			case '|':
+				if next == '|' {
+					s.ConsumeRune()
+					return token.BinaryOperator, true
+				}
+			case '<':
+				if next == '<' || next == '=' || next == '>' {
+					s.ConsumeRune()
+					return token.BinaryOperator, true
+				}
+			case '>':
+				if next == '>' || next == '=' {
+					s.ConsumeRune()
+					return token.BinaryOperator, true
+				}
+			case '=':
+				if next == '=' {
+					s.ConsumeRune()
+					return token.BinaryOperator, true
+				}
+			case '!':
+				if next == '=' {
+					s.ConsumeRune()
+					return token.BinaryOperator, true
+				}
+				// return token.Unknown, false
+			}
+		}
+		// special cases where these operators can be single or can have a suffix
+		// The switch case blocks have been designed such that only the cases where
+		// there's a meaningful operator, the runes are consumed and returned, in cases
+		// where the second operator is not meaningful, the first operator is consumed here.
+		// In cases where the second operator is not meaningful, it'll be processed again.
+		if first == '<' || first == '>' || first == '=' || first == '|' {
 			return token.BinaryOperator, true
 		}
-		return token.BinaryOperator, true
 	}
 	return token.Unknown, false
 }

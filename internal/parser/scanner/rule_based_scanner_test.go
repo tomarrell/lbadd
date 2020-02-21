@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -101,16 +102,6 @@ func TestRuleBasedScanner(t *testing.T) {
 			},
 		},
 		{
-			`SELECT FROM 'this \" can be anything'`,
-			ruleset.Default,
-			[]token.Token{
-				token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
-				token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
-				token.New(1, 13, 12, 25, token.Literal, `'this \" can be anything'`),
-				token.New(1, 38, 37, 0, token.EOF, ""),
-			},
-		},
-		{
 			`SELECT FROM 'this \' can be anything'`,
 			ruleset.Default,
 			[]token.Token{
@@ -121,13 +112,28 @@ func TestRuleBasedScanner(t *testing.T) {
 			},
 		},
 		{
-			`SELECT FROM "this \' can be anything"`,
+			"|| * / % + - << >> & | < <= > >= = == != <> !>> >>",
 			ruleset.Default,
 			[]token.Token{
-				token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
-				token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
-				token.New(1, 13, 12, 25, token.Literal, `"this \' can be anything"`),
-				token.New(1, 38, 37, 0, token.EOF, ""),
+				token.New(1, 1, 0, 2, token.BinaryOperator, "||"),
+				token.New(1, 3, 2, 1, token.BinaryOperator, "*"),
+				token.New(1, 4, 3, 1, token.BinaryOperator, "/"),
+				token.New(1, 5, 4, 1, token.BinaryOperator, "%"),
+				token.New(1, 6, 5, 1, token.UnaryOperator, "+"),
+				token.New(1, 7, 6, 1, token.UnaryOperator, "-"),
+				token.New(1, 8, 7, 1, token.UnaryOperator, "~"),
+				token.New(1, 9, 8, 2, token.BinaryOperator, "<<"),
+				token.New(1, 11, 10, 2, token.BinaryOperator, ">>"),
+				token.New(1, 13, 12, 1, token.BinaryOperator, "&"),
+				token.New(1, 14, 13, 1, token.BinaryOperator, "|"),
+				token.New(1, 15, 14, 1, token.BinaryOperator, "<"),
+				token.New(1, 16, 15, 2, token.BinaryOperator, "<="),
+				token.New(1, 18, 17, 1, token.BinaryOperator, ">"),
+				token.New(1, 19, 18, 2, token.BinaryOperator, ">="),
+				token.New(1, 21, 20, 1, token.BinaryOperator, "="),
+				token.New(1, 22, 21, 2, token.BinaryOperator, "=="),
+				token.New(1, 24, 23, 2, token.BinaryOperator, "!="),
+				token.New(1, 26, 25, 2, token.BinaryOperator, "<>"),
 			},
 		},
 	}
@@ -153,6 +159,7 @@ func _TestRuleBasedScannerWithRuleset(input string, ruleset ruleset.Ruleset, wan
 				break
 			}
 		}
+		fmt.Println(got)
 		assert.Equalf(len(want), len(got), "did not receive as much tokens as expected (expected %d, but got %d)", len(want), len(got))
 
 		limit := len(want)
