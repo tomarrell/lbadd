@@ -10,6 +10,8 @@ type Token interface {
 	Valuer
 }
 
+// ErrorToken describes a single token that was produced by the scanner and
+// holds an error object.
 type ErrorToken interface {
 	Token
 	error
@@ -93,6 +95,8 @@ type errorTok struct {
 	err error
 }
 
+// NewErrorToken creates a new token with the given attributes and the given
+// error.
 func NewErrorToken(line, col, offset, length int, typ Type, err error) Token {
 	return errorTok{
 		Token: New(line, col, offset, length, typ, err.Error()),

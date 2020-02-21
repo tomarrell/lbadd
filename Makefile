@@ -8,12 +8,10 @@ test: ## Runs the unit test suite
 
 .PHONY: lint
 lint: ## Runs the linters
-	golint;
-	errcheck;
-	gosec ./...;
-
-	# TODO re-enable staticcheck
-	# staticcheck;
+	golint ./...;
+	errcheck ./...;
+	gosec -quiet ./...;
+	staticcheck ./...;
 
 
 ## Help display.

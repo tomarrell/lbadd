@@ -2,6 +2,7 @@ package command
 
 import "github.com/tomarrell/lbadd/internal/parser/ast"
 
+// Command is the intermediate representation (IR) of an SQL ast.
 type Command struct {
 }
 

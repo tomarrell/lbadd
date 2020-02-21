@@ -39,10 +39,9 @@ func (c *simpleCli) Start() {
 
 	// read from the cli scanner
 	go func() {
-		if !c.scanner.Scan() {
-			return
+		for c.scanner.Scan() {
+			lines <- c.scanner.Text()
 		}
-		lines <- c.scanner.Text()
 	}()
 
 	for {
@@ -68,11 +67,11 @@ func (c *simpleCli) handleInput(input string) {
 }
 
 func (c *simpleCli) printHelp() {
-	fmt.Fprintln(c.out, "Available Commands:\n// TODO")
+	_, _ = fmt.Fprintln(c.out, "Available Commands:\n// TODO")
 }
 
 func (c *simpleCli) quit() {
-	fmt.Fprintln(c.out, "Bye!")
+	_, _ = fmt.Fprintln(c.out, "Bye!")
 }
 
 func (c *simpleCli) handleSQL(sqlInput string) {
@@ -88,7 +87,8 @@ func (c *simpleCli) handleSQL(sqlInput string) {
 			_, _ = fmt.Fprintf(c.out, "error while parsing command: %v\n", err)
 		}
 		// if there were errors, abandon the statement
-		if errs != nil {
+		if len(errs) > 0 {
+			_, _ = fmt.Fprintf(c.out, "will skip statement, because there were %d parse errors\n", len(errs))
 			continue
 		}
 		// convert AST to IR
