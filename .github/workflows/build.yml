@@ -23,7 +23,7 @@ jobs:
     - uses: actions/checkout@v1
     - name: Build
       run: |
-        GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o ./bin/lbadd-${{ matrix.goos }}-${{ matrix.goarch }}
+        GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o ./bin/lbadd-${{ matrix.goos }}-${{ matrix.goarch }} ./cmd/repl
     - uses: actions/upload-artifact@master
       with:
         name: binaries
