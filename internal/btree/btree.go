@@ -195,7 +195,11 @@ func (b *Btree) removeNode(n *node, k Key) (removed bool) {
 // Height returns the height of the Btree, i.e. the maximum distance between the
 // root node and the leaf nodes.
 func (b *Btree) Height() int {
-	count := 0
+	if b.root.isLeaf() {
+		return 0
+	}
+
+	count := 1
 	child := b.root.children[0]
 
 	for !child.isLeaf() {

@@ -1253,3 +1253,51 @@ func repairParents(t *testing.T, tree *node, parent *node) *node {
 
 	return tree
 }
+
+func TestBtree_Height(t *testing.T) {
+	type fields struct {
+		root *node
+	}
+
+	root := repairParents(t, &node{
+		entries: nil,
+		children: []*node{
+			{
+				children: []*node{
+					{
+						children: []*node{
+							{
+								children: []*node{
+									{
+										entries: []*Entry{{1, 1}},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}, nil)
+
+	tests := []struct {
+		name   string
+		fields fields
+		want   int
+	}{
+		{"full tree", fields{root}, 4},
+		{"partial tree", fields{root.children[0]}, 3},
+		{"almost at bottom of tree", fields{root.children[0].children[0].children[0]}, 1},
+		{"bottom of tree", fields{root.children[0].children[0].children[0].children[0]}, 0},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			b := &Btree{
+				root: tt.fields.root,
+			}
+
+			assert.Equal(t, tt.want, b.Height())
+		})
+	}
+}
