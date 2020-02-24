@@ -2,6 +2,23 @@ name: Static analysis
 on: [push, pull_request]
 
 jobs:
+  internal-analysis:
+    name: Run internal analyzers
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go_version: [1.13]
+    steps:
+    - name: Set up Go ${{ matrix.go_version }}
+      uses: actions/setup-go@v1
+      with:
+        go-version: ${{ matrix.go_version }}
+      id: go
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v1
+    - name: analyze
+      run: go run ./internal/tool/analysis ./...
+  
   errcheck:
     name: Errcheck
     runs-on: ubuntu-latest
