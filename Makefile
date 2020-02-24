@@ -1,13 +1,16 @@
 .PHONY: watch
 watch: ## Start a file watcher to run tests on change. (requires: watchexec)
-	watchexec -c "go test -failfast ."
+	watchexec -c "go test -failfast ./..."
 
 .PHONY: test
 test: ## Runs the unit test suite
 	go test -failfast ./...
 
 .PHONY: lint
-lint: ## Runs the linters
+lint: ## Runs the linters (including internal ones)
+	# internal analysis tools
+	go run ./internal/tool/analysis ./...;
+	# external analysis tools
 	golint ./...;
 	errcheck ./...;
 	gosec -quiet ./...;
