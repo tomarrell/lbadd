@@ -10,6 +10,7 @@ import (
 	"golang.org/x/tools/go/ast/inspector"
 )
 
+// Analyzer implements the analyzer that checks for panics.
 var Analyzer = &analysis.Analyzer{
 	Name: "nopanic",
 	Doc:  Doc,
@@ -19,6 +20,8 @@ var Analyzer = &analysis.Analyzer{
 	},
 }
 
+// Doc is the documentation string that is shown on the command line if help is
+// requested.
 const Doc = "check if there is any panic in the code"
 
 func run(pass *analysis.Pass) (interface{}, error) {
