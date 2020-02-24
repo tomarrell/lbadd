@@ -25,7 +25,7 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: check
-      uses: grandcolline/golang-github-actions@v1.0.0
+      uses: grandcolline/golang-github-actions@v1.1.0
       with:
         run: errcheck
         token: ${{ secrets.GITHUB_TOKEN }}
@@ -36,24 +36,21 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: check
-      uses: grandcolline/golang-github-actions@v1.0.0
+      uses: grandcolline/golang-github-actions@v1.1.0
       with:
         run: lint
         token: ${{ secrets.GITHUB_TOKEN }}
 
-  # Disabling this while we have plenty of unused
-  # types and fields.
-  #
-  # staticcheck:
-    # name: StaticCheck
-    # runs-on: ubuntu-latest
-    # steps:
-    # - uses: actions/checkout@master
-    # - name: check
-      # uses: grandcolline/golang-github-actions@v1.0.0
-      # with:
-        # run: staticcheck
-        # token: ${{ secrets.GITHUB_TOKEN }}
+  staticcheck:
+    name: StaticCheck
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: check
+      uses: grandcolline/golang-github-actions@v1.1.0
+      with:
+        run: staticcheck
+        token: ${{ secrets.GITHUB_TOKEN }}
 
   sec:
     name: Sec
@@ -61,7 +58,7 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: check
-      uses: grandcolline/golang-github-actions@v1.0.0
+      uses: grandcolline/golang-github-actions@v1.1.0
       with:
         run: sec
         token: ${{ secrets.GITHUB_TOKEN }}

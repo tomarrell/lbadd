@@ -1,21 +1,8 @@
 package database
 
-import "github.com/tomarrell/lbadd/internal/database/storage"
+import "github.com/tomarrell/lbadd/internal/database/table"
 
-type table struct {
-	name    string
-	store   storage.Storage
-	columns []column
-}
-
-type db struct {
-	tables map[string]table
-}
-
-func newDB() *db {
-	tables := make(map[string]table)
-
-	return &db{
-		tables: tables,
-	}
+// DB describes a database.
+type DB interface {
+	Table(schema, name string) (table.Table, bool)
 }

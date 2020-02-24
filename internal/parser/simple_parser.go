@@ -725,8 +725,18 @@ func (p *simpleParser) parseColumnConstraint(r reporter) (constr *ast.ColumnCons
 	return
 }
 
+// parseForeignKeyClause is not implemented yet and will always result in an
+// unsupported construct error.
 func (p *simpleParser) parseForeignKeyClause(r reporter) (clause *ast.ForeignKeyClause) {
-	panic("implement me")
+	clause = &ast.ForeignKeyClause{}
+
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	r.unsupportedConstruct(next)
+	p.searchNext(r, token.StatementSeparator, token.EOF)
+	return
 }
 
 func (p *simpleParser) parseConflictClause(r reporter) (clause *ast.ConflictClause) {
@@ -787,6 +797,16 @@ func (p *simpleParser) parseConflictClause(r reporter) (clause *ast.ConflictClau
 	return
 }
 
+// parseExpression is not implemented yet and will always result in an
+// unsupported construct error.
 func (p *simpleParser) parseExpression(r reporter) (expr *ast.Expr) {
-	panic("implement me")
+	expr = &ast.Expr{}
+
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	r.unsupportedConstruct(next)
+	p.searchNext(r, token.StatementSeparator, token.EOF)
+	return
 }
