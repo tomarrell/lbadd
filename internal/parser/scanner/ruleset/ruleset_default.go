@@ -23,12 +23,14 @@ var (
 	// defaultLinefeedDetector is the linefeed detector that this ruleset allows
 	defaultLinefeedDetector   = matcher.RuneWithDesc("linefeed", '\n')
 	defaultStatementSeparator = matcher.RuneWithDesc("statement separator", ';')
+	defaultDecimalPoint       = matcher.RuneWithDesc("decimalPoint", '.')
 	// defaultLiteral matches the allowed letters of a literal
 	defaultLiteral = matcher.Merge(
 		matcher.New("Upper", unicode.Upper),
 		matcher.New("Lower", unicode.Lower),
 		matcher.New("Title", unicode.Title),
 		matcher.New("Number", unicode.Number),
+		defaultDecimalPoint,
 	)
 	defaultQuote          = matcher.String("'\"")
 	defaultUnaryOperator  = matcher.String("-+~")

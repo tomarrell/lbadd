@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -46,7 +47,7 @@ func TestRuleBasedScanner(t *testing.T) {
 			},
 		},
 		{
-			"SELECT      FROM || & +7 59 \"foobar\"",
+			"SELECT      FROM || & +7.5 59 \"foobar\"",
 			ruleset.Default,
 			[]token.Token{
 				token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
@@ -54,10 +55,10 @@ func TestRuleBasedScanner(t *testing.T) {
 				token.New(1, 18, 17, 2, token.BinaryOperator, "||"),
 				token.New(1, 21, 20, 1, token.BinaryOperator, "&"),
 				token.New(1, 23, 22, 1, token.UnaryOperator, "+"),
-				token.New(1, 24, 23, 1, token.Literal, "7"),
-				token.New(1, 26, 25, 2, token.Literal, "59"),
-				token.New(1, 29, 28, 8, token.Literal, "\"foobar\""),
-				token.New(1, 37, 36, 0, token.EOF, ""),
+				token.New(1, 24, 23, 3, token.Literal, "7.5"),
+				token.New(1, 28, 27, 2, token.Literal, "59"),
+				token.New(1, 31, 30, 8, token.Literal, "\"foobar\""),
+				token.New(1, 39, 38, 0, token.EOF, ""),
 			},
 		},
 		{
@@ -163,6 +164,7 @@ func _TestRuleBasedScannerWithRuleset(input string, ruleset ruleset.Ruleset, wan
 				break
 			}
 		}
+		fmt.Println(got)
 		assert.Equalf(len(want), len(got), "did not receive as much tokens as expected (expected %d, but got %d)", len(want), len(got))
 
 		limit := len(want)
