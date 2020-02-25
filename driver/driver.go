@@ -18,15 +18,16 @@ type Driver struct {
 }
 
 func (d *Driver) Open(name string) (driver.Conn, error) {
-	if connector, err := d.OpenConnector(name); err != nil {
+	connector, err := d.OpenConnector(name)
+	if err != nil {
 		return nil, fmt.Errorf("open connector: %w", err)
-	} else {
-		if conn, err := connector.Connect(context.Background()); err != nil {
-			return nil, fmt.Errorf("connect: %w", err)
-		} else {
-			return conn, nil
-		}
 	}
+
+	conn, err := connector.Connect(context.Background())
+	if err != nil {
+		return nil, fmt.Errorf("connect: %w", err)
+	}
+	return conn, nil
 }
 
 func (d *Driver) OpenConnector(name string) (driver.Connector, error) {
