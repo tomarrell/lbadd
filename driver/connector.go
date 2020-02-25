@@ -12,11 +12,7 @@ type Connector struct {
 }
 
 func (c *Connector) Connect(ctx context.Context) (driver.Conn, error) {
-	cancelableCtx, cancel := context.WithCancel(ctx)
-	return &Conn{
-		ctx:    cancelableCtx,
-		cancel: cancel,
-	}, nil
+	return nil, nil // TODO(TimSatke): implement
 }
 
 func (c *Connector) Driver() driver.Driver {
