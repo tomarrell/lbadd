@@ -1,7 +1,6 @@
 package scanner
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -55,7 +54,7 @@ func TestRuleBasedScanner(t *testing.T) {
 				token.New(1, 18, 17, 2, token.BinaryOperator, "||"),
 				token.New(1, 21, 20, 1, token.BinaryOperator, "&"),
 				token.New(1, 23, 22, 1, token.UnaryOperator, "+"),
-				token.New(1, 24, 23, 1, token.Literal, "7.5"),
+				token.New(1, 24, 23, 1, token.Literal, "7"),
 				token.New(1, 26, 25, 2, token.Literal, "59"),
 				token.New(1, 29, 28, 8, token.Literal, "\"foobar\""),
 				token.New(1, 37, 36, 0, token.EOF, ""),
@@ -164,7 +163,6 @@ func _TestRuleBasedScannerWithRuleset(input string, ruleset ruleset.Ruleset, wan
 				break
 			}
 		}
-		fmt.Println(got)
 		assert.Equalf(len(want), len(got), "did not receive as much tokens as expected (expected %d, but got %d)", len(want), len(got))
 
 		limit := len(want)
