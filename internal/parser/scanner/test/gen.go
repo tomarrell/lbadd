@@ -1100,12 +1100,6 @@ func generateBinaryOperator(offset int) token.Token {
 		value:  binaryOperators[rng.Intn(len(binaryOperators))],
 	}
 }
-func generateDelimiter(offset int) token.Token {
-	return genTok{
-		offset: offset,
-		typ:    token.Delimiter,
-	}
-}
 
 func caseShuffle(s string) string {
 

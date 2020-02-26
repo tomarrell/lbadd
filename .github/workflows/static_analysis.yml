@@ -2,13 +2,30 @@ name: Static analysis
 on: [push, pull_request]
 
 jobs:
+  internal-analysis:
+    name: Run internal analyzers
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go_version: [1.13]
+    steps:
+    - name: Set up Go ${{ matrix.go_version }}
+      uses: actions/setup-go@v1
+      with:
+        go-version: ${{ matrix.go_version }}
+      id: go
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v1
+    - name: analyze
+      run: go run ./internal/tool/analysis ./...
+  
   errcheck:
     name: Errcheck
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
     - name: check
-      uses: grandcolline/golang-github-actions@v1.0.0
+      uses: grandcolline/golang-github-actions@v1.1.0
       with:
         run: errcheck
         token: ${{ secrets.GITHUB_TOKEN }}
@@ -19,24 +36,21 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: check
-      uses: grandcolline/golang-github-actions@v1.0.0
+      uses: grandcolline/golang-github-actions@v1.1.0
       with:
         run: lint
         token: ${{ secrets.GITHUB_TOKEN }}
 
-  # Disabling this while we have plenty of unused
-  # types and fields.
-  #
-  # staticcheck:
-    # name: StaticCheck
-    # runs-on: ubuntu-latest
-    # steps:
-    # - uses: actions/checkout@master
-    # - name: check
-      # uses: grandcolline/golang-github-actions@v1.0.0
-      # with:
-        # run: staticcheck
-        # token: ${{ secrets.GITHUB_TOKEN }}
+  staticcheck:
+    name: StaticCheck
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: check
+      uses: grandcolline/golang-github-actions@v1.1.0
+      with:
+        run: staticcheck
+        token: ${{ secrets.GITHUB_TOKEN }}
 
   sec:
     name: Sec
@@ -44,7 +58,7 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: check
-      uses: grandcolline/golang-github-actions@v1.0.0
+      uses: grandcolline/golang-github-actions@v1.1.0
       with:
         run: sec
         token: ${{ secrets.GITHUB_TOKEN }}

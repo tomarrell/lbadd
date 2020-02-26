@@ -155,7 +155,7 @@ func defaultQuotedLiteralRule(s RuneScanner) (token.Type, bool) {
 		}
 		if next == '\\' {
 			s.ConsumeRune()
-			next, ok = s.Lookahead()
+			_, ok = s.Lookahead()
 			if !ok {
 				return token.Unknown, false
 			}
