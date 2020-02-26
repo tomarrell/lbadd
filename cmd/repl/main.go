@@ -38,10 +38,10 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) error {
 	flags := flag.NewFlagSet(args[0], flag.ExitOnError)
 	var (
 		verbose   = flags.Bool("verbose", false, "enable verbose output")
-		logfile   = flags.String("logfile", "lbadd.cli.log", "define a log file to write messages to")
+		logfile   = flags.String("logfile", "lbadd.log", "define a log file to write messages to")
 		port      = flags.Int("port", 34213, "publish the database server on this port")
 		host      = flags.String("host", "", "publish the database server on this host")
-		headless  = flags.Bool("headless", false, "don't use a cli")
+		headless  = flags.Bool("headless", false, "don't use a cli, only start the server")
 		noConsole = flags.Bool("quiet", false, "don't print logs to stdout")
 	)
 
