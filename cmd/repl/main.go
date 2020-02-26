@@ -59,6 +59,7 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) error {
 	// programCtx is the context, that all components should run on. When
 	// invoking cancel, all started components should stop processing.
 	programCtx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	// initialize all writers
 	writers := []io.Writer{
