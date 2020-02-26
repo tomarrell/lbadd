@@ -1,8 +1,6 @@
 package btree
 
-import (
-	"github.com/davecgh/go-spew/spew"
-)
+import "github.com/davecgh/go-spew/spew"
 
 const defaultOrder = 3
 
@@ -73,7 +71,11 @@ func (b *Btree) String() string {
 		lvls[depth] = append(lvls[depth], groups)
 	}
 
-	spew.Println(b.Height())
+	spew.Println(lvls)
+
+	for i := 0; i < b.Height()+1; i++ {
+		spew.Println(i, lvls[i])
+	}
 
 	return out
 }

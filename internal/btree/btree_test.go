@@ -1240,20 +1240,6 @@ func Test_node_rightSibling(t *testing.T) {
 	}
 }
 
-// Helper functions
-
-// Repairs all the parent pointers throughout a tree
-func repairParents(t *testing.T, tree *node, parent *node) *node {
-	t.Helper()
-
-	tree.parent = parent
-	for i := range tree.children {
-		repairParents(t, tree.children[i], tree)
-	}
-
-	return tree
-}
-
 func TestBtree_Height(t *testing.T) {
 	type fields struct {
 		root *node
@@ -1300,4 +1286,18 @@ func TestBtree_Height(t *testing.T) {
 			assert.Equal(t, tt.want, b.Height())
 		})
 	}
+}
+
+// Helper functions
+
+// Repairs all the parent pointers throughout a tree
+func repairParents(t *testing.T, tree *node, parent *node) *node {
+	t.Helper()
+
+	tree.parent = parent
+	for i := range tree.children {
+		repairParents(t, tree.children[i], tree)
+	}
+
+	return tree
 }

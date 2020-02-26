@@ -2,6 +2,8 @@ package btree
 
 import (
 	"fmt"
+
+	"github.com/davecgh/go-spew/spew"
 )
 
 // node defines the stuct which contains keys (entries) and the child nodes of a
@@ -21,6 +23,8 @@ func (n *node) String() string {
 }
 
 func (n *node) recursiveBalance(k Key, order int, b *Btree) {
+	spew.Println(b.String())
+	spew.Println()
 	if n.isRoot() {
 		return
 	}
@@ -185,7 +189,7 @@ func (n *node) depth() int {
 	count := 0
 	par := n.parent
 
-	for !par.isRoot() {
+	for !n.isRoot() {
 		count++
 		par = par.parent
 	}
