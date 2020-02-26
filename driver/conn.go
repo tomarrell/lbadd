@@ -11,6 +11,8 @@ var _ driver.ExecerContext = (*Conn)(nil)
 var _ driver.Pinger = (*Conn)(nil)
 var _ driver.QueryerContext = (*Conn)(nil)
 
+// Conn represents a connection to the database. It can be used to prepare and
+// execute statements.
 type Conn struct {
 }
 

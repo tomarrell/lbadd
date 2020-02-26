@@ -14,9 +14,14 @@ func init() {
 var _ driver.Driver = (*Driver)(nil)
 var _ driver.DriverContext = (*Driver)(nil)
 
+// Driver is the database driver that can communicate with an lbadd database. It
+// will be registered with the name "lbadd".
 type Driver struct {
 }
 
+// Open creates a new connector and uses that connector to open a new
+// connection. The context that is used to open the new connection is
+// context.Background().
 func (d *Driver) Open(name string) (driver.Conn, error) {
 	connector, err := d.OpenConnector(name)
 	if err != nil {
@@ -30,6 +35,9 @@ func (d *Driver) Open(name string) (driver.Conn, error) {
 	return conn, nil
 }
 
+// OpenConnector creates a connector that can be used to open a connection to a
+// data source. The data source is specified by the given name. A connector can
+// only open connections to his data source.
 func (d *Driver) OpenConnector(name string) (driver.Connector, error) {
 	return &Connector{
 		driver: d,
