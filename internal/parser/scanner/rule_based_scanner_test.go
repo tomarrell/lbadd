@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -46,7 +47,7 @@ func TestRuleBasedScanner(t *testing.T) {
 			},
 		},
 		{
-			"SELECT      FROM || & +7 59 \"foobar\"",
+			"SELECT      FROM || & +7 5.9 \"foobar\"",
 			ruleset.Default,
 			[]token.Token{
 				token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
@@ -55,9 +56,9 @@ func TestRuleBasedScanner(t *testing.T) {
 				token.New(1, 21, 20, 1, token.BinaryOperator, "&"),
 				token.New(1, 23, 22, 1, token.UnaryOperator, "+"),
 				token.New(1, 24, 23, 1, token.Literal, "7"),
-				token.New(1, 26, 25, 2, token.Literal, "59"),
-				token.New(1, 29, 28, 8, token.Literal, "\"foobar\""),
-				token.New(1, 37, 36, 0, token.EOF, ""),
+				token.New(1, 26, 25, 3, token.Literal, "5.9"),
+				token.New(1, 30, 29, 8, token.Literal, "\"foobar\""),
+				token.New(1, 38, 37, 0, token.EOF, ""),
 			},
 		},
 		{
@@ -140,6 +141,26 @@ func TestRuleBasedScanner(t *testing.T) {
 				token.New(1, 53, 52, 0, token.EOF, ""),
 			},
 		},
+		{
+			`7 7.5 8.9.8 8.0 0.4 10 10000 18907.890 1890976.09.977`,
+			ruleset.Default,
+			[]token.Token{
+				token.New(1, 1, 0, 1, token.Literal, "7"),
+				token.New(1, 3, 2, 3, token.Literal, "7.5"),
+				token.New(1, 7, 6, 3, token.Literal, "8.9"),
+				token.New(1, 10, 9, 1, token.Error, "unexpected token: '.' at offset 9"),
+				token.New(1, 11, 10, 1, token.Literal, "8"),
+				token.New(1, 13, 12, 3, token.Literal, "8.0"),
+				token.New(1, 17, 16, 3, token.Literal, "0.4"),
+				token.New(1, 21, 20, 2, token.Literal, "10"),
+				token.New(1, 24, 23, 5, token.Literal, "10000"),
+				token.New(1, 30, 29, 9, token.Literal, "18907.890"),
+				token.New(1, 40, 39, 10, token.Literal, "1890976.09"),
+				token.New(1, 50, 49, 1, token.Error, "unexpected token: '.' at offset 49"),
+				token.New(1, 51, 50, 3, token.Literal, "977"),
+				token.New(1, 54, 53, 0, token.EOF, ""),
+			},
+		},
 	}
 	for _, input := range inputs {
 		t.Run("ruleset=default/"+input.query, _TestRuleBasedScannerWithRuleset(input.query, input.ruleset, input.want))
@@ -163,6 +184,7 @@ func _TestRuleBasedScannerWithRuleset(input string, ruleset ruleset.Ruleset, wan
 				break
 			}
 		}
+		fmt.Println(got)
 		assert.Equalf(len(want), len(got), "did not receive as much tokens as expected (expected %d, but got %d)", len(want), len(got))
 
 		limit := len(want)
