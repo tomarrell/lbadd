@@ -40,7 +40,7 @@ var wordRule = func(s RuneScanner) (typ token.Type, ruleWasApplicable bool) {
 
 The above example is a sample implementation of a word rule, that accepts words that may consist of a defined set of runes (`allowedRunes`).
 The above code reads as follows.
-```java
+```
 while
 	peek the next rune that lies ahead
 	if there are no more runes
