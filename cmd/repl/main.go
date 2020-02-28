@@ -54,7 +54,9 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) error {
 	if err != nil {
 		return fmt.Errorf("open logfile: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		_ = file.Close()
+	}()
 
 	// programCtx is the context, that all components should run on. When
 	// invoking cancel, all started components should stop processing.

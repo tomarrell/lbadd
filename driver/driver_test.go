@@ -35,7 +35,9 @@ func TestStatement(t *testing.T) {
 	pool, err := sql.Open("lbadd", LocalDatabaseAddress)
 	assert.NoError(err)
 	assert.NoError(pool.Ping())
-	defer pool.Close()
+	defer func() {
+		assert.NoError(pool.Close())
+	}()
 
 	stmt, err := pool.Prepare(`CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(25));`)
 	assert.NoError(err)
