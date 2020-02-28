@@ -12,7 +12,7 @@ type Connector struct {
 }
 
 func (c *Connector) Connect(ctx context.Context) (driver.Conn, error) {
-	return nil, nil // TODO(TimSatke): implement
+	return &Conn{}, nil
 }
 
 func (c *Connector) Driver() driver.Driver {

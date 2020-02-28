@@ -3,6 +3,7 @@ package driver
 import (
 	"context"
 	"database/sql/driver"
+	"fmt"
 )
 
 var _ driver.Conn = (*Conn)(nil)
@@ -16,24 +17,50 @@ var _ driver.QueryerContext = (*Conn)(nil)
 type Conn struct {
 }
 
+// Prepare prepares a statement. The returned Stmt is an SQL prepared statement,
+// that has placeholders for parameters that need to be set. Do NOT set
+// parameters directly when creating the statement with this method.
+//
+//  stmt, err := conn.Prepare(`INSERT INTO users VALUES ("jdoe")`) // WRONG
+//
+//  stmt, err := conn.Prepare(`INSERT INTO users VALUES (?)`) // CORRECT
+//  result, err := stmt.Exec("jdoe")
 func (c *Conn) Prepare(query string) (driver.Stmt, error) {
-	return nil, nil // TODO(TimSatke): implement
+	stmt, err := parse(query)
+	if err != nil {
+		return nil, fmt.Errorf("parse: %w", err)
+	}
+	return stmt, nil
 }
 
+// Close closes this connection. If a connection is closed, it cannot be used as
+// idle connection in the connection pool and a new connection needs to be
+// established.
 func (c *Conn) Close() error {
 	return nil // TODO(TimSatke): implement
 }
 
+// Begin is deprecated. Use BeginTx instead.
 func (c *Conn) Begin() (driver.Tx, error) {
-	return nil, nil // TODO(TimSatke): implement
+	return c.BeginTx(context.Background(), driver.TxOptions{})
 }
 
+// BeginTx creates a transaction that can be either committed or rolled back.
 func (c *Conn) BeginTx(ctx context.Context, opts driver.TxOptions) (driver.Tx, error) {
-	return nil, nil // TODO(TimSatke): implement
+	return nil, fmt.Errorf("unimplemented") // TODO(TimSatke): implement
 }
 
 func (c *Conn) ExecContext(ctx context.Context, query string, args []driver.NamedValue) (driver.Result, error) {
-	return nil, nil // TODO(TimSatke): implement
+	rawStmt, err := c.Prepare(query)
+	if err != nil {
+		return nil, fmt.Errorf("prepare: %w", err)
+	}
+
+	if stmt, ok := rawStmt.(*Stmt); ok {
+		return stmt.ExecContext(ctx, args)
+	}
+
+	return nil, fmt.Errorf("cannot execute Stmt of type %T, expected %T", rawStmt, &Stmt{})
 }
 
 func (c *Conn) Ping(ctx context.Context) error {
@@ -41,5 +68,14 @@ func (c *Conn) Ping(ctx context.Context) error {
 }
 
 func (c *Conn) QueryContext(ctx context.Context, query string, args []driver.NamedValue) (driver.Rows, error) {
-	return nil, nil // TODO(TimSatke): implement
+	rawStmt, err := c.Prepare(query)
+	if err != nil {
+		return nil, fmt.Errorf("prepare: %w", err)
+	}
+
+	if stmt, ok := rawStmt.(*Stmt); ok {
+		return stmt.QueryContext(ctx, args)
+	}
+
+	return nil, fmt.Errorf("cannot execute query Stmt of type %T, expected %T", rawStmt, &Stmt{})
 }

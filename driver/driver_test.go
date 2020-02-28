@@ -28,8 +28,6 @@ func TestDriverRegister(t *testing.T) {
 }
 
 func TestStatement(t *testing.T) {
-	t.SkipNow() // TODO(TimSatke): enable when driver and database is functional
-
 	assert := assert.New(t)
 
 	pool, err := sql.Open("lbadd", LocalDatabaseAddress)
@@ -41,14 +39,20 @@ func TestStatement(t *testing.T) {
 
 	stmt, err := pool.Prepare(`CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(25));`)
 	assert.NoError(err)
+
 	_, err = stmt.Exec()
 	assert.NoError(err)
 	assert.NoError(stmt.Close())
 
-	stmt, err = pool.Prepare(`INSERT INTO users (name) VALUES ("jdoe");`)
+	stmt, err = pool.Prepare(`INSERT INTO users (name) VALUES (?);`)
 	assert.NoError(err)
-	result, err := stmt.Exec()
+
+	result, err := stmt.Exec("jdoe")
 	assert.NoError(err)
-	assert.Equal(result.RowsAffected, 1)
+
+	affected, err := result.RowsAffected()
+	assert.NoError(err)
+	assert.Equal(affected, 1)
+
 	assert.NoError(stmt.Close())
 }
