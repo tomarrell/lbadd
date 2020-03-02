@@ -1,8 +1,8 @@
 package database
 
-import "github.com/tomarrell/lbadd/internal/database/table"
+import "github.com/tomarrell/lbadd/internal/database/schema"
 
 // DB describes a database.
 type DB interface {
-	Table(schema, name string) (table.Table, bool)
+	Schema(name string) (schema.Schema, bool)
 }
