@@ -1,8 +1,6 @@
 package btree
 
 import (
-	"fmt"
-
 	"github.com/davecgh/go-spew/spew"
 )
 
@@ -14,13 +12,13 @@ type node struct {
 	children []*node
 }
 
-func (n *node) String() string {
-	nStr := ""
+// func (n *node) String() string {
+// nStr := ""
 
-	nStr += fmt.Sprintf("%v", n.entries)
+// nStr += fmt.Sprintf("%v", n.entries)
 
-	return nStr
-}
+// return nStr
+// }
 
 func (n *node) recursiveBalance(k Key, order int, b *Btree) {
 	spew.Println(b.String())
@@ -189,7 +187,8 @@ func (n *node) depth() int {
 	count := 0
 	par := n.parent
 
-	for !n.isRoot() {
+	spew.Dump(n)
+	for !n.isRoot() && par != nil {
 		count++
 		par = par.parent
 	}
