@@ -24,7 +24,7 @@ var (
 	defaultLinefeedDetector   = matcher.RuneWithDesc("linefeed", '\n')
 	defaultStatementSeparator = matcher.RuneWithDesc("statement separator", ';')
 	defaultDecimalPoint       = matcher.RuneWithDesc("decimal point", '.')
-	defaultExponent           = matcher.RuneWithDesc("character E", 'E')
+	defaultExponent           = matcher.RuneWithDesc("exponent indicator", 'E')
 	defaultExponentOperator   = matcher.String("+-")
 	defaultNumber             = matcher.New("number", unicode.Number)
 	// defaultLiteral matches the allowed letters of a literal
