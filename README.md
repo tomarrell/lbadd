@@ -2,7 +2,7 @@
 <p align="center">
     <img src="./gopheydb.png" width="100"></img>
     <h1 align="center">LBADD</h1>
-    <p align="center">Let's build a distributed databse.</p>
+    <p align="center">Let's build a distributed database.</p>
     <p align="center">
         <a href="https://github.com/tomarrell/lbadd/actions"><img src="https://github.com/tomarrell/lbadd/workflows/Build/badge.svg"></a>
         <a href="https://github.com/tomarrell/lbadd/actions"><img src="https://github.com/tomarrell/lbadd/workflows/Tests/badge.svg"></a>
