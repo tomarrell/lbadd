@@ -237,3 +237,14 @@ func _TestRuleBasedScannerWithRuleset(input string, ruleset ruleset.Ruleset, wan
 		}
 	}
 }
+
+func TestRuleBasedSannerStatementEndingInWhitespace(t *testing.T) {
+	assert := assert.New(t)
+
+	stmt := "SELECT "
+	sc := NewRuleBased([]rune(stmt), ruleset.Default)
+	next := sc.Next()
+	assert.Equal(token.KeywordSelect, next.Type())
+	eof := sc.Next()
+	assert.Equal(token.EOF, eof.Type())
+}
