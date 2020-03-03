@@ -50,6 +50,9 @@ func (c *Conn) BeginTx(ctx context.Context, opts driver.TxOptions) (driver.Tx, e
 	return nil, fmt.Errorf("unimplemented") // TODO(TimSatke): implement
 }
 
+// ExecContext executes the given query with the given arguments under the given
+// context and returns an exec result. The statement must contain placeholders,
+// one for each element of the given arguments.
 func (c *Conn) ExecContext(ctx context.Context, query string, args []driver.NamedValue) (driver.Result, error) {
 	rawStmt, err := c.Prepare(query)
 	if err != nil {
@@ -63,10 +66,15 @@ func (c *Conn) ExecContext(ctx context.Context, query string, args []driver.Name
 	return nil, fmt.Errorf("cannot execute Stmt of type %T, expected %T", rawStmt, &Stmt{})
 }
 
+// Ping pings the database, failing if the connection is closed or the database
+// failed.
 func (c *Conn) Ping(ctx context.Context) error {
 	return nil // TODO(TimSatke): implement
 }
 
+// QueryContext executes the given query with the given arguments under the
+// given context and returns a query result. The query must contain
+// placeholders, one for each element of the given arguments.
 func (c *Conn) QueryContext(ctx context.Context, query string, args []driver.NamedValue) (driver.Rows, error) {
 	rawStmt, err := c.Prepare(query)
 	if err != nil {
