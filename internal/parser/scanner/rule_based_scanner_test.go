@@ -46,6 +46,21 @@ func TestRuleBasedScanner(t *testing.T) {
 			},
 		},
 		{
+			"SELECT      FROM || & +7 5 \"foobar\"",
+			ruleset.Default,
+			[]token.Token{
+				token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+				token.New(1, 13, 12, 4, token.KeywordFrom, "FROM"),
+				token.New(1, 18, 17, 2, token.BinaryOperator, "||"),
+				token.New(1, 21, 20, 1, token.BinaryOperator, "&"),
+				token.New(1, 23, 22, 1, token.UnaryOperator, "+"),
+				token.New(1, 24, 23, 1, token.Literal, "7"),
+				token.New(1, 26, 25, 1, token.Literal, "5"),
+				token.New(1, 28, 27, 8, token.Literal, "\"foobar\""),
+				token.New(1, 36, 35, 0, token.EOF, ""),
+			},
+		},
+		{
 			"SELECT      FROM || & +7 5.9 \"foobar\"",
 			ruleset.Default,
 			[]token.Token{
