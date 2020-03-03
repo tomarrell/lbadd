@@ -174,7 +174,7 @@ func TestRuleBasedScanner(t *testing.T) {
 			},
 		},
 		{
-			`11.672E19 11.672E+19 11.657EE19 0xCAFEBABE 2.5E-1 1.2.3.4.5.6.7 5.hello something.4`,
+			`11.672E19 11.672E+19 11.657EE19 0xCAFEBABE 2.5E-1 1.2.3.4.5.6.7 5.hello something.4 `,
 			ruleset.Default,
 			[]token.Token{
 				token.New(1, 1, 0, 9, token.Literal, "11.672E19"),
@@ -194,7 +194,7 @@ func TestRuleBasedScanner(t *testing.T) {
 				token.New(1, 67, 66, 5, token.Literal, "hello"),
 				token.New(1, 73, 72, 9, token.Literal, "something"),
 				token.New(1, 82, 81, 2, token.Literal, ".4"),
-				token.New(1, 84, 83, 0, token.EOF, ""),
+				token.New(1, 85, 84, 0, token.EOF, ""),
 			},
 		},
 	}
