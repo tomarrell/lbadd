@@ -2,7 +2,6 @@ package ruleset
 
 import (
 	"bytes"
-	"fmt"
 	"unicode"
 
 	"github.com/tomarrell/lbadd/internal/parser/scanner/matcher"
@@ -24,22 +23,29 @@ var (
 	// defaultLinefeedDetector is the linefeed detector that this ruleset allows
 	defaultLinefeedDetector   = matcher.RuneWithDesc("linefeed", '\n')
 	defaultStatementSeparator = matcher.RuneWithDesc("statement separator", ';')
-	defaultDecimalPoint       = matcher.RuneWithDesc("decimalPoint", '.')
+	defaultDecimalPoint       = matcher.RuneWithDesc("decimal point", '.')
+	defaultExponent           = matcher.RuneWithDesc("character E", 'E')
+	defaultExponentOperator   = matcher.String("+-")
+	defaultNumber             = matcher.New("number", unicode.Number)
 	// defaultLiteral matches the allowed letters of a literal
 	defaultLiteral = matcher.Merge(
-		matcher.New("Upper", unicode.Upper),
-		matcher.New("Lower", unicode.Lower),
-		matcher.New("Title", unicode.Title),
-		matcher.New("Number", unicode.Number),
+		matcher.New("upper", unicode.Upper),
+		matcher.New("lower", unicode.Lower),
+		matcher.New("title", unicode.Title),
+		defaultNumber,
 	)
 	defaultNumericLiteral = matcher.Merge(
-		matcher.New("Number", unicode.Number),
+		defaultNumber,
+		defaultExponent,
+		defaultExponentOperator,
+		matcher.RuneWithDesc("X", 'x'),
 	)
 	defaultQuote          = matcher.String("'\"")
 	defaultUnaryOperator  = matcher.String("-+~")
 	defaultBinaryOperator = matcher.String("|*/%<>=&!")
 	defaultDelimiter      = matcher.String("(),")
-	defaultRules          = []Rule{
+	// the order of the rules are important for some cases. Beware
+	defaultRules = []Rule{
 		FuncRule(defaultStatementSeparatorRule),
 		FuncRule(defaultKeywordsRule),
 		FuncRule(defaultUnaryOperatorRule),
@@ -123,7 +129,6 @@ func defaultBinaryOperatorRule(s RuneScanner) (token.Type, bool) {
 					s.ConsumeRune()
 					return token.BinaryOperator, true
 				}
-				// return token.Unknown, false
 			}
 		}
 		// special cases where these operators can be single or can have a suffix
@@ -159,6 +164,7 @@ func defaultQuotedLiteralRule(s RuneScanner) (token.Type, bool) {
 		if !ok {
 			return token.Unknown, false
 		}
+		// allowing character escape
 		if next == '\\' {
 			s.ConsumeRune()
 			_, ok = s.Lookahead()
@@ -194,17 +200,60 @@ func defaultUnquotedLiteralRule(s RuneScanner) (token.Type, bool) {
 }
 
 func defaultNumericLiteralRule(s RuneScanner) (token.Type, bool) {
-	if next, ok := s.Lookahead(); !(ok && defaultNumericLiteral.Matches(next)) {
-		fmt.Println(string(next))
+	decimalPointFlag := false
+	exponentFlag := false
+	exponentOperatorFlag := false
+	// Checking whether the first element is a number or a decimal point.
+	// If neither, an unknown token error is raised.
+	next, ok := s.Lookahead()
+	if !(ok && (defaultNumericLiteral.Matches(next) || defaultDecimalPoint.Matches(next))) {
 		return token.Unknown, false
 	}
+	// If the literal starts with a decimal point, it is recorded in the flag.
+	if defaultDecimalPoint.Matches(next) {
+		decimalPointFlag = true
+	}
 	s.ConsumeRune()
-
-	decimalPointFlag := false
+	// case of hexadecimal numbers
+	if next == '0' {
+		for {
+			next, ok = s.Lookahead()
+			if !ok || next != 'x' {
+				break
+			}
+			if next == 'x' {
+				s.ConsumeRune()
+				return defaultUnquotedLiteralRule(s)
+			}
+		}
+	}
 	for {
+		// in the above case, if there was a `0.34` as a part of the string to read,
+		// the loop would have broken without consuming the rune; because the above
+		// loop consumes only hexadecimals of form `0xNUMBER`. Since all other cases
+		// are not consumed, the `LookAhead` below, gets the previous rune conveniently.
 		next, ok := s.Lookahead()
-		if !(ok && (defaultLiteral.Matches(next) || (!decimalPointFlag && defaultDecimalPoint.Matches(next)))) {
+		// continue on cases where the decimal point/exponent/exponent opeartor is already not found or not this particular rune.
+		if !(ok && (defaultNumericLiteral.Matches(next) || (!decimalPointFlag && defaultDecimalPoint.Matches(next)) || (!exponentFlag && defaultExponent.Matches(next)) || (!exponentOperatorFlag && defaultExponentOperator.Matches(next)))) {
 			break
+		}
+		if next == '.' {
+			if decimalPointFlag {
+				return token.Unknown, false
+			}
+			decimalPointFlag = true
+		}
+		if next == 'E' {
+			if exponentFlag {
+				return token.Unknown, false
+			}
+			exponentFlag = true
+		}
+		if next == '+' || next == '-' {
+			if exponentOperatorFlag {
+				return token.Unknown, false
+			}
+			exponentOperatorFlag = true
 		}
 		if defaultDecimalPoint.Matches(next) {
 			decimalPointFlag = true
