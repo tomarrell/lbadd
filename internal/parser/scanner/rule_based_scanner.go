@@ -76,11 +76,11 @@ func (s *ruleBasedScanner) done() bool {
 }
 
 func (s *ruleBasedScanner) computeNext() token.Token {
+	s.drainWhitespace()
+
 	if s.done() {
 		return s.eof()
 	}
-
-	s.drainWhitespace()
 	return s.applyRule()
 }
 
