@@ -75,11 +75,28 @@ func (r *errorReporter) errorf(format string, args ...interface{}) {
 }
 
 type reporter interface {
+	// errorToken reports the given token as error. This makes sense, if the
+	// scanner emitted an error token. If so, use this method to report it as
+	// error.
 	errorToken(t token.Token)
+	// incompleteStatement indicates that the statement was incomplete, i. e.
+	// that required parts are missing.
 	incompleteStatement()
+	// prematureEOF is a more specific version of an incompleteStatement, but
+	// indicating that EOF was encountered instead of the expected token.
 	prematureEOF()
+	// unexpectedToken reports that the current token is unexpected. The given
+	// token types are the token types that were expected at this point, and
+	// will also be reported in order to make the error message more helpful.
 	unexpectedToken(expected ...token.Type)
+	// unexpectedSingleRuneToken is similar to unexpectedToken, but instead of a
+	// token type, it prints the expected runes.
 	unexpectedSingleRuneToken(typ token.Type, expected ...rune)
+	// unhandledToken indicates that the handle for a specific token at this
+	// point was not implemented yet.
 	unhandledToken(t token.Token)
+	// unsupportedConstruct indicates, that the found token can be recognized,
+	// but is not supported for some reason (not implemented, no database
+	// support, etc.).
 	unsupportedConstruct(t token.Token)
 }
