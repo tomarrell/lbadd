@@ -135,6 +135,20 @@ func TestSingleStatementParse(t *testing.T) {
 				},
 			},
 		},
+		{
+			"ATTACH DATABASE bro AS newBro",
+			&ast.SQLStmt{
+				AttachStmt: &ast.AttachStmt{
+					Attach:   token.New(1, 1, 0, 6, token.KeywordAttach, "ATTACH"),
+					Database: token.New(1, 8, 7, 8, token.KeywordDatabase, "DATABASE"),
+					Expr: &ast.Expr{
+						LiteralValue: token.New(1, 1, 1, 1, token.Literal, "bro"),
+					},
+					As:         token.New(1, 1, 1, 1, token.KeywordAs, "AS"),
+					SchemaName: token.New(1, 1, 1, 1, token.Literal, "newBro"),
+				},
+			},
+		},
 	}
 	for _, input := range inputs {
 		t.Run(input.Query[0:11], func(t *testing.T) {
