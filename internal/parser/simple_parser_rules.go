@@ -46,6 +46,8 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 		stmt.AttachStmt = p.parseAttachDatabaseStmt(r)
 	case token.KeywordDetach:
 		stmt.DetachStmt = p.parseDetachDatabaseStmt(r)
+	case token.KeywordVacuum:
+		stmt.VacuumStmt = p.parseVacuumStmt(r)
 	case token.StatementSeparator:
 		r.incompleteStatement()
 		p.consumeToken()
@@ -630,8 +632,8 @@ func (p *simpleParser) parseExpression(r reporter) (expr *ast.Expr) {
 	return
 }
 
-// parseAttachDatabaseStmt parses statments of the form :
-// ATTACH DATABASE expr AS schema-name
+// parseAttachDatabaseStmt parses statments as defined in the spec:
+// https://sqlite.org/lang_attach.html
 func (p *simpleParser) parseAttachDatabaseStmt(r reporter) (stmt *ast.AttachStmt) {
 	stmt = &ast.AttachStmt{}
 	p.searchNext(r, token.KeywordAttach)
@@ -679,9 +681,8 @@ func (p *simpleParser) parseAttachDatabaseStmt(r reporter) (stmt *ast.AttachStmt
 	return
 }
 
-// parseDetachDatabaseStmt parses statements of the form :
-// DETACH DATABASE schema-name
-// DETACH schema-name
+// parseDetachDatabaseStmt parses statements as defined in spec:
+// https://sqlite.org/lang_detach.html
 func (p *simpleParser) parseDetachDatabaseStmt(r reporter) (stmt *ast.DetachStmt) {
 	stmt = &ast.DetachStmt{}
 	p.searchNext(r, token.KeywordDetach)
@@ -712,5 +713,54 @@ func (p *simpleParser) parseDetachDatabaseStmt(r reporter) (stmt *ast.DetachStmt
 	}
 	stmt.SchemaName = schemaName
 	p.consumeToken()
+	return
+}
+
+// parseVacuumStmt parses the staments as defined in the spec:
+// https://sqlite.org/lang_vacuum.html
+func (p *simpleParser) parseVacuumStmt(r reporter) (stmt *ast.VacuumStmt) {
+	stmt = &ast.VacuumStmt{}
+	p.searchNext(r, token.KeywordVacuum)
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	stmt.Vacuum = next
+	p.consumeToken()
+
+	// optionalLookahead is used because, the lookahead function
+	// always looks for the next "real" token and not EOF.
+	// Since Just "VACUUM" is a valid statement, we have to accept
+	// the fact that there can be no tokens after the first keyword.
+	// Same logic is applied for the next INTO keyword check too.
+	next, ok = p.optionalLookahead(r)
+	if !ok {
+		return
+	}
+
+	if next.Type() == token.Literal {
+		stmt.SchemaName = next
+		p.consumeToken()
+	}
+
+	next, ok = p.optionalLookahead(r)
+	if !ok {
+		return
+	}
+
+	if next.Type() == token.KeywordInto {
+		stmt.Into = next
+		p.consumeToken()
+		fileName, ok := p.lookahead(r)
+		if !ok {
+			return
+		}
+		if fileName.Type() != token.Literal {
+			r.unexpectedToken(token.Literal)
+			return
+		}
+		stmt.Filename = fileName
+		p.consumeToken()
+	}
 	return
 }
