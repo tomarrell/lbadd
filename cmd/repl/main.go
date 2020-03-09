@@ -7,13 +7,14 @@ import (
 	"io"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
-	"time"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/diode"
 	"github.com/tomarrell/lbadd/internal/cli"
 	"github.com/tomarrell/lbadd/internal/executor"
+	"github.com/tomarrell/lbadd/internal/server"
 )
 
 const (
@@ -36,17 +37,76 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) error {
 	// setup flags
 	flags := flag.NewFlagSet(args[0], flag.ExitOnError)
 	var (
-		verbose = flags.Bool("verbose", false, "enable verbose output")
-		logfile = flags.String("logfile", "lbadd.cli.log", "define a log file to write messages to")
+		verbose   = flags.Bool("verbose", false, "enable verbose output")
+		logfile   = flags.String("logfile", "lbadd.log", "define a log file to write messages to")
+		port      = flags.Int("port", 34213, "publish the database server on this port")
+		host      = flags.String("host", "", "publish the database server on this host")
+		headless  = flags.Bool("headless", false, "don't use a cli, only start the server")
+		noConsole = flags.Bool("quiet", false, "don't print logs to stdout")
 	)
 
 	if err := flags.Parse(args[1:]); err != nil {
 		return fmt.Errorf("parse flags: %w", err)
 	}
 
+	// open the log file
+	file, err := os.OpenFile(*logfile, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0600)
+	if err != nil {
+		return fmt.Errorf("open logfile: %w", err)
+	}
+	defer func() {
+		_ = file.Close()
+	}()
+
 	// programCtx is the context, that all components should run on. When
 	// invoking cancel, all started components should stop processing.
 	programCtx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// initialize all writers
+	writers := []io.Writer{
+		// performant file writer
+		diode.NewWriter(
+			file, // output writer
+			1000, // pool size
+			0,    // poll interval, use a waiter
+			func(missed int) {
+				_, _ = fmt.Fprintf(stderr, "Logger is falling behind, skipping %d messages\n", missed)
+			},
+		),
+	}
+	if !*noConsole {
+		writers = append(writers,
+			// unperformant console writer
+			zerolog.ConsoleWriter{
+				Out: stdout,
+			},
+		)
+	}
+
+	// initialize the root logger
+	log := zerolog.New(io.MultiWriter(writers...)).With().
+		Timestamp().
+		Logger().
+		Level(zerolog.InfoLevel)
+
+	log.Info().
+		Bool("headless", *headless).
+		Msg("start new application session")
+
+	// apply the verbose flag
+	if *verbose {
+		log = log.Level(zerolog.TraceLevel)
+	}
+
+	// print all flags on debug level
+	log.Debug().
+		Bool("verbose", *verbose).
+		Str("logfile", *logfile).
+		Int("publish", *port).
+		Bool("headless", *headless).
+		Bool("quiet", *noConsole).
+		Msg("settings")
 
 	// start listening for signals
 	signalChan := make(chan os.Signal, 1)
@@ -57,45 +117,48 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) error {
 	}()
 	go func() {
 		select {
-		case <-signalChan: // first signal, cancel context
+		case sig := <-signalChan: // first signal, cancel context
+			log.Info().
+				Str("signal", sig.String()).
+				Msg("Attempting graceful shutdown, press again to force quit")
 			cancel()
-			_, _ = fmt.Fprintln(stdout, "Attempting graceful shutdown, press again to force quit")
 		case <-programCtx.Done():
 		}
 		<-signalChan // second signal, hard exit
+		log.Info().
+			Msg("Forcing shutdown")
 		os.Exit(ExitInterrupt)
 	}()
 
-	// Initialize a root logger
-	file, err := os.OpenFile(*logfile, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0600)
-	if err != nil {
-		return fmt.Errorf("open logfile: %w", err)
+	// setup the executor
+	executor := executor.New(log.With().Str("component", "executor").Logger())
+
+	// setup server endpoint
+	server := server.New(log.With().Str("component", "server").Logger(), executor)
+	runServer := func() {
+		if err := server.ListenAndServe(programCtx, *host+":"+strconv.Itoa(int(*port))); err != nil {
+			log.Error().
+				Err(err).
+				Msg("listen and serve failed")
+		}
 	}
 
-	log := zerolog.New(
-		diode.NewWriter(
-			file,                // output writer
-			1000,                // pool size
-			10*time.Millisecond, // poll interval
-			func(missed int) {
-				_, _ = fmt.Fprintf(stderr, "Logger is falling behind, skipping %d messages\n", missed)
-			},
-		),
-	).With().
-		Timestamp().
-		Logger().
-		Level(zerolog.InfoLevel)
+	/*
+		Handle headless.
 
-	log.Info().Msg("start new session")
+		If headless, start and wait for the server, otherwise start the server
+		in the background and start the cli. stdin will not be used if
+		headless=true.
+	*/
+	if *headless {
+		runServer()
+	} else {
+		go runServer()
 
-	// apply the verbose flag
-	if *verbose {
-		log = log.Level(zerolog.TraceLevel)
+		// run the cli
+		cli := cli.New(programCtx, stdin, stdout, executor)
+		cli.Start()
 	}
-
-	// run the cli
-	cli := cli.New(programCtx, stdin, stdout, executor.New(log.With().Str("component", "executor").Logger()))
-	cli.Start()
 
 	return nil
 }

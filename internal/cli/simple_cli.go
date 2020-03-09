@@ -14,7 +14,8 @@ import (
 var _ Cli = (*simpleCli)(nil)
 
 type simpleCli struct {
-	ctx context.Context
+	ctx    context.Context
+	closed bool
 
 	in  io.Reader
 	out io.Writer
@@ -44,7 +45,7 @@ func (c *simpleCli) Start() {
 		}
 	}()
 
-	for {
+	for !c.closed {
 		_, _ = fmt.Fprint(c.out, "$ ")
 		select {
 		case line := <-lines:
@@ -72,6 +73,7 @@ func (c *simpleCli) printHelp() {
 
 func (c *simpleCli) quit() {
 	_, _ = fmt.Fprintln(c.out, "Bye!")
+	c.closed = true
 }
 
 func (c *simpleCli) handleSQL(sqlInput string) {
