@@ -233,6 +233,38 @@ func TestSingleStatementParse(t *testing.T) {
 				},
 			},
 		},
+		{
+			"analyze",
+			"ANALYZE",
+			&ast.SQLStmt{
+				AnalyzeStmt: &ast.AnalyzeStmt{
+					Analyze: token.New(1, 1, 0, 7, token.KeywordAnalyze, "ANALYZE"),
+				},
+			},
+		},
+		{
+			"ANALYZE with schema-name/table-or-index-name",
+			"ANALYZE mySchemaOrTableOrIndex",
+			&ast.SQLStmt{
+				AnalyzeStmt: &ast.AnalyzeStmt{
+					Analyze:          token.New(1, 1, 0, 7, token.KeywordAnalyze, "ANALYZE"),
+					SchemaName:       token.New(1, 9, 8, 22, token.Literal, "mySchemaOrTableOrIndex"),
+					TableOrIndexName: token.New(1, 9, 8, 22, token.Literal, "mySchemaOrTableOrIndex"),
+				},
+			},
+		},
+		{
+			"ANALYZE with schema-name/table-or-index-name elaborated",
+			"ANALYZE mySchemaOrTableOrIndex.specificAttr",
+			&ast.SQLStmt{
+				AnalyzeStmt: &ast.AnalyzeStmt{
+					Analyze:          token.New(1, 1, 0, 7, token.KeywordAnalyze, "ANALYZE"),
+					SchemaName:       token.New(1, 9, 8, 22, token.Literal, "mySchemaOrTableOrIndex"),
+					Period:           token.New(1, 31, 30, 1, token.Literal, "."),
+					TableOrIndexName: token.New(1, 32, 31, 12, token.Literal, "specificAttr"),
+				},
+			},
+		},
 	}
 	for _, input := range inputs {
 		t.Run(input.Name, func(t *testing.T) {
