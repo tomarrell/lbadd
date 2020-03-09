@@ -3,6 +3,19 @@ package main
 import (
 	"github.com/tomarrell/lbadd/internal/tool/analysis/nopanic"
 	"golang.org/x/tools/go/analysis/multichecker"
+	"golang.org/x/tools/go/analysis/passes/atomic"
+	"golang.org/x/tools/go/analysis/passes/bools"
+	"golang.org/x/tools/go/analysis/passes/copylock"
+	"golang.org/x/tools/go/analysis/passes/errorsas"
+	"golang.org/x/tools/go/analysis/passes/lostcancel"
+	"golang.org/x/tools/go/analysis/passes/nilfunc"
+	"golang.org/x/tools/go/analysis/passes/nilness"
+	"golang.org/x/tools/go/analysis/passes/printf"
+	"golang.org/x/tools/go/analysis/passes/shift"
+	"golang.org/x/tools/go/analysis/passes/stdmethods"
+	"golang.org/x/tools/go/analysis/passes/tests"
+	"golang.org/x/tools/go/analysis/passes/unreachable"
+	"golang.org/x/tools/go/analysis/passes/unsafeptr"
 )
 
 func main() {
@@ -10,5 +23,18 @@ func main() {
 	// argument in multichecker.Main(...).
 	multichecker.Main(
 		nopanic.Analyzer,
+		atomic.Analyzer,
+		bools.Analyzer,
+		copylock.Analyzer,
+		errorsas.Analyzer,
+		lostcancel.Analyzer,
+		nilfunc.Analyzer,
+		nilness.Analyzer,
+		printf.Analyzer,
+		shift.Analyzer,
+		stdmethods.Analyzer,
+		tests.Analyzer,
+		unreachable.Analyzer,
+		unsafeptr.Analyzer,
 	)
 }
