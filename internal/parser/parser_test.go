@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -200,19 +199,4 @@ func TestSingleStatementParse(t *testing.T) {
 			assert.False(ok, "expected only one statement")
 		})
 	}
-}
-
-func debugPrintTokenData(t1, t2 token.Token) {
-	fmt.Println(t1.Line())
-	fmt.Println(t2.Line())
-	fmt.Println(t1.Col())
-	fmt.Println(t2.Col())
-	fmt.Println(t1.Offset())
-	fmt.Println(t2.Offset())
-	fmt.Println(t1.Length())
-	fmt.Println(t2.Length())
-	fmt.Println(t1.Type())
-	fmt.Println(t2.Type())
-	fmt.Println(t1.Value())
-	fmt.Println(t2.Value())
 }
