@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -135,6 +136,33 @@ func TestSingleStatementParse(t *testing.T) {
 				},
 			},
 		},
+		{
+			"ATTACH DATABASE myDb AS newDb",
+			&ast.SQLStmt{
+				AttachStmt: &ast.AttachStmt{
+					Attach:   token.New(1, 1, 0, 6, token.KeywordAttach, "ATTACH"),
+					Database: token.New(1, 8, 7, 8, token.KeywordDatabase, "DATABASE"),
+					Expr: &ast.Expr{
+						LiteralValue: token.New(1, 17, 16, 4, token.Literal, "myDb"),
+					},
+					As:         token.New(1, 22, 21, 2, token.KeywordAs, "AS"),
+					SchemaName: token.New(1, 25, 24, 5, token.Literal, "newDb"),
+				},
+			},
+		},
+		{
+			"ATTACH mySchema AS newSchema",
+			&ast.SQLStmt{
+				AttachStmt: &ast.AttachStmt{
+					Attach: token.New(1, 1, 0, 6, token.KeywordAttach, "ATTACH"),
+					Expr: &ast.Expr{
+						LiteralValue: token.New(1, 8, 7, 8, token.Literal, "mySchema"),
+					},
+					As:         token.New(1, 17, 16, 2, token.KeywordAs, "AS"),
+					SchemaName: token.New(1, 20, 19, 9, token.Literal, "newSchema"),
+				},
+			},
+		},
 	}
 	for _, input := range inputs {
 		t.Run(input.Query[0:11], func(t *testing.T) {
@@ -165,7 +193,6 @@ func TestSingleStatementParse(t *testing.T) {
 						t1.Value() == t2.Value()
 				}),
 			}
-
 			t.Log(cmp.Diff(input.Stmt, stmt, opts...))
 			assert.True(cmp.Equal(input.Stmt, stmt, opts...))
 
@@ -173,4 +200,19 @@ func TestSingleStatementParse(t *testing.T) {
 			assert.False(ok, "expected only one statement")
 		})
 	}
+}
+
+func debugPrintTokenData(t1, t2 token.Token) {
+	fmt.Println(t1.Line())
+	fmt.Println(t2.Line())
+	fmt.Println(t1.Col())
+	fmt.Println(t2.Col())
+	fmt.Println(t1.Offset())
+	fmt.Println(t2.Offset())
+	fmt.Println(t1.Length())
+	fmt.Println(t2.Length())
+	fmt.Println(t1.Type())
+	fmt.Println(t2.Type())
+	fmt.Println(t1.Value())
+	fmt.Println(t2.Value())
 }
