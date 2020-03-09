@@ -181,6 +181,14 @@ func TestSingleStatementParse(t *testing.T) {
 				},
 			},
 		},
+		{
+			"VACUUM",
+			&ast.SQLStmt{
+				VacuumStmt: &ast.VacuumStmt{
+					Vacuum: token.New(1, 1, 0, 6, token.KeywordVacuum, "VACUUM"),
+				},
+			},
+		},
 	}
 	for _, input := range inputs {
 		t.Run(input.Query[0:11], func(t *testing.T) {
