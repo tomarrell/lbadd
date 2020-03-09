@@ -11,10 +11,12 @@ import (
 
 func TestSingleStatementParse(t *testing.T) {
 	inputs := []struct {
+		Name  string
 		Query string
 		Stmt  *ast.SQLStmt
 	}{
 		{
+			"alter rename table",
 			"ALTER TABLE users RENAME TO admins",
 			&ast.SQLStmt{
 				AlterTableStmt: &ast.AlterTableStmt{
@@ -28,6 +30,7 @@ func TestSingleStatementParse(t *testing.T) {
 			},
 		},
 		{
+			"alter rename column",
 			"ALTER TABLE users RENAME COLUMN name TO username",
 			&ast.SQLStmt{
 				AlterTableStmt: &ast.AlterTableStmt{
@@ -43,6 +46,7 @@ func TestSingleStatementParse(t *testing.T) {
 			},
 		},
 		{
+			"alter rename column implicit",
 			"ALTER TABLE users RENAME name TO username",
 			&ast.SQLStmt{
 				AlterTableStmt: &ast.AlterTableStmt{
@@ -57,6 +61,7 @@ func TestSingleStatementParse(t *testing.T) {
 			},
 		},
 		{
+			"alter add column with two constraints",
 			"ALTER TABLE users ADD COLUMN foo VARCHAR(15) CONSTRAINT pk PRIMARY KEY AUTOINCREMENT CONSTRAINT nn NOT NULL",
 			&ast.SQLStmt{
 				AlterTableStmt: &ast.AlterTableStmt{
@@ -97,6 +102,7 @@ func TestSingleStatementParse(t *testing.T) {
 			},
 		},
 		{
+			"alter add column implicit with two constraints",
 			"ALTER TABLE users ADD foo VARCHAR(15) CONSTRAINT pk PRIMARY KEY AUTOINCREMENT CONSTRAINT nn NOT NULL",
 			&ast.SQLStmt{
 				AlterTableStmt: &ast.AlterTableStmt{
@@ -136,6 +142,7 @@ func TestSingleStatementParse(t *testing.T) {
 			},
 		},
 		{
+			"attach database",
 			"ATTACH DATABASE myDb AS newDb",
 			&ast.SQLStmt{
 				AttachStmt: &ast.AttachStmt{
@@ -150,6 +157,7 @@ func TestSingleStatementParse(t *testing.T) {
 			},
 		},
 		{
+			"attach schema",
 			"ATTACH mySchema AS newSchema",
 			&ast.SQLStmt{
 				AttachStmt: &ast.AttachStmt{
@@ -163,6 +171,7 @@ func TestSingleStatementParse(t *testing.T) {
 			},
 		},
 		{
+			"detach database",
 			"DETACH DATABASE newDb",
 			&ast.SQLStmt{
 				DetachStmt: &ast.DetachStmt{
@@ -173,6 +182,7 @@ func TestSingleStatementParse(t *testing.T) {
 			},
 		},
 		{
+			"detach schema",
 			"DETACH newSchema",
 			&ast.SQLStmt{
 				DetachStmt: &ast.DetachStmt{
@@ -182,6 +192,7 @@ func TestSingleStatementParse(t *testing.T) {
 			},
 		},
 		{
+			"vacuum",
 			"VACUUM",
 			&ast.SQLStmt{
 				VacuumStmt: &ast.VacuumStmt{
@@ -191,7 +202,7 @@ func TestSingleStatementParse(t *testing.T) {
 		},
 	}
 	for _, input := range inputs {
-		t.Run(input.Query[0:11], func(t *testing.T) {
+		t.Run(input.Name, func(t *testing.T) {
 			assert := assert.New(t)
 
 			p := New(input.Query)
