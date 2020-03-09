@@ -780,7 +780,7 @@ func (p *simpleParser) parseAnalyzeStmt(r reporter) (stmt *ast.AnalyzeStmt) {
 	p.consumeToken()
 
 	// optionalLookahead is used again because, ANALYZE alone is a valid string
-	next, ok = p.optionalLookahead(r)
+	next, _ = p.optionalLookahead(r)
 	if next.Type() == token.EOF {
 		return
 	}
@@ -794,14 +794,14 @@ func (p *simpleParser) parseAnalyzeStmt(r reporter) (stmt *ast.AnalyzeStmt) {
 		return
 	}
 
-	period, ok := p.optionalLookahead(r)
+	period, _ := p.optionalLookahead(r)
 	if period.Type() == token.EOF {
 		return
 	}
 	stmt.Period = period
 	p.consumeToken()
 
-	next, ok = p.optionalLookahead(r)
+	next, _ = p.optionalLookahead(r)
 	if next.Type() == token.EOF {
 		return
 	}
