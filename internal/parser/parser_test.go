@@ -162,6 +162,25 @@ func TestSingleStatementParse(t *testing.T) {
 				},
 			},
 		},
+		{
+			"DETACH DATABASE newDb",
+			&ast.SQLStmt{
+				DetachStmt: &ast.DetachStmt{
+					Detach:     token.New(1, 1, 0, 6, token.KeywordDetach, "DETACH"),
+					Database:   token.New(1, 8, 7, 8, token.KeywordDatabase, "DATABASE"),
+					SchemaName: token.New(1, 17, 16, 5, token.Literal, "newDb"),
+				},
+			},
+		},
+		{
+			"DETACH newSchema",
+			&ast.SQLStmt{
+				DetachStmt: &ast.DetachStmt{
+					Detach:     token.New(1, 1, 0, 6, token.KeywordDetach, "DETACH"),
+					SchemaName: token.New(1, 8, 7, 9, token.Literal, "newSchema"),
+				},
+			},
+		},
 	}
 	for _, input := range inputs {
 		t.Run(input.Query[0:11], func(t *testing.T) {

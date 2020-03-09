@@ -44,6 +44,8 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 		stmt.AlterTableStmt = p.parseAlterTableStmt(r)
 	case token.KeywordAttach:
 		stmt.AttachStmt = p.parseAttachDatabaseStmt(r)
+	case token.KeywordDetach:
+		stmt.DetachStmt = p.parseDetachDatabaseStmt(r)
 	case token.StatementSeparator:
 		r.incompleteStatement()
 		p.consumeToken()
@@ -662,6 +664,41 @@ func (p *simpleParser) parseAttachDatabaseStmt(r reporter) (stmt *ast.AttachStmt
 	} else {
 		r.unexpectedToken(token.KeywordAs)
 		return
+	}
+
+	schemaName, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if schemaName.Type() != token.Literal {
+		r.unexpectedToken(token.Literal)
+		return
+	}
+	stmt.SchemaName = schemaName
+	p.consumeToken()
+	return
+}
+
+// parseDetachDatabaseStmt parses statements of the form :
+// DETACH DATABASE schema-name
+func (p *simpleParser) parseDetachDatabaseStmt(r reporter) (stmt *ast.DetachStmt) {
+	stmt = &ast.DetachStmt{}
+	p.searchNext(r, token.KeywordDetach)
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	stmt.Detach = next
+	p.consumeToken()
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+
+	if next.Type() == token.KeywordDatabase {
+		stmt.Database = next
+		p.consumeToken()
 	}
 
 	schemaName, ok := p.lookahead(r)
