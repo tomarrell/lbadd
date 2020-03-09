@@ -48,6 +48,8 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 		stmt.DetachStmt = p.parseDetachDatabaseStmt(r)
 	case token.KeywordVacuum:
 		stmt.VacuumStmt = p.parseVacuumStmt(r)
+	case token.KeywordAnalyze:
+		stmt.AnalyzeStmt = p.parseAnalyzeStmt(r)
 	case token.StatementSeparator:
 		r.incompleteStatement()
 		p.consumeToken()
@@ -762,5 +764,48 @@ func (p *simpleParser) parseVacuumStmt(r reporter) (stmt *ast.VacuumStmt) {
 		stmt.Filename = fileName
 		p.consumeToken()
 	}
+	return
+}
+
+// parseAnalyzeStmt parses the statments as defined in the spec:
+// https://sqlite.org/lang_analyze.html
+func (p *simpleParser) parseAnalyzeStmt(r reporter) (stmt *ast.AnalyzeStmt) {
+	stmt = &ast.AnalyzeStmt{}
+	p.searchNext(r, token.KeywordAnalyze)
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	stmt.Analyze = next
+	p.consumeToken()
+
+	// optionalLookahead is used again because, ANALYZE alone is a valid string
+	next, ok = p.optionalLookahead(r)
+	if next.Type() == token.EOF {
+		return
+	}
+
+	if next.Type() == token.Literal {
+		stmt.SchemaName = next
+		stmt.TableOrIndexName = next
+		p.consumeToken()
+	} else {
+		r.unexpectedToken(token.Literal)
+		return
+	}
+
+	period, ok := p.optionalLookahead(r)
+	if period.Type() == token.EOF {
+		return
+	}
+	stmt.Period = period
+	p.consumeToken()
+
+	next, ok = p.optionalLookahead(r)
+	if next.Type() == token.EOF {
+		return
+	}
+	stmt.TableOrIndexName = next
+	p.consumeToken()
 	return
 }
