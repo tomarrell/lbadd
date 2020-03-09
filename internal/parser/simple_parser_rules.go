@@ -681,6 +681,7 @@ func (p *simpleParser) parseAttachDatabaseStmt(r reporter) (stmt *ast.AttachStmt
 
 // parseDetachDatabaseStmt parses statements of the form :
 // DETACH DATABASE schema-name
+// DETACH schema-name
 func (p *simpleParser) parseDetachDatabaseStmt(r reporter) (stmt *ast.DetachStmt) {
 	stmt = &ast.DetachStmt{}
 	p.searchNext(r, token.KeywordDetach)
