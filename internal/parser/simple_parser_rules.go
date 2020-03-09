@@ -728,7 +728,12 @@ func (p *simpleParser) parseVacuumStmt(r reporter) (stmt *ast.VacuumStmt) {
 	stmt.Vacuum = next
 	p.consumeToken()
 
-	next, ok = p.lookahead(r)
+	// optionalLookahead is used because, the lookahead function
+	// always looks for the next "real" token and not EOF.
+	// Since Just "VACUUM" is a valid statement, we have to accept
+	// the fact that there can be no tokens after the first keyword.
+	// Same logic is applied for the next INTO keyword check too.
+	next, ok = p.optionalLookahead(r)
 	if !ok {
 		return
 	}
@@ -738,7 +743,7 @@ func (p *simpleParser) parseVacuumStmt(r reporter) (stmt *ast.VacuumStmt) {
 		p.consumeToken()
 	}
 
-	next, ok = p.lookahead(r)
+	next, ok = p.optionalLookahead(r)
 	if !ok {
 		return
 	}

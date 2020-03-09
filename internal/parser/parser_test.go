@@ -171,7 +171,7 @@ func TestSingleStatementParse(t *testing.T) {
 			},
 		},
 		{
-			"detach database",
+			"DETACH with DATABASE",
 			"DETACH DATABASE newDb",
 			&ast.SQLStmt{
 				DetachStmt: &ast.DetachStmt{
@@ -182,7 +182,7 @@ func TestSingleStatementParse(t *testing.T) {
 			},
 		},
 		{
-			"detach schema",
+			"DETACH without DATABASE",
 			"DETACH newSchema",
 			&ast.SQLStmt{
 				DetachStmt: &ast.DetachStmt{
@@ -197,6 +197,39 @@ func TestSingleStatementParse(t *testing.T) {
 			&ast.SQLStmt{
 				VacuumStmt: &ast.VacuumStmt{
 					Vacuum: token.New(1, 1, 0, 6, token.KeywordVacuum, "VACUUM"),
+				},
+			},
+		},
+		{
+			"VACUUM with schema-name",
+			"VACUUM mySchema",
+			&ast.SQLStmt{
+				VacuumStmt: &ast.VacuumStmt{
+					Vacuum:     token.New(1, 1, 0, 6, token.KeywordVacuum, "VACUUM"),
+					SchemaName: token.New(1, 8, 7, 8, token.Literal, "mySchema"),
+				},
+			},
+		},
+		{
+			"VACUUM with INTO",
+			"VACUUM INTO newFile",
+			&ast.SQLStmt{
+				VacuumStmt: &ast.VacuumStmt{
+					Vacuum:   token.New(1, 1, 0, 6, token.KeywordVacuum, "VACUUM"),
+					Into:     token.New(1, 8, 7, 4, token.KeywordInto, "INTO"),
+					Filename: token.New(1, 13, 12, 7, token.Literal, "newFile"),
+				},
+			},
+		},
+		{
+			"VACUUM with schema-name and INTO",
+			"VACUUM mySchema INTO newFile",
+			&ast.SQLStmt{
+				VacuumStmt: &ast.VacuumStmt{
+					Vacuum:     token.New(1, 1, 0, 6, token.KeywordVacuum, "VACUUM"),
+					SchemaName: token.New(1, 8, 7, 8, token.Literal, "mySchema"),
+					Into:       token.New(1, 17, 16, 4, token.KeywordInto, "INTO"),
+					Filename:   token.New(1, 22, 21, 7, token.Literal, "newFile"),
 				},
 			},
 		},
