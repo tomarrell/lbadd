@@ -404,29 +404,29 @@ func TestSingleStatementParse(t *testing.T) {
 				},
 			},
 		},
-		// {
-		// 	"ROLLBACK with TRANSACTION and TO",
-		// 	"ROLLBACK TRANSACTION TO mySavePoint",
-		// 	&ast.SQLStmt{
-		// 		RollbackStmt: &ast.RollbackStmt{
-		// 			Rollback:      token.New(1, 1, 0, 8, token.KeywordRollback, "ROLLBACK"),
-		// 			Transaction:   token.New(1, 10, 9, 11, token.KeywordTransaction, "TRANSACTION"),
-		// 			To:            token.New(1, 22, 21, 2, token.KeywordTo, "TO"),
-		// 			SavepointName: token.New(1, 25, 24, 11, token.Literal, "mySavePoint"),
-		// 		},
-		// 	},
-		// },
-		// {
-		// 	"ROLLBACK with TO",
-		// 	"ROLLBACK TO mySavePoint",
-		// 	&ast.SQLStmt{
-		// 		RollbackStmt: &ast.RollbackStmt{
-		// 			Rollback:      token.New(1, 1, 0, 8, token.KeywordRollback, "ROLLBACK"),
-		// 			To:            token.New(1, 10, 9, 2, token.KeywordTo, "TO"),
-		// 			SavepointName: token.New(1, 13, 12, 11, token.Literal, "mySavePoint"),
-		// 		},
-		// 	},
-		// },
+		{
+			"ROLLBACK with TRANSACTION and TO",
+			"ROLLBACK TRANSACTION TO mySavePoint",
+			&ast.SQLStmt{
+				RollbackStmt: &ast.RollbackStmt{
+					Rollback:      token.New(1, 1, 0, 8, token.KeywordRollback, "ROLLBACK"),
+					Transaction:   token.New(1, 10, 9, 11, token.KeywordTransaction, "TRANSACTION"),
+					To:            token.New(1, 22, 21, 2, token.KeywordTo, "TO"),
+					SavepointName: token.New(1, 25, 24, 11, token.Literal, "mySavePoint"),
+				},
+			},
+		},
+		{
+			"ROLLBACK with TO",
+			"ROLLBACK TO mySavePoint",
+			&ast.SQLStmt{
+				RollbackStmt: &ast.RollbackStmt{
+					Rollback:      token.New(1, 1, 0, 8, token.KeywordRollback, "ROLLBACK"),
+					To:            token.New(1, 10, 9, 2, token.KeywordTo, "TO"),
+					SavepointName: token.New(1, 13, 12, 11, token.Literal, "mySavePoint"),
+				},
+			},
+		},
 	}
 	for _, input := range inputs {
 		t.Run(input.Name, func(t *testing.T) {

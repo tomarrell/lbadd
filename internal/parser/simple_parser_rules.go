@@ -917,7 +917,7 @@ func (p *simpleParser) parseRollbackStmt(r reporter) (stmt *ast.RollbackStmt) {
 	// if the keyword TRANSACTION exists in the statement, we need to
 	// check whether TO also exists. Out of TRANSACTION and TO, each not
 	// existing and existing, we have the following logic
-	next, ok = p.lookahead(r)
+	next, ok = p.optionalLookahead(r)
 	if !ok || next.Type() == token.EOF {
 		return
 	}
