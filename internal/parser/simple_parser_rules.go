@@ -30,7 +30,7 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 	}
 
 	// according to the grammar, these are the tokens that initiate a statement
-	p.searchNext(r, token.StatementSeparator, token.EOF, token.KeywordAlter, token.KeywordAnalyze, token.KeywordAttach, token.KeywordBegin, token.KeywordCommit, token.KeywordCreate, token.KeywordDelete, token.KeywordDetach, token.KeywordDrop, token.KeywordInsert, token.KeywordPragma, token.KeywordReindex, token.KeywordRelease, token.KeywordRollback, token.KeywordSavepoint, token.KeywordSelect, token.KeywordUpdate, token.KeywordVacuum)
+	p.searchNext(r, token.StatementSeparator, token.EOF, token.KeywordAlter, token.KeywordAnalyze, token.KeywordAttach, token.KeywordBegin, token.KeywordCommit, token.KeywordCreate, token.KeywordDelete, token.KeywordDetach, token.KeywordDrop, token.KeywordEnd, token.KeywordInsert, token.KeywordPragma, token.KeywordReindex, token.KeywordRelease, token.KeywordRollback, token.KeywordSavepoint, token.KeywordSelect, token.KeywordUpdate, token.KeywordVacuum)
 
 	next, ok := p.unsafeLowLevelLookahead()
 	if !ok {
@@ -42,20 +42,22 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 	switch next.Type() {
 	case token.KeywordAlter:
 		stmt.AlterTableStmt = p.parseAlterTableStmt(r)
-	case token.KeywordAttach:
-		stmt.AttachStmt = p.parseAttachDatabaseStmt(r)
-	case token.KeywordDetach:
-		stmt.DetachStmt = p.parseDetachDatabaseStmt(r)
-	case token.KeywordVacuum:
-		stmt.VacuumStmt = p.parseVacuumStmt(r)
 	case token.KeywordAnalyze:
 		stmt.AnalyzeStmt = p.parseAnalyzeStmt(r)
+	case token.KeywordAttach:
+		stmt.AttachStmt = p.parseAttachDatabaseStmt(r)
 	case token.KeywordBegin:
 		stmt.BeginStmt = p.parseBeginStmt(r)
 	case token.KeywordCommit:
 		stmt.CommitStmt = p.parseCommitStmt(r)
+	case token.KeywordDetach:
+		stmt.DetachStmt = p.parseDetachDatabaseStmt(r)
+	case token.KeywordEnd:
+		stmt.CommitStmt = p.parseCommitStmt(r)
 	case token.KeywordRollback:
 		stmt.RollbackStmt = p.parseRollbackStmt(r)
+	case token.KeywordVacuum:
+		stmt.VacuumStmt = p.parseVacuumStmt(r)
 	case token.StatementSeparator:
 		r.incompleteStatement()
 		p.consumeToken()
@@ -915,7 +917,7 @@ func (p *simpleParser) parseRollbackStmt(r reporter) (stmt *ast.RollbackStmt) {
 	// if the keyword TRANSACTION exists in the statement, we need to
 	// check whether TO also exists. Out of TRANSACTION and TO, each not
 	// existing and existing, we have the following logic
-	next, ok = p.optionalLookahead(r)
+	next, ok = p.lookahead(r)
 	if !ok || next.Type() == token.EOF {
 		return
 	}
