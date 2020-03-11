@@ -942,6 +942,6 @@ func (p *simpleParser) parseRollbackStmt(r reporter) (stmt *ast.RollbackStmt) {
 	if next.Type() == token.Literal {
 		stmt.SavepointName = next
 	}
-
+	p.consumeToken()
 	return
 }
