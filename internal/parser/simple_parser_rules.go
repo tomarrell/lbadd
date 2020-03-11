@@ -50,6 +50,12 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 		stmt.VacuumStmt = p.parseVacuumStmt(r)
 	case token.KeywordAnalyze:
 		stmt.AnalyzeStmt = p.parseAnalyzeStmt(r)
+	case token.KeywordBegin:
+		stmt.BeginStmt = p.parseBeginStmt(r)
+	case token.KeywordCommit:
+		stmt.CommitStmt = p.parseCommitStmt(r)
+	case token.KeywordRollback:
+		stmt.RollbackStmt = p.parseRollbackStmt(r)
 	case token.StatementSeparator:
 		r.incompleteStatement()
 		p.consumeToken()
@@ -781,11 +787,11 @@ func (p *simpleParser) parseAnalyzeStmt(r reporter) (stmt *ast.AnalyzeStmt) {
 
 	// optionalLookahead is used, because ANALYZE alone is a valid statement
 	next, ok = p.optionalLookahead(r)
-	if next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF {
 		return
 	}
 
-	if !ok || next.Type() == token.Literal {
+	if next.Type() == token.Literal {
 		stmt.SchemaName = next
 		stmt.TableOrIndexName = next
 		p.consumeToken()
@@ -807,5 +813,133 @@ func (p *simpleParser) parseAnalyzeStmt(r reporter) (stmt *ast.AnalyzeStmt) {
 	}
 	stmt.TableOrIndexName = next
 	p.consumeToken()
+	return
+}
+
+// parseBeginStmt parses the statements as defined in the spec:
+// https://sqlite.org/lang_transaction.html
+func (p *simpleParser) parseBeginStmt(r reporter) (stmt *ast.BeginStmt) {
+	stmt = &ast.BeginStmt{}
+	p.searchNext(r, token.KeywordBegin)
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	stmt.Begin = next
+	p.consumeToken()
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF {
+		return
+	}
+
+	if next.Type() == token.KeywordDeferred {
+		stmt.Deferred = next
+		p.consumeToken()
+	} else if next.Type() == token.KeywordImmediate {
+		stmt.Immediate = next
+		p.consumeToken()
+	} else if next.Type() == token.KeywordExclusive {
+		stmt.Exclusive = next
+		p.consumeToken()
+	}
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF {
+		return
+	}
+
+	if next.Type() == token.KeywordTransaction {
+		stmt.Transaction = next
+		p.consumeToken()
+	}
+
+	return
+}
+
+// parseCommitStmt parses the statements as defined in the spec:
+// https://sqlite.org/lang_transaction.html
+func (p *simpleParser) parseCommitStmt(r reporter) (stmt *ast.CommitStmt) {
+	stmt = &ast.CommitStmt{}
+	p.searchNext(r, token.KeywordCommit, token.KeywordEnd)
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+
+	if next.Type() == token.KeywordCommit {
+		stmt.Commit = next
+	} else if next.Type() == token.KeywordEnd {
+		stmt.End = next
+	}
+	p.consumeToken()
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF {
+		return
+	}
+
+	if next.Type() == token.KeywordTransaction {
+		stmt.Transaction = next
+		p.consumeToken()
+	}
+
+	return
+}
+
+// parseRollbackStmt parses the statements as defined in the spec:
+// https://sqlite.org/lang_transaction.html
+// In this function, there are a lot of cases where a KEYWORD may or may not
+// exist. We have the liberty to use "optionalLookahead" multiple times as,
+// it gives the older token unless its consumed.
+func (p *simpleParser) parseRollbackStmt(r reporter) (stmt *ast.RollbackStmt) {
+	stmt = &ast.RollbackStmt{}
+	p.searchNext(r, token.KeywordRollback)
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	stmt.Rollback = next
+	p.consumeToken()
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF {
+		return
+	}
+
+	if next.Type() == token.KeywordTransaction {
+		stmt.Transaction = next
+		p.consumeToken()
+	}
+
+	// if the keyword TRANSACTION exists in the statement, we need to
+	// check whether TO also exists. Out of TRANSACTION and TO, each not
+	// existing and existing, we have the following logic
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF {
+		return
+	}
+	if next.Type() == token.KeywordTo {
+		stmt.To = next
+		p.consumeToken()
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordSavepoint {
+		stmt.Savepoint = next
+		p.consumeToken()
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.Literal {
+		stmt.SavepointName = next
+	}
+
 	return
 }
