@@ -658,7 +658,6 @@ func (p *simpleParser) parseAttachDatabaseStmt(r reporter) (stmt *ast.AttachStmt
 	if !ok {
 		return
 	}
-
 	if next.Type() == token.KeywordDatabase {
 		stmt.Database = next
 		p.consumeToken()
@@ -669,7 +668,6 @@ func (p *simpleParser) parseAttachDatabaseStmt(r reporter) (stmt *ast.AttachStmt
 	if !ok {
 		return
 	}
-
 	if next.Type() == token.KeywordAs {
 		stmt.As = next
 		p.consumeToken()
@@ -707,7 +705,6 @@ func (p *simpleParser) parseDetachDatabaseStmt(r reporter) (stmt *ast.DetachStmt
 	if !ok {
 		return
 	}
-
 	if next.Type() == token.KeywordDatabase {
 		stmt.Database = next
 		p.consumeToken()
@@ -747,7 +744,6 @@ func (p *simpleParser) parseVacuumStmt(r reporter) (stmt *ast.VacuumStmt) {
 	if !ok {
 		return
 	}
-
 	if next.Type() == token.Literal {
 		stmt.SchemaName = next
 		p.consumeToken()
@@ -757,7 +753,6 @@ func (p *simpleParser) parseVacuumStmt(r reporter) (stmt *ast.VacuumStmt) {
 	if !ok {
 		return
 	}
-
 	if next.Type() == token.KeywordInto {
 		stmt.Into = next
 		p.consumeToken()
@@ -833,7 +828,6 @@ func (p *simpleParser) parseBeginStmt(r reporter) (stmt *ast.BeginStmt) {
 	if !ok || next.Type() == token.EOF {
 		return
 	}
-
 	if next.Type() == token.KeywordDeferred {
 		stmt.Deferred = next
 		p.consumeToken()
@@ -849,7 +843,6 @@ func (p *simpleParser) parseBeginStmt(r reporter) (stmt *ast.BeginStmt) {
 	if !ok || next.Type() == token.EOF {
 		return
 	}
-
 	if next.Type() == token.KeywordTransaction {
 		stmt.Transaction = next
 		p.consumeToken()
@@ -866,7 +859,6 @@ func (p *simpleParser) parseCommitStmt(r reporter) (stmt *ast.CommitStmt) {
 	if !ok {
 		return
 	}
-
 	if next.Type() == token.KeywordCommit {
 		stmt.Commit = next
 	} else if next.Type() == token.KeywordEnd {
@@ -878,7 +870,6 @@ func (p *simpleParser) parseCommitStmt(r reporter) (stmt *ast.CommitStmt) {
 	if !ok || next.Type() == token.EOF {
 		return
 	}
-
 	if next.Type() == token.KeywordTransaction {
 		stmt.Transaction = next
 		p.consumeToken()
@@ -902,7 +893,6 @@ func (p *simpleParser) parseRollbackStmt(r reporter) (stmt *ast.RollbackStmt) {
 	if !ok || next.Type() == token.EOF {
 		return
 	}
-
 	if next.Type() == token.KeywordTransaction {
 		stmt.Transaction = next
 		p.consumeToken()
