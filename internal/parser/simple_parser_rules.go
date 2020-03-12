@@ -642,7 +642,7 @@ func (p *simpleParser) parseExpression(r reporter) (expr *ast.Expr) {
 	return
 }
 
-// parseAttachDatabaseStmt parses statments as defined in the spec:
+// parseAttachDatabaseStmt parses a single ATTACH statement as defined in the spec:
 // https://sqlite.org/lang_attach.html
 func (p *simpleParser) parseAttachDatabaseStmt(r reporter) (stmt *ast.AttachStmt) {
 	stmt = &ast.AttachStmt{}
@@ -691,7 +691,7 @@ func (p *simpleParser) parseAttachDatabaseStmt(r reporter) (stmt *ast.AttachStmt
 	return
 }
 
-// parseDetachDatabaseStmt parses statements as defined in spec:
+// parseDetachDatabaseStmt parses a single DETACH statement as defined in spec:
 // https://sqlite.org/lang_detach.html
 func (p *simpleParser) parseDetachDatabaseStmt(r reporter) (stmt *ast.DetachStmt) {
 	stmt = &ast.DetachStmt{}
@@ -726,7 +726,7 @@ func (p *simpleParser) parseDetachDatabaseStmt(r reporter) (stmt *ast.DetachStmt
 	return
 }
 
-// parseVacuumStmt parses the staments as defined in the spec:
+// parseVacuumStmt parses a single VACUUM statement as defined in the spec:
 // https://sqlite.org/lang_vacuum.html
 func (p *simpleParser) parseVacuumStmt(r reporter) (stmt *ast.VacuumStmt) {
 	stmt = &ast.VacuumStmt{}
@@ -775,7 +775,7 @@ func (p *simpleParser) parseVacuumStmt(r reporter) (stmt *ast.VacuumStmt) {
 	return
 }
 
-// parseAnalyzeStmt parses the statments as defined in the spec:
+// parseAnalyzeStmt parses a single ANALYZE statement as defined in the spec:
 // https://sqlite.org/lang_analyze.html
 func (p *simpleParser) parseAnalyzeStmt(r reporter) (stmt *ast.AnalyzeStmt) {
 	stmt = &ast.AnalyzeStmt{}
@@ -792,7 +792,6 @@ func (p *simpleParser) parseAnalyzeStmt(r reporter) (stmt *ast.AnalyzeStmt) {
 	if !ok || next.Type() == token.EOF {
 		return
 	}
-
 	if next.Type() == token.Literal {
 		stmt.SchemaName = next
 		stmt.TableOrIndexName = next
@@ -818,7 +817,7 @@ func (p *simpleParser) parseAnalyzeStmt(r reporter) (stmt *ast.AnalyzeStmt) {
 	return
 }
 
-// parseBeginStmt parses the statements as defined in the spec:
+// parseBeginStmt parses a single BEGIN statement as defined in the spec:
 // https://sqlite.org/lang_transaction.html
 func (p *simpleParser) parseBeginStmt(r reporter) (stmt *ast.BeginStmt) {
 	stmt = &ast.BeginStmt{}
@@ -855,11 +854,10 @@ func (p *simpleParser) parseBeginStmt(r reporter) (stmt *ast.BeginStmt) {
 		stmt.Transaction = next
 		p.consumeToken()
 	}
-
 	return
 }
 
-// parseCommitStmt parses the statements as defined in the spec:
+// parseCommitStmt parses a single COMMIT statement as defined in the spec:
 // https://sqlite.org/lang_transaction.html
 func (p *simpleParser) parseCommitStmt(r reporter) (stmt *ast.CommitStmt) {
 	stmt = &ast.CommitStmt{}
@@ -885,15 +883,11 @@ func (p *simpleParser) parseCommitStmt(r reporter) (stmt *ast.CommitStmt) {
 		stmt.Transaction = next
 		p.consumeToken()
 	}
-
 	return
 }
 
-// parseRollbackStmt parses the statements as defined in the spec:
+// parseRollbackStmt parses a single ROLLBACK statement as defined in the spec:
 // https://sqlite.org/lang_transaction.html
-// In this function, there are a lot of cases where a KEYWORD may or may not
-// exist. We have the liberty to use "optionalLookahead" multiple times as,
-// it gives the older token unless its consumed.
 func (p *simpleParser) parseRollbackStmt(r reporter) (stmt *ast.RollbackStmt) {
 	stmt = &ast.RollbackStmt{}
 	p.searchNext(r, token.KeywordRollback)
@@ -914,9 +908,9 @@ func (p *simpleParser) parseRollbackStmt(r reporter) (stmt *ast.RollbackStmt) {
 		p.consumeToken()
 	}
 
-	// if the keyword TRANSACTION exists in the statement, we need to
+	// If the keyword TRANSACTION exists in the statement, we need to
 	// check whether TO also exists. Out of TRANSACTION and TO, each not
-	// existing and existing, we have the following logic
+	// existing and existing, we have the following logic.
 	next, ok = p.optionalLookahead(r)
 	if !ok || next.Type() == token.EOF {
 		return
