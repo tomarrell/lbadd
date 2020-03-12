@@ -265,6 +265,193 @@ func TestSingleStatementParse(t *testing.T) {
 				},
 			},
 		},
+		{
+			"begin",
+			"BEGIN",
+			&ast.SQLStmt{
+				BeginStmt: &ast.BeginStmt{
+					Begin: token.New(1, 1, 0, 5, token.KeywordBegin, "BEGIN"),
+				},
+			},
+		},
+		{
+			"BEGIN with DEFERRED",
+			"BEGIN DEFERRED",
+			&ast.SQLStmt{
+				BeginStmt: &ast.BeginStmt{
+					Begin:    token.New(1, 1, 0, 5, token.KeywordBegin, "BEGIN"),
+					Deferred: token.New(1, 7, 6, 8, token.KeywordDeferred, "DEFERRED"),
+				},
+			},
+		},
+		{
+			"BEGIN with IMMEDIATE",
+			"BEGIN IMMEDIATE",
+			&ast.SQLStmt{
+				BeginStmt: &ast.BeginStmt{
+					Begin:     token.New(1, 1, 0, 5, token.KeywordBegin, "BEGIN"),
+					Immediate: token.New(1, 7, 6, 9, token.KeywordImmediate, "IMMEDIATE"),
+				},
+			},
+		},
+		{
+			"BEGIN with EXCLUSIVE",
+			"BEGIN EXCLUSIVE",
+			&ast.SQLStmt{
+				BeginStmt: &ast.BeginStmt{
+					Begin:     token.New(1, 1, 0, 5, token.KeywordBegin, "BEGIN"),
+					Exclusive: token.New(1, 7, 6, 9, token.KeywordExclusive, "EXCLUSIVE"),
+				},
+			},
+		},
+		{
+			"BEGIN with TRANSACTION",
+			"BEGIN TRANSACTION",
+			&ast.SQLStmt{
+				BeginStmt: &ast.BeginStmt{
+					Begin:       token.New(1, 1, 0, 5, token.KeywordBegin, "BEGIN"),
+					Transaction: token.New(1, 7, 6, 11, token.KeywordTransaction, "TRANSACTION"),
+				},
+			},
+		},
+		{
+			"BEGIN with DEFERRED and TRANSACTION",
+			"BEGIN DEFERRED TRANSACTION",
+			&ast.SQLStmt{
+				BeginStmt: &ast.BeginStmt{
+					Begin:       token.New(1, 1, 0, 5, token.KeywordBegin, "BEGIN"),
+					Deferred:    token.New(1, 7, 6, 8, token.KeywordDeferred, "DEFERRED"),
+					Transaction: token.New(1, 16, 15, 11, token.KeywordTransaction, "TRANSACTION"),
+				},
+			},
+		},
+		{
+			"BEGIN with IMMEDIATE and TRANSACTION",
+			"BEGIN IMMEDIATE TRANSACTION",
+			&ast.SQLStmt{
+				BeginStmt: &ast.BeginStmt{
+					Begin:       token.New(1, 1, 0, 5, token.KeywordBegin, "BEGIN"),
+					Immediate:   token.New(1, 7, 6, 9, token.KeywordImmediate, "IMMEDIATE"),
+					Transaction: token.New(1, 17, 16, 11, token.KeywordTransaction, "TRANSACTION"),
+				},
+			},
+		},
+		{
+			"BEGIN with EXCLUSIVE and TRANSACTION",
+			"BEGIN EXCLUSIVE TRANSACTION",
+			&ast.SQLStmt{
+				BeginStmt: &ast.BeginStmt{
+					Begin:       token.New(1, 1, 0, 5, token.KeywordBegin, "BEGIN"),
+					Exclusive:   token.New(1, 7, 6, 9, token.KeywordExclusive, "EXCLUSIVE"),
+					Transaction: token.New(1, 17, 16, 11, token.KeywordTransaction, "TRANSACTION"),
+				},
+			},
+		},
+		{
+			"commit",
+			"COMMIT",
+			&ast.SQLStmt{
+				CommitStmt: &ast.CommitStmt{
+					Commit: token.New(1, 1, 0, 6, token.KeywordCommit, "COMMIT"),
+				},
+			},
+		},
+		{
+			"end",
+			"END",
+			&ast.SQLStmt{
+				CommitStmt: &ast.CommitStmt{
+					End: token.New(1, 1, 0, 3, token.KeywordEnd, "END"),
+				},
+			},
+		},
+		{
+			"COMMIT with TRANSACTION",
+			"COMMIT TRANSACTION",
+			&ast.SQLStmt{
+				CommitStmt: &ast.CommitStmt{
+					Commit:      token.New(1, 1, 0, 6, token.KeywordCommit, "COMMIT"),
+					Transaction: token.New(1, 8, 7, 11, token.KeywordTransaction, "TRANSACTION"),
+				},
+			},
+		},
+		{
+			"END with TRANSACTION",
+			"END TRANSACTION",
+			&ast.SQLStmt{
+				CommitStmt: &ast.CommitStmt{
+					End:         token.New(1, 1, 0, 3, token.KeywordEnd, "END"),
+					Transaction: token.New(1, 5, 4, 11, token.KeywordTransaction, "TRANSACTION"),
+				},
+			},
+		},
+		{
+			"rollback",
+			"ROLLBACK",
+			&ast.SQLStmt{
+				RollbackStmt: &ast.RollbackStmt{
+					Rollback: token.New(1, 1, 0, 8, token.KeywordRollback, "ROLLBACK"),
+				},
+			},
+		},
+		{
+			"ROLLBACK with TRANSACTION",
+			"ROLLBACK TRANSACTION",
+			&ast.SQLStmt{
+				RollbackStmt: &ast.RollbackStmt{
+					Rollback:    token.New(1, 1, 0, 8, token.KeywordRollback, "ROLLBACK"),
+					Transaction: token.New(1, 10, 9, 11, token.KeywordTransaction, "TRANSACTION"),
+				},
+			},
+		},
+		{
+			"ROLLBACK with TRANSACTION and TO",
+			"ROLLBACK TRANSACTION TO mySavePoint",
+			&ast.SQLStmt{
+				RollbackStmt: &ast.RollbackStmt{
+					Rollback:      token.New(1, 1, 0, 8, token.KeywordRollback, "ROLLBACK"),
+					Transaction:   token.New(1, 10, 9, 11, token.KeywordTransaction, "TRANSACTION"),
+					To:            token.New(1, 22, 21, 2, token.KeywordTo, "TO"),
+					SavepointName: token.New(1, 25, 24, 11, token.Literal, "mySavePoint"),
+				},
+			},
+		},
+		{
+			"ROLLBACK with TRANSACTION, TO and SAVEPOINT",
+			"ROLLBACK TRANSACTION TO SAVEPOINT mySavePoint",
+			&ast.SQLStmt{
+				RollbackStmt: &ast.RollbackStmt{
+					Rollback:      token.New(1, 1, 0, 8, token.KeywordRollback, "ROLLBACK"),
+					Transaction:   token.New(1, 10, 9, 11, token.KeywordTransaction, "TRANSACTION"),
+					To:            token.New(1, 22, 21, 2, token.KeywordTo, "TO"),
+					Savepoint:     token.New(1, 25, 24, 9, token.KeywordSavepoint, "SAVEPOINT"),
+					SavepointName: token.New(1, 35, 34, 11, token.Literal, "mySavePoint"),
+				},
+			},
+		},
+		{
+			"ROLLBACK with TO",
+			"ROLLBACK TO mySavePoint",
+			&ast.SQLStmt{
+				RollbackStmt: &ast.RollbackStmt{
+					Rollback:      token.New(1, 1, 0, 8, token.KeywordRollback, "ROLLBACK"),
+					To:            token.New(1, 10, 9, 2, token.KeywordTo, "TO"),
+					SavepointName: token.New(1, 13, 12, 11, token.Literal, "mySavePoint"),
+				},
+			},
+		},
+		{
+			"ROLLBACK with TO and SAVEPOINT",
+			"ROLLBACK TO SAVEPOINT mySavePoint",
+			&ast.SQLStmt{
+				RollbackStmt: &ast.RollbackStmt{
+					Rollback:      token.New(1, 1, 0, 8, token.KeywordRollback, "ROLLBACK"),
+					To:            token.New(1, 10, 9, 2, token.KeywordTo, "TO"),
+					Savepoint:     token.New(1, 13, 12, 9, token.KeywordSavepoint, "SAVEPOINT"),
+					SavepointName: token.New(1, 23, 22, 11, token.Literal, "mySavePoint"),
+				},
+			},
+		},
 	}
 	for _, input := range inputs {
 		t.Run(input.Name, func(t *testing.T) {

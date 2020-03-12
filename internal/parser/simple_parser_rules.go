@@ -30,7 +30,7 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 	}
 
 	// according to the grammar, these are the tokens that initiate a statement
-	p.searchNext(r, token.StatementSeparator, token.EOF, token.KeywordAlter, token.KeywordAnalyze, token.KeywordAttach, token.KeywordBegin, token.KeywordCommit, token.KeywordCreate, token.KeywordDelete, token.KeywordDetach, token.KeywordDrop, token.KeywordInsert, token.KeywordPragma, token.KeywordReindex, token.KeywordRelease, token.KeywordRollback, token.KeywordSavepoint, token.KeywordSelect, token.KeywordUpdate, token.KeywordVacuum)
+	p.searchNext(r, token.StatementSeparator, token.EOF, token.KeywordAlter, token.KeywordAnalyze, token.KeywordAttach, token.KeywordBegin, token.KeywordCommit, token.KeywordCreate, token.KeywordDelete, token.KeywordDetach, token.KeywordDrop, token.KeywordEnd, token.KeywordInsert, token.KeywordPragma, token.KeywordReindex, token.KeywordRelease, token.KeywordRollback, token.KeywordSavepoint, token.KeywordSelect, token.KeywordUpdate, token.KeywordVacuum)
 
 	next, ok := p.unsafeLowLevelLookahead()
 	if !ok {
@@ -42,14 +42,22 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 	switch next.Type() {
 	case token.KeywordAlter:
 		stmt.AlterTableStmt = p.parseAlterTableStmt(r)
-	case token.KeywordAttach:
-		stmt.AttachStmt = p.parseAttachDatabaseStmt(r)
-	case token.KeywordDetach:
-		stmt.DetachStmt = p.parseDetachDatabaseStmt(r)
-	case token.KeywordVacuum:
-		stmt.VacuumStmt = p.parseVacuumStmt(r)
 	case token.KeywordAnalyze:
 		stmt.AnalyzeStmt = p.parseAnalyzeStmt(r)
+	case token.KeywordAttach:
+		stmt.AttachStmt = p.parseAttachDatabaseStmt(r)
+	case token.KeywordBegin:
+		stmt.BeginStmt = p.parseBeginStmt(r)
+	case token.KeywordCommit:
+		stmt.CommitStmt = p.parseCommitStmt(r)
+	case token.KeywordDetach:
+		stmt.DetachStmt = p.parseDetachDatabaseStmt(r)
+	case token.KeywordEnd:
+		stmt.CommitStmt = p.parseCommitStmt(r)
+	case token.KeywordRollback:
+		stmt.RollbackStmt = p.parseRollbackStmt(r)
+	case token.KeywordVacuum:
+		stmt.VacuumStmt = p.parseVacuumStmt(r)
 	case token.StatementSeparator:
 		r.incompleteStatement()
 		p.consumeToken()
@@ -634,7 +642,7 @@ func (p *simpleParser) parseExpression(r reporter) (expr *ast.Expr) {
 	return
 }
 
-// parseAttachDatabaseStmt parses statments as defined in the spec:
+// parseAttachDatabaseStmt parses a single ATTACH statement as defined in the spec:
 // https://sqlite.org/lang_attach.html
 func (p *simpleParser) parseAttachDatabaseStmt(r reporter) (stmt *ast.AttachStmt) {
 	stmt = &ast.AttachStmt{}
@@ -650,7 +658,6 @@ func (p *simpleParser) parseAttachDatabaseStmt(r reporter) (stmt *ast.AttachStmt
 	if !ok {
 		return
 	}
-
 	if next.Type() == token.KeywordDatabase {
 		stmt.Database = next
 		p.consumeToken()
@@ -661,7 +668,6 @@ func (p *simpleParser) parseAttachDatabaseStmt(r reporter) (stmt *ast.AttachStmt
 	if !ok {
 		return
 	}
-
 	if next.Type() == token.KeywordAs {
 		stmt.As = next
 		p.consumeToken()
@@ -683,7 +689,7 @@ func (p *simpleParser) parseAttachDatabaseStmt(r reporter) (stmt *ast.AttachStmt
 	return
 }
 
-// parseDetachDatabaseStmt parses statements as defined in spec:
+// parseDetachDatabaseStmt parses a single DETACH statement as defined in spec:
 // https://sqlite.org/lang_detach.html
 func (p *simpleParser) parseDetachDatabaseStmt(r reporter) (stmt *ast.DetachStmt) {
 	stmt = &ast.DetachStmt{}
@@ -699,7 +705,6 @@ func (p *simpleParser) parseDetachDatabaseStmt(r reporter) (stmt *ast.DetachStmt
 	if !ok {
 		return
 	}
-
 	if next.Type() == token.KeywordDatabase {
 		stmt.Database = next
 		p.consumeToken()
@@ -718,7 +723,7 @@ func (p *simpleParser) parseDetachDatabaseStmt(r reporter) (stmt *ast.DetachStmt
 	return
 }
 
-// parseVacuumStmt parses the staments as defined in the spec:
+// parseVacuumStmt parses a single VACUUM statement as defined in the spec:
 // https://sqlite.org/lang_vacuum.html
 func (p *simpleParser) parseVacuumStmt(r reporter) (stmt *ast.VacuumStmt) {
 	stmt = &ast.VacuumStmt{}
@@ -739,7 +744,6 @@ func (p *simpleParser) parseVacuumStmt(r reporter) (stmt *ast.VacuumStmt) {
 	if !ok {
 		return
 	}
-
 	if next.Type() == token.Literal {
 		stmt.SchemaName = next
 		p.consumeToken()
@@ -749,7 +753,6 @@ func (p *simpleParser) parseVacuumStmt(r reporter) (stmt *ast.VacuumStmt) {
 	if !ok {
 		return
 	}
-
 	if next.Type() == token.KeywordInto {
 		stmt.Into = next
 		p.consumeToken()
@@ -767,7 +770,7 @@ func (p *simpleParser) parseVacuumStmt(r reporter) (stmt *ast.VacuumStmt) {
 	return
 }
 
-// parseAnalyzeStmt parses the statments as defined in the spec:
+// parseAnalyzeStmt parses a single ANALYZE statement as defined in the spec:
 // https://sqlite.org/lang_analyze.html
 func (p *simpleParser) parseAnalyzeStmt(r reporter) (stmt *ast.AnalyzeStmt) {
 	stmt = &ast.AnalyzeStmt{}
@@ -781,11 +784,10 @@ func (p *simpleParser) parseAnalyzeStmt(r reporter) (stmt *ast.AnalyzeStmt) {
 
 	// optionalLookahead is used, because ANALYZE alone is a valid statement
 	next, ok = p.optionalLookahead(r)
-	if next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF {
 		return
 	}
-
-	if !ok || next.Type() == token.Literal {
+	if next.Type() == token.Literal {
 		stmt.SchemaName = next
 		stmt.TableOrIndexName = next
 		p.consumeToken()
@@ -806,6 +808,124 @@ func (p *simpleParser) parseAnalyzeStmt(r reporter) (stmt *ast.AnalyzeStmt) {
 		return
 	}
 	stmt.TableOrIndexName = next
+	p.consumeToken()
+	return
+}
+
+// parseBeginStmt parses a single BEGIN statement as defined in the spec:
+// https://sqlite.org/lang_transaction.html
+func (p *simpleParser) parseBeginStmt(r reporter) (stmt *ast.BeginStmt) {
+	stmt = &ast.BeginStmt{}
+	p.searchNext(r, token.KeywordBegin)
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	stmt.Begin = next
+	p.consumeToken()
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF {
+		return
+	}
+	if next.Type() == token.KeywordDeferred {
+		stmt.Deferred = next
+		p.consumeToken()
+	} else if next.Type() == token.KeywordImmediate {
+		stmt.Immediate = next
+		p.consumeToken()
+	} else if next.Type() == token.KeywordExclusive {
+		stmt.Exclusive = next
+		p.consumeToken()
+	}
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF {
+		return
+	}
+	if next.Type() == token.KeywordTransaction {
+		stmt.Transaction = next
+		p.consumeToken()
+	}
+	return
+}
+
+// parseCommitStmt parses a single COMMIT statement as defined in the spec:
+// https://sqlite.org/lang_transaction.html
+func (p *simpleParser) parseCommitStmt(r reporter) (stmt *ast.CommitStmt) {
+	stmt = &ast.CommitStmt{}
+	p.searchNext(r, token.KeywordCommit, token.KeywordEnd)
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordCommit {
+		stmt.Commit = next
+	} else if next.Type() == token.KeywordEnd {
+		stmt.End = next
+	}
+	p.consumeToken()
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF {
+		return
+	}
+	if next.Type() == token.KeywordTransaction {
+		stmt.Transaction = next
+		p.consumeToken()
+	}
+	return
+}
+
+// parseRollbackStmt parses a single ROLLBACK statement as defined in the spec:
+// https://sqlite.org/lang_transaction.html
+func (p *simpleParser) parseRollbackStmt(r reporter) (stmt *ast.RollbackStmt) {
+	stmt = &ast.RollbackStmt{}
+	p.searchNext(r, token.KeywordRollback)
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	stmt.Rollback = next
+	p.consumeToken()
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF {
+		return
+	}
+	if next.Type() == token.KeywordTransaction {
+		stmt.Transaction = next
+		p.consumeToken()
+	}
+
+	// If the keyword TRANSACTION exists in the statement, we need to
+	// check whether TO also exists. Out of TRANSACTION and TO, each not
+	// existing and existing, we have the following logic.
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF {
+		return
+	}
+	if next.Type() == token.KeywordTo {
+		stmt.To = next
+		p.consumeToken()
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordSavepoint {
+		stmt.Savepoint = next
+		p.consumeToken()
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.Literal {
+		stmt.SavepointName = next
+	}
 	p.consumeToken()
 	return
 }
