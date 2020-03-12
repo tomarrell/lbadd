@@ -50,6 +50,10 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 		stmt.BeginStmt = p.parseBeginStmt(r)
 	case token.KeywordCommit:
 		stmt.CommitStmt = p.parseCommitStmt(r)
+	case token.KeywordCreate:
+		// for now we can directly add create index as the parsing function
+		// later there must be an intermediate layer to take care of different CREATE functions
+		stmt.CreateIndexStmt = p.parseCreateIndexStmt(r)
 	case token.KeywordDetach:
 		stmt.DetachStmt = p.parseDetachDatabaseStmt(r)
 	case token.KeywordEnd:
@@ -927,5 +931,159 @@ func (p *simpleParser) parseRollbackStmt(r reporter) (stmt *ast.RollbackStmt) {
 		stmt.SavepointName = next
 	}
 	p.consumeToken()
+	return
+}
+
+// parseCreateIndexStmt parses a single CREATE INDEX statement as defined in the spec:
+// https://sqlite.org/lang_createindex.html
+func (p *simpleParser) parseCreateIndexStmt(r reporter) (stmt *ast.CreateIndexStmt) {
+	stmt = &ast.CreateIndexStmt{}
+	p.searchNext(r, token.KeywordCreate)
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	stmt.Create = next
+	p.consumeToken()
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordUnique {
+		stmt.Unique = next
+		p.consumeToken()
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordIndex {
+		stmt.Index = next
+		p.consumeToken()
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordIf {
+		stmt.If = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordNot {
+			stmt.Not = next
+			p.consumeToken()
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordExists {
+				stmt.Exists = next
+				p.consumeToken()
+			} else {
+				r.unexpectedToken(token.KeywordExists)
+			}
+		} else {
+			r.unexpectedToken(token.KeywordNot)
+		}
+	}
+
+	schemaNameOrIndexName, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if schemaNameOrIndexName.Type() == token.Literal {
+		// This is the case where there might not be a schemaName
+		// We assume that its the table name in the beginning and assign it
+		stmt.IndexName = schemaNameOrIndexName
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		// If we find the signs of there being a SchemaName,
+		// we over-write the previous value
+		if next.Value() == "." {
+			stmt.SchemaName = schemaNameOrIndexName
+			stmt.Period = next
+			p.consumeToken()
+			indexName, ok := p.lookahead(r)
+			if !ok {
+				return
+			}
+			stmt.IndexName = indexName
+			p.consumeToken()
+		}
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordOn {
+		stmt.On = next
+		p.consumeToken()
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.Literal {
+		stmt.TableName = next
+		p.consumeToken()
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Value() == "(" {
+		stmt.LeftParen = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		for next.Value() != ")" {
+			stmt.IndexedColumns = append(stmt.IndexedColumns, p.parseIndexedColumns(r))
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == "," {
+				p.consumeToken()
+			}
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+		}
+		if next.Value() == ")" {
+			stmt.RightParen = next
+			p.consumeToken()
+		}
+	}
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF {
+		return
+	}
+	if next.Type() == token.KeywordWhere {
+		stmt.Where = next
+		p.consumeToken()
+		stmt.Expr = p.parseExpression(r)
+	}
+	return
+}
+
+func (p *simpleParser) parseIndexedColumns(r reporter) (stmt *ast.IndexedColumn) {
+	stmt = &ast.IndexedColumn{}
+	stmt.Expr = p.parseExpression(r)
 	return
 }

@@ -452,6 +452,438 @@ func TestSingleStatementParse(t *testing.T) {
 				},
 			},
 		},
+		{
+			"create index",
+			"CREATE INDEX myIndex ON myTable (exprLiteral)",
+			&ast.SQLStmt{
+				CreateIndexStmt: &ast.CreateIndexStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Index:     token.New(1, 8, 7, 5, token.KeywordIndex, "INDEX"),
+					IndexName: token.New(1, 14, 13, 7, token.Literal, "myIndex"),
+					On:        token.New(1, 22, 21, 2, token.KeywordOn, "ON"),
+					TableName: token.New(1, 25, 24, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 33, 32, 1, token.Delimiter, "("),
+					IndexedColumns: []*ast.IndexedColumn{
+						&ast.IndexedColumn{
+							Expr: &ast.Expr{
+								LiteralValue: token.New(1, 34, 33, 11, token.Literal, "exprLiteral"),
+							},
+						},
+					},
+					RightParen: token.New(1, 45, 44, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			"CREATE INDEX with UNIQUE",
+			"CREATE UNIQUE INDEX myIndex ON myTable (exprLiteral)",
+			&ast.SQLStmt{
+				CreateIndexStmt: &ast.CreateIndexStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Unique:    token.New(1, 8, 7, 6, token.KeywordUnique, "UNIQUE"),
+					Index:     token.New(1, 15, 14, 5, token.KeywordIndex, "INDEX"),
+					IndexName: token.New(1, 21, 20, 7, token.Literal, "myIndex"),
+					On:        token.New(1, 29, 28, 2, token.KeywordOn, "ON"),
+					TableName: token.New(1, 32, 31, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 40, 39, 1, token.Delimiter, "("),
+					IndexedColumns: []*ast.IndexedColumn{
+						&ast.IndexedColumn{
+							Expr: &ast.Expr{
+								LiteralValue: token.New(1, 41, 40, 11, token.Literal, "exprLiteral"),
+							},
+						},
+					},
+					RightParen: token.New(1, 52, 51, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			"CREATE INDEX with IF NOT EXISTS",
+			"CREATE INDEX IF NOT EXISTS myIndex ON myTable (exprLiteral)",
+			&ast.SQLStmt{
+				CreateIndexStmt: &ast.CreateIndexStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Index:     token.New(1, 8, 7, 5, token.KeywordIndex, "INDEX"),
+					If:        token.New(1, 14, 13, 2, token.KeywordIf, "IF"),
+					Not:       token.New(1, 17, 16, 3, token.KeywordNot, "NOT"),
+					Exists:    token.New(1, 21, 20, 6, token.KeywordExists, "EXISTS"),
+					IndexName: token.New(1, 28, 27, 7, token.Literal, "myIndex"),
+					On:        token.New(1, 36, 35, 2, token.KeywordOn, "ON"),
+					TableName: token.New(1, 39, 38, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 47, 46, 1, token.Delimiter, "("),
+					IndexedColumns: []*ast.IndexedColumn{
+						&ast.IndexedColumn{
+							Expr: &ast.Expr{
+								LiteralValue: token.New(1, 48, 47, 11, token.Literal, "exprLiteral"),
+							},
+						},
+					},
+					RightParen: token.New(1, 59, 58, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			"CREATE INDEX with UNIQUE and IF NOT EXISTS",
+			"CREATE UNIQUE INDEX IF NOT EXISTS myIndex ON myTable (exprLiteral)",
+			&ast.SQLStmt{
+				CreateIndexStmt: &ast.CreateIndexStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Unique:    token.New(1, 8, 7, 6, token.KeywordUnique, "UNIQUE"),
+					Index:     token.New(1, 15, 14, 5, token.KeywordIndex, "INDEX"),
+					If:        token.New(1, 21, 20, 2, token.KeywordIf, "IF"),
+					Not:       token.New(1, 24, 23, 3, token.KeywordNot, "NOT"),
+					Exists:    token.New(1, 28, 27, 6, token.KeywordExists, "EXISTS"),
+					IndexName: token.New(1, 35, 34, 7, token.Literal, "myIndex"),
+					On:        token.New(1, 43, 42, 2, token.KeywordOn, "ON"),
+					TableName: token.New(1, 46, 45, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 54, 53, 1, token.Delimiter, "("),
+					IndexedColumns: []*ast.IndexedColumn{
+						&ast.IndexedColumn{
+							Expr: &ast.Expr{
+								LiteralValue: token.New(1, 55, 54, 11, token.Literal, "exprLiteral"),
+							},
+						},
+					},
+					RightParen: token.New(1, 66, 65, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			"create index with schema and index name",
+			"CREATE INDEX mySchema.myIndex ON myTable (exprLiteral)",
+			&ast.SQLStmt{
+				CreateIndexStmt: &ast.CreateIndexStmt{
+					Create:     token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Index:      token.New(1, 8, 7, 5, token.KeywordIndex, "INDEX"),
+					SchemaName: token.New(1, 14, 13, 8, token.Literal, "mySchema"),
+					Period:     token.New(1, 22, 21, 1, token.Literal, "."),
+					IndexName:  token.New(1, 23, 22, 7, token.Literal, "myIndex"),
+					On:         token.New(1, 31, 30, 2, token.KeywordOn, "ON"),
+					TableName:  token.New(1, 34, 33, 7, token.Literal, "myTable"),
+					LeftParen:  token.New(1, 42, 41, 1, token.Delimiter, "("),
+					IndexedColumns: []*ast.IndexedColumn{
+						&ast.IndexedColumn{
+							Expr: &ast.Expr{
+								LiteralValue: token.New(1, 43, 42, 11, token.Literal, "exprLiteral"),
+							},
+						},
+					},
+					RightParen: token.New(1, 54, 53, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			"CREATE INDEX with UNIQUE with schema and index name",
+			"CREATE UNIQUE INDEX mySchema.myIndex ON myTable (exprLiteral)",
+			&ast.SQLStmt{
+				CreateIndexStmt: &ast.CreateIndexStmt{
+					Create:     token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Unique:     token.New(1, 8, 7, 6, token.KeywordUnique, "UNIQUE"),
+					Index:      token.New(1, 15, 14, 5, token.KeywordIndex, "INDEX"),
+					SchemaName: token.New(1, 21, 20, 8, token.Literal, "mySchema"),
+					Period:     token.New(1, 29, 28, 1, token.Literal, "."),
+					IndexName:  token.New(1, 30, 29, 7, token.Literal, "myIndex"),
+					On:         token.New(1, 38, 37, 2, token.KeywordOn, "ON"),
+					TableName:  token.New(1, 41, 40, 7, token.Literal, "myTable"),
+					LeftParen:  token.New(1, 49, 48, 1, token.Delimiter, "("),
+					IndexedColumns: []*ast.IndexedColumn{
+						&ast.IndexedColumn{
+							Expr: &ast.Expr{
+								LiteralValue: token.New(1, 50, 49, 11, token.Literal, "exprLiteral"),
+							},
+						},
+					},
+					RightParen: token.New(1, 61, 60, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			"CREATE INDEX with IF NOT EXISTS with schema and index name",
+			"CREATE INDEX IF NOT EXISTS mySchema.myIndex ON myTable (exprLiteral)",
+			&ast.SQLStmt{
+				CreateIndexStmt: &ast.CreateIndexStmt{
+					Create:     token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Index:      token.New(1, 8, 7, 5, token.KeywordIndex, "INDEX"),
+					If:         token.New(1, 14, 13, 2, token.KeywordIf, "IF"),
+					Not:        token.New(1, 17, 16, 3, token.KeywordNot, "NOT"),
+					Exists:     token.New(1, 21, 20, 6, token.KeywordExists, "EXISTS"),
+					SchemaName: token.New(1, 28, 27, 8, token.Literal, "mySchema"),
+					Period:     token.New(1, 36, 35, 1, token.Literal, "."),
+					IndexName:  token.New(1, 37, 36, 7, token.Literal, "myIndex"),
+					On:         token.New(1, 45, 44, 2, token.KeywordOn, "ON"),
+					TableName:  token.New(1, 48, 47, 7, token.Literal, "myTable"),
+					LeftParen:  token.New(1, 56, 55, 1, token.Delimiter, "("),
+					IndexedColumns: []*ast.IndexedColumn{
+						&ast.IndexedColumn{
+							Expr: &ast.Expr{
+								LiteralValue: token.New(1, 57, 56, 11, token.Literal, "exprLiteral"),
+							},
+						},
+					},
+					RightParen: token.New(1, 68, 67, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			"CREATE INDEX with UNIQUE and IF NOT EXISTS with schema and index name",
+			"CREATE UNIQUE INDEX IF NOT EXISTS mySchema.myIndex ON myTable (exprLiteral)",
+			&ast.SQLStmt{
+				CreateIndexStmt: &ast.CreateIndexStmt{
+					Create:     token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Unique:     token.New(1, 8, 7, 6, token.KeywordUnique, "UNIQUE"),
+					Index:      token.New(1, 15, 14, 5, token.KeywordIndex, "INDEX"),
+					If:         token.New(1, 21, 20, 2, token.KeywordIf, "IF"),
+					Not:        token.New(1, 24, 23, 3, token.KeywordNot, "NOT"),
+					Exists:     token.New(1, 28, 27, 6, token.KeywordExists, "EXISTS"),
+					SchemaName: token.New(1, 35, 34, 8, token.Literal, "mySchema"),
+					Period:     token.New(1, 43, 42, 1, token.Literal, "."),
+					IndexName:  token.New(1, 44, 43, 7, token.Literal, "myIndex"),
+					On:         token.New(1, 52, 51, 2, token.KeywordOn, "ON"),
+					TableName:  token.New(1, 55, 54, 7, token.Literal, "myTable"),
+					LeftParen:  token.New(1, 63, 62, 1, token.Delimiter, "("),
+					IndexedColumns: []*ast.IndexedColumn{
+						&ast.IndexedColumn{
+							Expr: &ast.Expr{
+								LiteralValue: token.New(1, 64, 63, 11, token.Literal, "exprLiteral"),
+							},
+						},
+					},
+					RightParen: token.New(1, 75, 74, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			"CREATE INDEX with WHERE",
+			"CREATE INDEX myIndex ON myTable (exprLiteral) WHERE exprLiteral",
+			&ast.SQLStmt{
+				CreateIndexStmt: &ast.CreateIndexStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Index:     token.New(1, 8, 7, 5, token.KeywordIndex, "INDEX"),
+					IndexName: token.New(1, 14, 13, 7, token.Literal, "myIndex"),
+					On:        token.New(1, 22, 21, 2, token.KeywordOn, "ON"),
+					TableName: token.New(1, 25, 24, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 33, 32, 1, token.Delimiter, "("),
+					IndexedColumns: []*ast.IndexedColumn{
+						&ast.IndexedColumn{
+							Expr: &ast.Expr{
+								LiteralValue: token.New(1, 34, 33, 11, token.Literal, "exprLiteral"),
+							},
+						},
+					},
+					RightParen: token.New(1, 45, 44, 1, token.Delimiter, ")"),
+					Where:      token.New(1, 47, 46, 5, token.KeywordWhere, "WHERE"),
+					Expr: &ast.Expr{
+						LiteralValue: token.New(1, 53, 52, 11, token.Literal, "exprLiteral"),
+					},
+				},
+			},
+		},
+		{
+			"CREATE INDEX with UNIQUE and WHERE",
+			"CREATE UNIQUE INDEX myIndex ON myTable (exprLiteral) WHERE exprLiteral",
+			&ast.SQLStmt{
+				CreateIndexStmt: &ast.CreateIndexStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Unique:    token.New(1, 8, 7, 6, token.KeywordUnique, "UNIQUE"),
+					Index:     token.New(1, 15, 14, 5, token.KeywordIndex, "INDEX"),
+					IndexName: token.New(1, 21, 20, 7, token.Literal, "myIndex"),
+					On:        token.New(1, 29, 28, 2, token.KeywordOn, "ON"),
+					TableName: token.New(1, 32, 31, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 40, 39, 1, token.Delimiter, "("),
+					IndexedColumns: []*ast.IndexedColumn{
+						&ast.IndexedColumn{
+							Expr: &ast.Expr{
+								LiteralValue: token.New(1, 41, 40, 11, token.Literal, "exprLiteral"),
+							},
+						},
+					},
+					RightParen: token.New(1, 52, 51, 1, token.Delimiter, ")"),
+					Where:      token.New(1, 54, 53, 5, token.KeywordWhere, "WHERE"),
+					Expr: &ast.Expr{
+						LiteralValue: token.New(1, 60, 59, 11, token.Literal, "exprLiteral"),
+					},
+				},
+			},
+		},
+		{
+			"CREATE INDEX with IF NOT EXISTS and WHERE",
+			"CREATE INDEX IF NOT EXISTS myIndex ON myTable (exprLiteral) WHERE exprLiteral",
+			&ast.SQLStmt{
+				CreateIndexStmt: &ast.CreateIndexStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Index:     token.New(1, 8, 7, 5, token.KeywordIndex, "INDEX"),
+					If:        token.New(1, 14, 13, 2, token.KeywordIf, "IF"),
+					Not:       token.New(1, 17, 16, 3, token.KeywordNot, "NOT"),
+					Exists:    token.New(1, 21, 20, 6, token.KeywordExists, "EXISTS"),
+					IndexName: token.New(1, 28, 27, 7, token.Literal, "myIndex"),
+					On:        token.New(1, 36, 35, 2, token.KeywordOn, "ON"),
+					TableName: token.New(1, 39, 38, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 47, 46, 1, token.Delimiter, "("),
+					IndexedColumns: []*ast.IndexedColumn{
+						&ast.IndexedColumn{
+							Expr: &ast.Expr{
+								LiteralValue: token.New(1, 48, 47, 11, token.Literal, "exprLiteral"),
+							},
+						},
+					},
+					RightParen: token.New(1, 59, 58, 1, token.Delimiter, ")"),
+					Where:      token.New(1, 61, 60, 5, token.KeywordWhere, "WHERE"),
+					Expr: &ast.Expr{
+						LiteralValue: token.New(1, 67, 66, 11, token.Literal, "exprLiteral"),
+					},
+				},
+			},
+		},
+		{
+			"CREATE INDEX with UNIQUE, IF NOT EXISTS and WHERE",
+			"CREATE UNIQUE INDEX IF NOT EXISTS myIndex ON myTable (exprLiteral) WHERE exprLiteral",
+			&ast.SQLStmt{
+				CreateIndexStmt: &ast.CreateIndexStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Unique:    token.New(1, 8, 7, 6, token.KeywordUnique, "UNIQUE"),
+					Index:     token.New(1, 15, 14, 5, token.KeywordIndex, "INDEX"),
+					If:        token.New(1, 21, 20, 2, token.KeywordIf, "IF"),
+					Not:       token.New(1, 24, 23, 3, token.KeywordNot, "NOT"),
+					Exists:    token.New(1, 28, 27, 6, token.KeywordExists, "EXISTS"),
+					IndexName: token.New(1, 35, 34, 7, token.Literal, "myIndex"),
+					On:        token.New(1, 43, 42, 2, token.KeywordOn, "ON"),
+					TableName: token.New(1, 46, 45, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 54, 53, 1, token.Delimiter, "("),
+					IndexedColumns: []*ast.IndexedColumn{
+						&ast.IndexedColumn{
+							Expr: &ast.Expr{
+								LiteralValue: token.New(1, 55, 54, 11, token.Literal, "exprLiteral"),
+							},
+						},
+					},
+					RightParen: token.New(1, 66, 65, 1, token.Delimiter, ")"),
+					Where:      token.New(1, 68, 67, 5, token.KeywordWhere, "WHERE"),
+					Expr: &ast.Expr{
+						LiteralValue: token.New(1, 74, 73, 11, token.Literal, "exprLiteral"),
+					},
+				},
+			},
+		},
+		{
+			"create index with schema and index name and WHERE",
+			"CREATE INDEX mySchema.myIndex ON myTable (exprLiteral) WHERE exprLiteral",
+			&ast.SQLStmt{
+				CreateIndexStmt: &ast.CreateIndexStmt{
+					Create:     token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Index:      token.New(1, 8, 7, 5, token.KeywordIndex, "INDEX"),
+					SchemaName: token.New(1, 14, 13, 8, token.Literal, "mySchema"),
+					Period:     token.New(1, 22, 21, 1, token.Literal, "."),
+					IndexName:  token.New(1, 23, 22, 7, token.Literal, "myIndex"),
+					On:         token.New(1, 31, 30, 2, token.KeywordOn, "ON"),
+					TableName:  token.New(1, 34, 33, 7, token.Literal, "myTable"),
+					LeftParen:  token.New(1, 42, 41, 1, token.Delimiter, "("),
+					IndexedColumns: []*ast.IndexedColumn{
+						&ast.IndexedColumn{
+							Expr: &ast.Expr{
+								LiteralValue: token.New(1, 43, 42, 11, token.Literal, "exprLiteral"),
+							},
+						},
+					},
+					RightParen: token.New(1, 54, 53, 1, token.Delimiter, ")"),
+					Where:      token.New(1, 56, 55, 5, token.KeywordWhere, "WHERE"),
+					Expr: &ast.Expr{
+						LiteralValue: token.New(1, 62, 61, 11, token.Literal, "exprLiteral"),
+					},
+				},
+			},
+		},
+		{
+			"CREATE INDEX with UNIQUE, schema name, index name and WHERE",
+			"CREATE UNIQUE INDEX mySchema.myIndex ON myTable (exprLiteral) WHERE exprLiteral",
+			&ast.SQLStmt{
+				CreateIndexStmt: &ast.CreateIndexStmt{
+					Create:     token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Unique:     token.New(1, 8, 7, 6, token.KeywordUnique, "UNIQUE"),
+					Index:      token.New(1, 15, 14, 5, token.KeywordIndex, "INDEX"),
+					SchemaName: token.New(1, 21, 20, 8, token.Literal, "mySchema"),
+					Period:     token.New(1, 29, 28, 1, token.Literal, "."),
+					IndexName:  token.New(1, 30, 29, 7, token.Literal, "myIndex"),
+					On:         token.New(1, 38, 37, 2, token.KeywordOn, "ON"),
+					TableName:  token.New(1, 41, 40, 7, token.Literal, "myTable"),
+					LeftParen:  token.New(1, 49, 48, 1, token.Delimiter, "("),
+					IndexedColumns: []*ast.IndexedColumn{
+						&ast.IndexedColumn{
+							Expr: &ast.Expr{
+								LiteralValue: token.New(1, 50, 49, 11, token.Literal, "exprLiteral"),
+							},
+						},
+					},
+					RightParen: token.New(1, 61, 60, 1, token.Delimiter, ")"),
+					Where:      token.New(1, 63, 62, 5, token.KeywordWhere, "WHERE"),
+					Expr: &ast.Expr{
+						LiteralValue: token.New(1, 69, 68, 11, token.Literal, "exprLiteral"),
+					},
+				},
+			},
+		},
+		{
+			"CREATE INDEX with IF NOT EXISTS,schema name, index name and WHERE",
+			"CREATE INDEX IF NOT EXISTS mySchema.myIndex ON myTable (exprLiteral) WHERE exprLiteral",
+			&ast.SQLStmt{
+				CreateIndexStmt: &ast.CreateIndexStmt{
+					Create:     token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Index:      token.New(1, 8, 7, 5, token.KeywordIndex, "INDEX"),
+					If:         token.New(1, 14, 13, 2, token.KeywordIf, "IF"),
+					Not:        token.New(1, 17, 16, 3, token.KeywordNot, "NOT"),
+					Exists:     token.New(1, 21, 20, 6, token.KeywordExists, "EXISTS"),
+					SchemaName: token.New(1, 28, 27, 8, token.Literal, "mySchema"),
+					Period:     token.New(1, 36, 35, 1, token.Literal, "."),
+					IndexName:  token.New(1, 37, 36, 7, token.Literal, "myIndex"),
+					On:         token.New(1, 45, 44, 2, token.KeywordOn, "ON"),
+					TableName:  token.New(1, 48, 47, 7, token.Literal, "myTable"),
+					LeftParen:  token.New(1, 56, 55, 1, token.Delimiter, "("),
+					IndexedColumns: []*ast.IndexedColumn{
+						&ast.IndexedColumn{
+							Expr: &ast.Expr{
+								LiteralValue: token.New(1, 57, 56, 11, token.Literal, "exprLiteral"),
+							},
+						},
+					},
+					RightParen: token.New(1, 68, 67, 1, token.Delimiter, ")"),
+					Where:      token.New(1, 70, 69, 5, token.KeywordWhere, "WHERE"),
+					Expr: &ast.Expr{
+						LiteralValue: token.New(1, 76, 75, 11, token.Literal, "exprLiteral"),
+					},
+				},
+			},
+		},
+		{
+			"CREATE INDEX with UNIQUE, IF NOT EXISTS, schema name, index name and WHERE",
+			"CREATE UNIQUE INDEX IF NOT EXISTS mySchema.myIndex ON myTable (exprLiteral) WHERE exprLiteral",
+			&ast.SQLStmt{
+				CreateIndexStmt: &ast.CreateIndexStmt{
+					Create:     token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Unique:     token.New(1, 8, 7, 6, token.KeywordUnique, "UNIQUE"),
+					Index:      token.New(1, 15, 14, 5, token.KeywordIndex, "INDEX"),
+					If:         token.New(1, 21, 20, 2, token.KeywordIf, "IF"),
+					Not:        token.New(1, 24, 23, 3, token.KeywordNot, "NOT"),
+					Exists:     token.New(1, 28, 27, 6, token.KeywordExists, "EXISTS"),
+					SchemaName: token.New(1, 35, 34, 8, token.Literal, "mySchema"),
+					Period:     token.New(1, 43, 42, 1, token.Literal, "."),
+					IndexName:  token.New(1, 44, 43, 7, token.Literal, "myIndex"),
+					On:         token.New(1, 52, 51, 2, token.KeywordOn, "ON"),
+					TableName:  token.New(1, 55, 54, 7, token.Literal, "myTable"),
+					LeftParen:  token.New(1, 63, 62, 1, token.Delimiter, "("),
+					IndexedColumns: []*ast.IndexedColumn{
+						&ast.IndexedColumn{
+							Expr: &ast.Expr{
+								LiteralValue: token.New(1, 64, 63, 11, token.Literal, "exprLiteral"),
+							},
+						},
+					},
+					RightParen: token.New(1, 75, 74, 1, token.Delimiter, ")"),
+					Where:      token.New(1, 77, 76, 5, token.KeywordWhere, "WHERE"),
+					Expr: &ast.Expr{
+						LiteralValue: token.New(1, 83, 82, 11, token.Literal, "exprLiteral"),
+					},
+				},
+			},
+		},
 	}
 	for _, input := range inputs {
 		t.Run(input.Name, func(t *testing.T) {
@@ -474,6 +906,14 @@ func TestSingleStatementParse(t *testing.T) {
 						(t1 != nil && t2 == nil) {
 						return false
 					}
+					// fmt.Println(t1.Col())
+					// fmt.Println(t2.Col())
+					// fmt.Println(t1.Length())
+					// fmt.Println(t2.Length())
+					// fmt.Println(t1.Offset())
+					// fmt.Println(t2.Offset())
+					// fmt.Println(t1.Type())
+					// fmt.Println(t2.Type())
 					return t1.Line() == t2.Line() &&
 						t1.Col() == t2.Col() &&
 						t1.Offset() == t2.Offset() &&
