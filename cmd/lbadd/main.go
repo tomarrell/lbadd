@@ -54,7 +54,7 @@ var (
 
 // documentation strings
 const (
-	rootCmdShortDoc = "Start the database application"
+	rootCmdShortDoc = ""
 	rootCmdLongDoc  = ""
 
 	versionCmdShortDoc = "Print version information about this executable"
@@ -69,7 +69,9 @@ This will start an lbadd master node on the specified address,
 waiting for incoming connections from lbadd worker nodes.`
 
 	startWorkerCmdShortDoc = "Start a worker node"
-	startWorkerCmdLongDoc  = ""
+	startWorkerCmdLongDoc  = `Start a worker node and connect it to the address that is specified
+in the addr flag. This will start an lbadd worker node, that
+connects to a already running master node on the given address.`
 )
 
 var (
