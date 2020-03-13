@@ -51,9 +51,7 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 	case token.KeywordCommit:
 		stmt.CommitStmt = p.parseCommitStmt(r)
 	case token.KeywordCreate:
-		// for now we can directly add create index as the parsing function
-		// later there must be an intermediate layer to take care of different CREATE functions
-		stmt.CreateIndexStmt = p.parseCreateIndexStmt(r)
+		p.parseCreateStmt(stmt, r)
 	case token.KeywordDetach:
 		stmt.DetachStmt = p.parseDetachDatabaseStmt(r)
 	case token.KeywordEnd:
@@ -943,19 +941,71 @@ func (p *simpleParser) parseRollbackStmt(r reporter) (stmt *ast.RollbackStmt) {
 	return
 }
 
-// parseCreateIndexStmt parses a single CREATE INDEX statement as defined in the spec:
-// https://sqlite.org/lang_createindex.html
-func (p *simpleParser) parseCreateIndexStmt(r reporter) (stmt *ast.CreateIndexStmt) {
-	stmt = &ast.CreateIndexStmt{}
+// parseCreateStmt looks ahead for the tokens and decides which function gets to parse the statement
+func (p *simpleParser) parseCreateStmt(stmt *ast.SQLStmt, r reporter) {
 	p.searchNext(r, token.KeywordCreate)
+	createToken, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	p.consumeToken()
 	next, ok := p.lookahead(r)
 	if !ok {
 		return
 	}
-	stmt.Create = next
-	p.consumeToken()
+	switch next.Type() {
+	case token.KeywordIndex:
+		stmt.CreateIndexStmt = p.parseCreateIndexStmt(createToken, r)
+	case token.KeywordUnique:
+		stmt.CreateIndexStmt = p.parseCreateIndexStmt(createToken, r)
+	case token.KeywordTable:
+		stmt.CreateTableStmt = p.parseCreateTableStmt(createToken, nil, nil, r)
+	case token.KeywordTrigger:
+		stmt.CreateTriggerStmt = p.parseCreateTriggerStmt(createToken, nil, nil, r)
+	case token.KeywordView:
+		stmt.CreateViewStmt = p.parseCreateViewStmt(createToken, nil, nil, r)
+	case token.KeywordTemp:
+		tempToken := next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		switch next.Type() {
+		case token.KeywordTable:
+			stmt.CreateTableStmt = p.parseCreateTableStmt(createToken, tempToken, nil, r)
+		case token.KeywordTrigger:
+			stmt.CreateTriggerStmt = p.parseCreateTriggerStmt(createToken, tempToken, nil, r)
+		case token.KeywordView:
+			stmt.CreateViewStmt = p.parseCreateViewStmt(createToken, tempToken, nil, r)
+		}
+	case token.KeywordTemporary:
+		temporaryToken := next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		switch next.Type() {
+		case token.KeywordTable:
+			stmt.CreateTableStmt = p.parseCreateTableStmt(createToken, nil, temporaryToken, r)
+		case token.KeywordTrigger:
+			stmt.CreateTriggerStmt = p.parseCreateTriggerStmt(createToken, nil, temporaryToken, r)
+		case token.KeywordView:
+			stmt.CreateViewStmt = p.parseCreateViewStmt(createToken, nil, temporaryToken, r)
+		}
+	case token.KeywordVirtual:
+		stmt.CreateVirtualTableStmt = p.parseCreateVirtualTableStmt(createToken, r)
+	}
+}
 
-	next, ok = p.lookahead(r)
+// parseCreateIndexStmt parses a single CREATE INDEX statement as defined in the spec:
+// https://sqlite.org/lang_createindex.html
+func (p *simpleParser) parseCreateIndexStmt(createToken token.Token, r reporter) (stmt *ast.CreateIndexStmt) {
+	stmt = &ast.CreateIndexStmt{}
+	stmt.Create = createToken
+
+	next, ok := p.lookahead(r)
 	if !ok {
 		return
 	}
@@ -1104,5 +1154,21 @@ func (p *simpleParser) parseIndexedColumn(r reporter) (stmt *ast.IndexedColumn) 
 			p.consumeToken()
 		}
 	}
+	return
+}
+
+func (p *simpleParser) parseCreateTableStmt(createToken, tempToken, temporaryToken token.Token, r reporter) (stmt *ast.CreateTableStmt) {
+	return
+}
+
+func (p *simpleParser) parseCreateTriggerStmt(createToken, tempToken, temporaryToken token.Token, r reporter) (stmt *ast.CreateTriggerStmt) {
+	return
+}
+
+func (p *simpleParser) parseCreateViewStmt(createToken, tempToken, temporaryToken token.Token, r reporter) (stmt *ast.CreateViewStmt) {
+	return
+}
+
+func (p *simpleParser) parseCreateVirtualTableStmt(createToken token.Token, r reporter) (stmt *ast.CreateVirtualTableStmt) {
 	return
 }
