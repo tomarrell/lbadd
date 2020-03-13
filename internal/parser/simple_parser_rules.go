@@ -804,15 +804,23 @@ func (p *simpleParser) parseAnalyzeStmt(r reporter) (stmt *ast.AnalyzeStmt) {
 	if !ok || period.Type() == token.EOF {
 		return
 	}
-	stmt.Period = period
-	p.consumeToken()
+	// Since if there is a period, it means there is definitely an
+	// existance of a literal, we need a more restrictive condition.
+	// Thus we reject if we dont find a literal.
+	if period.Value() == "." {
+		stmt.Period = period
+		p.consumeToken()
 
-	next, ok = p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
-		return
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() != token.Literal {
+			r.unexpectedToken(token.Literal)
+		}
+		stmt.TableOrIndexName = next
+		p.consumeToken()
 	}
-	stmt.TableOrIndexName = next
-	p.consumeToken()
 	return
 }
 
@@ -832,13 +840,14 @@ func (p *simpleParser) parseBeginStmt(r reporter) (stmt *ast.BeginStmt) {
 	if !ok || next.Type() == token.EOF {
 		return
 	}
-	if next.Type() == token.KeywordDeferred {
+	switch next.Type() {
+	case token.KeywordDeferred:
 		stmt.Deferred = next
 		p.consumeToken()
-	} else if next.Type() == token.KeywordImmediate {
+	case token.KeywordImmediate:
 		stmt.Immediate = next
 		p.consumeToken()
-	} else if next.Type() == token.KeywordExclusive {
+	case token.KeywordExclusive:
 		stmt.Exclusive = next
 		p.consumeToken()
 	}
@@ -1051,7 +1060,7 @@ func (p *simpleParser) parseCreateIndexStmt(r reporter) (stmt *ast.CreateIndexSt
 			return
 		}
 		for next.Value() != ")" {
-			stmt.IndexedColumns = append(stmt.IndexedColumns, p.parseIndexedColumns(r))
+			stmt.IndexedColumns = append(stmt.IndexedColumns, p.parseIndexedColumn(r))
 			next, ok = p.lookahead(r)
 			if !ok {
 				return
@@ -1082,8 +1091,18 @@ func (p *simpleParser) parseCreateIndexStmt(r reporter) (stmt *ast.CreateIndexSt
 	return
 }
 
-func (p *simpleParser) parseIndexedColumns(r reporter) (stmt *ast.IndexedColumn) {
+func (p *simpleParser) parseIndexedColumn(r reporter) (stmt *ast.IndexedColumn) {
 	stmt = &ast.IndexedColumn{}
 	stmt.Expr = p.parseExpression(r)
+	if stmt.Expr == nil {
+		next, ok := p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Literal {
+			stmt.ColumnName = next
+			p.consumeToken()
+		}
+	}
 	return
 }

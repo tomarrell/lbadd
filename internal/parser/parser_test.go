@@ -884,6 +884,48 @@ func TestSingleStatementParse(t *testing.T) {
 				},
 			},
 		},
+		{
+			"CREATE INDEX with UNIQUE, IF NOT EXISTS, schema name, index name and WHERE with multiple indexedcolums",
+			"CREATE UNIQUE INDEX IF NOT EXISTS mySchema.myIndex ON myTable (exprLiteral1,exprLiteral2,exprLiteral3) WHERE exprLiteral",
+			&ast.SQLStmt{
+				CreateIndexStmt: &ast.CreateIndexStmt{
+					Create:     token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Unique:     token.New(1, 8, 7, 6, token.KeywordUnique, "UNIQUE"),
+					Index:      token.New(1, 15, 14, 5, token.KeywordIndex, "INDEX"),
+					If:         token.New(1, 21, 20, 2, token.KeywordIf, "IF"),
+					Not:        token.New(1, 24, 23, 3, token.KeywordNot, "NOT"),
+					Exists:     token.New(1, 28, 27, 6, token.KeywordExists, "EXISTS"),
+					SchemaName: token.New(1, 35, 34, 8, token.Literal, "mySchema"),
+					Period:     token.New(1, 43, 42, 1, token.Literal, "."),
+					IndexName:  token.New(1, 44, 43, 7, token.Literal, "myIndex"),
+					On:         token.New(1, 52, 51, 2, token.KeywordOn, "ON"),
+					TableName:  token.New(1, 55, 54, 7, token.Literal, "myTable"),
+					LeftParen:  token.New(1, 63, 62, 1, token.Delimiter, "("),
+					IndexedColumns: []*ast.IndexedColumn{
+						&ast.IndexedColumn{
+							Expr: &ast.Expr{
+								LiteralValue: token.New(1, 64, 63, 12, token.Literal, "exprLiteral1"),
+							},
+						},
+						&ast.IndexedColumn{
+							Expr: &ast.Expr{
+								LiteralValue: token.New(1, 77, 76, 12, token.Literal, "exprLiteral2"),
+							},
+						},
+						&ast.IndexedColumn{
+							Expr: &ast.Expr{
+								LiteralValue: token.New(1, 90, 89, 12, token.Literal, "exprLiteral3"),
+							},
+						},
+					},
+					RightParen: token.New(1, 102, 101, 1, token.Delimiter, ")"),
+					Where:      token.New(1, 104, 103, 5, token.KeywordWhere, "WHERE"),
+					Expr: &ast.Expr{
+						LiteralValue: token.New(1, 110, 109, 11, token.Literal, "exprLiteral"),
+					},
+				},
+			},
+		},
 	}
 	for _, input := range inputs {
 		t.Run(input.Name, func(t *testing.T) {
