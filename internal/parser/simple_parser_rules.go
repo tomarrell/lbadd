@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"fmt"
+
 	"github.com/tomarrell/lbadd/internal/parser/ast"
 	"github.com/tomarrell/lbadd/internal/parser/scanner/token"
 )
@@ -1118,6 +1120,7 @@ func (p *simpleParser) parseCreateIndexStmt(createToken token.Token, r reporter)
 			if next.Value() == "," {
 				p.consumeToken()
 			}
+
 			next, ok = p.lookahead(r)
 			if !ok {
 				return
@@ -1143,17 +1146,49 @@ func (p *simpleParser) parseCreateIndexStmt(createToken token.Token, r reporter)
 
 func (p *simpleParser) parseIndexedColumn(r reporter) (stmt *ast.IndexedColumn) {
 	stmt = &ast.IndexedColumn{}
-	stmt.Expr = p.parseExpression(r)
-	if stmt.Expr == nil {
-		next, ok := p.lookahead(r)
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.Literal {
+		stmt.ColumnName = next
+		p.consumeToken()
+	} else {
+		stmt.Expr = p.parseExpression(r)
+	}
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF {
+		return
+	}
+	if next.Type() == token.KeywordCollate {
+		stmt.Collate = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
 		if !ok {
 			return
 		}
 		if next.Type() == token.Literal {
-			stmt.ColumnName = next
+			stmt.CollationName = next
 			p.consumeToken()
+		} else {
+			r.unexpectedToken(token.Literal)
 		}
 	}
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF {
+		return
+	}
+	if next.Type() == token.KeywordAsc {
+		stmt.Asc = next
+		p.consumeToken()
+	}
+	if next.Type() == token.KeywordDesc {
+		stmt.Desc = next
+		p.consumeToken()
+	}
+	fmt.Println(stmt.Asc)
 	return
 }
 
