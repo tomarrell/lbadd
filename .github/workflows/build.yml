@@ -5,6 +5,7 @@ on:
       - master
       - develop
       - release/*
+  pull_request:
 jobs:
 
   test:
