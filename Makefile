@@ -18,7 +18,7 @@ lint: ## Runs the linters (including internal ones)
 
 .PHONY: build
 build: ## Build an lbadd binary that is ready for prod
-	go build -o lbadd -ldflags="-w -X 'main.Version=${VERSION}'" ./cmd/lbadd
+	go build -o lbadd -ldflags="-w -X 'main.Version=$(shell date +%Y%m%d)'" ./cmd/lbadd
 
 ## Help display.
 ## Pulls comments from beside commands and prints a nicely formatted
