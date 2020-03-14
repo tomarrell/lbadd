@@ -2,9 +2,12 @@
 watch: ## Start a file watcher to run tests on change. (requires: watchexec)
 	watchexec -c "go test -failfast ./..."
 
+.PHONY: all
+all: lint test build ## test -> lint -> build
+
 .PHONY: test
 test: ## Runs the unit test suite
-	go test -failfast ./...
+	go test -race ./...
 
 .PHONY: lint
 lint: ## Runs the linters (including internal ones)
@@ -16,6 +19,9 @@ lint: ## Runs the linters (including internal ones)
 	gosec -quiet ./...;
 	staticcheck ./...;
 
+.PHONY: build
+build: ## Build an lbadd binary that is ready for prod
+	go build -o lbadd -ldflags="-w -X 'main.Version=$(shell date +%Y%m%d)'" ./cmd/lbadd
 
 ## Help display.
 ## Pulls comments from beside commands and prints a nicely formatted
