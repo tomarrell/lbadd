@@ -16,6 +16,9 @@ lint: ## Runs the linters (including internal ones)
 	gosec -quiet ./...;
 	staticcheck ./...;
 
+.PHONY: build
+build: ## Build an lbadd binary that is ready for prod
+	go build -o lbadd -ldflags="-w -X 'main.Version=${VERSION}'" ./cmd/lbadd
 
 ## Help display.
 ## Pulls comments from beside commands and prints a nicely formatted
