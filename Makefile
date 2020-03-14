@@ -2,9 +2,12 @@
 watch: ## Start a file watcher to run tests on change. (requires: watchexec)
 	watchexec -c "go test -failfast ./..."
 
+.PHONY: all
+all: lint test build ## test -> lint -> build
+
 .PHONY: test
 test: ## Runs the unit test suite
-	go test -failfast ./...
+	go test -race ./...
 
 .PHONY: lint
 lint: ## Runs the linters (including internal ones)
