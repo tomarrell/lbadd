@@ -71,7 +71,7 @@ func defaultKeywordsRule(s RuneScanner) (token.Type, bool) {
 	var buf bytes.Buffer
 	for {
 		next, ok := s.Lookahead()
-		if !ok || defaultWhitespaceDetector.Matches(next) || !defaultLiteral.Matches(next) {
+		if !ok || !defaultLiteral.Matches(next) {
 			break
 		}
 		_, _ = buf.WriteRune(next)
