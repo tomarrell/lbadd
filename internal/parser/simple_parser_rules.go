@@ -1190,17 +1190,41 @@ func (p *simpleParser) parseIndexedColumn(r reporter) (stmt *ast.IndexedColumn) 
 }
 
 func (p *simpleParser) parseCreateTableStmt(createToken, tempToken, temporaryToken token.Token, r reporter) (stmt *ast.CreateTableStmt) {
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	r.unsupportedConstruct(next)
+	p.searchNext(r, token.StatementSeparator, token.EOF)
 	return
 }
 
 func (p *simpleParser) parseCreateTriggerStmt(createToken, tempToken, temporaryToken token.Token, r reporter) (stmt *ast.CreateTriggerStmt) {
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	r.unsupportedConstruct(next)
+	p.searchNext(r, token.StatementSeparator, token.EOF)
 	return
 }
 
 func (p *simpleParser) parseCreateViewStmt(createToken, tempToken, temporaryToken token.Token, r reporter) (stmt *ast.CreateViewStmt) {
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	r.unsupportedConstruct(next)
+	p.searchNext(r, token.StatementSeparator, token.EOF)
 	return
 }
 
 func (p *simpleParser) parseCreateVirtualTableStmt(createToken token.Token, r reporter) (stmt *ast.CreateVirtualTableStmt) {
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	r.unsupportedConstruct(next)
+	p.searchNext(r, token.StatementSeparator, token.EOF)
 	return
 }
