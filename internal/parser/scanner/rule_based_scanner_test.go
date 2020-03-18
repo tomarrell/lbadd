@@ -197,6 +197,15 @@ func TestRuleBasedScanner(t *testing.T) {
 				token.New(1, 85, 84, 0, token.EOF, ""),
 			},
 		},
+		{
+			"ASC DESC",
+			ruleset.Default,
+			[]token.Token{
+				token.New(1, 1, 0, 3, token.KeywordAsc, "ASC"),
+				token.New(1, 5, 4, 4, token.KeywordDesc, "DESC"),
+				token.New(1, 9, 8, 0, token.EOF, ""),
+			},
+		},
 	}
 	for _, input := range inputs {
 		t.Run("ruleset=default/"+input.query, _TestRuleBasedScannerWithRuleset(input.query, input.ruleset, input.want))

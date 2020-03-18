@@ -104,7 +104,7 @@ type (
 		On             token.Token
 		TableName      token.Token
 		LeftParen      token.Token
-		IndexedColumns []token.Token
+		IndexedColumns []*IndexedColumn
 		RightParen     token.Token
 		Where          token.Token
 		Expr           *Expr
