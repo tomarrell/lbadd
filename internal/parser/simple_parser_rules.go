@@ -929,3 +929,265 @@ func (p *simpleParser) parseRollbackStmt(r reporter) (stmt *ast.RollbackStmt) {
 	p.consumeToken()
 	return
 }
+
+func (p *simpleParser) parseDeleteStmt(r reporter) (stmt *ast.DeleteStmt) {
+	stmt = &ast.DeleteStmt{}
+	stmt.WithClause = p.parseWithClause(r)
+	p.searchNext(r, token.KeywordDelete)
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	stmt.Delete = next
+	p.consumeToken()
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordFrom {
+		stmt.From = next
+		p.consumeToken()
+	} else {
+		r.unexpectedToken(token.KeywordFrom)
+	}
+
+	stmt.QualifiedTableName = p.parseQualifiedTableName(r)
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF {
+		return
+	}
+	if next.Type() == token.KeywordWhere {
+		stmt.Where = next
+		p.consumeToken()
+		stmt.Expr = p.parseExpression(r)
+	}
+
+	return
+}
+
+func (p *simpleParser) parseWithClause(r reporter) (withClause *ast.WithClause) {
+	withClause = &ast.WithClause{}
+	p.searchNext(r, token.KeywordWith)
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	withClause.With = next
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordRecursive {
+		withClause.Recursive = next
+		p.consumeToken()
+	}
+
+	for {
+		withClause.RecursiveCte = append(withClause.RecursiveCte, p.parseRecursiveCte(r))
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Value() == "," {
+			p.consumeToken()
+		} else {
+			break
+		}
+	}
+	return
+}
+
+func (p *simpleParser) parseRecursiveCte(r reporter) (recursiveCte *ast.RecursiveCte) {
+	recursiveCte.CteTableName = p.parseCteTableName(r)
+	next, ok := p.lookahead(r)
+	if ok {
+		return
+	}
+	if next.Type() == token.KeywordAs {
+		recursiveCte.As = next
+		p.consumeToken()
+	} else {
+		r.unexpectedToken(token.KeywordAs)
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Value() == "(" {
+		recursiveCte.LeftParen = next
+		p.consumeToken()
+	} else {
+		r.unexpectedToken(token.Delimiter)
+	}
+	recursiveCte.SelectStmt = p.parseSelectStmt(r)
+	return
+}
+
+func (p *simpleParser) parseCteTableName(r reporter) (cteTableName *ast.CteTableName) {
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	cteTableName.TableName = next
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF {
+		return
+	}
+	if next.Value() == "(" {
+		cteTableName.LeftParen = next
+		p.consumeToken()
+		for {
+			columnName, ok := p.lookahead(r)
+			if !ok {
+				return
+			}
+			if columnName.Type() == token.Literal {
+				cteTableName.ColumnName = append(cteTableName.ColumnName, columnName)
+				p.consumeToken()
+			} else {
+				r.unexpectedToken(token.Literal)
+			}
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == "," {
+				p.consumeToken()
+			}
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == ")" {
+				cteTableName.RightParen = next
+				p.consumeToken()
+				break
+			}
+		}
+	}
+	return
+}
+
+func (p *simpleParser) parseSelectStmt(r reporter) (stmt *ast.SelectStmt) {
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	r.unsupportedConstruct(next)
+	p.searchNext(r, token.StatementSeparator, token.EOF)
+	return
+}
+
+func (p *simpleParser) parseQualifiedTableName(r reporter) (stmt *ast.QualifiedTableName) {
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	// We expect that the first literal can be either the schema name
+	// or the table name. When we confirm the existance of a period, we
+	// re-assign the table name and when we confirm that there is no
+	// period, we reset the schema name value to nil.
+	if next.Type() == token.Literal {
+		stmt.SchemaName = next
+		stmt.TableName = next
+		p.consumeToken()
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() != token.Literal {
+		stmt.SchemaName = nil
+	}
+	if next.Value() == "." {
+		stmt.Period = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Literal {
+			stmt.TableName = next
+			p.consumeToken()
+		} else {
+			r.unexpectedToken(token.Literal)
+		}
+	}
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF {
+		return
+	}
+	if next.Type() == token.KeywordAs {
+		stmt.As = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Literal {
+			stmt.Alias = next
+			p.consumeToken()
+		} else {
+			r.unexpectedToken(token.Literal)
+		}
+	}
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF {
+		return
+	}
+	if next.Type() == token.KeywordIndexed {
+		stmt.Indexed = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordBy {
+			stmt.By = next
+			p.consumeToken()
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.Literal {
+				stmt.IndexName = next
+				p.consumeToken()
+			} else {
+				r.unexpectedToken(token.Literal)
+			}
+		} else {
+			r.unexpectedToken(token.KeywordBy)
+		}
+
+	}
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF {
+		return
+	}
+	if next.Type() == token.KeywordNot {
+		stmt.Not = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordIndexed {
+			stmt.Indexed = next
+			p.consumeToken()
+		} else {
+			r.unexpectedToken(token.KeywordIndexed)
+		}
+	}
+	return
+}
