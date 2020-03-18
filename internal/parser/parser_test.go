@@ -932,6 +932,105 @@ func TestSingleStatementParse(t *testing.T) {
 				},
 			},
 		},
+		{
+			"DELETE basic",
+			"DELETE FROM myTable",
+			&ast.SQLStmt{
+				DeleteStmt: &ast.DeleteStmt{
+					Delete: token.New(1, 1, 0, 6, token.KeywordDelete, "DELETE"),
+					From:   token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+					QualifiedTableName: &ast.QualifiedTableName{
+						TableName: token.New(1, 13, 12, 7, token.Literal, "myTable"),
+					},
+				},
+			},
+		},
+		{
+			"DELETE with WHERE and basic qualified table name",
+			"DELETE FROM myTable WHERE myLiteral",
+			&ast.SQLStmt{
+				DeleteStmt: &ast.DeleteStmt{
+					Delete: token.New(1, 1, 0, 6, token.KeywordDelete, "DELETE"),
+					From:   token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+					QualifiedTableName: &ast.QualifiedTableName{
+						TableName: token.New(1, 13, 12, 7, token.Literal, "myTable"),
+					},
+					Where: token.New(1, 21, 20, 5, token.KeywordWhere, "WHERE"),
+					Expr: &ast.Expr{
+						LiteralValue: token.New(1, 27, 26, 9, token.Literal, "myLiteral"),
+					},
+				},
+			},
+		},
+		{
+			"DELETE with schema name and table name",
+			"DELETE FROM mySchema.myTable",
+			&ast.SQLStmt{
+				DeleteStmt: &ast.DeleteStmt{
+					Delete: token.New(1, 1, 0, 6, token.KeywordDelete, "DELETE"),
+					From:   token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+					QualifiedTableName: &ast.QualifiedTableName{
+						SchemaName: token.New(1, 13, 12, 8, token.Literal, "mySchema"),
+						Period:     token.New(1, 21, 20, 1, token.Literal, "."),
+						TableName:  token.New(1, 22, 21, 7, token.Literal, "myTable"),
+					},
+				},
+			},
+		},
+		{
+			"DELETE with schema name, table name and AS",
+			"DELETE FROM mySchema.myTable AS newSchemaTable",
+			&ast.SQLStmt{
+				DeleteStmt: &ast.DeleteStmt{
+					Delete: token.New(1, 1, 0, 6, token.KeywordDelete, "DELETE"),
+					From:   token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+					QualifiedTableName: &ast.QualifiedTableName{
+						SchemaName: token.New(1, 13, 12, 8, token.Literal, "mySchema"),
+						Period:     token.New(1, 21, 20, 1, token.Literal, "."),
+						TableName:  token.New(1, 22, 21, 7, token.Literal, "myTable"),
+						As:         token.New(1, 30, 29, 2, token.KeywordAs, "AS"),
+						Alias:      token.New(1, 33, 32, 14, token.Literal, "newSchemaTable"),
+					},
+				},
+			},
+		},
+		{
+			"DELETE with schema name, table name, AS and INDEXED BY",
+			"DELETE FROM mySchema.myTable AS newSchemaTable INDEXED BY myIndex",
+			&ast.SQLStmt{
+				DeleteStmt: &ast.DeleteStmt{
+					Delete: token.New(1, 1, 0, 6, token.KeywordDelete, "DELETE"),
+					From:   token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+					QualifiedTableName: &ast.QualifiedTableName{
+						SchemaName: token.New(1, 13, 12, 8, token.Literal, "mySchema"),
+						Period:     token.New(1, 21, 20, 1, token.Literal, "."),
+						TableName:  token.New(1, 22, 21, 7, token.Literal, "myTable"),
+						As:         token.New(1, 30, 29, 2, token.KeywordAs, "AS"),
+						Alias:      token.New(1, 33, 32, 14, token.Literal, "newSchemaTable"),
+						Indexed:    token.New(1, 48, 47, 7, token.KeywordIndexed, "INDEXED"),
+						By:         token.New(1, 56, 55, 2, token.KeywordBy, "BY"),
+						IndexName:  token.New(1, 59, 58, 7, token.Literal, "myIndex"),
+					},
+				},
+			},
+		},
+		{
+			"DELETE with schema name, table name and NOT INDEXED",
+			"DELETE FROM mySchema.myTable NOT INDEXED",
+			&ast.SQLStmt{
+				DeleteStmt: &ast.DeleteStmt{
+					Delete: token.New(1, 1, 0, 6, token.KeywordDelete, "DELETE"),
+					From:   token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+					QualifiedTableName: &ast.QualifiedTableName{
+						SchemaName: token.New(1, 13, 12, 8, token.Literal, "mySchema"),
+						Period:     token.New(1, 21, 20, 1, token.Literal, "."),
+						TableName:  token.New(1, 22, 21, 7, token.Literal, "myTable"),
+						Not:        token.New(1, 30, 29, 3, token.KeywordNot, "NOT"),
+						Indexed:    token.New(1, 34, 33, 7, token.KeywordIndexed, "INDEXED"),
+					},
+				},
+			},
+		},
 	}
 	for _, input := range inputs {
 		t.Run(input.Name, func(t *testing.T) {

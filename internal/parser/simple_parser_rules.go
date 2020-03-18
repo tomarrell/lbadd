@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"fmt"
+
 	"github.com/tomarrell/lbadd/internal/parser/ast"
 	"github.com/tomarrell/lbadd/internal/parser/scanner/token"
 )
@@ -30,7 +32,7 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 	}
 
 	// according to the grammar, these are the tokens that initiate a statement
-	p.searchNext(r, token.StatementSeparator, token.EOF, token.KeywordAlter, token.KeywordAnalyze, token.KeywordAttach, token.KeywordBegin, token.KeywordCommit, token.KeywordCreate, token.KeywordDelete, token.KeywordDetach, token.KeywordDrop, token.KeywordEnd, token.KeywordInsert, token.KeywordPragma, token.KeywordReindex, token.KeywordRelease, token.KeywordRollback, token.KeywordSavepoint, token.KeywordSelect, token.KeywordUpdate, token.KeywordVacuum)
+	p.searchNext(r, token.StatementSeparator, token.EOF, token.KeywordAlter, token.KeywordAnalyze, token.KeywordAttach, token.KeywordBegin, token.KeywordCommit, token.KeywordCreate, token.KeywordDelete, token.KeywordDetach, token.KeywordDrop, token.KeywordEnd, token.KeywordInsert, token.KeywordPragma, token.KeywordReindex, token.KeywordRelease, token.KeywordRollback, token.KeywordSavepoint, token.KeywordSelect, token.KeywordUpdate, token.KeywordWith, token.KeywordVacuum)
 
 	next, ok := p.unsafeLowLevelLookahead()
 	if !ok {
@@ -52,6 +54,8 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 		stmt.CommitStmt = p.parseCommitStmt(r)
 	case token.KeywordCreate:
 		p.parseCreateStmt(stmt, r)
+	case token.KeywordDelete:
+		stmt.DeleteStmt = p.parseDeleteStmt(r)
 	case token.KeywordDetach:
 		stmt.DetachStmt = p.parseDetachDatabaseStmt(r)
 	case token.KeywordEnd:
@@ -60,6 +64,8 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 		stmt.RollbackStmt = p.parseRollbackStmt(r)
 	case token.KeywordVacuum:
 		stmt.VacuumStmt = p.parseVacuumStmt(r)
+	case token.KeywordWith:
+		stmt.DeleteStmt = p.parseDeleteStmt(r)
 	case token.StatementSeparator:
 		r.incompleteStatement()
 		p.consumeToken()
@@ -1231,7 +1237,7 @@ func (p *simpleParser) parseCreateVirtualTableStmt(createToken token.Token, r re
 
 func (p *simpleParser) parseDeleteStmt(r reporter) (stmt *ast.DeleteStmt) {
 	stmt = &ast.DeleteStmt{}
-	stmt.WithClause = p.parseWithClause(r)
+	// stmt.WithClause = p.parseWithClause(r)
 	p.searchNext(r, token.KeywordDelete)
 	next, ok := p.lookahead(r)
 	if !ok {
@@ -1250,7 +1256,6 @@ func (p *simpleParser) parseDeleteStmt(r reporter) (stmt *ast.DeleteStmt) {
 	} else {
 		r.unexpectedToken(token.KeywordFrom)
 	}
-
 	stmt.QualifiedTableName = p.parseQualifiedTableName(r)
 
 	next, ok = p.optionalLookahead(r)
@@ -1268,9 +1273,16 @@ func (p *simpleParser) parseDeleteStmt(r reporter) (stmt *ast.DeleteStmt) {
 
 func (p *simpleParser) parseWithClause(r reporter) (withClause *ast.WithClause) {
 	withClause = &ast.WithClause{}
+
+	fmt.Println("Go")
 	p.searchNext(r, token.KeywordWith)
+	fmt.Println("GONE")
 	next, ok := p.lookahead(r)
 	if !ok {
+		return
+	}
+	if next.Type() != token.KeywordWith {
+		fmt.Println("PP")
 		return
 	}
 	withClause.With = next
@@ -1279,6 +1291,7 @@ func (p *simpleParser) parseWithClause(r reporter) (withClause *ast.WithClause) 
 	if !ok {
 		return
 	}
+	fmt.Println("G")
 	if next.Type() == token.KeywordRecursive {
 		withClause.Recursive = next
 		p.consumeToken()
@@ -1375,17 +1388,53 @@ func (p *simpleParser) parseCteTableName(r reporter) (cteTableName *ast.CteTable
 }
 
 func (p *simpleParser) parseSelectStmt(r reporter) (stmt *ast.SelectStmt) {
+	stmt = &ast.SelectStmt{}
 	next, ok := p.lookahead(r)
 	if !ok {
 		return
 	}
-	r.unsupportedConstruct(next)
-	p.searchNext(r, token.StatementSeparator, token.EOF)
+	if next.Type() == token.KeywordWith {
+		stmt.With = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordRecursive {
+			stmt.Recursive = next
+			p.consumeToken()
+		}
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		for {
+			stmt.CommonTableExpression = append(stmt.CommonTableExpression, p.parseCommonTableExpression(r))
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() != "," {
+				return
+			}
+			p.consumeToken()
+
+		}
+	}
+
+	stmt.SelectCore = append(stmt.SelectCore, p.parseSelectCore(r))
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+
 	return
 }
 
 func (p *simpleParser) parseQualifiedTableName(r reporter) (stmt *ast.QualifiedTableName) {
-	next, ok := p.lookahead(r)
+	stmt = &ast.QualifiedTableName{}
+	schemaOrTableName, ok := p.lookahead(r)
 	if !ok {
 		return
 	}
@@ -1393,18 +1442,13 @@ func (p *simpleParser) parseQualifiedTableName(r reporter) (stmt *ast.QualifiedT
 	// or the table name. When we confirm the existance of a period, we
 	// re-assign the table name and when we confirm that there is no
 	// period, we reset the schema name value to nil.
-	if next.Type() == token.Literal {
-		stmt.SchemaName = next
-		stmt.TableName = next
+	if schemaOrTableName.Type() == token.Literal {
+		stmt.TableName = schemaOrTableName
 		p.consumeToken()
 	}
-
-	next, ok = p.lookahead(r)
-	if !ok {
+	next, ok := p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF {
 		return
-	}
-	if next.Type() != token.Literal {
-		stmt.SchemaName = nil
 	}
 	if next.Value() == "." {
 		stmt.Period = next
@@ -1414,6 +1458,7 @@ func (p *simpleParser) parseQualifiedTableName(r reporter) (stmt *ast.QualifiedT
 			return
 		}
 		if next.Type() == token.Literal {
+			stmt.SchemaName = schemaOrTableName
 			stmt.TableName = next
 			p.consumeToken()
 		} else {
@@ -1486,6 +1531,574 @@ func (p *simpleParser) parseQualifiedTableName(r reporter) (stmt *ast.QualifiedT
 			p.consumeToken()
 		} else {
 			r.unexpectedToken(token.KeywordIndexed)
+		}
+	}
+	return
+}
+
+func (p *simpleParser) parseCommonTableExpression(r reporter) (stmt *ast.CommonTableExpression) {
+	stmt = &ast.CommonTableExpression{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.Literal {
+		stmt.TableName = next
+		p.consumeToken()
+	} else {
+		r.unexpectedToken(token.Literal)
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Value() == "(" {
+		stmt.LeftParen1 = next
+		p.consumeToken()
+		for {
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.Literal && next.Value() != "," {
+				stmt.ColumnName = append(stmt.ColumnName, next)
+				p.consumeToken()
+			}
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == "," {
+				p.consumeToken()
+			}
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == ")" {
+				stmt.RightParen1 = next
+				p.consumeToken()
+				break
+			}
+		}
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordAs {
+		stmt.As = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Value() == "(" {
+			stmt.LeftParen2 = next
+			p.consumeToken()
+			stmt.SelectStmt = p.parseSelectStmt(r)
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == ")" {
+				stmt.RightParen2 = next
+				p.consumeToken()
+			}
+		}
+	}
+	return
+}
+
+func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
+	stmt = &ast.SelectCore{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordSelect {
+		stmt.Select = next
+		p.consumeToken()
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordDistinct {
+		stmt.Distinct = next
+		p.consumeToken()
+	} else if next.Type() == token.KeywordAll {
+		stmt.All = next
+		p.consumeToken()
+	} else {
+		for {
+			stmt.ResultColumn = append(stmt.ResultColumn, p.parseResultColumn(r))
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == "," {
+				p.consumeToken()
+			} else {
+				break
+			}
+		}
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordFrom {
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordWhere {
+		// Consuming the keyword where
+		p.consumeToken()
+		stmt.Expr1 = p.parseExpression(r)
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordGroup {
+		// Consuming the keyword Group
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordBy {
+			stmt.By = next
+			p.consumeToken()
+		}
+		for {
+			stmt.Expr2 = append(stmt.Expr2, p.parseExpression(r))
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == "," {
+				p.consumeToken()
+			} else {
+				break
+			}
+		}
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordHaving {
+			stmt.Having = next
+			p.consumeToken()
+			stmt.Expr3 = p.parseExpression(r)
+		}
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordWindow {
+		// Consuming the keyword window
+		for {
+			stmt.NamedWindow = append(stmt.NamedWindow, p.parseNamedWindow(r))
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == "," {
+				p.consumeToken()
+			} else {
+				break
+			}
+		}
+	}
+
+	return
+}
+
+func (p *simpleParser) parseResultColumn(r reporter) (stmt *ast.ResultColumn) {
+	stmt = &ast.ResultColumn{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Value() == "*" {
+		stmt.Asterisk = next
+		p.consumeToken()
+	} else if next.Type() == token.Literal {
+		stmt.TableName = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Value() == "." {
+			stmt.Period = next
+			p.consumeToken()
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == "*" {
+				stmt.Asterisk = next
+				p.consumeToken()
+			}
+		} else {
+			r.unexpectedSingleRuneToken('.')
+		}
+
+	} else {
+		stmt.Expr = p.parseExpression(r)
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF {
+			return
+		}
+		if next.Type() == token.KeywordAs {
+			stmt.As = next
+			p.consumeToken()
+		}
+
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF {
+			return
+		}
+		if next.Type() == token.Literal {
+			stmt.ColumnAlias = next
+			p.consumeToken()
+		}
+	}
+	return
+}
+
+func (p *simpleParser) parseNamedWindow(r reporter) (stmt *ast.NamedWindow) {
+	stmt = &ast.NamedWindow{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.Literal {
+		stmt.WindowName = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordAs {
+			stmt.As = next
+			p.consumeToken()
+			stmt.WindowDefn = p.parseWindowDefn(r)
+		} else {
+			r.unexpectedToken(token.KeywordAs)
+		}
+	}
+	return
+}
+
+func (p *simpleParser) parseWindowDefn(r reporter) (stmt *ast.WindowDefn) {
+	stmt = &ast.WindowDefn{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Value() == "(" {
+		stmt.LeftParen = next
+		p.consumeToken()
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.Literal {
+		stmt.BaseWindowName = next
+		p.consumeToken()
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordPartition {
+		stmt.Partition = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordBy {
+			stmt.By = next
+			p.consumeToken()
+		} else {
+			r.unexpectedToken(token.KeywordBy)
+		}
+		for {
+			stmt.Expr = append(stmt.Expr, p.parseExpression(r))
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == "," {
+				p.consumeToken()
+			} else {
+				break
+			}
+		}
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordOrder {
+		stmt.Order = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordBy {
+			stmt.By = next
+			p.consumeToken()
+		} else {
+			r.unexpectedToken(token.KeywordBy)
+		}
+		for {
+			stmt.OrderingTerm = append(stmt.OrderingTerm, p.parseOrderingTerm(r))
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == "," {
+				p.consumeToken()
+			} else {
+				break
+			}
+		}
+	}
+
+	stmt.FrameSpec = p.parseFrameSpec(r)
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Value() == ")" {
+		stmt.RightParen = next
+		p.consumeToken()
+	}
+	return
+}
+
+func (p *simpleParser) parseOrderingTerm(r reporter) (stmt *ast.OrderingTerm) {
+	stmt = &ast.OrderingTerm{}
+	return
+}
+
+func (p *simpleParser) parseFrameSpec(r reporter) (stmt *ast.FrameSpec) {
+	stmt = &ast.FrameSpec{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	switch next.Type() {
+	case token.KeywordRange:
+		stmt.Range = next
+		p.consumeToken()
+	case token.KeywordRows:
+		stmt.Rows = next
+		p.consumeToken()
+	case token.KeywordGroups:
+		stmt.Groups = next
+		p.consumeToken()
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	switch next.Type() {
+	case token.KeywordBetween:
+		// Consume the keyword between
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		switch next.Type() {
+		case token.KeywordUnbounded:
+			// Consume the keyword unbounded
+			p.consumeToken()
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordPreceding {
+				stmt.Preceding2 = next
+				p.consumeToken()
+			}
+		case token.KeywordCurrent:
+			// Consume the keyword current
+			p.consumeToken()
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordRow {
+				// This is set as Row1 because this is one of the either paths
+				// taken by the FSM. Other path has 2x ROW's.
+				stmt.Row1 = next
+				p.consumeToken()
+			}
+		default:
+			stmt.Expr2 = p.parseExpression(r)
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordPreceding {
+				stmt.Preceding1 = next
+				p.consumeToken()
+			}
+			if next.Type() == token.KeywordFollowing {
+				stmt.Following1 = next
+				p.consumeToken()
+			}
+		}
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordAnd {
+			stmt.And = next
+			p.consumeToken()
+		}
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		switch next.Type() {
+		case token.KeywordUnbounded:
+			// Consume the keyword unbounded
+			p.consumeToken()
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordFollowing {
+				stmt.Following2 = next
+				p.consumeToken()
+			}
+		case token.KeywordCurrent:
+			// Consume the keyword current
+			p.consumeToken()
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordRow {
+				// This is set as Row1 because this is one of the either paths
+				// taken by the FSM. Other path has 2x ROW's.
+				stmt.Row1 = next
+				p.consumeToken()
+			}
+		default:
+			stmt.Expr2 = p.parseExpression(r)
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordPreceding {
+				stmt.Preceding2 = next
+				p.consumeToken()
+			}
+			if next.Type() == token.KeywordFollowing {
+				stmt.Following2 = next
+				p.consumeToken()
+			}
+		}
+	case token.KeywordUnbounded:
+		// Consume the keyword unbounded
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordPreceding {
+			stmt.Preceding2 = next
+			p.consumeToken()
+		}
+	case token.KeywordCurrent:
+		// Consume the keyword current
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordRow {
+			// This is set as Row1 because this is one of the either paths
+			// taken by the FSM. Other path has 2x ROW's.
+			stmt.Row1 = next
+			p.consumeToken()
+		}
+	default:
+		stmt.Expr2 = p.parseExpression(r)
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordPreceding {
+			stmt.Preceding2 = next
+			p.consumeToken()
+		}
+	}
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF {
+		return
+	}
+	if next.Type() == token.KeywordExclude {
+		stmt.Exclude = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		switch next.Type() {
+		case token.KeywordNo:
+			p.consumeToken()
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordOthers {
+				stmt.Others = next
+				p.consumeToken()
+			}
+		case token.KeywordCurrent:
+			p.consumeToken()
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordRow {
+				stmt.Row3 = next
+				p.consumeToken()
+			}
+		case token.KeywordGroup:
+			p.consumeToken()
+		case token.KeywordTies:
+			p.consumeToken()
 		}
 	}
 	return
