@@ -50,6 +50,8 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 		stmt.BeginStmt = p.parseBeginStmt(r)
 	case token.KeywordCommit:
 		stmt.CommitStmt = p.parseCommitStmt(r)
+	case token.KeywordCreate:
+		p.parseCreateStmt(stmt, r)
 	case token.KeywordDetach:
 		stmt.DetachStmt = p.parseDetachDatabaseStmt(r)
 	case token.KeywordEnd:
@@ -800,15 +802,23 @@ func (p *simpleParser) parseAnalyzeStmt(r reporter) (stmt *ast.AnalyzeStmt) {
 	if !ok || period.Type() == token.EOF {
 		return
 	}
-	stmt.Period = period
-	p.consumeToken()
+	// Since if there is a period, it means there is definitely an
+	// existance of a literal, we need a more restrictive condition.
+	// Thus we reject if we dont find a literal.
+	if period.Value() == "." {
+		stmt.Period = period
+		p.consumeToken()
 
-	next, ok = p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
-		return
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() != token.Literal {
+			r.unexpectedToken(token.Literal)
+		}
+		stmt.TableOrIndexName = next
+		p.consumeToken()
 	}
-	stmt.TableOrIndexName = next
-	p.consumeToken()
 	return
 }
 
@@ -828,13 +838,14 @@ func (p *simpleParser) parseBeginStmt(r reporter) (stmt *ast.BeginStmt) {
 	if !ok || next.Type() == token.EOF {
 		return
 	}
-	if next.Type() == token.KeywordDeferred {
+	switch next.Type() {
+	case token.KeywordDeferred:
 		stmt.Deferred = next
 		p.consumeToken()
-	} else if next.Type() == token.KeywordImmediate {
+	case token.KeywordImmediate:
 		stmt.Immediate = next
 		p.consumeToken()
-	} else if next.Type() == token.KeywordExclusive {
+	case token.KeywordExclusive:
 		stmt.Exclusive = next
 		p.consumeToken()
 	}
@@ -927,5 +938,293 @@ func (p *simpleParser) parseRollbackStmt(r reporter) (stmt *ast.RollbackStmt) {
 		stmt.SavepointName = next
 	}
 	p.consumeToken()
+	return
+}
+
+// parseCreateStmt looks ahead for the tokens and decides which function gets to parse the statement
+func (p *simpleParser) parseCreateStmt(stmt *ast.SQLStmt, r reporter) {
+	p.searchNext(r, token.KeywordCreate)
+	createToken, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	p.consumeToken()
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	switch next.Type() {
+	case token.KeywordIndex:
+		stmt.CreateIndexStmt = p.parseCreateIndexStmt(createToken, r)
+	case token.KeywordUnique:
+		stmt.CreateIndexStmt = p.parseCreateIndexStmt(createToken, r)
+	case token.KeywordTable:
+		stmt.CreateTableStmt = p.parseCreateTableStmt(createToken, nil, nil, r)
+	case token.KeywordTrigger:
+		stmt.CreateTriggerStmt = p.parseCreateTriggerStmt(createToken, nil, nil, r)
+	case token.KeywordView:
+		stmt.CreateViewStmt = p.parseCreateViewStmt(createToken, nil, nil, r)
+	case token.KeywordTemp:
+		tempToken := next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		switch next.Type() {
+		case token.KeywordTable:
+			stmt.CreateTableStmt = p.parseCreateTableStmt(createToken, tempToken, nil, r)
+		case token.KeywordTrigger:
+			stmt.CreateTriggerStmt = p.parseCreateTriggerStmt(createToken, tempToken, nil, r)
+		case token.KeywordView:
+			stmt.CreateViewStmt = p.parseCreateViewStmt(createToken, tempToken, nil, r)
+		}
+	case token.KeywordTemporary:
+		temporaryToken := next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		switch next.Type() {
+		case token.KeywordTable:
+			stmt.CreateTableStmt = p.parseCreateTableStmt(createToken, nil, temporaryToken, r)
+		case token.KeywordTrigger:
+			stmt.CreateTriggerStmt = p.parseCreateTriggerStmt(createToken, nil, temporaryToken, r)
+		case token.KeywordView:
+			stmt.CreateViewStmt = p.parseCreateViewStmt(createToken, nil, temporaryToken, r)
+		}
+	case token.KeywordVirtual:
+		stmt.CreateVirtualTableStmt = p.parseCreateVirtualTableStmt(createToken, r)
+	}
+}
+
+// parseCreateIndexStmt parses a single CREATE INDEX statement as defined in the spec:
+// https://sqlite.org/lang_createindex.html
+func (p *simpleParser) parseCreateIndexStmt(createToken token.Token, r reporter) (stmt *ast.CreateIndexStmt) {
+	stmt = &ast.CreateIndexStmt{}
+	stmt.Create = createToken
+
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordUnique {
+		stmt.Unique = next
+		p.consumeToken()
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordIndex {
+		stmt.Index = next
+		p.consumeToken()
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordIf {
+		stmt.If = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordNot {
+			stmt.Not = next
+			p.consumeToken()
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordExists {
+				stmt.Exists = next
+				p.consumeToken()
+			} else {
+				r.unexpectedToken(token.KeywordExists)
+			}
+		} else {
+			r.unexpectedToken(token.KeywordNot)
+		}
+	}
+
+	schemaNameOrIndexName, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if schemaNameOrIndexName.Type() == token.Literal {
+		// This is the case where there might not be a schemaName
+		// We assume that its the table name in the beginning and assign it
+		stmt.IndexName = schemaNameOrIndexName
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		// If we find the signs of there being a SchemaName,
+		// we over-write the previous value
+		if next.Value() == "." {
+			stmt.SchemaName = schemaNameOrIndexName
+			stmt.Period = next
+			p.consumeToken()
+			indexName, ok := p.lookahead(r)
+			if !ok {
+				return
+			}
+			stmt.IndexName = indexName
+			p.consumeToken()
+		}
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordOn {
+		stmt.On = next
+		p.consumeToken()
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.Literal {
+		stmt.TableName = next
+		p.consumeToken()
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Value() == "(" {
+		stmt.LeftParen = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		for next.Value() != ")" {
+			stmt.IndexedColumns = append(stmt.IndexedColumns, p.parseIndexedColumn(r))
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == "," {
+				p.consumeToken()
+			}
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+		}
+		if next.Value() == ")" {
+			stmt.RightParen = next
+			p.consumeToken()
+		}
+	}
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF {
+		return
+	}
+	if next.Type() == token.KeywordWhere {
+		stmt.Where = next
+		p.consumeToken()
+		stmt.Expr = p.parseExpression(r)
+	}
+	return
+}
+
+func (p *simpleParser) parseIndexedColumn(r reporter) (stmt *ast.IndexedColumn) {
+	stmt = &ast.IndexedColumn{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.Literal {
+		stmt.ColumnName = next
+		p.consumeToken()
+	} else {
+		stmt.Expr = p.parseExpression(r)
+	}
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF {
+		return
+	}
+	if next.Type() == token.KeywordCollate {
+		stmt.Collate = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Literal {
+			stmt.CollationName = next
+			p.consumeToken()
+		} else {
+			r.unexpectedToken(token.Literal)
+		}
+	}
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF {
+		return
+	}
+	if next.Type() == token.KeywordAsc {
+		stmt.Asc = next
+		p.consumeToken()
+	}
+	if next.Type() == token.KeywordDesc {
+		stmt.Desc = next
+		p.consumeToken()
+	}
+	return
+}
+
+func (p *simpleParser) parseCreateTableStmt(createToken, tempToken, temporaryToken token.Token, r reporter) (stmt *ast.CreateTableStmt) {
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	r.unsupportedConstruct(next)
+	p.searchNext(r, token.StatementSeparator, token.EOF)
+	return
+}
+
+func (p *simpleParser) parseCreateTriggerStmt(createToken, tempToken, temporaryToken token.Token, r reporter) (stmt *ast.CreateTriggerStmt) {
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	r.unsupportedConstruct(next)
+	p.searchNext(r, token.StatementSeparator, token.EOF)
+	return
+}
+
+func (p *simpleParser) parseCreateViewStmt(createToken, tempToken, temporaryToken token.Token, r reporter) (stmt *ast.CreateViewStmt) {
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	r.unsupportedConstruct(next)
+	p.searchNext(r, token.StatementSeparator, token.EOF)
+	return
+}
+
+func (p *simpleParser) parseCreateVirtualTableStmt(createToken token.Token, r reporter) (stmt *ast.CreateVirtualTableStmt) {
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	r.unsupportedConstruct(next)
+	p.searchNext(r, token.StatementSeparator, token.EOF)
 	return
 }
