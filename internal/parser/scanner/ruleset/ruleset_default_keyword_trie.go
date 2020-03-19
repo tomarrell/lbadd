@@ -10,6748 +10,6823 @@ func defaultKeywordsRule(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'H':
-		return _scanKeywordH(s)
-	case 'M':
-		return _scanKeywordM(s)
-	case 'Q':
-		return _scanKeywordQ(s)
-	case 'V':
-		return _scanKeywordV(s)
-	case 'N':
-		return _scanKeywordN(s)
-	case 'O':
-		return _scanKeywordO(s)
-	case 'U':
-		return _scanKeywordU(s)
-	case 'G':
-		return _scanKeywordG(s)
-	case 'C':
-		return _scanKeywordC(s)
-	case 'I':
-		return _scanKeywordI(s)
-	case 'R':
-		return _scanKeywordR(s)
-	case 'A':
-		return _scanKeywordA(s)
-	case 'D':
-		return _scanKeywordD(s)
-	case 'E':
-		return _scanKeywordE(s)
-	case 'W':
-		return _scanKeywordW(s)
-	case 'S':
-		return _scanKeywordS(s)
-	case 'P':
-		return _scanKeywordP(s)
-	case 'L':
-		return _scanKeywordL(s)
-	case 'K':
-		return _scanKeywordK(s)
-	case 'J':
-		return _scanKeywordJ(s)
-	case 'B':
-		return _scanKeywordB(s)
-	case 'F':
-		return _scanKeywordF(s)
-	case 'T':
-		return _scanKeywordT(s)
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordA(s)
+	case 'B', 'b':
+		s.ConsumeRune()
+		return scanKeywordB(s)
+	case 'C', 'c':
+		s.ConsumeRune()
+		return scanKeywordC(s)
+	case 'D', 'd':
+		s.ConsumeRune()
+		return scanKeywordD(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordE(s)
+	case 'F', 'f':
+		s.ConsumeRune()
+		return scanKeywordF(s)
+	case 'G', 'g':
+		s.ConsumeRune()
+		return scanKeywordG(s)
+	case 'H', 'h':
+		s.ConsumeRune()
+		return scanKeywordH(s)
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordI(s)
+	case 'J', 'j':
+		s.ConsumeRune()
+		return scanKeywordJ(s)
+	case 'K', 'k':
+		s.ConsumeRune()
+		return scanKeywordK(s)
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordL(s)
+	case 'M', 'm':
+		s.ConsumeRune()
+		return scanKeywordM(s)
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordN(s)
+	case 'O', 'o':
+		s.ConsumeRune()
+		return scanKeywordO(s)
+	case 'P', 'p':
+		s.ConsumeRune()
+		return scanKeywordP(s)
+	case 'Q', 'q':
+		s.ConsumeRune()
+		return scanKeywordQ(s)
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordR(s)
+	case 'S', 's':
+		s.ConsumeRune()
+		return scanKeywordS(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordT(s)
+	case 'U', 'u':
+		s.ConsumeRune()
+		return scanKeywordU(s)
+	case 'V', 'v':
+		s.ConsumeRune()
+		return scanKeywordV(s)
+	case 'W', 'w':
+		s.ConsumeRune()
+		return scanKeywordW(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordB(s RuneScanner) (token.Type, bool) {
+func scanKeywordO(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'Y':
-		return _scanKeywordBY(s)
-	case 'E':
-		return _scanKeywordBE(s)
+	case 'F', 'f':
+		s.ConsumeRune()
+		return scanKeywordOF(s)
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordON(s)
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordOR(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordOT(s)
+	case 'U', 'u':
+		s.ConsumeRune()
+		return scanKeywordOU(s)
+	case 'V', 'v':
+		s.ConsumeRune()
+		return scanKeywordOV(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordBY(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordOU(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordOUT(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordOUT(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordOUTE(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordOUTE(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordOUTER(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordOUTER(s RuneScanner) (token.Type, bool) {
+	return token.KeywordOuter, true
+}
+
+func scanKeywordOT(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'H', 'h':
+		s.ConsumeRune()
+		return scanKeywordOTH(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordOTH(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordOTHE(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordOTHE(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordOTHER(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordOTHER(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'S', 's':
+		s.ConsumeRune()
+		return scanKeywordOTHERS(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordOTHERS(s RuneScanner) (token.Type, bool) {
+	return token.KeywordOthers, true
+}
+
+func scanKeywordOF(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'F', 'f':
+		s.ConsumeRune()
+		return scanKeywordOFF(s)
+	}
+	return token.KeywordOf, true
+}
+
+func scanKeywordOFF(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'S', 's':
+		s.ConsumeRune()
+		return scanKeywordOFFS(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordOFFS(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordOFFSE(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordOFFSE(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordOFFSET(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordOFFSET(s RuneScanner) (token.Type, bool) {
+	return token.KeywordOffset, true
+}
+
+func scanKeywordOV(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordOVE(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordOVE(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordOVER(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordOVER(s RuneScanner) (token.Type, bool) {
+	return token.KeywordOver, true
+}
+
+func scanKeywordON(s RuneScanner) (token.Type, bool) {
+	return token.KeywordOn, true
+}
+
+func scanKeywordOR(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'D', 'd':
+		s.ConsumeRune()
+		return scanKeywordORD(s)
+	}
+	return token.KeywordOr, true
+}
+
+func scanKeywordORD(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordORDE(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordORDE(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordORDER(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordORDER(s RuneScanner) (token.Type, bool) {
+	return token.KeywordOrder, true
+}
+
+func scanKeywordS(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordSA(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordSE(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordSE(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordSEL(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordSET(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordSET(s RuneScanner) (token.Type, bool) {
+	return token.KeywordSet, true
+}
+
+func scanKeywordSEL(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordSELE(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordSELE(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'C', 'c':
+		s.ConsumeRune()
+		return scanKeywordSELEC(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordSELEC(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordSELECT(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordSELECT(s RuneScanner) (token.Type, bool) {
+	return token.KeywordSelect, true
+}
+
+func scanKeywordSA(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'V', 'v':
+		s.ConsumeRune()
+		return scanKeywordSAV(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordSAV(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordSAVE(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordSAVE(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'P', 'p':
+		s.ConsumeRune()
+		return scanKeywordSAVEP(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordSAVEP(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'O', 'o':
+		s.ConsumeRune()
+		return scanKeywordSAVEPO(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordSAVEPO(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordSAVEPOI(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordSAVEPOI(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordSAVEPOIN(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordSAVEPOIN(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordSAVEPOINT(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordSAVEPOINT(s RuneScanner) (token.Type, bool) {
+	return token.KeywordSavepoint, true
+}
+
+func scanKeywordA(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'B', 'b':
+		s.ConsumeRune()
+		return scanKeywordAB(s)
+	case 'C', 'c':
+		s.ConsumeRune()
+		return scanKeywordAC(s)
+	case 'D', 'd':
+		s.ConsumeRune()
+		return scanKeywordAD(s)
+	case 'F', 'f':
+		s.ConsumeRune()
+		return scanKeywordAF(s)
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordAL(s)
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordAN(s)
+	case 'S', 's':
+		s.ConsumeRune()
+		return scanKeywordAS(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordAT(s)
+	case 'U', 'u':
+		s.ConsumeRune()
+		return scanKeywordAU(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordAN(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordANA(s)
+	case 'D', 'd':
+		s.ConsumeRune()
+		return scanKeywordAND(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordAND(s RuneScanner) (token.Type, bool) {
+	return token.KeywordAnd, true
+}
+
+func scanKeywordANA(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordANAL(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordANAL(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'Y', 'y':
+		s.ConsumeRune()
+		return scanKeywordANALY(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordANALY(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'Z', 'z':
+		s.ConsumeRune()
+		return scanKeywordANALYZ(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordANALYZ(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordANALYZE(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordANALYZE(s RuneScanner) (token.Type, bool) {
+	return token.KeywordAnalyze, true
+}
+
+func scanKeywordAU(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordAUT(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordAUT(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'O', 'o':
+		s.ConsumeRune()
+		return scanKeywordAUTO(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordAUTO(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordAUTOI(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordAUTOI(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordAUTOIN(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordAUTOIN(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'C', 'c':
+		s.ConsumeRune()
+		return scanKeywordAUTOINC(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordAUTOINC(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordAUTOINCR(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordAUTOINCR(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordAUTOINCRE(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordAUTOINCRE(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'M', 'm':
+		s.ConsumeRune()
+		return scanKeywordAUTOINCREM(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordAUTOINCREM(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordAUTOINCREME(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordAUTOINCREME(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordAUTOINCREMEN(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordAUTOINCREMEN(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordAUTOINCREMENT(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordAUTOINCREMENT(s RuneScanner) (token.Type, bool) {
+	return token.KeywordAutoincrement, true
+}
+
+func scanKeywordAB(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'O', 'o':
+		s.ConsumeRune()
+		return scanKeywordABO(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordABO(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordABOR(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordABOR(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordABORT(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordABORT(s RuneScanner) (token.Type, bool) {
+	return token.KeywordAbort, true
+}
+
+func scanKeywordAT(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordATT(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordATT(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordATTA(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordATTA(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'C', 'c':
+		s.ConsumeRune()
+		return scanKeywordATTAC(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordATTAC(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'H', 'h':
+		s.ConsumeRune()
+		return scanKeywordATTACH(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordATTACH(s RuneScanner) (token.Type, bool) {
+	return token.KeywordAttach, true
+}
+
+func scanKeywordAL(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordALL(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordALT(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordALL(s RuneScanner) (token.Type, bool) {
+	return token.KeywordAll, true
+}
+
+func scanKeywordALT(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordALTE(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordALTE(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordALTER(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordALTER(s RuneScanner) (token.Type, bool) {
+	return token.KeywordAlter, true
+}
+
+func scanKeywordAC(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordACT(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordACT(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordACTI(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordACTI(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'O', 'o':
+		s.ConsumeRune()
+		return scanKeywordACTIO(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordACTIO(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordACTION(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordACTION(s RuneScanner) (token.Type, bool) {
+	return token.KeywordAction, true
+}
+
+func scanKeywordAD(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'D', 'd':
+		s.ConsumeRune()
+		return scanKeywordADD(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordADD(s RuneScanner) (token.Type, bool) {
+	return token.KeywordAdd, true
+}
+
+func scanKeywordAS(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'C', 'c':
+		s.ConsumeRune()
+		return scanKeywordASC(s)
+	}
+	return token.KeywordAs, true
+}
+
+func scanKeywordASC(s RuneScanner) (token.Type, bool) {
+	return token.KeywordAsc, true
+}
+
+func scanKeywordAF(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordAFT(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordAFT(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordAFTE(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordAFTE(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordAFTER(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordAFTER(s RuneScanner) (token.Type, bool) {
+	return token.KeywordAfter, true
+}
+
+func scanKeywordF(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordFA(s)
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordFI(s)
+	case 'O', 'o':
+		s.ConsumeRune()
+		return scanKeywordFO(s)
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordFR(s)
+	case 'U', 'u':
+		s.ConsumeRune()
+		return scanKeywordFU(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordFI(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordFIL(s)
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordFIR(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordFIL(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordFILT(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordFILT(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordFILTE(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordFILTE(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordFILTER(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordFILTER(s RuneScanner) (token.Type, bool) {
+	return token.KeywordFilter, true
+}
+
+func scanKeywordFIR(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'S', 's':
+		s.ConsumeRune()
+		return scanKeywordFIRS(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordFIRS(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordFIRST(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordFIRST(s RuneScanner) (token.Type, bool) {
+	return token.KeywordFirst, true
+}
+
+func scanKeywordFU(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordFUL(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordFUL(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordFULL(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordFULL(s RuneScanner) (token.Type, bool) {
+	return token.KeywordFull, true
+}
+
+func scanKeywordFR(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'O', 'o':
+		s.ConsumeRune()
+		return scanKeywordFRO(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordFRO(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'M', 'm':
+		s.ConsumeRune()
+		return scanKeywordFROM(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordFROM(s RuneScanner) (token.Type, bool) {
+	return token.KeywordFrom, true
+}
+
+func scanKeywordFA(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordFAI(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordFAI(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordFAIL(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordFAIL(s RuneScanner) (token.Type, bool) {
+	return token.KeywordFail, true
+}
+
+func scanKeywordFO(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordFOL(s)
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordFOR(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordFOR(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordFORE(s)
+	}
+	return token.KeywordFor, true
+}
+
+func scanKeywordFORE(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordFOREI(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordFOREI(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'G', 'g':
+		s.ConsumeRune()
+		return scanKeywordFOREIG(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordFOREIG(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordFOREIGN(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordFOREIGN(s RuneScanner) (token.Type, bool) {
+	return token.KeywordForeign, true
+}
+
+func scanKeywordFOL(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordFOLL(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordFOLL(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'O', 'o':
+		s.ConsumeRune()
+		return scanKeywordFOLLO(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordFOLLO(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'W', 'w':
+		s.ConsumeRune()
+		return scanKeywordFOLLOW(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordFOLLOW(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordFOLLOWI(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordFOLLOWI(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordFOLLOWIN(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordFOLLOWIN(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'G', 'g':
+		s.ConsumeRune()
+		return scanKeywordFOLLOWING(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordFOLLOWING(s RuneScanner) (token.Type, bool) {
+	return token.KeywordFollowing, true
+}
+
+func scanKeywordQ(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'U', 'u':
+		s.ConsumeRune()
+		return scanKeywordQU(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordQU(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordQUE(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordQUE(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordQUER(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordQUER(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'Y', 'y':
+		s.ConsumeRune()
+		return scanKeywordQUERY(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordQUERY(s RuneScanner) (token.Type, bool) {
+	return token.KeywordQuery, true
+}
+
+func scanKeywordD(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordDA(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordDE(s)
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordDI(s)
+	case 'O', 'o':
+		s.ConsumeRune()
+		return scanKeywordDO(s)
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordDR(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDA(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordDAT(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDAT(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordDATA(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDATA(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'B', 'b':
+		s.ConsumeRune()
+		return scanKeywordDATAB(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDATAB(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordDATABA(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDATABA(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'S', 's':
+		s.ConsumeRune()
+		return scanKeywordDATABAS(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDATABAS(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordDATABASE(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDATABASE(s RuneScanner) (token.Type, bool) {
+	return token.KeywordDatabase, true
+}
+
+func scanKeywordDE(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'F', 'f':
+		s.ConsumeRune()
+		return scanKeywordDEF(s)
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordDEL(s)
+	case 'S', 's':
+		s.ConsumeRune()
+		return scanKeywordDES(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordDET(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDEF(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordDEFA(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordDEFE(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDEFE(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordDEFER(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDEFER(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordDEFERR(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDEFERR(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordDEFERRA(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordDEFERRE(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDEFERRE(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'D', 'd':
+		s.ConsumeRune()
+		return scanKeywordDEFERRED(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDEFERRED(s RuneScanner) (token.Type, bool) {
+	return token.KeywordDeferred, true
+}
+
+func scanKeywordDEFERRA(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'B', 'b':
+		s.ConsumeRune()
+		return scanKeywordDEFERRAB(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDEFERRAB(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordDEFERRABL(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDEFERRABL(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordDEFERRABLE(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDEFERRABLE(s RuneScanner) (token.Type, bool) {
+	return token.KeywordDeferrable, true
+}
+
+func scanKeywordDEFA(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'U', 'u':
+		s.ConsumeRune()
+		return scanKeywordDEFAU(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDEFAU(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordDEFAUL(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDEFAUL(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordDEFAULT(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDEFAULT(s RuneScanner) (token.Type, bool) {
+	return token.KeywordDefault, true
+}
+
+func scanKeywordDEL(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordDELE(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDELE(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordDELET(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDELET(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordDELETE(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDELETE(s RuneScanner) (token.Type, bool) {
+	return token.KeywordDelete, true
+}
+
+func scanKeywordDET(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordDETA(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDETA(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'C', 'c':
+		s.ConsumeRune()
+		return scanKeywordDETAC(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDETAC(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'H', 'h':
+		s.ConsumeRune()
+		return scanKeywordDETACH(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDETACH(s RuneScanner) (token.Type, bool) {
+	return token.KeywordDetach, true
+}
+
+func scanKeywordDES(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'C', 'c':
+		s.ConsumeRune()
+		return scanKeywordDESC(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDESC(s RuneScanner) (token.Type, bool) {
+	return token.KeywordDesc, true
+}
+
+func scanKeywordDO(s RuneScanner) (token.Type, bool) {
+	return token.KeywordDo, true
+}
+
+func scanKeywordDR(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'O', 'o':
+		s.ConsumeRune()
+		return scanKeywordDRO(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDRO(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'P', 'p':
+		s.ConsumeRune()
+		return scanKeywordDROP(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDROP(s RuneScanner) (token.Type, bool) {
+	return token.KeywordDrop, true
+}
+
+func scanKeywordDI(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'S', 's':
+		s.ConsumeRune()
+		return scanKeywordDIS(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDIS(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordDIST(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDIST(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordDISTI(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDISTI(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordDISTIN(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDISTIN(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'C', 'c':
+		s.ConsumeRune()
+		return scanKeywordDISTINC(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDISTINC(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordDISTINCT(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordDISTINCT(s RuneScanner) (token.Type, bool) {
+	return token.KeywordDistinct, true
+}
+
+func scanKeywordV(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordVA(s)
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordVI(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordVI(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordVIE(s)
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordVIR(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordVIR(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordVIRT(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordVIRT(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'U', 'u':
+		s.ConsumeRune()
+		return scanKeywordVIRTU(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordVIRTU(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordVIRTUA(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordVIRTUA(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordVIRTUAL(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordVIRTUAL(s RuneScanner) (token.Type, bool) {
+	return token.KeywordVirtual, true
+}
+
+func scanKeywordVIE(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'W', 'w':
+		s.ConsumeRune()
+		return scanKeywordVIEW(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordVIEW(s RuneScanner) (token.Type, bool) {
+	return token.KeywordView, true
+}
+
+func scanKeywordVA(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'C', 'c':
+		s.ConsumeRune()
+		return scanKeywordVAC(s)
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordVAL(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordVAC(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'U', 'u':
+		s.ConsumeRune()
+		return scanKeywordVACU(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordVACU(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'U', 'u':
+		s.ConsumeRune()
+		return scanKeywordVACUU(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordVACUU(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'M', 'm':
+		s.ConsumeRune()
+		return scanKeywordVACUUM(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordVACUUM(s RuneScanner) (token.Type, bool) {
+	return token.KeywordVacuum, true
+}
+
+func scanKeywordVAL(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'U', 'u':
+		s.ConsumeRune()
+		return scanKeywordVALU(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordVALU(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordVALUE(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordVALUE(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'S', 's':
+		s.ConsumeRune()
+		return scanKeywordVALUES(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordVALUES(s RuneScanner) (token.Type, bool) {
+	return token.KeywordValues, true
+}
+
+func scanKeywordN(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordNA(s)
+	case 'O', 'o':
+		s.ConsumeRune()
+		return scanKeywordNO(s)
+	case 'U', 'u':
+		s.ConsumeRune()
+		return scanKeywordNU(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordNO(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordNOT(s)
+	}
+	return token.KeywordNo, true
+}
+
+func scanKeywordNOT(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'H', 'h':
+		s.ConsumeRune()
+		return scanKeywordNOTH(s)
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordNOTN(s)
+	}
+	return token.KeywordNot, true
+}
+
+func scanKeywordNOTN(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'U', 'u':
+		s.ConsumeRune()
+		return scanKeywordNOTNU(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordNOTNU(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordNOTNUL(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordNOTNUL(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordNOTNULL(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordNOTNULL(s RuneScanner) (token.Type, bool) {
+	return token.KeywordNotnull, true
+}
+
+func scanKeywordNOTH(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordNOTHI(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordNOTHI(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordNOTHIN(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordNOTHIN(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'G', 'g':
+		s.ConsumeRune()
+		return scanKeywordNOTHING(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordNOTHING(s RuneScanner) (token.Type, bool) {
+	return token.KeywordNothing, true
+}
+
+func scanKeywordNU(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordNUL(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordNUL(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordNULL(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordNULL(s RuneScanner) (token.Type, bool) {
+	return token.KeywordNull, true
+}
+
+func scanKeywordNA(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordNAT(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordNAT(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'U', 'u':
+		s.ConsumeRune()
+		return scanKeywordNATU(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordNATU(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordNATUR(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordNATUR(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordNATURA(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordNATURA(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordNATURAL(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordNATURAL(s RuneScanner) (token.Type, bool) {
+	return token.KeywordNatural, true
+}
+
+func scanKeywordR(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordRA(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordRE(s)
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordRI(s)
+	case 'O', 'o':
+		s.ConsumeRune()
+		return scanKeywordRO(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordRI(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'G', 'g':
+		s.ConsumeRune()
+		return scanKeywordRIG(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordRIG(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'H', 'h':
+		s.ConsumeRune()
+		return scanKeywordRIGH(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordRIGH(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordRIGHT(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordRIGHT(s RuneScanner) (token.Type, bool) {
+	return token.KeywordRight, true
+}
+
+func scanKeywordRO(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordROL(s)
+	case 'W', 'w':
+		s.ConsumeRune()
+		return scanKeywordROW(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordROL(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordROLL(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordROLL(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'B', 'b':
+		s.ConsumeRune()
+		return scanKeywordROLLB(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordROLLB(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordROLLBA(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordROLLBA(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'C', 'c':
+		s.ConsumeRune()
+		return scanKeywordROLLBAC(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordROLLBAC(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'K', 'k':
+		s.ConsumeRune()
+		return scanKeywordROLLBACK(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordROLLBACK(s RuneScanner) (token.Type, bool) {
+	return token.KeywordRollback, true
+}
+
+func scanKeywordROW(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'S', 's':
+		s.ConsumeRune()
+		return scanKeywordROWS(s)
+	}
+	return token.KeywordRow, true
+}
+
+func scanKeywordROWS(s RuneScanner) (token.Type, bool) {
+	return token.KeywordRows, true
+}
+
+func scanKeywordRE(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'C', 'c':
+		s.ConsumeRune()
+		return scanKeywordREC(s)
+	case 'F', 'f':
+		s.ConsumeRune()
+		return scanKeywordREF(s)
+	case 'G', 'g':
+		s.ConsumeRune()
+		return scanKeywordREG(s)
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordREI(s)
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordREL(s)
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordREN(s)
+	case 'P', 'p':
+		s.ConsumeRune()
+		return scanKeywordREP(s)
+	case 'S', 's':
+		s.ConsumeRune()
+		return scanKeywordRES(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordREI(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordREIN(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordREIN(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'D', 'd':
+		s.ConsumeRune()
+		return scanKeywordREIND(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordREIND(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordREINDE(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordREINDE(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'X', 'x':
+		s.ConsumeRune()
+		return scanKeywordREINDEX(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordREINDEX(s RuneScanner) (token.Type, bool) {
+	return token.KeywordReindex, true
+}
+
+func scanKeywordREC(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'U', 'u':
+		s.ConsumeRune()
+		return scanKeywordRECU(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordRECU(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordRECUR(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordRECUR(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'S', 's':
+		s.ConsumeRune()
+		return scanKeywordRECURS(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordRECURS(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordRECURSI(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordRECURSI(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'V', 'v':
+		s.ConsumeRune()
+		return scanKeywordRECURSIV(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordRECURSIV(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordRECURSIVE(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordRECURSIVE(s RuneScanner) (token.Type, bool) {
+	return token.KeywordRecursive, true
+}
+
+func scanKeywordREL(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordRELE(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordRELE(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordRELEA(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordRELEA(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'S', 's':
+		s.ConsumeRune()
+		return scanKeywordRELEAS(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordRELEAS(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordRELEASE(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordRELEASE(s RuneScanner) (token.Type, bool) {
+	return token.KeywordRelease, true
+}
+
+func scanKeywordREF(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordREFE(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordREFE(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordREFER(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordREFER(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordREFERE(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordREFERE(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordBy, true
+		return token.Unknown, false
+	}
+	switch next {
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordREFEREN(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordBE(s RuneScanner) (token.Type, bool) {
+func scanKeywordREFEREN(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'F':
-		return _scanKeywordBEF(s)
-	case 'G':
-		return _scanKeywordBEG(s)
-	case 'T':
-		return _scanKeywordBET(s)
+	case 'C', 'c':
+		s.ConsumeRune()
+		return scanKeywordREFERENC(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordBEF(s RuneScanner) (token.Type, bool) {
+func scanKeywordREFERENC(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'O':
-		return _scanKeywordBEFO(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordREFERENCE(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordBEFO(s RuneScanner) (token.Type, bool) {
+func scanKeywordREFERENCE(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'R':
-		return _scanKeywordBEFOR(s)
+	case 'S', 's':
+		s.ConsumeRune()
+		return scanKeywordREFERENCES(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordREFERENCES(s RuneScanner) (token.Type, bool) {
+	return token.KeywordReferences, true
 }
 
-func _scanKeywordBEFOR(s RuneScanner) (token.Type, bool) {
+func scanKeywordREN(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordBEFORE(s)
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordRENA(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordBEFORE(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordRENA(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordBefore, true
+		return token.Unknown, false
+	}
+	switch next {
+	case 'M', 'm':
+		s.ConsumeRune()
+		return scanKeywordRENAM(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordBEG(s RuneScanner) (token.Type, bool) {
+func scanKeywordRENAM(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'I':
-		return _scanKeywordBEGI(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordRENAME(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordRENAME(s RuneScanner) (token.Type, bool) {
+	return token.KeywordRename, true
 }
 
-func _scanKeywordBEGI(s RuneScanner) (token.Type, bool) {
+func scanKeywordREP(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'N':
-		return _scanKeywordBEGIN(s)
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordREPL(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordBEGIN(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordREPL(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordBegin, true
+		return token.Unknown, false
+	}
+	switch next {
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordREPLA(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordBET(s RuneScanner) (token.Type, bool) {
+func scanKeywordREPLA(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'W':
-		return _scanKeywordBETW(s)
+	case 'C', 'c':
+		s.ConsumeRune()
+		return scanKeywordREPLAC(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordBETW(s RuneScanner) (token.Type, bool) {
+func scanKeywordREPLAC(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordBETWE(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordREPLACE(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordREPLACE(s RuneScanner) (token.Type, bool) {
+	return token.KeywordReplace, true
 }
 
-func _scanKeywordBETWE(s RuneScanner) (token.Type, bool) {
+func scanKeywordREG(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordBETWEE(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordREGE(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordBETWEE(s RuneScanner) (token.Type, bool) {
+func scanKeywordREGE(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'N':
-		return _scanKeywordBETWEEN(s)
+	case 'X', 'x':
+		s.ConsumeRune()
+		return scanKeywordREGEX(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordBETWEEN(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordREGEX(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordBetween, true
+		return token.Unknown, false
+	}
+	switch next {
+	case 'P', 'p':
+		s.ConsumeRune()
+		return scanKeywordREGEXP(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordREGEXP(s RuneScanner) (token.Type, bool) {
+	return token.KeywordRegexp, true
 }
 
-func _scanKeywordF(s RuneScanner) (token.Type, bool) {
+func scanKeywordRES(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'I':
-		return _scanKeywordFI(s)
-	case 'R':
-		return _scanKeywordFR(s)
-	case 'O':
-		return _scanKeywordFO(s)
-	case 'U':
-		return _scanKeywordFU(s)
-	case 'A':
-		return _scanKeywordFA(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordREST(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordFA(s RuneScanner) (token.Type, bool) {
+func scanKeywordREST(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'I':
-		return _scanKeywordFAI(s)
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordRESTR(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordFAI(s RuneScanner) (token.Type, bool) {
+func scanKeywordRESTR(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'L':
-		return _scanKeywordFAIL(s)
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordRESTRI(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordFAIL(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordRESTRI(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordFail, true
+		return token.Unknown, false
+	}
+	switch next {
+	case 'C', 'c':
+		s.ConsumeRune()
+		return scanKeywordRESTRIC(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordFI(s RuneScanner) (token.Type, bool) {
+func scanKeywordRESTRIC(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'L':
-		return _scanKeywordFIL(s)
-	case 'R':
-		return _scanKeywordFIR(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordRESTRICT(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordRESTRICT(s RuneScanner) (token.Type, bool) {
+	return token.KeywordRestrict, true
 }
 
-func _scanKeywordFIR(s RuneScanner) (token.Type, bool) {
+func scanKeywordRA(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'S':
-		return _scanKeywordFIRS(s)
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordRAI(s)
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordRAN(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordFIRS(s RuneScanner) (token.Type, bool) {
+func scanKeywordRAN(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'T':
-		return _scanKeywordFIRST(s)
+	case 'G', 'g':
+		s.ConsumeRune()
+		return scanKeywordRANG(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordFIRST(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordRANG(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordFirst, true
+		return token.Unknown, false
+	}
+	switch next {
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordRANGE(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordRANGE(s RuneScanner) (token.Type, bool) {
+	return token.KeywordRange, true
 }
 
-func _scanKeywordFIL(s RuneScanner) (token.Type, bool) {
+func scanKeywordRAI(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'T':
-		return _scanKeywordFILT(s)
+	case 'S', 's':
+		s.ConsumeRune()
+		return scanKeywordRAIS(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordFILT(s RuneScanner) (token.Type, bool) {
+func scanKeywordRAIS(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordFILTE(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordRAISE(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordRAISE(s RuneScanner) (token.Type, bool) {
+	return token.KeywordRaise, true
 }
 
-func _scanKeywordFILTE(s RuneScanner) (token.Type, bool) {
+func scanKeywordJ(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'R':
-		return _scanKeywordFILTER(s)
+	case 'O', 'o':
+		s.ConsumeRune()
+		return scanKeywordJO(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordFILTER(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordJO(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordFilter, true
+		return token.Unknown, false
+	}
+	switch next {
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordJOI(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordFR(s RuneScanner) (token.Type, bool) {
+func scanKeywordJOI(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'O':
-		return _scanKeywordFRO(s)
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordJOIN(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordJOIN(s RuneScanner) (token.Type, bool) {
+	return token.KeywordJoin, true
 }
 
-func _scanKeywordFRO(s RuneScanner) (token.Type, bool) {
+func scanKeywordE(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'M':
-		return _scanKeywordFROM(s)
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordEA(s)
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordEL(s)
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordEN(s)
+	case 'S', 's':
+		s.ConsumeRune()
+		return scanKeywordES(s)
+	case 'X', 'x':
+		s.ConsumeRune()
+		return scanKeywordEX(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordFROM(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordEX(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordFrom, true
+		return token.Unknown, false
+	}
+	switch next {
+	case 'C', 'c':
+		s.ConsumeRune()
+		return scanKeywordEXC(s)
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordEXI(s)
+	case 'P', 'p':
+		s.ConsumeRune()
+		return scanKeywordEXP(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordFO(s RuneScanner) (token.Type, bool) {
+func scanKeywordEXC(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'R':
-		return _scanKeywordFOR(s)
-	case 'L':
-		return _scanKeywordFOL(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordEXCE(s)
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordEXCL(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordFOR(s RuneScanner) (token.Type, bool) {
+func scanKeywordEXCL(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordFor, true
+		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordFORE(s)
+	case 'U', 'u':
+		s.ConsumeRune()
+		return scanKeywordEXCLU(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordFORE(s RuneScanner) (token.Type, bool) {
+func scanKeywordEXCLU(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'I':
-		return _scanKeywordFOREI(s)
+	case 'D', 'd':
+		s.ConsumeRune()
+		return scanKeywordEXCLUD(s)
+	case 'S', 's':
+		s.ConsumeRune()
+		return scanKeywordEXCLUS(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordFOREI(s RuneScanner) (token.Type, bool) {
+func scanKeywordEXCLUD(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'G':
-		return _scanKeywordFOREIG(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordEXCLUDE(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordEXCLUDE(s RuneScanner) (token.Type, bool) {
+	return token.KeywordExclude, true
 }
 
-func _scanKeywordFOREIG(s RuneScanner) (token.Type, bool) {
+func scanKeywordEXCLUS(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'N':
-		return _scanKeywordFOREIGN(s)
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordEXCLUSI(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordFOREIGN(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordEXCLUSI(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordForeign, true
+		return token.Unknown, false
+	}
+	switch next {
+	case 'V', 'v':
+		s.ConsumeRune()
+		return scanKeywordEXCLUSIV(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordFOL(s RuneScanner) (token.Type, bool) {
+func scanKeywordEXCLUSIV(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'L':
-		return _scanKeywordFOLL(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordEXCLUSIVE(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordFOLL(s RuneScanner) (token.Type, bool) {
+func scanKeywordEXCLUSIVE(s RuneScanner) (token.Type, bool) {
+	return token.KeywordExclusive, true
+}
+
+func scanKeywordEXCE(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'O':
-		return _scanKeywordFOLLO(s)
+	case 'P', 'p':
+		s.ConsumeRune()
+		return scanKeywordEXCEP(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordFOLLO(s RuneScanner) (token.Type, bool) {
+func scanKeywordEXCEP(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'W':
-		return _scanKeywordFOLLOW(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordEXCEPT(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordEXCEPT(s RuneScanner) (token.Type, bool) {
+	return token.KeywordExcept, true
 }
 
-func _scanKeywordFOLLOW(s RuneScanner) (token.Type, bool) {
+func scanKeywordEXI(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'I':
-		return _scanKeywordFOLLOWI(s)
+	case 'S', 's':
+		s.ConsumeRune()
+		return scanKeywordEXIS(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordFOLLOWI(s RuneScanner) (token.Type, bool) {
+func scanKeywordEXIS(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'N':
-		return _scanKeywordFOLLOWIN(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordEXIST(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordFOLLOWIN(s RuneScanner) (token.Type, bool) {
+func scanKeywordEXIST(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'G':
-		return _scanKeywordFOLLOWING(s)
+	case 'S', 's':
+		s.ConsumeRune()
+		return scanKeywordEXISTS(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordFOLLOWING(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordEXISTS(s RuneScanner) (token.Type, bool) {
+	return token.KeywordExists, true
+}
+
+func scanKeywordEXP(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordFollowing, true
+		return token.Unknown, false
 	}
+	switch next {
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordEXPL(s)
+	}
 	return token.Unknown, false
 }
 
-func _scanKeywordFU(s RuneScanner) (token.Type, bool) {
+func scanKeywordEXPL(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'L':
-		return _scanKeywordFUL(s)
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordEXPLA(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordFUL(s RuneScanner) (token.Type, bool) {
+func scanKeywordEXPLA(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'L':
-		return _scanKeywordFULL(s)
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordEXPLAI(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordFULL(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordEXPLAI(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordFull, true
+		return token.Unknown, false
 	}
+	switch next {
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordEXPLAIN(s)
+	}
 	return token.Unknown, false
+}
+
+func scanKeywordEXPLAIN(s RuneScanner) (token.Type, bool) {
+	return token.KeywordExplain, true
 }
 
-func _scanKeywordT(s RuneScanner) (token.Type, bool) {
+func scanKeywordEL(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordTE(s)
-	case 'R':
-		return _scanKeywordTR(s)
-	case 'A':
-		return _scanKeywordTA(s)
-	case 'H':
-		return _scanKeywordTH(s)
-	case 'O':
-		return _scanKeywordTO(s)
-	case 'I':
-		return _scanKeywordTI(s)
+	case 'S', 's':
+		s.ConsumeRune()
+		return scanKeywordELS(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordTI(s RuneScanner) (token.Type, bool) {
+func scanKeywordELS(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordTIE(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordELSE(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordTIE(s RuneScanner) (token.Type, bool) {
+func scanKeywordELSE(s RuneScanner) (token.Type, bool) {
+	return token.KeywordElse, true
+}
+
+func scanKeywordEA(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'S':
-		return _scanKeywordTIES(s)
+	case 'C', 'c':
+		s.ConsumeRune()
+		return scanKeywordEAC(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordTIES(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordEAC(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordTies, true
+		return token.Unknown, false
 	}
+	switch next {
+	case 'H', 'h':
+		s.ConsumeRune()
+		return scanKeywordEACH(s)
+	}
 	return token.Unknown, false
+}
+
+func scanKeywordEACH(s RuneScanner) (token.Type, bool) {
+	return token.KeywordEach, true
 }
 
-func _scanKeywordTE(s RuneScanner) (token.Type, bool) {
+func scanKeywordEN(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'M':
-		return _scanKeywordTEM(s)
+	case 'D', 'd':
+		s.ConsumeRune()
+		return scanKeywordEND(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordTEM(s RuneScanner) (token.Type, bool) {
+func scanKeywordEND(s RuneScanner) (token.Type, bool) {
+	return token.KeywordEnd, true
+}
+
+func scanKeywordES(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'P':
-		return _scanKeywordTEMP(s)
+	case 'C', 'c':
+		s.ConsumeRune()
+		return scanKeywordESC(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordTEMP(s RuneScanner) (token.Type, bool) {
+func scanKeywordESC(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordTemp, true
+		return token.Unknown, false
 	}
 	switch next {
-	case 'O':
-		return _scanKeywordTEMPO(s)
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordESCA(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordTEMPO(s RuneScanner) (token.Type, bool) {
+func scanKeywordESCA(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'R':
-		return _scanKeywordTEMPOR(s)
+	case 'P', 'p':
+		s.ConsumeRune()
+		return scanKeywordESCAP(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordTEMPOR(s RuneScanner) (token.Type, bool) {
+func scanKeywordESCAP(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'A':
-		return _scanKeywordTEMPORA(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordESCAPE(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordESCAPE(s RuneScanner) (token.Type, bool) {
+	return token.KeywordEscape, true
 }
 
-func _scanKeywordTEMPORA(s RuneScanner) (token.Type, bool) {
+func scanKeywordB(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'R':
-		return _scanKeywordTEMPORAR(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordBE(s)
+	case 'Y', 'y':
+		s.ConsumeRune()
+		return scanKeywordBY(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordTEMPORAR(s RuneScanner) (token.Type, bool) {
+func scanKeywordBE(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'Y':
-		return _scanKeywordTEMPORARY(s)
+	case 'F', 'f':
+		s.ConsumeRune()
+		return scanKeywordBEF(s)
+	case 'G', 'g':
+		s.ConsumeRune()
+		return scanKeywordBEG(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordBET(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordTEMPORARY(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordBET(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordTemporary, true
+		return token.Unknown, false
+	}
+	switch next {
+	case 'W', 'w':
+		s.ConsumeRune()
+		return scanKeywordBETW(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordTR(s RuneScanner) (token.Type, bool) {
+func scanKeywordBETW(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'I':
-		return _scanKeywordTRI(s)
-	case 'A':
-		return _scanKeywordTRA(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordBETWE(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordTRI(s RuneScanner) (token.Type, bool) {
+func scanKeywordBETWE(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'G':
-		return _scanKeywordTRIG(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordBETWEE(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordTRIG(s RuneScanner) (token.Type, bool) {
+func scanKeywordBETWEE(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'G':
-		return _scanKeywordTRIGG(s)
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordBETWEEN(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordBETWEEN(s RuneScanner) (token.Type, bool) {
+	return token.KeywordBetween, true
 }
 
-func _scanKeywordTRIGG(s RuneScanner) (token.Type, bool) {
+func scanKeywordBEG(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordTRIGGE(s)
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordBEGI(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordTRIGGE(s RuneScanner) (token.Type, bool) {
+func scanKeywordBEGI(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'R':
-		return _scanKeywordTRIGGER(s)
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordBEGIN(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordBEGIN(s RuneScanner) (token.Type, bool) {
+	return token.KeywordBegin, true
 }
 
-func _scanKeywordTRIGGER(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordBEF(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordTrigger, true
+		return token.Unknown, false
+	}
+	switch next {
+	case 'O', 'o':
+		s.ConsumeRune()
+		return scanKeywordBEFO(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordTRA(s RuneScanner) (token.Type, bool) {
+func scanKeywordBEFO(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'N':
-		return _scanKeywordTRAN(s)
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordBEFOR(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordTRAN(s RuneScanner) (token.Type, bool) {
+func scanKeywordBEFOR(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'S':
-		return _scanKeywordTRANS(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordBEFORE(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordBEFORE(s RuneScanner) (token.Type, bool) {
+	return token.KeywordBefore, true
+}
+
+func scanKeywordBY(s RuneScanner) (token.Type, bool) {
+	return token.KeywordBy, true
 }
 
-func _scanKeywordTRANS(s RuneScanner) (token.Type, bool) {
+func scanKeywordL(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'A':
-		return _scanKeywordTRANSA(s)
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordLA(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordLE(s)
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordLI(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordTRANSA(s RuneScanner) (token.Type, bool) {
+func scanKeywordLI(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'C':
-		return _scanKeywordTRANSAC(s)
+	case 'K', 'k':
+		s.ConsumeRune()
+		return scanKeywordLIK(s)
+	case 'M', 'm':
+		s.ConsumeRune()
+		return scanKeywordLIM(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordTRANSAC(s RuneScanner) (token.Type, bool) {
+func scanKeywordLIM(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'T':
-		return _scanKeywordTRANSACT(s)
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordLIMI(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordTRANSACT(s RuneScanner) (token.Type, bool) {
+func scanKeywordLIMI(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'I':
-		return _scanKeywordTRANSACTI(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordLIMIT(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordLIMIT(s RuneScanner) (token.Type, bool) {
+	return token.KeywordLimit, true
 }
 
-func _scanKeywordTRANSACTI(s RuneScanner) (token.Type, bool) {
+func scanKeywordLIK(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'O':
-		return _scanKeywordTRANSACTIO(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordLIKE(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordLIKE(s RuneScanner) (token.Type, bool) {
+	return token.KeywordLike, true
 }
 
-func _scanKeywordTRANSACTIO(s RuneScanner) (token.Type, bool) {
+func scanKeywordLE(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'N':
-		return _scanKeywordTRANSACTION(s)
+	case 'F', 'f':
+		s.ConsumeRune()
+		return scanKeywordLEF(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordTRANSACTION(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordLEF(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordTransaction, true
+		return token.Unknown, false
+	}
+	switch next {
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordLEFT(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordLEFT(s RuneScanner) (token.Type, bool) {
+	return token.KeywordLeft, true
 }
 
-func _scanKeywordTA(s RuneScanner) (token.Type, bool) {
+func scanKeywordLA(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'B':
-		return _scanKeywordTAB(s)
+	case 'S', 's':
+		s.ConsumeRune()
+		return scanKeywordLAS(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordTAB(s RuneScanner) (token.Type, bool) {
+func scanKeywordLAS(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'L':
-		return _scanKeywordTABL(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordLAST(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordLAST(s RuneScanner) (token.Type, bool) {
+	return token.KeywordLast, true
 }
 
-func _scanKeywordTABL(s RuneScanner) (token.Type, bool) {
+func scanKeywordU(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordTABLE(s)
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordUN(s)
+	case 'P', 'p':
+		s.ConsumeRune()
+		return scanKeywordUP(s)
+	case 'S', 's':
+		s.ConsumeRune()
+		return scanKeywordUS(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordTABLE(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordUN(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordTable, true
+		return token.Unknown, false
+	}
+	switch next {
+	case 'B', 'b':
+		s.ConsumeRune()
+		return scanKeywordUNB(s)
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordUNI(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordTH(s RuneScanner) (token.Type, bool) {
+func scanKeywordUNI(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordTHE(s)
+	case 'O', 'o':
+		s.ConsumeRune()
+		return scanKeywordUNIO(s)
+	case 'Q', 'q':
+		s.ConsumeRune()
+		return scanKeywordUNIQ(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordTHE(s RuneScanner) (token.Type, bool) {
+func scanKeywordUNIO(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'N':
-		return _scanKeywordTHEN(s)
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordUNION(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordUNION(s RuneScanner) (token.Type, bool) {
+	return token.KeywordUnion, true
 }
 
-func _scanKeywordTHEN(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordUNIQ(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordThen, true
+		return token.Unknown, false
+	}
+	switch next {
+	case 'U', 'u':
+		s.ConsumeRune()
+		return scanKeywordUNIQU(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordTO(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordUNIQU(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordTo, true
+		return token.Unknown, false
+	}
+	switch next {
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordUNIQUE(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordUNIQUE(s RuneScanner) (token.Type, bool) {
+	return token.KeywordUnique, true
 }
 
-func _scanKeywordJ(s RuneScanner) (token.Type, bool) {
+func scanKeywordUNB(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'O':
-		return _scanKeywordJO(s)
+	case 'O', 'o':
+		s.ConsumeRune()
+		return scanKeywordUNBO(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordJO(s RuneScanner) (token.Type, bool) {
+func scanKeywordUNBO(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'I':
-		return _scanKeywordJOI(s)
+	case 'U', 'u':
+		s.ConsumeRune()
+		return scanKeywordUNBOU(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordJOI(s RuneScanner) (token.Type, bool) {
+func scanKeywordUNBOU(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'N':
-		return _scanKeywordJOIN(s)
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordUNBOUN(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordJOIN(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordUNBOUN(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordJoin, true
+		return token.Unknown, false
+	}
+	switch next {
+	case 'D', 'd':
+		s.ConsumeRune()
+		return scanKeywordUNBOUND(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordM(s RuneScanner) (token.Type, bool) {
+func scanKeywordUNBOUND(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'A':
-		return _scanKeywordMA(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordUNBOUNDE(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordMA(s RuneScanner) (token.Type, bool) {
+func scanKeywordUNBOUNDE(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'T':
-		return _scanKeywordMAT(s)
+	case 'D', 'd':
+		s.ConsumeRune()
+		return scanKeywordUNBOUNDED(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordUNBOUNDED(s RuneScanner) (token.Type, bool) {
+	return token.KeywordUnbounded, true
 }
 
-func _scanKeywordMAT(s RuneScanner) (token.Type, bool) {
+func scanKeywordUP(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'C':
-		return _scanKeywordMATC(s)
+	case 'D', 'd':
+		s.ConsumeRune()
+		return scanKeywordUPD(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordMATC(s RuneScanner) (token.Type, bool) {
+func scanKeywordUPD(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'H':
-		return _scanKeywordMATCH(s)
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordUPDA(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordMATCH(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordUPDA(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordMatch, true
+		return token.Unknown, false
+	}
+	switch next {
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordUPDAT(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordQ(s RuneScanner) (token.Type, bool) {
+func scanKeywordUPDAT(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'U':
-		return _scanKeywordQU(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordUPDATE(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordUPDATE(s RuneScanner) (token.Type, bool) {
+	return token.KeywordUpdate, true
 }
 
-func _scanKeywordQU(s RuneScanner) (token.Type, bool) {
+func scanKeywordUS(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordQUE(s)
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordUSI(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordQUE(s RuneScanner) (token.Type, bool) {
+func scanKeywordUSI(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'R':
-		return _scanKeywordQUER(s)
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordUSIN(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordQUER(s RuneScanner) (token.Type, bool) {
+func scanKeywordUSIN(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'Y':
-		return _scanKeywordQUERY(s)
+	case 'G', 'g':
+		s.ConsumeRune()
+		return scanKeywordUSING(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordUSING(s RuneScanner) (token.Type, bool) {
+	return token.KeywordUsing, true
 }
 
-func _scanKeywordQUERY(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordK(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordQuery, true
+		return token.Unknown, false
+	}
+	switch next {
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordKE(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordV(s RuneScanner) (token.Type, bool) {
+func scanKeywordKE(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'A':
-		return _scanKeywordVA(s)
-	case 'I':
-		return _scanKeywordVI(s)
+	case 'Y', 'y':
+		s.ConsumeRune()
+		return scanKeywordKEY(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordKEY(s RuneScanner) (token.Type, bool) {
+	return token.KeywordKey, true
 }
 
-func _scanKeywordVI(s RuneScanner) (token.Type, bool) {
+func scanKeywordM(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordVIE(s)
-	case 'R':
-		return _scanKeywordVIR(s)
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordMA(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordVIE(s RuneScanner) (token.Type, bool) {
+func scanKeywordMA(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'W':
-		return _scanKeywordVIEW(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordMAT(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordVIEW(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordMAT(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordView, true
+		return token.Unknown, false
+	}
+	switch next {
+	case 'C', 'c':
+		s.ConsumeRune()
+		return scanKeywordMATC(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordVIR(s RuneScanner) (token.Type, bool) {
+func scanKeywordMATC(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'T':
-		return _scanKeywordVIRT(s)
+	case 'H', 'h':
+		s.ConsumeRune()
+		return scanKeywordMATCH(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordMATCH(s RuneScanner) (token.Type, bool) {
+	return token.KeywordMatch, true
 }
 
-func _scanKeywordVIRT(s RuneScanner) (token.Type, bool) {
+func scanKeywordG(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'U':
-		return _scanKeywordVIRTU(s)
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordGL(s)
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordGR(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordVIRTU(s RuneScanner) (token.Type, bool) {
+func scanKeywordGR(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'A':
-		return _scanKeywordVIRTUA(s)
+	case 'O', 'o':
+		s.ConsumeRune()
+		return scanKeywordGRO(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordVIRTUA(s RuneScanner) (token.Type, bool) {
+func scanKeywordGRO(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'L':
-		return _scanKeywordVIRTUAL(s)
+	case 'U', 'u':
+		s.ConsumeRune()
+		return scanKeywordGROU(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordVIRTUAL(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordGROU(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordVirtual, true
+		return token.Unknown, false
+	}
+	switch next {
+	case 'P', 'p':
+		s.ConsumeRune()
+		return scanKeywordGROUP(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordVA(s RuneScanner) (token.Type, bool) {
+func scanKeywordGROUP(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'L':
-		return _scanKeywordVAL(s)
-	case 'C':
-		return _scanKeywordVAC(s)
+	case 'S', 's':
+		s.ConsumeRune()
+		return scanKeywordGROUPS(s)
 	}
-	return token.Unknown, false
+	return token.KeywordGroup, true
 }
 
-func _scanKeywordVAL(s RuneScanner) (token.Type, bool) {
+func scanKeywordGROUPS(s RuneScanner) (token.Type, bool) {
+	return token.KeywordGroups, true
+}
+
+func scanKeywordGL(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'U':
-		return _scanKeywordVALU(s)
+	case 'O', 'o':
+		s.ConsumeRune()
+		return scanKeywordGLO(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordVALU(s RuneScanner) (token.Type, bool) {
+func scanKeywordGLO(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordVALUE(s)
+	case 'B', 'b':
+		s.ConsumeRune()
+		return scanKeywordGLOB(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordGLOB(s RuneScanner) (token.Type, bool) {
+	return token.KeywordGlob, true
 }
 
-func _scanKeywordVALUE(s RuneScanner) (token.Type, bool) {
+func scanKeywordW(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'S':
-		return _scanKeywordVALUES(s)
+	case 'H', 'h':
+		s.ConsumeRune()
+		return scanKeywordWH(s)
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordWI(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordVALUES(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordWI(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordValues, true
+		return token.Unknown, false
+	}
+	switch next {
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordWIN(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordWIT(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordVAC(s RuneScanner) (token.Type, bool) {
+func scanKeywordWIN(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'U':
-		return _scanKeywordVACU(s)
+	case 'D', 'd':
+		s.ConsumeRune()
+		return scanKeywordWIND(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordVACU(s RuneScanner) (token.Type, bool) {
+func scanKeywordWIND(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'U':
-		return _scanKeywordVACUU(s)
+	case 'O', 'o':
+		s.ConsumeRune()
+		return scanKeywordWINDO(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordVACUU(s RuneScanner) (token.Type, bool) {
+func scanKeywordWINDO(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'M':
-		return _scanKeywordVACUUM(s)
+	case 'W', 'w':
+		s.ConsumeRune()
+		return scanKeywordWINDOW(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordVACUUM(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordWINDOW(s RuneScanner) (token.Type, bool) {
+	return token.KeywordWindow, true
+}
+
+func scanKeywordWIT(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordVacuum, true
+		return token.Unknown, false
 	}
+	switch next {
+	case 'H', 'h':
+		s.ConsumeRune()
+		return scanKeywordWITH(s)
+	}
 	return token.Unknown, false
 }
 
-func _scanKeywordN(s RuneScanner) (token.Type, bool) {
+func scanKeywordWITH(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'O':
-		return _scanKeywordNO(s)
-	case 'A':
-		return _scanKeywordNA(s)
-	case 'U':
-		return _scanKeywordNU(s)
+	case 'O', 'o':
+		s.ConsumeRune()
+		return scanKeywordWITHO(s)
 	}
-	return token.Unknown, false
+	return token.KeywordWith, true
 }
 
-func _scanKeywordNU(s RuneScanner) (token.Type, bool) {
+func scanKeywordWITHO(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'L':
-		return _scanKeywordNUL(s)
+	case 'U', 'u':
+		s.ConsumeRune()
+		return scanKeywordWITHOU(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordNUL(s RuneScanner) (token.Type, bool) {
+func scanKeywordWITHOU(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'L':
-		return _scanKeywordNULL(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordWITHOUT(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordWITHOUT(s RuneScanner) (token.Type, bool) {
+	return token.KeywordWithout, true
 }
 
-func _scanKeywordNULL(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordWH(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordNull, true
+		return token.Unknown, false
+	}
+	switch next {
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordWHE(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordNO(s RuneScanner) (token.Type, bool) {
+func scanKeywordWHE(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordNo, true
+		return token.Unknown, false
 	}
 	switch next {
-	case 'T':
-		return _scanKeywordNOT(s)
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordWHEN(s)
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordWHER(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordWHEN(s RuneScanner) (token.Type, bool) {
+	return token.KeywordWhen, true
 }
 
-func _scanKeywordNOT(s RuneScanner) (token.Type, bool) {
+func scanKeywordWHER(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordNot, true
+		return token.Unknown, false
 	}
 	switch next {
-	case 'N':
-		return _scanKeywordNOTN(s)
-	case 'H':
-		return _scanKeywordNOTH(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordWHERE(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordWHERE(s RuneScanner) (token.Type, bool) {
+	return token.KeywordWhere, true
 }
 
-func _scanKeywordNOTN(s RuneScanner) (token.Type, bool) {
+func scanKeywordP(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'U':
-		return _scanKeywordNOTNU(s)
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordPA(s)
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordPL(s)
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordPR(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordNOTNU(s RuneScanner) (token.Type, bool) {
+func scanKeywordPR(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'L':
-		return _scanKeywordNOTNUL(s)
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordPRA(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordPRE(s)
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordPRI(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordNOTNUL(s RuneScanner) (token.Type, bool) {
+func scanKeywordPRA(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'L':
-		return _scanKeywordNOTNULL(s)
+	case 'G', 'g':
+		s.ConsumeRune()
+		return scanKeywordPRAG(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordNOTNULL(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordPRAG(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordNotnull, true
+		return token.Unknown, false
+	}
+	switch next {
+	case 'M', 'm':
+		s.ConsumeRune()
+		return scanKeywordPRAGM(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordNOTH(s RuneScanner) (token.Type, bool) {
+func scanKeywordPRAGM(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'I':
-		return _scanKeywordNOTHI(s)
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordPRAGMA(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordPRAGMA(s RuneScanner) (token.Type, bool) {
+	return token.KeywordPragma, true
 }
 
-func _scanKeywordNOTHI(s RuneScanner) (token.Type, bool) {
+func scanKeywordPRE(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'N':
-		return _scanKeywordNOTHIN(s)
+	case 'C', 'c':
+		s.ConsumeRune()
+		return scanKeywordPREC(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordNOTHIN(s RuneScanner) (token.Type, bool) {
+func scanKeywordPREC(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'G':
-		return _scanKeywordNOTHING(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordPRECE(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordNOTHING(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordPRECE(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordNothing, true
+		return token.Unknown, false
+	}
+	switch next {
+	case 'D', 'd':
+		s.ConsumeRune()
+		return scanKeywordPRECED(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordNA(s RuneScanner) (token.Type, bool) {
+func scanKeywordPRECED(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'T':
-		return _scanKeywordNAT(s)
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordPRECEDI(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordNAT(s RuneScanner) (token.Type, bool) {
+func scanKeywordPRECEDI(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'U':
-		return _scanKeywordNATU(s)
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordPRECEDIN(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordNATU(s RuneScanner) (token.Type, bool) {
+func scanKeywordPRECEDIN(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'R':
-		return _scanKeywordNATUR(s)
+	case 'G', 'g':
+		s.ConsumeRune()
+		return scanKeywordPRECEDING(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordPRECEDING(s RuneScanner) (token.Type, bool) {
+	return token.KeywordPreceding, true
 }
 
-func _scanKeywordNATUR(s RuneScanner) (token.Type, bool) {
+func scanKeywordPRI(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'A':
-		return _scanKeywordNATURA(s)
+	case 'M', 'm':
+		s.ConsumeRune()
+		return scanKeywordPRIM(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordNATURA(s RuneScanner) (token.Type, bool) {
+func scanKeywordPRIM(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'L':
-		return _scanKeywordNATURAL(s)
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordPRIMA(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordNATURAL(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordPRIMA(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordNatural, true
+		return token.Unknown, false
+	}
+	switch next {
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordPRIMAR(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordH(s RuneScanner) (token.Type, bool) {
+func scanKeywordPRIMAR(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'A':
-		return _scanKeywordHA(s)
+	case 'Y', 'y':
+		s.ConsumeRune()
+		return scanKeywordPRIMARY(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordPRIMARY(s RuneScanner) (token.Type, bool) {
+	return token.KeywordPrimary, true
 }
 
-func _scanKeywordHA(s RuneScanner) (token.Type, bool) {
+func scanKeywordPA(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'V':
-		return _scanKeywordHAV(s)
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordPAR(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordHAV(s RuneScanner) (token.Type, bool) {
+func scanKeywordPAR(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'I':
-		return _scanKeywordHAVI(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordPART(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordHAVI(s RuneScanner) (token.Type, bool) {
+func scanKeywordPART(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'N':
-		return _scanKeywordHAVIN(s)
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordPARTI(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordHAVIN(s RuneScanner) (token.Type, bool) {
+func scanKeywordPARTI(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'G':
-		return _scanKeywordHAVING(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordPARTIT(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordHAVING(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordPARTIT(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordHaving, true
+		return token.Unknown, false
+	}
+	switch next {
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordPARTITI(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordU(s RuneScanner) (token.Type, bool) {
+func scanKeywordPARTITI(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'S':
-		return _scanKeywordUS(s)
-	case 'N':
-		return _scanKeywordUN(s)
-	case 'P':
-		return _scanKeywordUP(s)
+	case 'O', 'o':
+		s.ConsumeRune()
+		return scanKeywordPARTITIO(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordUP(s RuneScanner) (token.Type, bool) {
+func scanKeywordPARTITIO(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'D':
-		return _scanKeywordUPD(s)
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordPARTITION(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordPARTITION(s RuneScanner) (token.Type, bool) {
+	return token.KeywordPartition, true
 }
 
-func _scanKeywordUPD(s RuneScanner) (token.Type, bool) {
+func scanKeywordPL(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'A':
-		return _scanKeywordUPDA(s)
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordPLA(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordUPDA(s RuneScanner) (token.Type, bool) {
+func scanKeywordPLA(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'T':
-		return _scanKeywordUPDAT(s)
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordPLAN(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordPLAN(s RuneScanner) (token.Type, bool) {
+	return token.KeywordPlan, true
 }
 
-func _scanKeywordUPDAT(s RuneScanner) (token.Type, bool) {
+func scanKeywordC(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordUPDATE(s)
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordCA(s)
+	case 'H', 'h':
+		s.ConsumeRune()
+		return scanKeywordCH(s)
+	case 'O', 'o':
+		s.ConsumeRune()
+		return scanKeywordCO(s)
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordCR(s)
+	case 'U', 'u':
+		s.ConsumeRune()
+		return scanKeywordCU(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordUPDATE(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordCO(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordUpdate, true
+		return token.Unknown, false
+	}
+	switch next {
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordCOL(s)
+	case 'M', 'm':
+		s.ConsumeRune()
+		return scanKeywordCOM(s)
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordCON(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordUS(s RuneScanner) (token.Type, bool) {
+func scanKeywordCOM(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'I':
-		return _scanKeywordUSI(s)
+	case 'M', 'm':
+		s.ConsumeRune()
+		return scanKeywordCOMM(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordUSI(s RuneScanner) (token.Type, bool) {
+func scanKeywordCOMM(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'N':
-		return _scanKeywordUSIN(s)
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordCOMMI(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordUSIN(s RuneScanner) (token.Type, bool) {
+func scanKeywordCOMMI(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'G':
-		return _scanKeywordUSING(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordCOMMIT(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordCOMMIT(s RuneScanner) (token.Type, bool) {
+	return token.KeywordCommit, true
 }
 
-func _scanKeywordUSING(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordCON(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordUsing, true
+		return token.Unknown, false
+	}
+	switch next {
+	case 'F', 'f':
+		s.ConsumeRune()
+		return scanKeywordCONF(s)
+	case 'S', 's':
+		s.ConsumeRune()
+		return scanKeywordCONS(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordUN(s RuneScanner) (token.Type, bool) {
+func scanKeywordCONF(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'B':
-		return _scanKeywordUNB(s)
-	case 'I':
-		return _scanKeywordUNI(s)
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordCONFL(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordUNB(s RuneScanner) (token.Type, bool) {
+func scanKeywordCONFL(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'O':
-		return _scanKeywordUNBO(s)
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordCONFLI(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordUNBO(s RuneScanner) (token.Type, bool) {
+func scanKeywordCONFLI(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'U':
-		return _scanKeywordUNBOU(s)
+	case 'C', 'c':
+		s.ConsumeRune()
+		return scanKeywordCONFLIC(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordUNBOU(s RuneScanner) (token.Type, bool) {
+func scanKeywordCONFLIC(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'N':
-		return _scanKeywordUNBOUN(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordCONFLICT(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordCONFLICT(s RuneScanner) (token.Type, bool) {
+	return token.KeywordConflict, true
 }
 
-func _scanKeywordUNBOUN(s RuneScanner) (token.Type, bool) {
+func scanKeywordCONS(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'D':
-		return _scanKeywordUNBOUND(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordCONST(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordUNBOUND(s RuneScanner) (token.Type, bool) {
+func scanKeywordCONST(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordUNBOUNDE(s)
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordCONSTR(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordUNBOUNDE(s RuneScanner) (token.Type, bool) {
+func scanKeywordCONSTR(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'D':
-		return _scanKeywordUNBOUNDED(s)
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordCONSTRA(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordUNBOUNDED(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordCONSTRA(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordUnbounded, true
+		return token.Unknown, false
+	}
+	switch next {
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordCONSTRAI(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordUNI(s RuneScanner) (token.Type, bool) {
+func scanKeywordCONSTRAI(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'O':
-		return _scanKeywordUNIO(s)
-	case 'Q':
-		return _scanKeywordUNIQ(s)
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordCONSTRAIN(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordUNIQ(s RuneScanner) (token.Type, bool) {
+func scanKeywordCONSTRAIN(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'U':
-		return _scanKeywordUNIQU(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordCONSTRAINT(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordCONSTRAINT(s RuneScanner) (token.Type, bool) {
+	return token.KeywordConstraint, true
 }
 
-func _scanKeywordUNIQU(s RuneScanner) (token.Type, bool) {
+func scanKeywordCOL(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordUNIQUE(s)
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordCOLL(s)
+	case 'U', 'u':
+		s.ConsumeRune()
+		return scanKeywordCOLU(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordUNIQUE(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordCOLL(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordUnique, true
+		return token.Unknown, false
+	}
+	switch next {
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordCOLLA(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordUNIO(s RuneScanner) (token.Type, bool) {
+func scanKeywordCOLLA(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'N':
-		return _scanKeywordUNION(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordCOLLAT(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordUNION(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordCOLLAT(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordUnion, true
+		return token.Unknown, false
+	}
+	switch next {
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordCOLLATE(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordCOLLATE(s RuneScanner) (token.Type, bool) {
+	return token.KeywordCollate, true
 }
 
-func _scanKeywordG(s RuneScanner) (token.Type, bool) {
+func scanKeywordCOLU(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'R':
-		return _scanKeywordGR(s)
-	case 'L':
-		return _scanKeywordGL(s)
+	case 'M', 'm':
+		s.ConsumeRune()
+		return scanKeywordCOLUM(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordGL(s RuneScanner) (token.Type, bool) {
+func scanKeywordCOLUM(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'O':
-		return _scanKeywordGLO(s)
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordCOLUMN(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordCOLUMN(s RuneScanner) (token.Type, bool) {
+	return token.KeywordColumn, true
 }
 
-func _scanKeywordGLO(s RuneScanner) (token.Type, bool) {
+func scanKeywordCH(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'B':
-		return _scanKeywordGLOB(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordCHE(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordGLOB(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordCHE(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordGlob, true
+		return token.Unknown, false
+	}
+	switch next {
+	case 'C', 'c':
+		s.ConsumeRune()
+		return scanKeywordCHEC(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordGR(s RuneScanner) (token.Type, bool) {
+func scanKeywordCHEC(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'O':
-		return _scanKeywordGRO(s)
+	case 'K', 'k':
+		s.ConsumeRune()
+		return scanKeywordCHECK(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordCHECK(s RuneScanner) (token.Type, bool) {
+	return token.KeywordCheck, true
 }
 
-func _scanKeywordGRO(s RuneScanner) (token.Type, bool) {
+func scanKeywordCA(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'U':
-		return _scanKeywordGROU(s)
+	case 'S', 's':
+		s.ConsumeRune()
+		return scanKeywordCAS(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordGROU(s RuneScanner) (token.Type, bool) {
+func scanKeywordCAS(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'P':
-		return _scanKeywordGROUP(s)
+	case 'C', 'c':
+		s.ConsumeRune()
+		return scanKeywordCASC(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordCASE(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordCAST(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordGROUP(s RuneScanner) (token.Type, bool) {
+func scanKeywordCASC(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordGroup, true
+		return token.Unknown, false
 	}
 	switch next {
-	case 'S':
-		return _scanKeywordGROUPS(s)
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordCASCA(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordGROUPS(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
+func scanKeywordCASCA(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordGroups, true
+		return token.Unknown, false
 	}
+	switch next {
+	case 'D', 'd':
+		s.ConsumeRune()
+		return scanKeywordCASCAD(s)
+	}
 	return token.Unknown, false
 }
 
-func _scanKeywordC(s RuneScanner) (token.Type, bool) {
+func scanKeywordCASCAD(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'U':
-		return _scanKeywordCU(s)
-	case 'R':
-		return _scanKeywordCR(s)
-	case 'H':
-		return _scanKeywordCH(s)
-	case 'A':
-		return _scanKeywordCA(s)
-	case 'O':
-		return _scanKeywordCO(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordCASCADE(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordCASCADE(s RuneScanner) (token.Type, bool) {
+	return token.KeywordCascade, true
 }
 
-func _scanKeywordCU(s RuneScanner) (token.Type, bool) {
+func scanKeywordCASE(s RuneScanner) (token.Type, bool) {
+	return token.KeywordCase, true
+}
+
+func scanKeywordCAST(s RuneScanner) (token.Type, bool) {
+	return token.KeywordCast, true
+}
+
+func scanKeywordCU(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'R':
-		return _scanKeywordCUR(s)
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordCUR(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordCUR(s RuneScanner) (token.Type, bool) {
+func scanKeywordCUR(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'R':
-		return _scanKeywordCURR(s)
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordCURR(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordCURR(s RuneScanner) (token.Type, bool) {
+func scanKeywordCURR(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordCURRE(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordCURRE(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordCURRE(s RuneScanner) (token.Type, bool) {
+func scanKeywordCURRE(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'N':
-		return _scanKeywordCURREN(s)
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordCURREN(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordCURREN(s RuneScanner) (token.Type, bool) {
+func scanKeywordCURREN(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'T':
-		return _scanKeywordCURRENT(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordCURRENT(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordCURRENT(s RuneScanner) (token.Type, bool) {
+func scanKeywordCURRENT(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
-		return token.KeywordCurrent, true
+		return token.Unknown, false
 	}
 	switch next {
 	case '_':
-		return _scanKeywordCURRENT_(s)
+		s.ConsumeRune()
+		return scanKeywordCURRENT_(s)
 	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCURRENT_(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'D':
-		return _scanKeywordCURRENT_D(s)
-	case 'T':
-		return _scanKeywordCURRENT_T(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCURRENT_D(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'A':
-		return _scanKeywordCURRENT_DA(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCURRENT_DA(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'T':
-		return _scanKeywordCURRENT_DAT(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCURRENT_DAT(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordCURRENT_DATE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCURRENT_DATE(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordCurrentDate, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCURRENT_T(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'I':
-		return _scanKeywordCURRENT_TI(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCURRENT_TI(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'M':
-		return _scanKeywordCURRENT_TIM(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCURRENT_TIM(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordCURRENT_TIME(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCURRENT_TIME(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordCurrentTime, true
-	}
-	switch next {
-	case 'S':
-		return _scanKeywordCURRENT_TIMES(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCURRENT_TIMES(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'T':
-		return _scanKeywordCURRENT_TIMEST(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCURRENT_TIMEST(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'A':
-		return _scanKeywordCURRENT_TIMESTA(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCURRENT_TIMESTA(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'M':
-		return _scanKeywordCURRENT_TIMESTAM(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCURRENT_TIMESTAM(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'P':
-		return _scanKeywordCURRENT_TIMESTAMP(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCURRENT_TIMESTAMP(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordCurrentTimestamp, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCR(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordCRE(s)
-	case 'O':
-		return _scanKeywordCRO(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCRE(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'A':
-		return _scanKeywordCREA(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCREA(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'T':
-		return _scanKeywordCREAT(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCREAT(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordCREATE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCREATE(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordCreate, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCRO(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'S':
-		return _scanKeywordCROS(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCROS(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'S':
-		return _scanKeywordCROSS(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCROSS(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordCross, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCH(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordCHE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCHE(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'C':
-		return _scanKeywordCHEC(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCHEC(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'K':
-		return _scanKeywordCHECK(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCHECK(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordCheck, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCA(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'S':
-		return _scanKeywordCAS(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCAS(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'T':
-		return _scanKeywordCAST(s)
-	case 'C':
-		return _scanKeywordCASC(s)
-	case 'E':
-		return _scanKeywordCASE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCASE(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordCase, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCAST(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordCast, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCASC(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'A':
-		return _scanKeywordCASCA(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCASCA(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'D':
-		return _scanKeywordCASCAD(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCASCAD(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordCASCADE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCASCADE(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordCascade, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCO(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'M':
-		return _scanKeywordCOM(s)
-	case 'N':
-		return _scanKeywordCON(s)
-	case 'L':
-		return _scanKeywordCOL(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCOL(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'L':
-		return _scanKeywordCOLL(s)
-	case 'U':
-		return _scanKeywordCOLU(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCOLL(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'A':
-		return _scanKeywordCOLLA(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCOLLA(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'T':
-		return _scanKeywordCOLLAT(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCOLLAT(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordCOLLATE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCOLLATE(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordCollate, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCOLU(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'M':
-		return _scanKeywordCOLUM(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCOLUM(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'N':
-		return _scanKeywordCOLUMN(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCOLUMN(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordColumn, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCOM(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'M':
-		return _scanKeywordCOMM(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCOMM(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'I':
-		return _scanKeywordCOMMI(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCOMMI(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'T':
-		return _scanKeywordCOMMIT(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCOMMIT(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordCommit, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCON(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'S':
-		return _scanKeywordCONS(s)
-	case 'F':
-		return _scanKeywordCONF(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCONS(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'T':
-		return _scanKeywordCONST(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCONST(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'R':
-		return _scanKeywordCONSTR(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCONSTR(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'A':
-		return _scanKeywordCONSTRA(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCONSTRA(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'I':
-		return _scanKeywordCONSTRAI(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCONSTRAI(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'N':
-		return _scanKeywordCONSTRAIN(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCONSTRAIN(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'T':
-		return _scanKeywordCONSTRAINT(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCONSTRAINT(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordConstraint, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCONF(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'L':
-		return _scanKeywordCONFL(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCONFL(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'I':
-		return _scanKeywordCONFLI(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCONFLI(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'C':
-		return _scanKeywordCONFLIC(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCONFLIC(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'T':
-		return _scanKeywordCONFLICT(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordCONFLICT(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordConflict, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordI(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'F':
-		return _scanKeywordIF(s)
-	case 'M':
-		return _scanKeywordIM(s)
-	case 'G':
-		return _scanKeywordIG(s)
-	case 'N':
-		return _scanKeywordIN(s)
-	case 'S':
-		return _scanKeywordIS(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordIF(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordIf, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordIM(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'M':
-		return _scanKeywordIMM(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordIMM(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordIMME(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordIMME(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'D':
-		return _scanKeywordIMMED(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordIMMED(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'I':
-		return _scanKeywordIMMEDI(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordIMMEDI(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'A':
-		return _scanKeywordIMMEDIA(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordIMMEDIA(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'T':
-		return _scanKeywordIMMEDIAT(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordIMMEDIAT(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordIMMEDIATE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordIMMEDIATE(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordImmediate, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordIG(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'N':
-		return _scanKeywordIGN(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordIGN(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'O':
-		return _scanKeywordIGNO(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordIGNO(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'R':
-		return _scanKeywordIGNOR(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordIGNOR(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordIGNORE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordIGNORE(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordIgnore, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordIN(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordIn, true
-	}
-	switch next {
-	case 'N':
-		return _scanKeywordINN(s)
-	case 'I':
-		return _scanKeywordINI(s)
-	case 'T':
-		return _scanKeywordINT(s)
-	case 'D':
-		return _scanKeywordIND(s)
-	case 'S':
-		return _scanKeywordINS(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordINI(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'T':
-		return _scanKeywordINIT(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordINIT(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'I':
-		return _scanKeywordINITI(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordINITI(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'A':
-		return _scanKeywordINITIA(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordINITIA(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'L':
-		return _scanKeywordINITIAL(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordINITIAL(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'L':
-		return _scanKeywordINITIALL(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordINITIALL(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'Y':
-		return _scanKeywordINITIALLY(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordINITIALLY(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordInitially, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordINT(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordINTE(s)
-	case 'O':
-		return _scanKeywordINTO(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordINTO(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordInto, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordINTE(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'R':
-		return _scanKeywordINTER(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordINTER(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'S':
-		return _scanKeywordINTERS(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordINTERS(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordINTERSE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordINTERSE(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'C':
-		return _scanKeywordINTERSEC(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordINTERSEC(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'T':
-		return _scanKeywordINTERSECT(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordINTERSECT(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordIntersect, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordIND(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordINDE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordINDE(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'X':
-		return _scanKeywordINDEX(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordINDEX(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordIndex, true
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordINDEXE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordINDEXE(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'D':
-		return _scanKeywordINDEXED(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordINDEXED(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordIndexed, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordINS(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'T':
-		return _scanKeywordINST(s)
-	case 'E':
-		return _scanKeywordINSE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordINST(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordINSTE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordINSTE(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'A':
-		return _scanKeywordINSTEA(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordINSTEA(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'D':
-		return _scanKeywordINSTEAD(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordINSTEAD(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordInstead, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordINSE(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'R':
-		return _scanKeywordINSER(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordINSER(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'T':
-		return _scanKeywordINSERT(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordINSERT(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordInsert, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordINN(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordINNE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordINNE(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'R':
-		return _scanKeywordINNER(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordINNER(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordInner, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordIS(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordIs, true
-	}
-	switch next {
-	case 'N':
-		return _scanKeywordISN(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordISN(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'U':
-		return _scanKeywordISNU(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordISNU(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'L':
-		return _scanKeywordISNUL(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordISNUL(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'L':
-		return _scanKeywordISNULL(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordISNULL(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordIsnull, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordO(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'R':
-		return _scanKeywordOR(s)
-	case 'N':
-		return _scanKeywordON(s)
-	case 'F':
-		return _scanKeywordOF(s)
-	case 'V':
-		return _scanKeywordOV(s)
-	case 'T':
-		return _scanKeywordOT(s)
-	case 'U':
-		return _scanKeywordOU(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordOR(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordOr, true
-	}
-	switch next {
-	case 'D':
-		return _scanKeywordORD(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordORD(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordORDE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordORDE(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'R':
-		return _scanKeywordORDER(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordORDER(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordOrder, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordON(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordOn, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordOF(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordOf, true
-	}
-	switch next {
-	case 'F':
-		return _scanKeywordOFF(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordOFF(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'S':
-		return _scanKeywordOFFS(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordOFFS(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordOFFSE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordOFFSE(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'T':
-		return _scanKeywordOFFSET(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordOFFSET(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordOffset, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordOV(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordOVE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordOVE(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'R':
-		return _scanKeywordOVER(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordOVER(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordOver, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordOT(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'H':
-		return _scanKeywordOTH(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordOTH(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordOTHE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordOTHE(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'R':
-		return _scanKeywordOTHER(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordOTHER(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'S':
-		return _scanKeywordOTHERS(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordOTHERS(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordOthers, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordOU(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'T':
-		return _scanKeywordOUT(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordOUT(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordOUTE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordOUTE(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'R':
-		return _scanKeywordOUTER(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordOUTER(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordOuter, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordA(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'U':
-		return _scanKeywordAU(s)
-	case 'C':
-		return _scanKeywordAC(s)
-	case 'B':
-		return _scanKeywordAB(s)
-	case 'T':
-		return _scanKeywordAT(s)
-	case 'F':
-		return _scanKeywordAF(s)
-	case 'S':
-		return _scanKeywordAS(s)
-	case 'N':
-		return _scanKeywordAN(s)
-	case 'L':
-		return _scanKeywordAL(s)
-	case 'D':
-		return _scanKeywordAD(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordAU(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'T':
-		return _scanKeywordAUT(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordAUT(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'O':
-		return _scanKeywordAUTO(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordAUTO(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'I':
-		return _scanKeywordAUTOI(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordAUTOI(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'N':
-		return _scanKeywordAUTOIN(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordAUTOIN(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'C':
-		return _scanKeywordAUTOINC(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordAUTOINC(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'R':
-		return _scanKeywordAUTOINCR(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordAUTOINCR(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordAUTOINCRE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordAUTOINCRE(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'M':
-		return _scanKeywordAUTOINCREM(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordAUTOINCREM(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordAUTOINCREME(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordAUTOINCREME(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'N':
-		return _scanKeywordAUTOINCREMEN(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordAUTOINCREMEN(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'T':
-		return _scanKeywordAUTOINCREMENT(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordAUTOINCREMENT(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordAutoincrement, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordAC(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'T':
-		return _scanKeywordACT(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordACT(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'I':
-		return _scanKeywordACTI(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordACTI(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'O':
-		return _scanKeywordACTIO(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordACTIO(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'N':
-		return _scanKeywordACTION(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordACTION(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordAction, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordAB(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'O':
-		return _scanKeywordABO(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordABO(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'R':
-		return _scanKeywordABOR(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordABOR(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'T':
-		return _scanKeywordABORT(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordABORT(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordAbort, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordAT(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'T':
-		return _scanKeywordATT(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordATT(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'A':
-		return _scanKeywordATTA(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordATTA(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'C':
-		return _scanKeywordATTAC(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordATTAC(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'H':
-		return _scanKeywordATTACH(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordATTACH(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordAttach, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordAF(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'T':
-		return _scanKeywordAFT(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordAFT(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordAFTE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordAFTE(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'R':
-		return _scanKeywordAFTER(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordAFTER(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordAfter, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordAS(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordAs, true
-	}
-	switch next {
-	case 'C':
-		return _scanKeywordASC(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordASC(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordAsc, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordAN(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'A':
-		return _scanKeywordANA(s)
-	case 'D':
-		return _scanKeywordAND(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordANA(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'L':
-		return _scanKeywordANAL(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordANAL(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'Y':
-		return _scanKeywordANALY(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordANALY(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'Z':
-		return _scanKeywordANALYZ(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordANALYZ(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordANALYZE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordANALYZE(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordAnalyze, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordAND(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordAnd, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordAL(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'T':
-		return _scanKeywordALT(s)
-	case 'L':
-		return _scanKeywordALL(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordALT(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordALTE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordALTE(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'R':
-		return _scanKeywordALTER(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordALTER(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordAlter, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordALL(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordAll, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordAD(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'D':
-		return _scanKeywordADD(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordADD(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordAdd, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordD(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'A':
-		return _scanKeywordDA(s)
-	case 'E':
-		return _scanKeywordDE(s)
-	case 'I':
-		return _scanKeywordDI(s)
-	case 'O':
-		return _scanKeywordDO(s)
-	case 'R':
-		return _scanKeywordDR(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDE(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'S':
-		return _scanKeywordDES(s)
-	case 'L':
-		return _scanKeywordDEL(s)
-	case 'F':
-		return _scanKeywordDEF(s)
-	case 'T':
-		return _scanKeywordDET(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDET(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'A':
-		return _scanKeywordDETA(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDETA(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'C':
-		return _scanKeywordDETAC(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDETAC(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'H':
-		return _scanKeywordDETACH(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDETACH(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordDetach, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDES(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'C':
-		return _scanKeywordDESC(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDESC(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordDesc, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDEL(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordDELE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDELE(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'T':
-		return _scanKeywordDELET(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDELET(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordDELETE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDELETE(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordDelete, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDEF(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordDEFE(s)
-	case 'A':
-		return _scanKeywordDEFA(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDEFE(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'R':
-		return _scanKeywordDEFER(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDEFER(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'R':
-		return _scanKeywordDEFERR(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDEFERR(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordDEFERRE(s)
-	case 'A':
-		return _scanKeywordDEFERRA(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDEFERRA(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'B':
-		return _scanKeywordDEFERRAB(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDEFERRAB(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'L':
-		return _scanKeywordDEFERRABL(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDEFERRABL(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordDEFERRABLE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDEFERRABLE(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordDeferrable, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDEFERRE(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'D':
-		return _scanKeywordDEFERRED(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDEFERRED(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordDeferred, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDEFA(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'U':
-		return _scanKeywordDEFAU(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDEFAU(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'L':
-		return _scanKeywordDEFAUL(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDEFAUL(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'T':
-		return _scanKeywordDEFAULT(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDEFAULT(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordDefault, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDI(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'S':
-		return _scanKeywordDIS(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDIS(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'T':
-		return _scanKeywordDIST(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDIST(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'I':
-		return _scanKeywordDISTI(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDISTI(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'N':
-		return _scanKeywordDISTIN(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDISTIN(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'C':
-		return _scanKeywordDISTINC(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDISTINC(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'T':
-		return _scanKeywordDISTINCT(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDISTINCT(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordDistinct, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDO(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordDo, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDR(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'O':
-		return _scanKeywordDRO(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDRO(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'P':
-		return _scanKeywordDROP(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDROP(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordDrop, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDA(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'T':
-		return _scanKeywordDAT(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDAT(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'A':
-		return _scanKeywordDATA(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDATA(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'B':
-		return _scanKeywordDATAB(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDATAB(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'A':
-		return _scanKeywordDATABA(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDATABA(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'S':
-		return _scanKeywordDATABAS(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDATABAS(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordDATABASE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordDATABASE(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordDatabase, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordE(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'N':
-		return _scanKeywordEN(s)
-	case 'L':
-		return _scanKeywordEL(s)
-	case 'A':
-		return _scanKeywordEA(s)
-	case 'S':
-		return _scanKeywordES(s)
-	case 'X':
-		return _scanKeywordEX(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordEX(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'C':
-		return _scanKeywordEXC(s)
-	case 'I':
-		return _scanKeywordEXI(s)
-	case 'P':
-		return _scanKeywordEXP(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordEXC(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'L':
-		return _scanKeywordEXCL(s)
-	case 'E':
-		return _scanKeywordEXCE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordEXCL(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'U':
-		return _scanKeywordEXCLU(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordEXCLU(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'D':
-		return _scanKeywordEXCLUD(s)
-	case 'S':
-		return _scanKeywordEXCLUS(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordEXCLUD(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordEXCLUDE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordEXCLUDE(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordExclude, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordEXCLUS(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'I':
-		return _scanKeywordEXCLUSI(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordEXCLUSI(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'V':
-		return _scanKeywordEXCLUSIV(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordEXCLUSIV(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordEXCLUSIVE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordEXCLUSIVE(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordExclusive, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordEXCE(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'P':
-		return _scanKeywordEXCEP(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordEXCEP(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'T':
-		return _scanKeywordEXCEPT(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordEXCEPT(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordExcept, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordEXI(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'S':
-		return _scanKeywordEXIS(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordEXIS(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'T':
-		return _scanKeywordEXIST(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordEXIST(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'S':
-		return _scanKeywordEXISTS(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordEXISTS(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordExists, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordEXP(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'L':
-		return _scanKeywordEXPL(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordEXPL(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'A':
-		return _scanKeywordEXPLA(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordEXPLA(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'I':
-		return _scanKeywordEXPLAI(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordEXPLAI(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'N':
-		return _scanKeywordEXPLAIN(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordEXPLAIN(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordExplain, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordEN(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'D':
-		return _scanKeywordEND(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordEND(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordEnd, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordEL(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'S':
-		return _scanKeywordELS(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordELS(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordELSE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordELSE(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordElse, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordEA(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'C':
-		return _scanKeywordEAC(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordEAC(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'H':
-		return _scanKeywordEACH(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordEACH(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordEach, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordES(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'C':
-		return _scanKeywordESC(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordESC(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'A':
-		return _scanKeywordESCA(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordESCA(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'P':
-		return _scanKeywordESCAP(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordESCAP(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'E':
-		return _scanKeywordESCAPE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordESCAPE(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordEscape, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordW(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'I':
-		return _scanKeywordWI(s)
-	case 'H':
-		return _scanKeywordWH(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordWI(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'N':
-		return _scanKeywordWIN(s)
-	case 'T':
-		return _scanKeywordWIT(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordWIT(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'H':
-		return _scanKeywordWITH(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordWITH(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordWith, true
-	}
-	switch next {
-	case 'O':
-		return _scanKeywordWITHO(s)
-	}
-	return token.Unknown, false
+	return token.KeywordCurrent, true
 }
 
-func _scanKeywordWITHO(s RuneScanner) (token.Type, bool) {
+func scanKeywordCURRENT_(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'U':
-		return _scanKeywordWITHOU(s)
+	case 'D', 'd':
+		s.ConsumeRune()
+		return scanKeywordCURRENT_D(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordCURRENT_T(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordWITHOU(s RuneScanner) (token.Type, bool) {
+func scanKeywordCURRENT_T(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'T':
-		return _scanKeywordWITHOUT(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordWITHOUT(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordWithout, true
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordCURRENT_TI(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordWIN(s RuneScanner) (token.Type, bool) {
+func scanKeywordCURRENT_TI(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'D':
-		return _scanKeywordWIND(s)
+	case 'M', 'm':
+		s.ConsumeRune()
+		return scanKeywordCURRENT_TIM(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordWIND(s RuneScanner) (token.Type, bool) {
+func scanKeywordCURRENT_TIM(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'O':
-		return _scanKeywordWINDO(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordCURRENT_TIME(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordWINDO(s RuneScanner) (token.Type, bool) {
+func scanKeywordCURRENT_TIME(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'W':
-		return _scanKeywordWINDOW(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordWINDOW(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordWindow, true
+	case 'S', 's':
+		s.ConsumeRune()
+		return scanKeywordCURRENT_TIMES(s)
 	}
-	return token.Unknown, false
+	return token.KeywordCurrentTime, true
 }
 
-func _scanKeywordWH(s RuneScanner) (token.Type, bool) {
+func scanKeywordCURRENT_TIMES(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordWHE(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordCURRENT_TIMEST(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordWHE(s RuneScanner) (token.Type, bool) {
+func scanKeywordCURRENT_TIMEST(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'N':
-		return _scanKeywordWHEN(s)
-	case 'R':
-		return _scanKeywordWHER(s)
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordCURRENT_TIMESTA(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordWHER(s RuneScanner) (token.Type, bool) {
+func scanKeywordCURRENT_TIMESTA(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordWHERE(s)
+	case 'M', 'm':
+		s.ConsumeRune()
+		return scanKeywordCURRENT_TIMESTAM(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordWHERE(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordWhere, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordWHEN(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordWhen, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordS(s RuneScanner) (token.Type, bool) {
+func scanKeywordCURRENT_TIMESTAM(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'A':
-		return _scanKeywordSA(s)
-	case 'E':
-		return _scanKeywordSE(s)
+	case 'P', 'p':
+		s.ConsumeRune()
+		return scanKeywordCURRENT_TIMESTAMP(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordSA(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'V':
-		return _scanKeywordSAV(s)
-	}
-	return token.Unknown, false
+func scanKeywordCURRENT_TIMESTAMP(s RuneScanner) (token.Type, bool) {
+	return token.KeywordCurrentTimestamp, true
 }
 
-func _scanKeywordSAV(s RuneScanner) (token.Type, bool) {
+func scanKeywordCURRENT_D(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordSAVE(s)
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordCURRENT_DA(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordSAVE(s RuneScanner) (token.Type, bool) {
+func scanKeywordCURRENT_DA(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'P':
-		return _scanKeywordSAVEP(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordCURRENT_DAT(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordSAVEP(s RuneScanner) (token.Type, bool) {
+func scanKeywordCURRENT_DAT(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'O':
-		return _scanKeywordSAVEPO(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordCURRENT_DATE(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordSAVEPO(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'I':
-		return _scanKeywordSAVEPOI(s)
-	}
-	return token.Unknown, false
+func scanKeywordCURRENT_DATE(s RuneScanner) (token.Type, bool) {
+	return token.KeywordCurrentDate, true
 }
 
-func _scanKeywordSAVEPOI(s RuneScanner) (token.Type, bool) {
+func scanKeywordCR(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'N':
-		return _scanKeywordSAVEPOIN(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordCRE(s)
+	case 'O', 'o':
+		s.ConsumeRune()
+		return scanKeywordCRO(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordSAVEPOIN(s RuneScanner) (token.Type, bool) {
+func scanKeywordCRO(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'T':
-		return _scanKeywordSAVEPOINT(s)
+	case 'S', 's':
+		s.ConsumeRune()
+		return scanKeywordCROS(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordSAVEPOINT(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordSavepoint, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordSE(s RuneScanner) (token.Type, bool) {
+func scanKeywordCROS(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'L':
-		return _scanKeywordSEL(s)
-	case 'T':
-		return _scanKeywordSET(s)
+	case 'S', 's':
+		s.ConsumeRune()
+		return scanKeywordCROSS(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordSET(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordSet, true
-	}
-	return token.Unknown, false
+func scanKeywordCROSS(s RuneScanner) (token.Type, bool) {
+	return token.KeywordCross, true
 }
 
-func _scanKeywordSEL(s RuneScanner) (token.Type, bool) {
+func scanKeywordCRE(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordSELE(s)
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordCREA(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordSELE(s RuneScanner) (token.Type, bool) {
+func scanKeywordCREA(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'C':
-		return _scanKeywordSELEC(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordCREAT(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordSELEC(s RuneScanner) (token.Type, bool) {
+func scanKeywordCREAT(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'T':
-		return _scanKeywordSELECT(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordCREATE(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordSELECT(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordSelect, true
-	}
-	return token.Unknown, false
+func scanKeywordCREATE(s RuneScanner) (token.Type, bool) {
+	return token.KeywordCreate, true
 }
 
-func _scanKeywordP(s RuneScanner) (token.Type, bool) {
+func scanKeywordH(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'R':
-		return _scanKeywordPR(s)
-	case 'L':
-		return _scanKeywordPL(s)
-	case 'A':
-		return _scanKeywordPA(s)
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordHA(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordPR(s RuneScanner) (token.Type, bool) {
+func scanKeywordHA(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordPRE(s)
-	case 'A':
-		return _scanKeywordPRA(s)
-	case 'I':
-		return _scanKeywordPRI(s)
+	case 'V', 'v':
+		s.ConsumeRune()
+		return scanKeywordHAV(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordPRE(s RuneScanner) (token.Type, bool) {
+func scanKeywordHAV(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'C':
-		return _scanKeywordPREC(s)
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordHAVI(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordPREC(s RuneScanner) (token.Type, bool) {
+func scanKeywordHAVI(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordPRECE(s)
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordHAVIN(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordPRECE(s RuneScanner) (token.Type, bool) {
+func scanKeywordHAVIN(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'D':
-		return _scanKeywordPRECED(s)
+	case 'G', 'g':
+		s.ConsumeRune()
+		return scanKeywordHAVING(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordPRECED(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'I':
-		return _scanKeywordPRECEDI(s)
-	}
-	return token.Unknown, false
+func scanKeywordHAVING(s RuneScanner) (token.Type, bool) {
+	return token.KeywordHaving, true
 }
 
-func _scanKeywordPRECEDI(s RuneScanner) (token.Type, bool) {
+func scanKeywordI(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'N':
-		return _scanKeywordPRECEDIN(s)
+	case 'F', 'f':
+		s.ConsumeRune()
+		return scanKeywordIF(s)
+	case 'G', 'g':
+		s.ConsumeRune()
+		return scanKeywordIG(s)
+	case 'M', 'm':
+		s.ConsumeRune()
+		return scanKeywordIM(s)
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordIN(s)
+	case 'S', 's':
+		s.ConsumeRune()
+		return scanKeywordIS(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordPRECEDIN(s RuneScanner) (token.Type, bool) {
+func scanKeywordIM(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'G':
-		return _scanKeywordPRECEDING(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordPRECEDING(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordPreceding, true
+	case 'M', 'm':
+		s.ConsumeRune()
+		return scanKeywordIMM(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordPRA(s RuneScanner) (token.Type, bool) {
+func scanKeywordIMM(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'G':
-		return _scanKeywordPRAG(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordIMME(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordPRAG(s RuneScanner) (token.Type, bool) {
+func scanKeywordIMME(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'M':
-		return _scanKeywordPRAGM(s)
+	case 'D', 'd':
+		s.ConsumeRune()
+		return scanKeywordIMMED(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordPRAGM(s RuneScanner) (token.Type, bool) {
+func scanKeywordIMMED(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'A':
-		return _scanKeywordPRAGMA(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordPRAGMA(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordPragma, true
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordIMMEDI(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordPRI(s RuneScanner) (token.Type, bool) {
+func scanKeywordIMMEDI(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'M':
-		return _scanKeywordPRIM(s)
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordIMMEDIA(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordPRIM(s RuneScanner) (token.Type, bool) {
+func scanKeywordIMMEDIA(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'A':
-		return _scanKeywordPRIMA(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordIMMEDIAT(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordPRIMA(s RuneScanner) (token.Type, bool) {
+func scanKeywordIMMEDIAT(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'R':
-		return _scanKeywordPRIMAR(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordIMMEDIATE(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordPRIMAR(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'Y':
-		return _scanKeywordPRIMARY(s)
-	}
-	return token.Unknown, false
+func scanKeywordIMMEDIATE(s RuneScanner) (token.Type, bool) {
+	return token.KeywordImmediate, true
 }
 
-func _scanKeywordPRIMARY(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordPrimary, true
-	}
-	return token.Unknown, false
+func scanKeywordIF(s RuneScanner) (token.Type, bool) {
+	return token.KeywordIf, true
 }
 
-func _scanKeywordPL(s RuneScanner) (token.Type, bool) {
+func scanKeywordIS(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'A':
-		return _scanKeywordPLA(s)
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordISN(s)
 	}
-	return token.Unknown, false
+	return token.KeywordIs, true
 }
 
-func _scanKeywordPLA(s RuneScanner) (token.Type, bool) {
+func scanKeywordISN(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'N':
-		return _scanKeywordPLAN(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordPLAN(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordPlan, true
+	case 'U', 'u':
+		s.ConsumeRune()
+		return scanKeywordISNU(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordPA(s RuneScanner) (token.Type, bool) {
+func scanKeywordISNU(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'R':
-		return _scanKeywordPAR(s)
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordISNUL(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordPAR(s RuneScanner) (token.Type, bool) {
+func scanKeywordISNUL(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'T':
-		return _scanKeywordPART(s)
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordISNULL(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordPART(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'I':
-		return _scanKeywordPARTI(s)
-	}
-	return token.Unknown, false
+func scanKeywordISNULL(s RuneScanner) (token.Type, bool) {
+	return token.KeywordIsnull, true
 }
 
-func _scanKeywordPARTI(s RuneScanner) (token.Type, bool) {
+func scanKeywordIG(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'T':
-		return _scanKeywordPARTIT(s)
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordIGN(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordPARTIT(s RuneScanner) (token.Type, bool) {
+func scanKeywordIGN(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'I':
-		return _scanKeywordPARTITI(s)
+	case 'O', 'o':
+		s.ConsumeRune()
+		return scanKeywordIGNO(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordPARTITI(s RuneScanner) (token.Type, bool) {
+func scanKeywordIGNO(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'O':
-		return _scanKeywordPARTITIO(s)
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordIGNOR(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordPARTITIO(s RuneScanner) (token.Type, bool) {
+func scanKeywordIGNOR(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'N':
-		return _scanKeywordPARTITION(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordIGNORE(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordPARTITION(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordPartition, true
-	}
-	return token.Unknown, false
+func scanKeywordIGNORE(s RuneScanner) (token.Type, bool) {
+	return token.KeywordIgnore, true
 }
 
-func _scanKeywordL(s RuneScanner) (token.Type, bool) {
+func scanKeywordIN(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'A':
-		return _scanKeywordLA(s)
-	case 'E':
-		return _scanKeywordLE(s)
-	case 'I':
-		return _scanKeywordLI(s)
+	case 'D', 'd':
+		s.ConsumeRune()
+		return scanKeywordIND(s)
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordINI(s)
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordINN(s)
+	case 'S', 's':
+		s.ConsumeRune()
+		return scanKeywordINS(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordINT(s)
 	}
-	return token.Unknown, false
+	return token.KeywordIn, true
 }
 
-func _scanKeywordLE(s RuneScanner) (token.Type, bool) {
+func scanKeywordINN(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'F':
-		return _scanKeywordLEF(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordINNE(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordLEF(s RuneScanner) (token.Type, bool) {
+func scanKeywordINNE(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'T':
-		return _scanKeywordLEFT(s)
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordINNER(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordLEFT(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordLeft, true
-	}
-	return token.Unknown, false
+func scanKeywordINNER(s RuneScanner) (token.Type, bool) {
+	return token.KeywordInner, true
 }
 
-func _scanKeywordLI(s RuneScanner) (token.Type, bool) {
+func scanKeywordINT(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'K':
-		return _scanKeywordLIK(s)
-	case 'M':
-		return _scanKeywordLIM(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordINTE(s)
+	case 'O', 'o':
+		s.ConsumeRune()
+		return scanKeywordINTO(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordLIM(s RuneScanner) (token.Type, bool) {
+func scanKeywordINTE(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'I':
-		return _scanKeywordLIMI(s)
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordINTER(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordLIMI(s RuneScanner) (token.Type, bool) {
+func scanKeywordINTER(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'T':
-		return _scanKeywordLIMIT(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordLIMIT(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordLimit, true
+	case 'S', 's':
+		s.ConsumeRune()
+		return scanKeywordINTERS(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordLIK(s RuneScanner) (token.Type, bool) {
+func scanKeywordINTERS(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordLIKE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordLIKE(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordLike, true
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordINTERSE(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordLA(s RuneScanner) (token.Type, bool) {
+func scanKeywordINTERSE(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'S':
-		return _scanKeywordLAS(s)
+	case 'C', 'c':
+		s.ConsumeRune()
+		return scanKeywordINTERSEC(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordLAS(s RuneScanner) (token.Type, bool) {
+func scanKeywordINTERSEC(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'T':
-		return _scanKeywordLAST(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordLAST(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordLast, true
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordINTERSECT(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordR(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'A':
-		return _scanKeywordRA(s)
-	case 'I':
-		return _scanKeywordRI(s)
-	case 'E':
-		return _scanKeywordRE(s)
-	case 'O':
-		return _scanKeywordRO(s)
-	}
-	return token.Unknown, false
+func scanKeywordINTERSECT(s RuneScanner) (token.Type, bool) {
+	return token.KeywordIntersect, true
 }
 
-func _scanKeywordRE(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'S':
-		return _scanKeywordRES(s)
-	case 'G':
-		return _scanKeywordREG(s)
-	case 'F':
-		return _scanKeywordREF(s)
-	case 'I':
-		return _scanKeywordREI(s)
-	case 'C':
-		return _scanKeywordREC(s)
-	case 'P':
-		return _scanKeywordREP(s)
-	case 'N':
-		return _scanKeywordREN(s)
-	case 'L':
-		return _scanKeywordREL(s)
-	}
-	return token.Unknown, false
+func scanKeywordINTO(s RuneScanner) (token.Type, bool) {
+	return token.KeywordInto, true
 }
 
-func _scanKeywordREN(s RuneScanner) (token.Type, bool) {
+func scanKeywordIND(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'A':
-		return _scanKeywordRENA(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordINDE(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordRENA(s RuneScanner) (token.Type, bool) {
+func scanKeywordINDE(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'M':
-		return _scanKeywordRENAM(s)
+	case 'X', 'x':
+		s.ConsumeRune()
+		return scanKeywordINDEX(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordRENAM(s RuneScanner) (token.Type, bool) {
+func scanKeywordINDEX(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordRENAME(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordRENAME(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordRename, true
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordINDEXE(s)
 	}
-	return token.Unknown, false
+	return token.KeywordIndex, true
 }
 
-func _scanKeywordREL(s RuneScanner) (token.Type, bool) {
+func scanKeywordINDEXE(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordRELE(s)
+	case 'D', 'd':
+		s.ConsumeRune()
+		return scanKeywordINDEXED(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordRELE(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'A':
-		return _scanKeywordRELEA(s)
-	}
-	return token.Unknown, false
+func scanKeywordINDEXED(s RuneScanner) (token.Type, bool) {
+	return token.KeywordIndexed, true
 }
 
-func _scanKeywordRELEA(s RuneScanner) (token.Type, bool) {
+func scanKeywordINS(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'S':
-		return _scanKeywordRELEAS(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordINSE(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordINST(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordRELEAS(s RuneScanner) (token.Type, bool) {
+func scanKeywordINSE(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordRELEASE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordRELEASE(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordRelease, true
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordINSER(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordRES(s RuneScanner) (token.Type, bool) {
+func scanKeywordINSER(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'T':
-		return _scanKeywordREST(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordINSERT(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordREST(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'R':
-		return _scanKeywordRESTR(s)
-	}
-	return token.Unknown, false
+func scanKeywordINSERT(s RuneScanner) (token.Type, bool) {
+	return token.KeywordInsert, true
 }
 
-func _scanKeywordRESTR(s RuneScanner) (token.Type, bool) {
+func scanKeywordINST(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'I':
-		return _scanKeywordRESTRI(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordINSTE(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordRESTRI(s RuneScanner) (token.Type, bool) {
+func scanKeywordINSTE(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'C':
-		return _scanKeywordRESTRIC(s)
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordINSTEA(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordRESTRIC(s RuneScanner) (token.Type, bool) {
+func scanKeywordINSTEA(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'T':
-		return _scanKeywordRESTRICT(s)
+	case 'D', 'd':
+		s.ConsumeRune()
+		return scanKeywordINSTEAD(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordRESTRICT(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordRestrict, true
-	}
-	return token.Unknown, false
+func scanKeywordINSTEAD(s RuneScanner) (token.Type, bool) {
+	return token.KeywordInstead, true
 }
 
-func _scanKeywordREG(s RuneScanner) (token.Type, bool) {
+func scanKeywordINI(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordREGE(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordINIT(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordREGE(s RuneScanner) (token.Type, bool) {
+func scanKeywordINIT(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'X':
-		return _scanKeywordREGEX(s)
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordINITI(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordREGEX(s RuneScanner) (token.Type, bool) {
+func scanKeywordINITI(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'P':
-		return _scanKeywordREGEXP(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordREGEXP(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordRegexp, true
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordINITIA(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordREF(s RuneScanner) (token.Type, bool) {
+func scanKeywordINITIA(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordREFE(s)
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordINITIAL(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordREFE(s RuneScanner) (token.Type, bool) {
+func scanKeywordINITIAL(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'R':
-		return _scanKeywordREFER(s)
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordINITIALL(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordREFER(s RuneScanner) (token.Type, bool) {
+func scanKeywordINITIALL(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordREFERE(s)
+	case 'Y', 'y':
+		s.ConsumeRune()
+		return scanKeywordINITIALLY(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordREFERE(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'N':
-		return _scanKeywordREFEREN(s)
-	}
-	return token.Unknown, false
+func scanKeywordINITIALLY(s RuneScanner) (token.Type, bool) {
+	return token.KeywordInitially, true
 }
 
-func _scanKeywordREFEREN(s RuneScanner) (token.Type, bool) {
+func scanKeywordT(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'C':
-		return _scanKeywordREFERENC(s)
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordTA(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordTE(s)
+	case 'H', 'h':
+		s.ConsumeRune()
+		return scanKeywordTH(s)
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordTI(s)
+	case 'O', 'o':
+		s.ConsumeRune()
+		return scanKeywordTO(s)
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordTR(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordREFERENC(s RuneScanner) (token.Type, bool) {
+func scanKeywordTA(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordREFERENCE(s)
+	case 'B', 'b':
+		s.ConsumeRune()
+		return scanKeywordTAB(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordREFERENCE(s RuneScanner) (token.Type, bool) {
+func scanKeywordTAB(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'S':
-		return _scanKeywordREFERENCES(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordREFERENCES(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordReferences, true
+	case 'L', 'l':
+		s.ConsumeRune()
+		return scanKeywordTABL(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordREI(s RuneScanner) (token.Type, bool) {
+func scanKeywordTABL(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'N':
-		return _scanKeywordREIN(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordTABLE(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordREIN(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'D':
-		return _scanKeywordREIND(s)
-	}
-	return token.Unknown, false
+func scanKeywordTABLE(s RuneScanner) (token.Type, bool) {
+	return token.KeywordTable, true
 }
 
-func _scanKeywordREIND(s RuneScanner) (token.Type, bool) {
+func scanKeywordTH(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordREINDE(s)
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordTHE(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordREINDE(s RuneScanner) (token.Type, bool) {
+func scanKeywordTHE(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'X':
-		return _scanKeywordREINDEX(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordREINDEX(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordReindex, true
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordTHEN(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordREC(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'U':
-		return _scanKeywordRECU(s)
-	}
-	return token.Unknown, false
+func scanKeywordTHEN(s RuneScanner) (token.Type, bool) {
+	return token.KeywordThen, true
 }
 
-func _scanKeywordRECU(s RuneScanner) (token.Type, bool) {
+func scanKeywordTE(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'R':
-		return _scanKeywordRECUR(s)
+	case 'M', 'm':
+		s.ConsumeRune()
+		return scanKeywordTEM(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordRECUR(s RuneScanner) (token.Type, bool) {
+func scanKeywordTEM(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'S':
-		return _scanKeywordRECURS(s)
+	case 'P', 'p':
+		s.ConsumeRune()
+		return scanKeywordTEMP(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordRECURS(s RuneScanner) (token.Type, bool) {
+func scanKeywordTEMP(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'I':
-		return _scanKeywordRECURSI(s)
+	case 'O', 'o':
+		s.ConsumeRune()
+		return scanKeywordTEMPO(s)
 	}
-	return token.Unknown, false
+	return token.KeywordTemp, true
 }
 
-func _scanKeywordRECURSI(s RuneScanner) (token.Type, bool) {
+func scanKeywordTEMPO(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'V':
-		return _scanKeywordRECURSIV(s)
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordTEMPOR(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordRECURSIV(s RuneScanner) (token.Type, bool) {
+func scanKeywordTEMPOR(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordRECURSIVE(s)
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordTEMPORA(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordRECURSIVE(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordRecursive, true
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordREP(s RuneScanner) (token.Type, bool) {
+func scanKeywordTEMPORA(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'L':
-		return _scanKeywordREPL(s)
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordTEMPORAR(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordREPL(s RuneScanner) (token.Type, bool) {
+func scanKeywordTEMPORAR(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'A':
-		return _scanKeywordREPLA(s)
+	case 'Y', 'y':
+		s.ConsumeRune()
+		return scanKeywordTEMPORARY(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordREPLA(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'C':
-		return _scanKeywordREPLAC(s)
-	}
-	return token.Unknown, false
+func scanKeywordTEMPORARY(s RuneScanner) (token.Type, bool) {
+	return token.KeywordTemporary, true
 }
 
-func _scanKeywordREPLAC(s RuneScanner) (token.Type, bool) {
+func scanKeywordTI(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordREPLACE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordREPLACE(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordReplace, true
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordTIE(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordRO(s RuneScanner) (token.Type, bool) {
+func scanKeywordTIE(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
-	}
-	switch next {
-	case 'W':
-		return _scanKeywordROW(s)
-	case 'L':
-		return _scanKeywordROL(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordROW(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordRow, true
 	}
 	switch next {
-	case 'S':
-		return _scanKeywordROWS(s)
+	case 'S', 's':
+		s.ConsumeRune()
+		return scanKeywordTIES(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordROWS(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordRows, true
-	}
-	return token.Unknown, false
+func scanKeywordTIES(s RuneScanner) (token.Type, bool) {
+	return token.KeywordTies, true
 }
 
-func _scanKeywordROL(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'L':
-		return _scanKeywordROLL(s)
-	}
-	return token.Unknown, false
+func scanKeywordTO(s RuneScanner) (token.Type, bool) {
+	return token.KeywordTo, true
 }
 
-func _scanKeywordROLL(s RuneScanner) (token.Type, bool) {
+func scanKeywordTR(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'B':
-		return _scanKeywordROLLB(s)
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordTRA(s)
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordTRI(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordROLLB(s RuneScanner) (token.Type, bool) {
+func scanKeywordTRI(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'A':
-		return _scanKeywordROLLBA(s)
+	case 'G', 'g':
+		s.ConsumeRune()
+		return scanKeywordTRIG(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordROLLBA(s RuneScanner) (token.Type, bool) {
+func scanKeywordTRIG(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'C':
-		return _scanKeywordROLLBAC(s)
+	case 'G', 'g':
+		s.ConsumeRune()
+		return scanKeywordTRIGG(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordROLLBAC(s RuneScanner) (token.Type, bool) {
+func scanKeywordTRIGG(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'K':
-		return _scanKeywordROLLBACK(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordROLLBACK(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordRollback, true
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordTRIGGE(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordRA(s RuneScanner) (token.Type, bool) {
+func scanKeywordTRIGGE(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'N':
-		return _scanKeywordRAN(s)
-	case 'I':
-		return _scanKeywordRAI(s)
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordTRIGGER(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordRAN(s RuneScanner) (token.Type, bool) {
-	next, ok := s.Lookahead()
-	if !ok {
-		return token.Unknown, false
-	}
-	switch next {
-	case 'G':
-		return _scanKeywordRANG(s)
-	}
-	return token.Unknown, false
+func scanKeywordTRIGGER(s RuneScanner) (token.Type, bool) {
+	return token.KeywordTrigger, true
 }
 
-func _scanKeywordRANG(s RuneScanner) (token.Type, bool) {
+func scanKeywordTRA(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordRANGE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordRANGE(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordRange, true
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordTRAN(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordRAI(s RuneScanner) (token.Type, bool) {
+func scanKeywordTRAN(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'S':
-		return _scanKeywordRAIS(s)
+	case 'S', 's':
+		s.ConsumeRune()
+		return scanKeywordTRANS(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordRAIS(s RuneScanner) (token.Type, bool) {
+func scanKeywordTRANS(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordRAISE(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordRAISE(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordRaise, true
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordTRANSA(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordRI(s RuneScanner) (token.Type, bool) {
+func scanKeywordTRANSA(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'G':
-		return _scanKeywordRIG(s)
+	case 'C', 'c':
+		s.ConsumeRune()
+		return scanKeywordTRANSAC(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordRIG(s RuneScanner) (token.Type, bool) {
+func scanKeywordTRANSAC(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'H':
-		return _scanKeywordRIGH(s)
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordTRANSACT(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordRIGH(s RuneScanner) (token.Type, bool) {
+func scanKeywordTRANSACT(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'T':
-		return _scanKeywordRIGHT(s)
-	}
-	return token.Unknown, false
-}
-
-func _scanKeywordRIGHT(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordRight, true
+	case 'I', 'i':
+		s.ConsumeRune()
+		return scanKeywordTRANSACTI(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordK(s RuneScanner) (token.Type, bool) {
+func scanKeywordTRANSACTI(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'E':
-		return _scanKeywordKE(s)
+	case 'O', 'o':
+		s.ConsumeRune()
+		return scanKeywordTRANSACTIO(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordKE(s RuneScanner) (token.Type, bool) {
+func scanKeywordTRANSACTIO(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
 	}
 	switch next {
-	case 'Y':
-		return _scanKeywordKEY(s)
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordTRANSACTION(s)
 	}
 	return token.Unknown, false
 }
 
-func _scanKeywordKEY(s RuneScanner) (token.Type, bool) {
-	_, ok := s.Lookahead()
-	if !ok {
-		return token.KeywordKey, true
-	}
-	return token.Unknown, false
+func scanKeywordTRANSACTION(s RuneScanner) (token.Type, bool) {
+	return token.KeywordTransaction, true
 }
