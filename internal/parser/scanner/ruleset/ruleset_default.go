@@ -1,7 +1,6 @@
 package ruleset
 
 import (
-	"bytes"
 	"unicode"
 
 	"github.com/tomarrell/lbadd/internal/parser/scanner/matcher"
@@ -72,26 +71,6 @@ func defaultPlaceholderRule(s RuneScanner) (token.Type, bool) {
 	if next, ok := s.Lookahead(); ok && defaultPlaceholder.Matches(next) {
 		s.ConsumeRune()
 		return token.Literal, true
-	}
-	return token.Unknown, false
-}
-
-func defaultKeywordsRule(s RuneScanner) (token.Type, bool) {
-	// read word
-	var buf bytes.Buffer
-	for {
-		next, ok := s.Lookahead()
-		if !ok || !defaultLiteral.Matches(next) {
-			break
-		}
-		_, _ = buf.WriteRune(next)
-		s.ConsumeRune()
-	}
-	candidate := buf.String() // candidate is the next word that may be a keyword
-
-	// check if the candidate is a keyword
-	if typ, ok := defaultKeywords[candidate]; ok {
-		return typ, true
 	}
 	return token.Unknown, false
 }
