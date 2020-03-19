@@ -5484,12 +5484,12 @@ func scanKeywordCURRENT(s RuneScanner) (token.Type, bool) {
 	switch next {
 	case '_':
 		s.ConsumeRune()
-		return scanKeywordCURRENT_(s)
+		return scanKeywordCURRENTx(s)
 	}
 	return token.KeywordCurrent, true
 }
 
-func scanKeywordCURRENT_(s RuneScanner) (token.Type, bool) {
+func scanKeywordCURRENTx(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
@@ -5497,15 +5497,15 @@ func scanKeywordCURRENT_(s RuneScanner) (token.Type, bool) {
 	switch next {
 	case 'D', 'd':
 		s.ConsumeRune()
-		return scanKeywordCURRENT_D(s)
+		return scanKeywordCURRENTD(s)
 	case 'T', 't':
 		s.ConsumeRune()
-		return scanKeywordCURRENT_T(s)
+		return scanKeywordCURRENTT(s)
 	}
 	return token.Unknown, false
 }
 
-func scanKeywordCURRENT_T(s RuneScanner) (token.Type, bool) {
+func scanKeywordCURRENTT(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
@@ -5513,12 +5513,12 @@ func scanKeywordCURRENT_T(s RuneScanner) (token.Type, bool) {
 	switch next {
 	case 'I', 'i':
 		s.ConsumeRune()
-		return scanKeywordCURRENT_TI(s)
+		return scanKeywordCURRENTTI(s)
 	}
 	return token.Unknown, false
 }
 
-func scanKeywordCURRENT_TI(s RuneScanner) (token.Type, bool) {
+func scanKeywordCURRENTTI(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
@@ -5526,12 +5526,12 @@ func scanKeywordCURRENT_TI(s RuneScanner) (token.Type, bool) {
 	switch next {
 	case 'M', 'm':
 		s.ConsumeRune()
-		return scanKeywordCURRENT_TIM(s)
+		return scanKeywordCURRENTTIM(s)
 	}
 	return token.Unknown, false
 }
 
-func scanKeywordCURRENT_TIM(s RuneScanner) (token.Type, bool) {
+func scanKeywordCURRENTTIM(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
@@ -5539,12 +5539,12 @@ func scanKeywordCURRENT_TIM(s RuneScanner) (token.Type, bool) {
 	switch next {
 	case 'E', 'e':
 		s.ConsumeRune()
-		return scanKeywordCURRENT_TIME(s)
+		return scanKeywordCURRENTTIME(s)
 	}
 	return token.Unknown, false
 }
 
-func scanKeywordCURRENT_TIME(s RuneScanner) (token.Type, bool) {
+func scanKeywordCURRENTTIME(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
@@ -5552,12 +5552,12 @@ func scanKeywordCURRENT_TIME(s RuneScanner) (token.Type, bool) {
 	switch next {
 	case 'S', 's':
 		s.ConsumeRune()
-		return scanKeywordCURRENT_TIMES(s)
+		return scanKeywordCURRENTTIMES(s)
 	}
 	return token.KeywordCurrentTime, true
 }
 
-func scanKeywordCURRENT_TIMES(s RuneScanner) (token.Type, bool) {
+func scanKeywordCURRENTTIMES(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
@@ -5565,12 +5565,12 @@ func scanKeywordCURRENT_TIMES(s RuneScanner) (token.Type, bool) {
 	switch next {
 	case 'T', 't':
 		s.ConsumeRune()
-		return scanKeywordCURRENT_TIMEST(s)
+		return scanKeywordCURRENTTIMEST(s)
 	}
 	return token.Unknown, false
 }
 
-func scanKeywordCURRENT_TIMEST(s RuneScanner) (token.Type, bool) {
+func scanKeywordCURRENTTIMEST(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
@@ -5578,12 +5578,12 @@ func scanKeywordCURRENT_TIMEST(s RuneScanner) (token.Type, bool) {
 	switch next {
 	case 'A', 'a':
 		s.ConsumeRune()
-		return scanKeywordCURRENT_TIMESTA(s)
+		return scanKeywordCURRENTTIMESTA(s)
 	}
 	return token.Unknown, false
 }
 
-func scanKeywordCURRENT_TIMESTA(s RuneScanner) (token.Type, bool) {
+func scanKeywordCURRENTTIMESTA(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
@@ -5591,12 +5591,12 @@ func scanKeywordCURRENT_TIMESTA(s RuneScanner) (token.Type, bool) {
 	switch next {
 	case 'M', 'm':
 		s.ConsumeRune()
-		return scanKeywordCURRENT_TIMESTAM(s)
+		return scanKeywordCURRENTTIMESTAM(s)
 	}
 	return token.Unknown, false
 }
 
-func scanKeywordCURRENT_TIMESTAM(s RuneScanner) (token.Type, bool) {
+func scanKeywordCURRENTTIMESTAM(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
@@ -5604,16 +5604,16 @@ func scanKeywordCURRENT_TIMESTAM(s RuneScanner) (token.Type, bool) {
 	switch next {
 	case 'P', 'p':
 		s.ConsumeRune()
-		return scanKeywordCURRENT_TIMESTAMP(s)
+		return scanKeywordCURRENTTIMESTAMP(s)
 	}
 	return token.Unknown, false
 }
 
-func scanKeywordCURRENT_TIMESTAMP(s RuneScanner) (token.Type, bool) {
+func scanKeywordCURRENTTIMESTAMP(s RuneScanner) (token.Type, bool) {
 	return token.KeywordCurrentTimestamp, true
 }
 
-func scanKeywordCURRENT_D(s RuneScanner) (token.Type, bool) {
+func scanKeywordCURRENTD(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
@@ -5621,12 +5621,12 @@ func scanKeywordCURRENT_D(s RuneScanner) (token.Type, bool) {
 	switch next {
 	case 'A', 'a':
 		s.ConsumeRune()
-		return scanKeywordCURRENT_DA(s)
+		return scanKeywordCURRENTDA(s)
 	}
 	return token.Unknown, false
 }
 
-func scanKeywordCURRENT_DA(s RuneScanner) (token.Type, bool) {
+func scanKeywordCURRENTDA(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
@@ -5634,12 +5634,12 @@ func scanKeywordCURRENT_DA(s RuneScanner) (token.Type, bool) {
 	switch next {
 	case 'T', 't':
 		s.ConsumeRune()
-		return scanKeywordCURRENT_DAT(s)
+		return scanKeywordCURRENTDAT(s)
 	}
 	return token.Unknown, false
 }
 
-func scanKeywordCURRENT_DAT(s RuneScanner) (token.Type, bool) {
+func scanKeywordCURRENTDAT(s RuneScanner) (token.Type, bool) {
 	next, ok := s.Lookahead()
 	if !ok {
 		return token.Unknown, false
@@ -5647,12 +5647,12 @@ func scanKeywordCURRENT_DAT(s RuneScanner) (token.Type, bool) {
 	switch next {
 	case 'E', 'e':
 		s.ConsumeRune()
-		return scanKeywordCURRENT_DATE(s)
+		return scanKeywordCURRENTDATE(s)
 	}
 	return token.Unknown, false
 }
 
-func scanKeywordCURRENT_DATE(s RuneScanner) (token.Type, bool) {
+func scanKeywordCURRENTDATE(s RuneScanner) (token.Type, bool) {
 	return token.KeywordCurrentDate, true
 }
 
