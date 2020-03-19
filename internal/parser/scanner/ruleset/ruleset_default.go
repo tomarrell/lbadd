@@ -44,9 +44,11 @@ var (
 	defaultUnaryOperator  = matcher.String("-+~")
 	defaultBinaryOperator = matcher.String("|*/%<>=&!")
 	defaultDelimiter      = matcher.String("(),")
+	defaultPlaceholder    = matcher.RuneWithDesc("placeholder", '?')
 	// the order of the rules are important for some cases. Beware
 	defaultRules = []Rule{
 		FuncRule(defaultStatementSeparatorRule),
+		FuncRule(defaultPlaceholderRule),
 		FuncRule(defaultKeywordsRule),
 		FuncRule(defaultUnaryOperatorRule),
 		FuncRule(defaultBinaryOperatorRule),
@@ -62,6 +64,14 @@ func defaultStatementSeparatorRule(s RuneScanner) (token.Type, bool) {
 	if next, ok := s.Lookahead(); ok && defaultStatementSeparator.Matches(next) {
 		s.ConsumeRune()
 		return token.StatementSeparator, true
+	}
+	return token.Unknown, false
+}
+
+func defaultPlaceholderRule(s RuneScanner) (token.Type, bool) {
+	if next, ok := s.Lookahead(); ok && defaultPlaceholder.Matches(next) {
+		s.ConsumeRune()
+		return token.Literal, true
 	}
 	return token.Unknown, false
 }
