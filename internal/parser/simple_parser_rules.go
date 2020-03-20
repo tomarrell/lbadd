@@ -1235,6 +1235,7 @@ func (p *simpleParser) parseCreateVirtualTableStmt(createToken token.Token, r re
 	return
 }
 
+//done
 func (p *simpleParser) parseDeleteStmt(r reporter) (stmt *ast.DeleteStmt) {
 	stmt = &ast.DeleteStmt{}
 	// stmt.WithClause = p.parseWithClause(r)
@@ -1312,6 +1313,7 @@ func (p *simpleParser) parseWithClause(r reporter) (withClause *ast.WithClause) 
 	return
 }
 
+//done
 func (p *simpleParser) parseRecursiveCte(r reporter) (recursiveCte *ast.RecursiveCte) {
 	recursiveCte.CteTableName = p.parseCteTableName(r)
 	next, ok := p.lookahead(r)
@@ -1339,6 +1341,7 @@ func (p *simpleParser) parseRecursiveCte(r reporter) (recursiveCte *ast.Recursiv
 	return
 }
 
+//done
 func (p *simpleParser) parseCteTableName(r reporter) (cteTableName *ast.CteTableName) {
 	next, ok := p.lookahead(r)
 	if !ok {
@@ -1387,6 +1390,7 @@ func (p *simpleParser) parseCteTableName(r reporter) (cteTableName *ast.CteTable
 	return
 }
 
+//done
 func (p *simpleParser) parseSelectStmt(r reporter) (stmt *ast.SelectStmt) {
 	stmt = &ast.SelectStmt{}
 	next, ok := p.lookahead(r)
@@ -1422,16 +1426,79 @@ func (p *simpleParser) parseSelectStmt(r reporter) (stmt *ast.SelectStmt) {
 		}
 	}
 
-	stmt.SelectCore = append(stmt.SelectCore, p.parseSelectCore(r))
-
 	next, ok = p.lookahead(r)
 	if !ok {
 		return
 	}
+	// Keep looping and searching for the select core until its exhausted.
+	// We are sure that a select core starts here as its the type of stmt we expect.
+	for {
+		if !(next.Type() == token.KeywordSelect || next.Type() == token.KeywordValues) {
+			break
+		}
+		stmt.SelectCore = append(stmt.SelectCore, p.parseSelectCore(r))
+	}
 
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF {
+		return
+	}
+	if next.Type() == token.KeywordOrder {
+		stmt.Order = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordBy {
+			stmt.By = next
+			p.consumeToken()
+
+		} else {
+			r.unexpectedToken(token.KeywordBy)
+		}
+		for {
+			stmt.OrderingTerm = append(stmt.OrderingTerm, p.parseOrderingTerm(r))
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == "," {
+				p.consumeToken()
+			} else {
+				break
+			}
+		}
+	}
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF {
+		return
+	}
+	if next.Type() == token.KeywordLimit {
+		stmt.Limit = next
+		p.consumeToken()
+		stmt.Expr1 = p.parseExpression(r)
+
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF {
+			return
+		}
+		if next.Type() == token.KeywordOffset {
+			stmt.Offset = next
+			p.consumeToken()
+			stmt.Expr2 = p.parseExpression(r)
+		}
+		if next.Value() == "," {
+			stmt.Comma = next
+			p.consumeToken()
+			stmt.Expr2 = p.parseExpression(r)
+		}
+	}
 	return
 }
 
+//done
 func (p *simpleParser) parseQualifiedTableName(r reporter) (stmt *ast.QualifiedTableName) {
 	stmt = &ast.QualifiedTableName{}
 	schemaOrTableName, ok := p.lookahead(r)
@@ -1536,6 +1603,7 @@ func (p *simpleParser) parseQualifiedTableName(r reporter) (stmt *ast.QualifiedT
 	return
 }
 
+// done
 func (p *simpleParser) parseCommonTableExpression(r reporter) (stmt *ast.CommonTableExpression) {
 	stmt = &ast.CommonTableExpression{}
 	next, ok := p.lookahead(r)
@@ -1612,6 +1680,7 @@ func (p *simpleParser) parseCommonTableExpression(r reporter) (stmt *ast.CommonT
 	return
 }
 
+//done
 func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 	stmt = &ast.SelectCore{}
 	next, ok := p.lookahead(r)
@@ -1621,75 +1690,28 @@ func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 	if next.Type() == token.KeywordSelect {
 		stmt.Select = next
 		p.consumeToken()
-	}
-
-	next, ok = p.lookahead(r)
-	if !ok {
-		return
-	}
-	if next.Type() == token.KeywordDistinct {
-		stmt.Distinct = next
-		p.consumeToken()
-	} else if next.Type() == token.KeywordAll {
-		stmt.All = next
-		p.consumeToken()
-	} else {
-		for {
-			stmt.ResultColumn = append(stmt.ResultColumn, p.parseResultColumn(r))
-			next, ok = p.lookahead(r)
-			if !ok {
-				return
-			}
-			if next.Value() == "," {
-				p.consumeToken()
-			} else {
-				break
-			}
-		}
-	}
-
-	next, ok = p.lookahead(r)
-	if !ok {
-		return
-	}
-	if next.Type() == token.KeywordFrom {
-	}
-
-	next, ok = p.lookahead(r)
-	if !ok {
-		return
-	}
-	if next.Type() == token.KeywordWhere {
-		// Consuming the keyword where
-		p.consumeToken()
-		stmt.Expr1 = p.parseExpression(r)
-	}
-
-	next, ok = p.lookahead(r)
-	if !ok {
-		return
-	}
-	if next.Type() == token.KeywordGroup {
-		// Consuming the keyword Group
-		p.consumeToken()
 		next, ok = p.lookahead(r)
 		if !ok {
 			return
 		}
-		if next.Type() == token.KeywordBy {
-			stmt.By = next
+		if next.Type() == token.KeywordDistinct {
+			stmt.Distinct = next
 			p.consumeToken()
-		}
-		for {
-			stmt.Expr2 = append(stmt.Expr2, p.parseExpression(r))
-			next, ok = p.lookahead(r)
-			if !ok {
-				return
-			}
-			if next.Value() == "," {
-				p.consumeToken()
-			} else {
-				break
+		} else if next.Type() == token.KeywordAll {
+			stmt.All = next
+			p.consumeToken()
+		} else {
+			for {
+				stmt.ResultColumn = append(stmt.ResultColumn, p.parseResultColumn(r))
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Value() == "," {
+					p.consumeToken()
+				} else {
+					break
+				}
 			}
 		}
 
@@ -1697,21 +1719,102 @@ func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 		if !ok {
 			return
 		}
-		if next.Type() == token.KeywordHaving {
-			stmt.Having = next
+		if next.Type() == token.KeywordFrom {
+			stmt.JoinClause = p.parseJoinClause(r)
+			if stmt.JoinClause == nil {
+				for {
+					stmt.TableOrSubquery = append(stmt.TableOrSubquery, p.parseTableOrSubquery(r))
+					next, ok = p.lookahead(r)
+					if !ok {
+						return
+					}
+					if next.Value() == "," {
+						p.consumeToken()
+					} else {
+						break
+					}
+				}
+			}
+		}
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordWhere {
+			// Consuming the keyword where
 			p.consumeToken()
-			stmt.Expr3 = p.parseExpression(r)
+			stmt.Expr1 = p.parseExpression(r)
+		}
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordGroup {
+			// Consuming the keyword Group
+			p.consumeToken()
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordBy {
+				stmt.By = next
+				p.consumeToken()
+			}
+			for {
+				stmt.Expr2 = append(stmt.Expr2, p.parseExpression(r))
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Value() == "," {
+					p.consumeToken()
+				} else {
+					break
+				}
+			}
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordHaving {
+				stmt.Having = next
+				p.consumeToken()
+				stmt.Expr3 = p.parseExpression(r)
+			}
+		}
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordWindow {
+			// Consuming the keyword window
+			for {
+				stmt.NamedWindow = append(stmt.NamedWindow, p.parseNamedWindow(r))
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Value() == "," {
+					p.consumeToken()
+				} else {
+					break
+				}
+			}
 		}
 	}
-
-	next, ok = p.lookahead(r)
-	if !ok {
-		return
-	}
-	if next.Type() == token.KeywordWindow {
-		// Consuming the keyword window
+	if next.Type() == token.KeywordValues {
+		stmt.Values = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
 		for {
-			stmt.NamedWindow = append(stmt.NamedWindow, p.parseNamedWindow(r))
+			stmt.ParenthesizedExpressions = append(stmt.ParenthesizedExpressions, p.parseParenthesizeExpression(r))
 			next, ok = p.lookahead(r)
 			if !ok {
 				return
@@ -1723,10 +1826,13 @@ func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 			}
 		}
 	}
+
+	stmt.CompoundOperator = p.parseCompoundOperator(r)
 
 	return
 }
 
+//done
 func (p *simpleParser) parseResultColumn(r reporter) (stmt *ast.ResultColumn) {
 	stmt = &ast.ResultColumn{}
 	next, ok := p.lookahead(r)
@@ -1781,6 +1887,7 @@ func (p *simpleParser) parseResultColumn(r reporter) (stmt *ast.ResultColumn) {
 	return
 }
 
+//done
 func (p *simpleParser) parseNamedWindow(r reporter) (stmt *ast.NamedWindow) {
 	stmt = &ast.NamedWindow{}
 	next, ok := p.lookahead(r)
@@ -1805,6 +1912,7 @@ func (p *simpleParser) parseNamedWindow(r reporter) (stmt *ast.NamedWindow) {
 	return
 }
 
+//done
 func (p *simpleParser) parseWindowDefn(r reporter) (stmt *ast.WindowDefn) {
 	stmt = &ast.WindowDefn{}
 	next, ok := p.lookahead(r)
@@ -1900,11 +2008,67 @@ func (p *simpleParser) parseWindowDefn(r reporter) (stmt *ast.WindowDefn) {
 	return
 }
 
+//done
 func (p *simpleParser) parseOrderingTerm(r reporter) (stmt *ast.OrderingTerm) {
 	stmt = &ast.OrderingTerm{}
+	stmt.Expr = p.parseExpression(r)
+
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordCollate {
+		stmt.Collate = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Literal {
+			stmt.CollationName = next
+			p.consumeToken()
+		} else {
+			r.unexpectedToken(token.Literal)
+		}
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordAsc {
+		stmt.Asc = next
+		p.consumeToken()
+	}
+	if next.Type() == token.KeywordDesc {
+		stmt.Desc = next
+		p.consumeToken()
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordNulls {
+		stmt.Nulls = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordFirst {
+			stmt.First = next
+			p.consumeToken()
+		}
+		if next.Type() == token.KeywordLast {
+			stmt.Last = next
+			p.consumeToken()
+		}
+	}
 	return
 }
 
+//done
 func (p *simpleParser) parseFrameSpec(r reporter) (stmt *ast.FrameSpec) {
 	stmt = &ast.FrameSpec{}
 	next, ok := p.lookahead(r)
@@ -2100,6 +2264,415 @@ func (p *simpleParser) parseFrameSpec(r reporter) (stmt *ast.FrameSpec) {
 		case token.KeywordTies:
 			p.consumeToken()
 		}
+	}
+	return
+}
+
+//done
+func (p *simpleParser) parseParenthesizeExpression(r reporter) (stmt *ast.ParenthesizedExpressions) {
+	stmt = &ast.ParenthesizedExpressions{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Value() == "(" {
+		stmt.LeftParen = next
+		p.consumeToken()
+		for {
+			stmt.Exprs = append(stmt.Exprs, p.parseExpression(r))
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == ")" {
+				stmt.RightParen = next
+				p.consumeToken()
+				break
+			}
+			if next.Value() == "," {
+				p.consumeToken()
+			}
+		}
+	}
+	return
+}
+
+// done
+func (p *simpleParser) parseCompoundOperator(r reporter) (stmt *ast.CompoundOperator) {
+	stmt = &ast.CompoundOperator{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordUnion {
+		stmt.Union = next
+		p.consumeToken()
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF {
+			return
+		}
+		if next.Type() == token.KeywordAll {
+			stmt.All = next
+			p.consumeToken()
+		}
+	}
+	if next.Type() == token.KeywordIntersect {
+		stmt.Intersect = next
+		p.consumeToken()
+	}
+	if next.Type() == token.KeywordExcept {
+		stmt.Except = next
+		p.consumeToken()
+	}
+	return
+}
+
+//done
+func (p *simpleParser) parseTableOrSubquery(r reporter) (stmt *ast.TableOrSubquery) {
+	stmt = &ast.TableOrSubquery{}
+	schemaOrTableNameOrLeftPar, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if schemaOrTableNameOrLeftPar.Type() == token.Literal {
+		stmt.TableName = schemaOrTableNameOrLeftPar
+		p.consumeToken()
+
+		next, ok := p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF {
+			return
+		}
+		var tableNameOrTableFunctionName token.Token
+		if next.Value() == "." {
+			stmt.Period = next
+			p.consumeToken()
+			tableNameOrTableFunctionName, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.Literal {
+				stmt.SchemaName = schemaOrTableNameOrLeftPar
+				stmt.TableName = tableNameOrTableFunctionName
+				p.consumeToken()
+			} else {
+				r.unexpectedToken(token.Literal)
+			}
+		}
+
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF {
+			return
+		}
+		if next.Type() == token.KeywordAs || next.Type() == token.KeywordIndexed || next.Type() == token.Literal || next.Type() == token.KeywordNot {
+			if next.Type() == token.KeywordAs {
+				stmt.As = next
+				p.consumeToken()
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Type() == token.Literal {
+					stmt.TableAlias = next
+					p.consumeToken()
+				} else {
+					r.unexpectedToken(token.Literal)
+				}
+			}
+			if next.Type() == token.Literal {
+				stmt.TableAlias = next
+				p.consumeToken()
+			}
+
+			next, ok = p.optionalLookahead(r)
+			if !ok || next.Type() == token.EOF {
+				return
+			}
+			if next.Type() == token.KeywordIndexed {
+				stmt.Indexed = next
+				p.consumeToken()
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Type() == token.KeywordBy {
+					stmt.By = next
+					p.consumeToken()
+					next, ok = p.lookahead(r)
+					if !ok {
+						return
+					}
+					if next.Type() == token.Literal {
+						stmt.IndexName = next
+						p.consumeToken()
+					} else {
+						r.unexpectedToken(token.Literal)
+					}
+				} else {
+					r.unexpectedToken(token.KeywordBy)
+				}
+			}
+			if next.Type() == token.KeywordNot {
+				stmt.Not = next
+				p.consumeToken()
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Type() == token.KeywordIndexed {
+					stmt.Indexed = next
+					p.consumeToken()
+				}
+			}
+		} else {
+			if next.Value() == "(" {
+				stmt.TableFunctionName = tableNameOrTableFunctionName
+				for {
+					// Since this rule allows an open bracket, we need to check whether an expr
+					// exists before we allow it to look for an expresion to avoid null ptr errors.
+					next, ok := p.lookahead(r)
+					if !ok {
+						return
+					}
+					if next.Value() == ")" {
+						stmt.RightParen = next
+						p.consumeToken()
+						break
+					}
+					stmt.Expr = append(stmt.Expr, p.parseExpression(r))
+					next, ok = p.lookahead(r)
+					if !ok {
+						return
+					}
+					if next.Value() == "," {
+						p.consumeToken()
+					}
+				}
+
+				next, ok = p.optionalLookahead(r)
+				if !ok || next.Type() == token.EOF {
+					return
+				}
+				if next.Type() == token.KeywordAs {
+					stmt.As = next
+					p.consumeToken()
+					next, ok = p.lookahead(r)
+					if !ok {
+						return
+					}
+					if next.Type() == token.Literal {
+						stmt.TableAlias = next
+						p.consumeToken()
+					}
+				}
+				if next.Type() == token.Literal {
+					stmt.TableAlias = next
+					p.consumeToken()
+				}
+			}
+		}
+	} else if schemaOrTableNameOrLeftPar.Value() == "(" {
+		stmt.SelectStmt = p.parseSelectStmt(r)
+		if stmt.SelectStmt == nil {
+			stmt.JoinClause = p.parseJoinClause(r)
+			if stmt.JoinClause == nil {
+				for {
+					stmt.TableOrSubquery = append(stmt.TableOrSubquery, p.parseTableOrSubquery(r))
+					next, ok := p.lookahead(r)
+					if !ok {
+						return
+					}
+					if next.Value() == "," {
+						p.consumeToken()
+					}
+					if next.Value() == ")" {
+						stmt.RightParen = next
+						p.consumeToken()
+						break
+					}
+				}
+			}
+			next, ok := p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == ")" {
+				stmt.RightParen = next
+				p.consumeToken()
+				return
+			}
+		} else {
+			next, ok := p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == ")" {
+				stmt.RightParen = next
+				p.consumeToken()
+			}
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordAs {
+				stmt.As = next
+				p.consumeToken()
+			}
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.Literal {
+				stmt.TableAlias = next
+				p.consumeToken()
+			}
+		}
+	}
+	return
+}
+
+//done
+func (p *simpleParser) parseJoinClause(r reporter) (stmt *ast.JoinClause) {
+	stmt = &ast.JoinClause{}
+	stmt.TableOrSubquery = p.parseTableOrSubquery(r)
+
+	for {
+		next, ok := p.optionalLookahead(r)
+		if !ok || next.Type() != token.EOF {
+			return
+		}
+		if !((next.Type() == token.KeywordNatural) || (next.Type() == token.KeywordJoin) || (next.Value() == ",")) {
+			break
+		}
+		stmt.JoinClausePart = p.parseJoinClausePart(r)
+	}
+	return
+}
+
+//done
+func (p *simpleParser) parseJoinClausePart(r reporter) (stmt *ast.JoinClausePart) {
+	stmt = &ast.JoinClausePart{}
+	stmt.JoinOperator = p.parseJoinOperator(r)
+	stmt.TableOrSubquery = p.parseTableOrSubquery(r)
+	stmt.JoinConstraint = p.parseJoinConstraint(r)
+	return
+}
+
+//done
+func (p *simpleParser) parseJoinConstraint(r reporter) (stmt *ast.JoinConstraint) {
+	stmt = &ast.JoinConstraint{}
+	next, ok := p.optionalLookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordOn {
+		stmt.On = next
+		p.consumeToken()
+		stmt.Expr = p.parseExpression(r)
+	}
+
+	if next.Type() == token.KeywordUsing {
+		stmt.Using = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Value() == "(" {
+			stmt.LeftParen = next
+			p.consumeToken()
+		}
+		for {
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.Literal {
+				stmt.ColumnName = append(stmt.ColumnName, next)
+				p.consumeToken()
+			}
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == "," {
+				p.consumeToken()
+			} else if next.Value() == ")" {
+				stmt.RightParen = next
+				p.consumeToken()
+				break
+			}
+		}
+	}
+	return
+}
+
+//done
+func (p *simpleParser) parseJoinOperator(r reporter) (stmt *ast.JoinOperator) {
+	stmt = &ast.JoinOperator{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Value() == "," {
+		stmt.Comma = next
+		p.consumeToken()
+		return
+	}
+	if next.Type() == token.KeywordJoin {
+		stmt.Join = next
+		p.consumeToken()
+		return
+	}
+	if next.Type() == token.KeywordNatural {
+		stmt.Natural = next
+		p.consumeToken()
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordLeft {
+		stmt.Left = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordOuter {
+			stmt.Outer = next
+			p.consumeToken()
+		}
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordInner {
+		stmt.Inner = next
+		p.consumeToken()
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordCross {
+		stmt.Cross = next
+		p.consumeToken()
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordJoin {
+		stmt.Join = next
+		p.consumeToken()
 	}
 	return
 }
