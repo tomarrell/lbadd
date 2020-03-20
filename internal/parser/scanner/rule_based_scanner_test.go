@@ -10,11 +10,13 @@ import (
 
 func TestRuleBasedScanner(t *testing.T) {
 	inputs := []struct {
+		name    string
 		query   string
 		ruleset ruleset.Ruleset
 		want    []token.Token
 	}{
 		{
+			"SELECT FROM WHERE",
 			"SELECT FROM WHERE",
 			ruleset.Default,
 			[]token.Token{
@@ -25,6 +27,7 @@ func TestRuleBasedScanner(t *testing.T) {
 			},
 		},
 		{
+			"SELECT FROM Literal",
 			"SELECT FROM \"WHERE\"",
 			ruleset.Default,
 			[]token.Token{
@@ -35,6 +38,7 @@ func TestRuleBasedScanner(t *testing.T) {
 			},
 		},
 		{
+			"unclosed literal",
 			"SELECT FROM \"WHERE",
 			ruleset.Default,
 			[]token.Token{
@@ -46,6 +50,7 @@ func TestRuleBasedScanner(t *testing.T) {
 			},
 		},
 		{
+			"many whitespaces with delimiters and literals",
 			"SELECT      FROM || & +7 5 \"foobar\"",
 			ruleset.Default,
 			[]token.Token{
@@ -61,6 +66,7 @@ func TestRuleBasedScanner(t *testing.T) {
 			},
 		},
 		{
+			"fractional numeric literal",
 			"SELECT      FROM || & +7 5.9 \"foobar\"",
 			ruleset.Default,
 			[]token.Token{
@@ -76,6 +82,7 @@ func TestRuleBasedScanner(t *testing.T) {
 			},
 		},
 		{
+			"single quote literal",
 			"SELECT FROM 'WHERE'",
 			ruleset.Default,
 			[]token.Token{
@@ -86,6 +93,7 @@ func TestRuleBasedScanner(t *testing.T) {
 			},
 		},
 		{
+			"unclosed literal",
 			"SELECT \"myCol FROM \"myTable\"",
 			ruleset.Default,
 			[]token.Token{
@@ -97,6 +105,7 @@ func TestRuleBasedScanner(t *testing.T) {
 			},
 		},
 		{
+			"misplaced quote",
 			"SELECT \" FROM",
 			ruleset.Default,
 			[]token.Token{
@@ -107,6 +116,7 @@ func TestRuleBasedScanner(t *testing.T) {
 			},
 		},
 		{
+			"literal closing escape double quote",
 			`SELECT FROM "this \" can be anything"`,
 			ruleset.Default,
 			[]token.Token{
@@ -117,6 +127,7 @@ func TestRuleBasedScanner(t *testing.T) {
 			},
 		},
 		{
+			"literal closing escape single quote",
 			`SELECT FROM 'this \' can be anything'`,
 			ruleset.Default,
 			[]token.Token{
@@ -127,6 +138,7 @@ func TestRuleBasedScanner(t *testing.T) {
 			},
 		},
 		{
+			"unary and binary operators",
 			`|| * / % + - ~ << >> & | < <= > >= = == != <> !>> >>`,
 			ruleset.Default,
 			[]token.Token{
@@ -156,7 +168,8 @@ func TestRuleBasedScanner(t *testing.T) {
 			},
 		},
 		{
-			`7 7.5 8.9.8 8.0 0.4 10 10000 18907.890 1890976.09.977`,
+			"numeric literals",
+			"7 7.5 8.9.8 8.0 0.4 10 10000 18907.890 1890976.09.977",
 			ruleset.Default,
 			[]token.Token{
 				token.New(1, 1, 0, 1, token.Literal, "7"),
@@ -174,7 +187,8 @@ func TestRuleBasedScanner(t *testing.T) {
 			},
 		},
 		{
-			`11.672E19 11.672E+19 11.657EE19 0xCAFEBABE 2.5E-1 1.2.3.4.5.6.7 5.hello something.4 `,
+			"numeric literals with exponents, no comma leading and or trailing digits, hex literals",
+			"11.672E19 11.672E+19 11.657EE19 0xCAFEBABE 2.5E-1 1.2.3.4.5.6.7 5.hello something.4 ",
 			ruleset.Default,
 			[]token.Token{
 				token.New(1, 1, 0, 9, token.Literal, "11.672E19"),
@@ -198,6 +212,7 @@ func TestRuleBasedScanner(t *testing.T) {
 			},
 		},
 		{
+			"asc desc regression",
 			"ASC DESC",
 			ruleset.Default,
 			[]token.Token{
@@ -206,9 +221,37 @@ func TestRuleBasedScanner(t *testing.T) {
 				token.New(1, 9, 8, 0, token.EOF, ""),
 			},
 		},
+		{
+			"placeholder as literal",
+			"SELECT * FROM users WHERE name = ?;",
+			ruleset.Default,
+			[]token.Token{
+				token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+				token.New(1, 8, 7, 1, token.BinaryOperator, "*"),
+				token.New(1, 10, 9, 4, token.KeywordFrom, "FROM"),
+				token.New(1, 15, 14, 5, token.Literal, "users"),
+				token.New(1, 21, 20, 5, token.KeywordWhere, "WHERE"),
+				token.New(1, 27, 26, 4, token.Literal, "name"),
+				token.New(1, 32, 31, 1, token.BinaryOperator, "="),
+				token.New(1, 34, 33, 1, token.Literal, "?"),
+				token.New(1, 35, 34, 1, token.StatementSeparator, ";"),
+				token.New(1, 36, 35, 0, token.EOF, ""),
+			},
+		},
+		{
+			"placeholder within unquoted literals",
+			"foobar?snafu",
+			ruleset.Default,
+			[]token.Token{
+				token.New(1, 1, 0, 6, token.Literal, "foobar"),
+				token.New(1, 7, 6, 1, token.Literal, "?"),
+				token.New(1, 8, 7, 5, token.Literal, "snafu"),
+				token.New(1, 13, 12, 0, token.EOF, ""),
+			},
+		},
 	}
 	for _, input := range inputs {
-		t.Run("ruleset=default/"+input.query, _TestRuleBasedScannerWithRuleset(input.query, input.ruleset, input.want))
+		t.Run("ruleset=default/"+input.name, _TestRuleBasedScannerWithRuleset(input.query, input.ruleset, input.want))
 	}
 }
 
@@ -241,7 +284,7 @@ func _TestRuleBasedScannerWithRuleset(input string, ruleset ruleset.Ruleset, wan
 			assert.Equal(want[i].Col(), got[i].Col(), "Col doesn't match")
 			assert.Equal(want[i].Offset(), got[i].Offset(), "Offset doesn't match")
 			assert.Equal(want[i].Length(), got[i].Length(), "Length doesn't match")
-			assert.Equal(want[i].Type(), got[i].Type(), "Type doesn't match")
+			assert.Equal(want[i].Type(), got[i].Type(), "Type doesn't match, want %s, but got %s", want[i].Type().String(), got[i].Type().String())
 			assert.Equal(want[i].Value(), got[i].Value(), "Value doesn't match")
 		}
 	}
