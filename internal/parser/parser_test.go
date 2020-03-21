@@ -1031,6 +1031,44 @@ func TestSingleStatementParse(t *testing.T) {
 				},
 			},
 		},
+		{
+			"DELETE with basic with clause, basic select stmt and basic cte-table-name",
+			"WITH myTable AS (SELECT *) DELETE FROM myTable",
+			&ast.SQLStmt{
+				DeleteStmt: &ast.DeleteStmt{
+					WithClause: &ast.WithClause{
+						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
+						RecursiveCte: []*ast.RecursiveCte{
+							&ast.RecursiveCte{
+								CteTableName: &ast.CteTableName{
+									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
+								},
+								As:        token.New(1, 14, 13, 2, token.KeywordAs, "AS"),
+								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
+								SelectStmt: &ast.SelectStmt{
+									SelectCore: []*ast.SelectCore{
+										&ast.SelectCore{
+											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
+											ResultColumn: []*ast.ResultColumn{
+												&ast.ResultColumn{
+													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
+												},
+											},
+										},
+									},
+								},
+								RightParen: token.New(1, 26, 25, 1, token.Delimiter, ")"),
+							},
+						},
+					},
+					Delete: token.New(1, 28, 27, 6, token.KeywordDelete, "DELETE"),
+					From:   token.New(1, 35, 34, 4, token.KeywordFrom, "FROM"),
+					QualifiedTableName: &ast.QualifiedTableName{
+						TableName: token.New(1, 40, 39, 7, token.Literal, "myTable"),
+					},
+				},
+			},
+		},
 	}
 	for _, input := range inputs {
 		t.Run(input.Name, func(t *testing.T) {

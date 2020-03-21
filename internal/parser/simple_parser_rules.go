@@ -1,8 +1,6 @@
 package parser
 
 import (
-	"fmt"
-
 	"github.com/tomarrell/lbadd/internal/parser/ast"
 	"github.com/tomarrell/lbadd/internal/parser/scanner/token"
 )
@@ -1238,9 +1236,15 @@ func (p *simpleParser) parseCreateVirtualTableStmt(createToken token.Token, r re
 //done
 func (p *simpleParser) parseDeleteStmt(r reporter) (stmt *ast.DeleteStmt) {
 	stmt = &ast.DeleteStmt{}
-	// stmt.WithClause = p.parseWithClause(r)
-	p.searchNext(r, token.KeywordDelete)
 	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordWith {
+		stmt.WithClause = p.parseWithClause(r)
+	}
+	p.searchNext(r, token.KeywordDelete)
+	next, ok = p.lookahead(r)
 	if !ok {
 		return
 	}
@@ -1274,30 +1278,22 @@ func (p *simpleParser) parseDeleteStmt(r reporter) (stmt *ast.DeleteStmt) {
 
 func (p *simpleParser) parseWithClause(r reporter) (withClause *ast.WithClause) {
 	withClause = &ast.WithClause{}
-
-	fmt.Println("Go")
 	p.searchNext(r, token.KeywordWith)
-	fmt.Println("GONE")
 	next, ok := p.lookahead(r)
 	if !ok {
 		return
 	}
-	if next.Type() != token.KeywordWith {
-		fmt.Println("PP")
-		return
-	}
 	withClause.With = next
+	p.consumeToken()
 
 	next, ok = p.lookahead(r)
 	if !ok {
 		return
 	}
-	fmt.Println("G")
 	if next.Type() == token.KeywordRecursive {
 		withClause.Recursive = next
 		p.consumeToken()
 	}
-
 	for {
 		withClause.RecursiveCte = append(withClause.RecursiveCte, p.parseRecursiveCte(r))
 		next, ok = p.lookahead(r)
@@ -1318,7 +1314,7 @@ func (p *simpleParser) parseRecursiveCte(r reporter) (recursiveCte *ast.Recursiv
 	recursiveCte = &ast.RecursiveCte{}
 	recursiveCte.CteTableName = p.parseCteTableName(r)
 	next, ok := p.lookahead(r)
-	if ok {
+	if !ok {
 		return
 	}
 	if next.Type() == token.KeywordAs {
@@ -1339,6 +1335,17 @@ func (p *simpleParser) parseRecursiveCte(r reporter) (recursiveCte *ast.Recursiv
 		r.unexpectedToken(token.Delimiter)
 	}
 	recursiveCte.SelectStmt = p.parseSelectStmt(r)
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Value() == ")" {
+		recursiveCte.RightParen = next
+		p.consumeToken()
+	} else {
+		r.unexpectedToken(token.Delimiter)
+	}
 	return
 }
 
@@ -1350,6 +1357,7 @@ func (p *simpleParser) parseCteTableName(r reporter) (cteTableName *ast.CteTable
 		return
 	}
 	cteTableName.TableName = next
+	p.consumeToken()
 
 	next, ok = p.optionalLookahead(r)
 	if !ok || next.Type() == token.EOF {
@@ -1439,6 +1447,10 @@ func (p *simpleParser) parseSelectStmt(r reporter) (stmt *ast.SelectStmt) {
 			break
 		}
 		stmt.SelectCore = append(stmt.SelectCore, p.parseSelectCore(r))
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF {
+			return
+		}
 	}
 
 	next, ok = p.optionalLookahead(r)
@@ -1829,8 +1841,15 @@ func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 		}
 	}
 
-	stmt.CompoundOperator = p.parseCompoundOperator(r)
-
+	// Checking whether there is a token that leads to a part of the statement
+	// ensures that stmt.CompoundOperator is nil, instead of an assigned empty value.
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF {
+		return
+	}
+	if next.Type() == token.KeywordUnion || next.Type() == token.KeywordIntersect || next.Type() == token.KeywordExcept {
+		stmt.CompoundOperator = p.parseCompoundOperator(r)
+	}
 	return
 }
 
