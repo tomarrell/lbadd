@@ -1418,10 +1418,6 @@ func (p *simpleParser) parseSelectStmt(r reporter) (stmt *ast.SelectStmt) {
 			stmt.Recursive = next
 			p.consumeToken()
 		}
-		next, ok = p.lookahead(r)
-		if !ok {
-			return
-		}
 		for {
 			stmt.CommonTableExpression = append(stmt.CommonTableExpression, p.parseCommonTableExpression(r))
 			next, ok = p.lookahead(r)
