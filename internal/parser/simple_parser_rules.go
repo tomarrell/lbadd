@@ -1315,6 +1315,7 @@ func (p *simpleParser) parseWithClause(r reporter) (withClause *ast.WithClause) 
 
 //done
 func (p *simpleParser) parseRecursiveCte(r reporter) (recursiveCte *ast.RecursiveCte) {
+	recursiveCte = &ast.RecursiveCte{}
 	recursiveCte.CteTableName = p.parseCteTableName(r)
 	next, ok := p.lookahead(r)
 	if ok {
@@ -1343,6 +1344,7 @@ func (p *simpleParser) parseRecursiveCte(r reporter) (recursiveCte *ast.Recursiv
 
 //done
 func (p *simpleParser) parseCteTableName(r reporter) (cteTableName *ast.CteTableName) {
+	cteTableName = &ast.CteTableName{}
 	next, ok := p.lookahead(r)
 	if !ok {
 		return
