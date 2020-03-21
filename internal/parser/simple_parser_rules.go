@@ -1418,17 +1418,25 @@ func (p *simpleParser) parseSelectStmt(r reporter) (stmt *ast.SelectStmt) {
 			stmt.Recursive = next
 			p.consumeToken()
 		}
-		for {
-			stmt.CommonTableExpression = append(stmt.CommonTableExpression, p.parseCommonTableExpression(r))
-			next, ok = p.lookahead(r)
-			if !ok {
-				return
-			}
-			if next.Value() != "," {
-				return
-			}
-			p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Literal {
+			for {
+				stmt.CommonTableExpression = append(stmt.CommonTableExpression, p.parseCommonTableExpression(r))
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Value() != "," {
+					return
+				}
+				p.consumeToken()
 
+			}
+		} else {
+			r.unexpectedToken(token.Literal)
 		}
 	}
 
@@ -1823,17 +1831,21 @@ func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 		if !ok {
 			return
 		}
-		for {
-			stmt.ParenthesizedExpressions = append(stmt.ParenthesizedExpressions, p.parseParenthesizeExpression(r))
-			next, ok = p.lookahead(r)
-			if !ok {
-				return
+		if next.Value() == "(" {
+			for {
+				stmt.ParenthesizedExpressions = append(stmt.ParenthesizedExpressions, p.parseParenthesizeExpression(r))
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Value() == "," {
+					p.consumeToken()
+				} else {
+					break
+				}
 			}
-			if next.Value() == "," {
-				p.consumeToken()
-			} else {
-				break
-			}
+		} else {
+			r.unexpectedSingleRuneToken('(')
 		}
 	}
 
