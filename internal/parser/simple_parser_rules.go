@@ -1335,7 +1335,6 @@ func (p *simpleParser) parseRecursiveCte(r reporter) (recursiveCte *ast.Recursiv
 		r.unexpectedToken(token.Delimiter)
 	}
 	recursiveCte.SelectStmt = p.parseSelectStmt(r)
-
 	next, ok = p.lookahead(r)
 	if !ok {
 		return
@@ -1429,11 +1428,11 @@ func (p *simpleParser) parseSelectStmt(r reporter) (stmt *ast.SelectStmt) {
 				if !ok {
 					return
 				}
-				if next.Value() != "," {
-					return
+				if next.Value() == "," {
+					p.consumeToken()
+				} else {
+					break
 				}
-				p.consumeToken()
-
 			}
 		} else {
 			r.unexpectedToken(token.Literal)
@@ -1451,6 +1450,7 @@ func (p *simpleParser) parseSelectStmt(r reporter) (stmt *ast.SelectStmt) {
 			break
 		}
 		stmt.SelectCore = append(stmt.SelectCore, p.parseSelectCore(r))
+
 		next, ok = p.optionalLookahead(r)
 		if !ok || next.Type() == token.EOF {
 			return
@@ -1685,6 +1685,7 @@ func (p *simpleParser) parseCommonTableExpression(r reporter) (stmt *ast.CommonT
 			stmt.LeftParen2 = next
 			p.consumeToken()
 			stmt.SelectStmt = p.parseSelectStmt(r)
+
 			next, ok = p.lookahead(r)
 			if !ok {
 				return
@@ -1718,18 +1719,18 @@ func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 		} else if next.Type() == token.KeywordAll {
 			stmt.All = next
 			p.consumeToken()
-		} else {
-			for {
-				stmt.ResultColumn = append(stmt.ResultColumn, p.parseResultColumn(r))
-				next, ok = p.lookahead(r)
-				if !ok {
-					return
-				}
-				if next.Value() == "," {
-					p.consumeToken()
-				} else {
-					break
-				}
+		}
+
+		for {
+			stmt.ResultColumn = append(stmt.ResultColumn, p.parseResultColumn(r))
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == "," {
+				p.consumeToken()
+			} else {
+				break
 			}
 		}
 
@@ -1738,6 +1739,8 @@ func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 			return
 		}
 		if next.Type() == token.KeywordFrom {
+			stmt.From = next
+			p.consumeToken()
 			stmt.JoinClause = p.parseJoinClause(r)
 			if stmt.JoinClause == nil {
 				for {
@@ -1760,7 +1763,7 @@ func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 			return
 		}
 		if next.Type() == token.KeywordWhere {
-			// Consuming the keyword where
+			stmt.Where = next
 			p.consumeToken()
 			stmt.Expr1 = p.parseExpression(r)
 		}
@@ -1770,7 +1773,7 @@ func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 			return
 		}
 		if next.Type() == token.KeywordGroup {
-			// Consuming the keyword Group
+			stmt.Group = next
 			p.consumeToken()
 			next, ok = p.lookahead(r)
 			if !ok {
@@ -1810,10 +1813,13 @@ func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 		}
 		if next.Type() == token.KeywordWindow {
 			// Consuming the keyword window
+			stmt.Window = next
+			p.consumeToken()
 			for {
 				stmt.NamedWindow = append(stmt.NamedWindow, p.parseNamedWindow(r))
-				next, ok = p.lookahead(r)
-				if !ok {
+
+				next, ok = p.optionalLookahead(r)
+				if !ok || next.Type() == token.EOF {
 					return
 				}
 				if next.Value() == "," {
@@ -1864,21 +1870,22 @@ func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 //done
 func (p *simpleParser) parseResultColumn(r reporter) (stmt *ast.ResultColumn) {
 	stmt = &ast.ResultColumn{}
-	next, ok := p.lookahead(r)
+	tableNameOrAsteriskOrExpr, ok := p.lookahead(r)
 	if !ok {
 		return
 	}
-	if next.Value() == "*" {
-		stmt.Asterisk = next
+	if tableNameOrAsteriskOrExpr.Value() == "*" {
+		stmt.Asterisk = tableNameOrAsteriskOrExpr
 		p.consumeToken()
-	} else if next.Type() == token.Literal {
-		stmt.TableName = next
-		p.consumeToken()
-		next, ok = p.lookahead(r)
+	} else if tableNameOrAsteriskOrExpr.Type() == token.Literal {
+		stmt.Expr = p.parseExpression(r)
+		next, ok := p.lookahead(r)
 		if !ok {
 			return
 		}
 		if next.Value() == "." {
+			stmt.TableName = tableNameOrAsteriskOrExpr
+			stmt.Expr = nil
 			stmt.Period = next
 			p.consumeToken()
 			next, ok = p.lookahead(r)
@@ -1890,27 +1897,23 @@ func (p *simpleParser) parseResultColumn(r reporter) (stmt *ast.ResultColumn) {
 				p.consumeToken()
 			}
 		} else {
-			r.unexpectedSingleRuneToken('.')
-		}
+			next, ok := p.optionalLookahead(r)
+			if !ok || next.Type() == token.EOF {
+				return
+			}
+			if next.Type() == token.KeywordAs {
+				stmt.As = next
+				p.consumeToken()
+			}
 
-	} else {
-		stmt.Expr = p.parseExpression(r)
-		next, ok = p.optionalLookahead(r)
-		if !ok || next.Type() == token.EOF {
-			return
-		}
-		if next.Type() == token.KeywordAs {
-			stmt.As = next
-			p.consumeToken()
-		}
-
-		next, ok = p.optionalLookahead(r)
-		if !ok || next.Type() == token.EOF {
-			return
-		}
-		if next.Type() == token.Literal {
-			stmt.ColumnAlias = next
-			p.consumeToken()
+			next, ok = p.optionalLookahead(r)
+			if !ok || next.Type() == token.EOF {
+				return
+			}
+			if next.Type() == token.Literal {
+				stmt.ColumnAlias = next
+				p.consumeToken()
+			}
 		}
 	}
 	return
@@ -1974,7 +1977,7 @@ func (p *simpleParser) parseWindowDefn(r reporter) (stmt *ast.WindowDefn) {
 			return
 		}
 		if next.Type() == token.KeywordBy {
-			stmt.By = next
+			stmt.By1 = next
 			p.consumeToken()
 		} else {
 			r.unexpectedToken(token.KeywordBy)
@@ -2005,7 +2008,7 @@ func (p *simpleParser) parseWindowDefn(r reporter) (stmt *ast.WindowDefn) {
 			return
 		}
 		if next.Type() == token.KeywordBy {
-			stmt.By = next
+			stmt.By2 = next
 			p.consumeToken()
 		} else {
 			r.unexpectedToken(token.KeywordBy)
@@ -2024,7 +2027,13 @@ func (p *simpleParser) parseWindowDefn(r reporter) (stmt *ast.WindowDefn) {
 		}
 	}
 
-	stmt.FrameSpec = p.parseFrameSpec(r)
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordRange || next.Type() == token.KeywordRows || next.Type() == token.KeywordGroups {
+		stmt.FrameSpec = p.parseFrameSpec(r)
+	}
 
 	next, ok = p.lookahead(r)
 	if !ok {
@@ -2568,10 +2577,10 @@ func (p *simpleParser) parseJoinClause(r reporter) (stmt *ast.JoinClause) {
 
 	for {
 		next, ok := p.optionalLookahead(r)
-		if !ok || next.Type() != token.EOF {
+		if !ok || next.Type() == token.EOF {
 			return
 		}
-		if !((next.Type() == token.KeywordNatural) || (next.Type() == token.KeywordJoin) || (next.Value() == ",")) {
+		if !((next.Type() == token.KeywordNatural) || (next.Type() == token.KeywordJoin) || (next.Value() == ",") || (next.Type() == token.KeywordLeft) || (next.Type() == token.KeywordInner) || (next.Type() == token.KeywordCross)) {
 			break
 		}
 		stmt.JoinClausePart = p.parseJoinClausePart(r)
@@ -2584,6 +2593,15 @@ func (p *simpleParser) parseJoinClausePart(r reporter) (stmt *ast.JoinClausePart
 	stmt = &ast.JoinClausePart{}
 	stmt.JoinOperator = p.parseJoinOperator(r)
 	stmt.TableOrSubquery = p.parseTableOrSubquery(r)
+	// This check for existance of join constraint is necessary to return a nil
+	// value of join constraint, before an empty value is assigned to it
+	next, ok := p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF {
+		return
+	}
+	if !(next.Type() == token.KeywordOn || next.Type() == token.KeywordUsing) {
+		return
+	}
 	stmt.JoinConstraint = p.parseJoinConstraint(r)
 	return
 }
@@ -2600,7 +2618,6 @@ func (p *simpleParser) parseJoinConstraint(r reporter) (stmt *ast.JoinConstraint
 		p.consumeToken()
 		stmt.Expr = p.parseExpression(r)
 	}
-
 	if next.Type() == token.KeywordUsing {
 		stmt.Using = next
 		p.consumeToken()
