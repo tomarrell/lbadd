@@ -2051,8 +2051,8 @@ func (p *simpleParser) parseOrderingTerm(r reporter) (stmt *ast.OrderingTerm) {
 	stmt = &ast.OrderingTerm{}
 	stmt.Expr = p.parseExpression(r)
 
-	next, ok := p.lookahead(r)
-	if !ok {
+	next, ok := p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF {
 		return
 	}
 	if next.Type() == token.KeywordCollate {
@@ -2070,8 +2070,8 @@ func (p *simpleParser) parseOrderingTerm(r reporter) (stmt *ast.OrderingTerm) {
 		}
 	}
 
-	next, ok = p.lookahead(r)
-	if !ok {
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF {
 		return
 	}
 	if next.Type() == token.KeywordAsc {
@@ -2083,8 +2083,8 @@ func (p *simpleParser) parseOrderingTerm(r reporter) (stmt *ast.OrderingTerm) {
 		p.consumeToken()
 	}
 
-	next, ok = p.lookahead(r)
-	if !ok {
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF {
 		return
 	}
 	if next.Type() == token.KeywordNulls {
@@ -2131,7 +2131,7 @@ func (p *simpleParser) parseFrameSpec(r reporter) (stmt *ast.FrameSpec) {
 	}
 	switch next.Type() {
 	case token.KeywordBetween:
-		// Consume the keyword between
+		stmt.Between = next
 		p.consumeToken()
 		next, ok = p.lookahead(r)
 		if !ok {
@@ -2139,18 +2139,18 @@ func (p *simpleParser) parseFrameSpec(r reporter) (stmt *ast.FrameSpec) {
 		}
 		switch next.Type() {
 		case token.KeywordUnbounded:
-			// Consume the keyword unbounded
+			stmt.Unbounded1 = next
 			p.consumeToken()
 			next, ok = p.lookahead(r)
 			if !ok {
 				return
 			}
 			if next.Type() == token.KeywordPreceding {
-				stmt.Preceding2 = next
+				stmt.Preceding1 = next
 				p.consumeToken()
 			}
 		case token.KeywordCurrent:
-			// Consume the keyword current
+			stmt.Current1 = next
 			p.consumeToken()
 			next, ok = p.lookahead(r)
 			if !ok {
@@ -2163,7 +2163,7 @@ func (p *simpleParser) parseFrameSpec(r reporter) (stmt *ast.FrameSpec) {
 				p.consumeToken()
 			}
 		default:
-			stmt.Expr2 = p.parseExpression(r)
+			stmt.Expr1 = p.parseExpression(r)
 			next, ok = p.lookahead(r)
 			if !ok {
 				return
@@ -2191,7 +2191,7 @@ func (p *simpleParser) parseFrameSpec(r reporter) (stmt *ast.FrameSpec) {
 		}
 		switch next.Type() {
 		case token.KeywordUnbounded:
-			// Consume the keyword unbounded
+			stmt.Unbounded2 = next
 			p.consumeToken()
 			next, ok = p.lookahead(r)
 			if !ok {
@@ -2202,7 +2202,7 @@ func (p *simpleParser) parseFrameSpec(r reporter) (stmt *ast.FrameSpec) {
 				p.consumeToken()
 			}
 		case token.KeywordCurrent:
-			// Consume the keyword current
+			stmt.Current2 = next
 			p.consumeToken()
 			next, ok = p.lookahead(r)
 			if !ok {
@@ -2211,7 +2211,7 @@ func (p *simpleParser) parseFrameSpec(r reporter) (stmt *ast.FrameSpec) {
 			if next.Type() == token.KeywordRow {
 				// This is set as Row1 because this is one of the either paths
 				// taken by the FSM. Other path has 2x ROW's.
-				stmt.Row1 = next
+				stmt.Row2 = next
 				p.consumeToken()
 			}
 		default:
@@ -2230,18 +2230,18 @@ func (p *simpleParser) parseFrameSpec(r reporter) (stmt *ast.FrameSpec) {
 			}
 		}
 	case token.KeywordUnbounded:
-		// Consume the keyword unbounded
+		stmt.Unbounded1 = next
 		p.consumeToken()
 		next, ok = p.lookahead(r)
 		if !ok {
 			return
 		}
 		if next.Type() == token.KeywordPreceding {
-			stmt.Preceding2 = next
+			stmt.Preceding1 = next
 			p.consumeToken()
 		}
 	case token.KeywordCurrent:
-		// Consume the keyword current
+		stmt.Current1 = next
 		p.consumeToken()
 		next, ok = p.lookahead(r)
 		if !ok {
@@ -2254,17 +2254,16 @@ func (p *simpleParser) parseFrameSpec(r reporter) (stmt *ast.FrameSpec) {
 			p.consumeToken()
 		}
 	default:
-		stmt.Expr2 = p.parseExpression(r)
+		stmt.Expr1 = p.parseExpression(r)
 		next, ok = p.lookahead(r)
 		if !ok {
 			return
 		}
 		if next.Type() == token.KeywordPreceding {
-			stmt.Preceding2 = next
+			stmt.Preceding1 = next
 			p.consumeToken()
 		}
 	}
-
 	next, ok = p.optionalLookahead(r)
 	if !ok || next.Type() == token.EOF {
 		return
@@ -2278,6 +2277,7 @@ func (p *simpleParser) parseFrameSpec(r reporter) (stmt *ast.FrameSpec) {
 		}
 		switch next.Type() {
 		case token.KeywordNo:
+			stmt.No = next
 			p.consumeToken()
 			next, ok = p.lookahead(r)
 			if !ok {
@@ -2288,6 +2288,7 @@ func (p *simpleParser) parseFrameSpec(r reporter) (stmt *ast.FrameSpec) {
 				p.consumeToken()
 			}
 		case token.KeywordCurrent:
+			stmt.Current3 = next
 			p.consumeToken()
 			next, ok = p.lookahead(r)
 			if !ok {
@@ -2298,8 +2299,10 @@ func (p *simpleParser) parseFrameSpec(r reporter) (stmt *ast.FrameSpec) {
 				p.consumeToken()
 			}
 		case token.KeywordGroup:
+			stmt.Group = next
 			p.consumeToken()
 		case token.KeywordTies:
+			stmt.Ties = next
 			p.consumeToken()
 		}
 	}
