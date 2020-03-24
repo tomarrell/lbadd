@@ -1233,7 +1233,8 @@ func (p *simpleParser) parseCreateVirtualTableStmt(createToken token.Token, r re
 	return
 }
 
-//done
+// parseDeleteStmt parses the DELETE statement as defined in:
+// https://sqlite.org/lang_delete.html
 func (p *simpleParser) parseDeleteStmt(r reporter) (stmt *ast.DeleteStmt) {
 	stmt = &ast.DeleteStmt{}
 	next, ok := p.lookahead(r)
@@ -1276,6 +1277,8 @@ func (p *simpleParser) parseDeleteStmt(r reporter) (stmt *ast.DeleteStmt) {
 	return
 }
 
+// parseWithClause parses the WithClause as defined in:
+// https://sqlite.org/syntax/with-clause.html
 func (p *simpleParser) parseWithClause(r reporter) (withClause *ast.WithClause) {
 	withClause = &ast.WithClause{}
 	p.searchNext(r, token.KeywordWith)
@@ -1309,7 +1312,6 @@ func (p *simpleParser) parseWithClause(r reporter) (withClause *ast.WithClause) 
 	return
 }
 
-//done
 func (p *simpleParser) parseRecursiveCte(r reporter) (recursiveCte *ast.RecursiveCte) {
 	recursiveCte = &ast.RecursiveCte{}
 	recursiveCte.CteTableName = p.parseCteTableName(r)
@@ -1348,7 +1350,8 @@ func (p *simpleParser) parseRecursiveCte(r reporter) (recursiveCte *ast.Recursiv
 	return
 }
 
-//done
+// parseCteTableName parses the cte-table-name stmt as defined in:
+//https://sqlite.org/syntax/cte-table-name.html
 func (p *simpleParser) parseCteTableName(r reporter) (cteTableName *ast.CteTableName) {
 	cteTableName = &ast.CteTableName{}
 	next, ok := p.lookahead(r)
@@ -1399,7 +1402,8 @@ func (p *simpleParser) parseCteTableName(r reporter) (cteTableName *ast.CteTable
 	return
 }
 
-//done
+// parseSelectStmt parses the select stmt as defined in:
+// https://sqlite.org/syntax/select-stmt.html
 func (p *simpleParser) parseSelectStmt(r reporter) (stmt *ast.SelectStmt) {
 	stmt = &ast.SelectStmt{}
 	next, ok := p.lookahead(r)
@@ -1516,7 +1520,8 @@ func (p *simpleParser) parseSelectStmt(r reporter) (stmt *ast.SelectStmt) {
 	return
 }
 
-//done
+// parseQualifiedTableName parses qualified-table-name as defined in:
+// https://sqlite.org/syntax/qualified-table-name.html
 func (p *simpleParser) parseQualifiedTableName(r reporter) (stmt *ast.QualifiedTableName) {
 	stmt = &ast.QualifiedTableName{}
 	schemaOrTableName, ok := p.lookahead(r)
@@ -1621,7 +1626,8 @@ func (p *simpleParser) parseQualifiedTableName(r reporter) (stmt *ast.QualifiedT
 	return
 }
 
-// done
+// parseCommonTableExpression parses common-table-expression as defined in:
+// https://sqlite.org/syntax/common-table-expression.html
 func (p *simpleParser) parseCommonTableExpression(r reporter) (stmt *ast.CommonTableExpression) {
 	stmt = &ast.CommonTableExpression{}
 	next, ok := p.lookahead(r)
@@ -1704,6 +1710,8 @@ func (p *simpleParser) parseCommonTableExpression(r reporter) (stmt *ast.CommonT
 // each select core can be either starting with a "SELECT" keyword
 // or a "VALUES" keyword. The compound operator belongs to the select core
 // stmt which is right before it and not the one after.
+// Due to a bit of controversy in the table-or-subquery and the join-clause
+// stmts after FROM in SELECT core, all statements are parsed into join-clause.
 func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 	stmt = &ast.SelectCore{}
 	next, ok := p.lookahead(r)
@@ -1871,7 +1879,8 @@ func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 	return
 }
 
-//done
+// parseResultColumn parses result-column as defined in:
+// https://sqlite.org/syntax/result-column.html
 func (p *simpleParser) parseResultColumn(r reporter) (stmt *ast.ResultColumn) {
 	stmt = &ast.ResultColumn{}
 	tableNameOrAsteriskOrExpr, ok := p.lookahead(r)
@@ -1923,7 +1932,6 @@ func (p *simpleParser) parseResultColumn(r reporter) (stmt *ast.ResultColumn) {
 	return
 }
 
-//done
 func (p *simpleParser) parseNamedWindow(r reporter) (stmt *ast.NamedWindow) {
 	stmt = &ast.NamedWindow{}
 	next, ok := p.lookahead(r)
@@ -1948,7 +1956,8 @@ func (p *simpleParser) parseNamedWindow(r reporter) (stmt *ast.NamedWindow) {
 	return
 }
 
-//done
+// parseWindowDefn parses window-defn as defined in:
+// https://sqlite.org/syntax/window-defn.html
 func (p *simpleParser) parseWindowDefn(r reporter) (stmt *ast.WindowDefn) {
 	stmt = &ast.WindowDefn{}
 	next, ok := p.lookahead(r)
@@ -2050,7 +2059,8 @@ func (p *simpleParser) parseWindowDefn(r reporter) (stmt *ast.WindowDefn) {
 	return
 }
 
-//done
+// parsesOrderingTerm parses ordering-term as defined in:
+// https://sqlite.org/syntax/ordering-term.html
 func (p *simpleParser) parseOrderingTerm(r reporter) (stmt *ast.OrderingTerm) {
 	stmt = &ast.OrderingTerm{}
 	stmt.Expr = p.parseExpression(r)
@@ -2110,7 +2120,8 @@ func (p *simpleParser) parseOrderingTerm(r reporter) (stmt *ast.OrderingTerm) {
 	return
 }
 
-//done
+// parseFrameSpec parses frame-spec as defined in:
+// https://sqlite.org/syntax/frame-spec.html
 func (p *simpleParser) parseFrameSpec(r reporter) (stmt *ast.FrameSpec) {
 	stmt = &ast.FrameSpec{}
 	next, ok := p.lookahead(r)
@@ -2213,8 +2224,6 @@ func (p *simpleParser) parseFrameSpec(r reporter) (stmt *ast.FrameSpec) {
 				return
 			}
 			if next.Type() == token.KeywordRow {
-				// This is set as Row1 because this is one of the either paths
-				// taken by the FSM. Other path has 2x ROW's.
 				stmt.Row2 = next
 				p.consumeToken()
 			}
@@ -2252,8 +2261,6 @@ func (p *simpleParser) parseFrameSpec(r reporter) (stmt *ast.FrameSpec) {
 			return
 		}
 		if next.Type() == token.KeywordRow {
-			// This is set as Row1 because this is one of the either paths
-			// taken by the FSM. Other path has 2x ROW's.
 			stmt.Row1 = next
 			p.consumeToken()
 		}
@@ -2313,7 +2320,6 @@ func (p *simpleParser) parseFrameSpec(r reporter) (stmt *ast.FrameSpec) {
 	return
 }
 
-//done
 func (p *simpleParser) parseParenthesizeExpression(r reporter) (stmt *ast.ParenthesizedExpressions) {
 	stmt = &ast.ParenthesizedExpressions{}
 	next, ok := p.lookahead(r)
@@ -2342,7 +2348,8 @@ func (p *simpleParser) parseParenthesizeExpression(r reporter) (stmt *ast.Parent
 	return
 }
 
-// done
+// parseCompoundOperator parses compound-operator as defined in:
+// https://sqlite.org/syntax/compound-operator.html
 func (p *simpleParser) parseCompoundOperator(r reporter) (stmt *ast.CompoundOperator) {
 	stmt = &ast.CompoundOperator{}
 	next, ok := p.lookahead(r)
@@ -2372,7 +2379,8 @@ func (p *simpleParser) parseCompoundOperator(r reporter) (stmt *ast.CompoundOper
 	return
 }
 
-//done
+// parsetableOrSubquery parses table-or-subquery as defined in:
+// https://sqlite.org/syntax/table-or-subquery.html
 func (p *simpleParser) parseTableOrSubquery(r reporter) (stmt *ast.TableOrSubquery) {
 	stmt = &ast.TableOrSubquery{}
 	schemaOrTableNameOrLeftPar, ok := p.lookahead(r)
@@ -2577,7 +2585,8 @@ func (p *simpleParser) parseTableOrSubquery(r reporter) (stmt *ast.TableOrSubque
 	return
 }
 
-//done
+// parseJoinClause parses join-clause as defined in:
+// https://sqlite.org/syntax/join-clause.html
 func (p *simpleParser) parseJoinClause(r reporter) (stmt *ast.JoinClause) {
 	stmt = &ast.JoinClause{}
 	stmt.TableOrSubquery = p.parseTableOrSubquery(r)
@@ -2595,7 +2604,6 @@ func (p *simpleParser) parseJoinClause(r reporter) (stmt *ast.JoinClause) {
 	return
 }
 
-//done
 func (p *simpleParser) parseJoinClausePart(r reporter) (stmt *ast.JoinClausePart) {
 	stmt = &ast.JoinClausePart{}
 	stmt.JoinOperator = p.parseJoinOperator(r)
@@ -2613,7 +2621,8 @@ func (p *simpleParser) parseJoinClausePart(r reporter) (stmt *ast.JoinClausePart
 	return
 }
 
-//done
+// parseJoinConstraint parses join-constraint as defined in:
+// https://sqlite.org/syntax/join-constraint.html
 func (p *simpleParser) parseJoinConstraint(r reporter) (stmt *ast.JoinConstraint) {
 	stmt = &ast.JoinConstraint{}
 	next, ok := p.optionalLookahead(r)
@@ -2662,7 +2671,8 @@ func (p *simpleParser) parseJoinConstraint(r reporter) (stmt *ast.JoinConstraint
 	return
 }
 
-//done
+// parseJoinOperator parses join-operator as defined in:
+// https://sqlite.org/syntax/join-operator.html
 func (p *simpleParser) parseJoinOperator(r reporter) (stmt *ast.JoinOperator) {
 	stmt = &ast.JoinOperator{}
 	next, ok := p.lookahead(r)

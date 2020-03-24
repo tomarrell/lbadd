@@ -2279,53 +2279,6 @@ func TestSingleStatementParse(t *testing.T) {
 				},
 			},
 		},
-		// This is that join clause problem
-		// {
-		// 	"DELETE with basic with clause,select stmt with tableOrSubquery with schema and tableName and basic cte-table-name",
-		// 	"WITH myTable AS (SELECT * FROM mySchema.myTable) DELETE FROM myTable",
-		// 	&ast.SQLStmt{
-		// 		DeleteStmt: &ast.DeleteStmt{
-		// 			WithClause: &ast.WithClause{
-		// 				With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
-		// 				RecursiveCte: []*ast.RecursiveCte{
-		// 					&ast.RecursiveCte{
-		// 						CteTableName: &ast.CteTableName{
-		// 							TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
-		// 						},
-		// 						As:        token.New(1, 14, 13, 2, token.KeywordAs, "AS"),
-		// 						LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
-		// 						SelectStmt: &ast.SelectStmt{
-		// 							SelectCore: []*ast.SelectCore{
-		// 								&ast.SelectCore{
-		// 									Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
-		// 									ResultColumn: []*ast.ResultColumn{
-		// 										&ast.ResultColumn{
-		// 											Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
-		// 										},
-		// 									},
-		// 									From: token.New(1, 27, 26, 4, token.KeywordFrom, "FROM"),
-		// 									TableOrSubquery: []*ast.TableOrSubquery{
-		// 										&ast.TableOrSubquery{
-		// 											SchemaName: token.New(1, 32, 31, 10, token.Literal, "mySchema"),
-		// 											Period:     token.New(1, 43, 42, 1, token.Delimiter, "."),
-		// 											TableName:  token.New(1, 44, 43, 7, token.Literal, "myTable"),
-		// 										},
-		// 									},
-		// 								},
-		// 							},
-		// 						},
-		// 						RightParen: token.New(1, 51, 50, 1, token.Delimiter, ")"),
-		// 					},
-		// 				},
-		// 			},
-		// 			Delete: token.New(1, 53, 52, 6, token.KeywordDelete, "DELETE"),
-		// 			From:   token.New(1, 60, 59, 4, token.KeywordFrom, "FROM"),
-		// 			QualifiedTableName: &ast.QualifiedTableName{
-		// 				TableName: token.New(1, 65, 64, 7, token.Literal, "myTable"),
-		// 			},
-		// 		},
-		// 	},
-		// },
 		{
 			"DELETE with basic with clause, select stmt with WHERE and basic cte-table-name",
 			"WITH myTable AS (SELECT * WHERE myExpr) DELETE FROM myTable",
