@@ -1699,7 +1699,11 @@ func (p *simpleParser) parseCommonTableExpression(r reporter) (stmt *ast.CommonT
 	return
 }
 
-//done
+// parseSelectCore parses a core block of the select statement.
+// The select stmt gets multiple select core stmts, where,
+// each select core can be either starting with a "SELECT" keyword
+// or a "VALUES" keyword. The compound operator belongs to the select core
+// stmt which is right before it and not the one after.
 func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 	stmt = &ast.SelectCore{}
 	next, ok := p.lookahead(r)
