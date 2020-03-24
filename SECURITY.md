@@ -18,4 +18,4 @@ When building from source, please always use the latest version of Go that is av
 If you detect a vulnerability, please open a common issue.
 As there is no release intended for production use, vulnerabilities are not required to be handled critically yet.
 This will change as soon as we have our first production release.
-See issue #92 for more info.
+See issue [#92](https://github.com/tomarrell/lbadd/issues/92) for more info.
