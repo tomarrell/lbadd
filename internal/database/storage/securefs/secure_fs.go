@@ -17,8 +17,7 @@ type secureFs struct {
 // operations read bytes in passed in byte slices, which makes the bytes leave a
 // protected area. The given byte slice should also be in a protected area, but
 // this is the caller's responsibility. Files that are opened and/or created
-// with the returned Fs are 100% in memory. Writes must be synced to disk
-// manually by calling Sync().
+// with the returned Fs are 100% in memory.
 //
 //	foo.bar()
 //	foo.bar()

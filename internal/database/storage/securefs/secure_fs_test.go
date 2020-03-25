@@ -38,27 +38,11 @@ func TestSecureFs_FileOperations(t *testing.T) {
 
 	underlyingFile, err := underlying.Open(filename)
 	assert.NoError(err)
-	assert.Equal("", string(mustRead(t, underlyingFile)))
-	assert.NoError(underlyingFile.Close())
-
-	err = file.Sync()
-	assert.NoError(err)
-
-	underlyingFile, err = underlying.Open(filename)
-	assert.NoError(err)
 	assert.Equal(content, string(mustRead(t, underlyingFile)))
 	assert.NoError(underlyingFile.Close())
 
 	n, err = file.WriteAt([]byte("W"), 7)
 	assert.Equal(1, n)
-	assert.NoError(err)
-
-	underlyingFile, err = underlying.Open(filename)
-	assert.NoError(err)
-	assert.Equal(content, string(mustRead(t, underlyingFile)))
-	assert.NoError(underlyingFile.Close())
-
-	err = file.Sync()
 	assert.NoError(err)
 
 	underlyingFile, err = underlying.Open(filename)

@@ -54,8 +54,8 @@ func (f *secureFile) ReadAt(p []byte, off int64) (int, error) {
 	return n, nil
 }
 
-func (f *secureFile) WriteAt(p []byte, off int64) (int, error) {
-	if err := f.ensureOpen(); err != nil {
+func (f *secureFile) WriteAt(p []byte, off int64) (n int, err error) {
+	if err = f.ensureOpen(); err != nil {
 		return 0, err
 	}
 
@@ -71,11 +71,15 @@ func (f *secureFile) WriteAt(p []byte, off int64) (int, error) {
 	}
 	defer func() {
 		f.enclave = buffer.Seal()
+
+		if syncErr := f.Sync(); syncErr != nil {
+			err = fmt.Errorf("sync: %w", syncErr)
+		}
 	}()
 	buffer.Melt()
 	data := buffer.Bytes()
 
-	n := copy(data[off:off+int64(len(p))], p)
+	n = copy(data[off:off+int64(len(p))], p)
 	if n != len(p) {
 		return n, fmt.Errorf("unable to write all bytes")
 	}
