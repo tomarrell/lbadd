@@ -71,7 +71,8 @@ waiting for incoming connections from lbadd worker nodes.`
 	startWorkerCmdShortDoc = "Start a worker node"
 	startWorkerCmdLongDoc  = `Start a worker node and connect it to the address that is specified
 in the addr flag. This will start an lbadd worker node, that
-connects to a already running master node on the given address.`
+connects to a already running master node on the given address.
+The used database file will be "db.lbadd".`
 )
 
 var (
@@ -98,11 +99,11 @@ var (
 	}
 
 	startMasterCmd = &cobra.Command{
-		Use:   "master",
+		Use:   "master [database file]",
 		Short: startMasterCmdShortDoc,
 		Long:  startMasterCmdLongDoc,
 		Run:   startMaster,
-		Args:  cobra.NoArgs,
+		Args:  cobra.ExactArgs(1),
 	}
 
 	startWorkerCmd = &cobra.Command{
@@ -180,11 +181,14 @@ func printVersion(cmd *cobra.Command, args []string) {
 func startMaster(cmd *cobra.Command, args []string) {
 	log := cmd.Context().Value(ctxKeyLog).(zerolog.Logger)
 
-	exec := createExecutor(log)
+	databaseFile := args[0]
 
 	masterLog := log.With().
 		Str("component", "master").
+		Str("dbfile", databaseFile).
 		Logger()
+
+	exec := createExecutor(log, databaseFile)
 
 	masterNode := master.New(masterLog, exec)
 	if err := masterNode.ListenAndServe(cmd.Context(), addr); err != nil {
@@ -198,11 +202,14 @@ func startMaster(cmd *cobra.Command, args []string) {
 func startWorker(cmd *cobra.Command, args []string) {
 	log := cmd.Context().Value(ctxKeyLog).(zerolog.Logger)
 
-	exec := createExecutor(log)
+	databaseFile := "db.lbadd"
 
 	workerLog := log.With().
 		Str("component", "worker").
+		Str("dbfile", databaseFile).
 		Logger()
+
+	exec := createExecutor(log, databaseFile)
 
 	workerNode := worker.New(workerLog, exec)
 	if err := workerNode.Connect(cmd.Context(), addr); err != nil {
@@ -252,11 +259,11 @@ func createLogger(stdin io.Reader, stdout, stderr io.Writer) zerolog.Logger {
 	return log
 }
 
-func createExecutor(log zerolog.Logger) executor.Executor {
+func createExecutor(log zerolog.Logger, databaseFile string) executor.Executor {
 	execLog := log.With().
 		Str("component", "executor").
 		Logger()
 
-	exec := executor.New(execLog)
+	exec := executor.New(execLog, databaseFile)
 	return exec
 }
