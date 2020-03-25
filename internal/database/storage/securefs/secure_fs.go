@@ -18,9 +18,6 @@ type secureFs struct {
 // protected area. The given byte slice should also be in a protected area, but
 // this is the caller's responsibility. Files that are opened and/or created
 // with the returned Fs are 100% in memory.
-//
-//	foo.bar()
-//	foo.bar()
 func New(fs afero.Fs) afero.Fs {
 	return &secureFs{
 		fs: fs,
