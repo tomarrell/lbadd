@@ -1,37 +1,37 @@
 package main
 
-type Trie struct {
-	Val     interface{}
-	SubTrie map[rune]*Trie
+type trie struct {
+	val interface{}
+	sub map[rune]*trie
 }
 
-func NewTrie() *Trie {
-	return new(Trie)
+func newTrie() *trie {
+	return new(trie)
 }
 
-func (trie *Trie) Put(key string, value interface{}) {
-	current := trie
+func (t *trie) Put(key string, value interface{}) {
+	current := t
 	for _, r := range key {
-		child := current.SubTrie[r]
+		child := current.sub[r]
 		if child == nil {
-			if current.SubTrie == nil {
-				current.SubTrie = map[rune]*Trie{}
+			if current.sub == nil {
+				current.sub = map[rune]*trie{}
 			}
-			child = NewTrie()
-			current.SubTrie[r] = child
+			child = newTrie()
+			current.sub[r] = child
 		}
 		current = child
 	}
-	current.Val = value
+	current.val = value
 }
 
-func (trie *Trie) Get(key string) interface{} {
-	current := trie
+func (t *trie) Get(key string) interface{} {
+	current := t
 	for _, r := range key {
-		current = current.SubTrie[r]
+		current = current.sub[r]
 		if current == nil {
 			return nil
 		}
 	}
-	return current.Val
+	return current.val
 }

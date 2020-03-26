@@ -46,14 +46,14 @@ func main() {
 		exitErr(fmt.Errorf("output file must be specified (eaxctly 1 argument required)"))
 	}
 
-	trie := NewTrie()
+	t := newTrie()
 	for k, v := range keywordTokens {
-		trie.Put(k, v)
+		t.Put(k, v)
 	}
 
 	var buf bytes.Buffer
 	buf.WriteString(header)
-	genTrie([]rune{}, trie, &buf)
+	genTrie([]rune{}, t, &buf)
 
 	f, err := os.Create(os.Args[1])
 	if err != nil {
@@ -79,32 +79,32 @@ func exitErr(err error) {
 	os.Exit(1)
 }
 
-func genTrie(path []rune, trie *Trie, buf io.Writer) {
+func genTrie(path []rune, t *trie, buf io.Writer) {
 	data := map[string]interface{}{
 		"path": string(path),
 	}
-	if trie.Val != nil {
-		data["tokenType"] = fmt.Sprintf("token.%s", trie.Val)
-		if len(trie.SubTrie) == 0 {
+	if t.val != nil {
+		data["tokenType"] = fmt.Sprintf("token.%s", t.val)
+		if len(t.sub) == 0 {
 			data["isLeaf"] = true
 		} else {
 			data["hasValue"] = true
 		}
 	}
 	nextRunes := []string{}
-	for k := range trie.SubTrie {
+	for k := range t.sub {
 		nextRunes = append(nextRunes, string(k))
 	}
 	sort.Strings(nextRunes)
 	data["nextRunes"] = nextRunes
 
 	if err := tmpl.Execute(buf, data); err != nil {
-		panic(err)
+		exitErr(err)
 	}
 
 	for _, nextRune := range nextRunes {
 		r := []rune(nextRune)[0]
-		genTrie(append(path, r), trie.SubTrie[r], buf)
+		genTrie(append(path, r), t.sub[r], buf)
 	}
 }
 
