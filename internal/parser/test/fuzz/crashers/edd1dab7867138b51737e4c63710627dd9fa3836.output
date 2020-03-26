@@ -1,0 +1,61 @@
+program hanged (timeout 10 seconds)
+
+SIGABRT: abort
+PC=0x1008f77 m=0 sigcode=0
+
+goroutine 1 [running]:
+runtime.convT2I(0x1177ea0, 0xc00049eb68, 0x1177ea0, 0x1)
+	runtime/iface.go:405 +0x77 fp=0xc00049eb38 sp=0xc00049eaf8 pc=0x1008f77
+github.com/tomarrell/lbadd/internal/parser/scanner/token.New(...)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/scanner/token/token.go:55
+github.com/tomarrell/lbadd/internal/parser/scanner.(*ruleBasedScanner).token(0xc000437d00, 0x2, 0x1, 0x48)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/scanner/rule_based_scanner.go:127 +0x164 fp=0xc00049ebb0 sp=0xc00049eb38 pc=0x10f3074
+github.com/tomarrell/lbadd/internal/parser/scanner.(*ruleBasedScanner).eof(...)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/scanner/rule_based_scanner.go:119
+github.com/tomarrell/lbadd/internal/parser/scanner.(*ruleBasedScanner).computeNext(0xc000437d00, 0x1177ea0, 0xc0003d0a80)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/scanner/rule_based_scanner.go:82 +0xae fp=0xc00049ebe0 sp=0xc00049ebb0 pc=0x10f280e
+github.com/tomarrell/lbadd/internal/parser/scanner.(*ruleBasedScanner).Peek(0xc000437d00, 0x1177ea0, 0xc0003d0a80)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/scanner/rule_based_scanner.go:61 +0xae fp=0xc00049ec08 sp=0xc00049ebe0 pc=0x10f271e
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).unsafeLowLevelLookahead(...)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser.go:75
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).searchNext(0xc0000117f0, 0x1178200, 0xc000446780, 0xc0000bf6ae, 0x1, 0x1)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser.go:40 +0x191 fp=0xc00049ec58 sp=0xc00049ec08 pc=0x10f55a1
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseDeleteStmt(0xc0000117f0, 0x1178200, 0xc000446780, 0xc0003cef00)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1247 +0x159 fp=0xc00049ecc0 sp=0xc00049ec58 pc=0x11023f9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseSQLStatement(0xc0000117f0, 0x1178200, 0xc000446780, 0x1)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:66 +0xdcf fp=0xc00049ed70 sp=0xc00049ecc0 pc=0x10f6daf
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).Next(0xc0000117f0, 0xc0000117f0, 0x47, 0xc0000d4120, 0x47, 0x48)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser.go:31 +0x103 fp=0xc00049eda8 sp=0xc00049ed70 pc=0x10f5353
+github.com/tomarrell/lbadd/internal/parser.Fuzz(0x4810000, 0x47, 0x47, 0x3)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_fuzzy.go:22 +0x2d1 fp=0xc00049ee80 sp=0xc00049eda8 pc=0x10f5e01
+go-fuzz-dep.Main(0xc00049ef48, 0x1, 0x1)
+	go-fuzz-dep/main.go:36 +0x1ad fp=0xc00049ef30 sp=0xc00049ee80 pc=0x106b0dd
+main.main()
+	github.com/tomarrell/lbadd/internal/parser/go.fuzz.main/main.go:15 +0x52 fp=0xc00049ef60 sp=0xc00049ef30 pc=0x11133a2
+runtime.main()
+	runtime/proc.go:203 +0x21e fp=0xc00049efe0 sp=0xc00049ef60 pc=0x102b0ae
+runtime.goexit()
+	runtime/asm_amd64.s:1357 +0x1 fp=0xc00049efe8 sp=0xc00049efe0 pc=0x10534e1
+
+rax    0xc0003d0b00
+rbx    0x38
+rcx    0xc00049eb68
+rdx    0x114a160
+rdi    0xc0003d0b00
+rsi    0xc00049eb68
+rbp    0xc00049eb28
+rsp    0xc00049eaf8
+r8     0x151e859
+r9     0x203000
+r10    0x4
+r11    0x32
+r12    0xf2
+r13    0x0
+r14    0x117384c
+r15    0x0
+rip    0x1008f77
+rflags 0x206
+cs     0x2b
+fs     0x0
+gs     0x0
+exit status 2
