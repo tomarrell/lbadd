@@ -28,6 +28,7 @@ const (
 	KeywordAfter
 	KeywordAll
 	KeywordAlter
+	KeywordAlways
 	KeywordAnalyze
 	KeywordAnd
 	KeywordAs
@@ -144,6 +145,7 @@ const (
 	KeywordSavepoint
 	KeywordSelect
 	KeywordSet
+	KeywordStored
 	KeywordTable
 	KeywordTemp
 	KeywordTemporary
