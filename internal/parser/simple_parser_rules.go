@@ -30,7 +30,7 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 	}
 
 	// according to the grammar, these are the tokens that initiate a statement
-	p.searchNext(r, token.StatementSeparator, token.EOF, token.KeywordAlter, token.KeywordAnalyze, token.KeywordAttach, token.KeywordBegin, token.KeywordCommit, token.KeywordCreate, token.KeywordDelete, token.KeywordDetach, token.KeywordDrop, token.KeywordEnd, token.KeywordInsert, token.KeywordPragma, token.KeywordReindex, token.KeywordRelease, token.KeywordRollback, token.KeywordSavepoint, token.KeywordSelect, token.KeywordUpdate, token.KeywordVacuum)
+	p.searchNext(r, token.StatementSeparator, token.EOF, token.KeywordAlter, token.KeywordAnalyze, token.KeywordAttach, token.KeywordBegin, token.KeywordCommit, token.KeywordCreate, token.KeywordDelete, token.KeywordDetach, token.KeywordDrop, token.KeywordEnd, token.KeywordInsert, token.KeywordPragma, token.KeywordReindex, token.KeywordRelease, token.KeywordRollback, token.KeywordSavepoint, token.KeywordSelect, token.KeywordUpdate, token.KeywordWith, token.KeywordVacuum)
 
 	next, ok := p.unsafeLowLevelLookahead()
 	if !ok {
@@ -52,6 +52,8 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 		stmt.CommitStmt = p.parseCommitStmt(r)
 	case token.KeywordCreate:
 		p.parseCreateStmt(stmt, r)
+	case token.KeywordDelete:
+		stmt.DeleteStmt = p.parseDeleteStmt(r)
 	case token.KeywordDetach:
 		stmt.DetachStmt = p.parseDetachDatabaseStmt(r)
 	case token.KeywordEnd:
@@ -60,6 +62,8 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 		stmt.RollbackStmt = p.parseRollbackStmt(r)
 	case token.KeywordVacuum:
 		stmt.VacuumStmt = p.parseVacuumStmt(r)
+	case token.KeywordWith:
+		stmt.DeleteStmt = p.parseDeleteStmt(r)
 	case token.StatementSeparator:
 		r.incompleteStatement()
 		p.consumeToken()
@@ -87,7 +91,7 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 			return
 		}
 	}
-	if next.Type() == token.EOF {
+	if next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		p.consumeToken()
 		return
 	}
@@ -786,7 +790,7 @@ func (p *simpleParser) parseAnalyzeStmt(r reporter) (stmt *ast.AnalyzeStmt) {
 
 	// optionalLookahead is used, because ANALYZE alone is a valid statement
 	next, ok = p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	if next.Type() == token.Literal {
@@ -835,7 +839,7 @@ func (p *simpleParser) parseBeginStmt(r reporter) (stmt *ast.BeginStmt) {
 	p.consumeToken()
 
 	next, ok = p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	switch next.Type() {
@@ -851,7 +855,7 @@ func (p *simpleParser) parseBeginStmt(r reporter) (stmt *ast.BeginStmt) {
 	}
 
 	next, ok = p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	if next.Type() == token.KeywordTransaction {
@@ -878,7 +882,7 @@ func (p *simpleParser) parseCommitStmt(r reporter) (stmt *ast.CommitStmt) {
 	p.consumeToken()
 
 	next, ok = p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	if next.Type() == token.KeywordTransaction {
@@ -901,7 +905,7 @@ func (p *simpleParser) parseRollbackStmt(r reporter) (stmt *ast.RollbackStmt) {
 	p.consumeToken()
 
 	next, ok = p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	if next.Type() == token.KeywordTransaction {
@@ -913,7 +917,7 @@ func (p *simpleParser) parseRollbackStmt(r reporter) (stmt *ast.RollbackStmt) {
 	// check whether TO also exists. Out of TRANSACTION and TO, each not
 	// existing and existing, we have the following logic.
 	next, ok = p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	if next.Type() == token.KeywordTo {
@@ -1131,7 +1135,7 @@ func (p *simpleParser) parseCreateIndexStmt(createToken token.Token, r reporter)
 	}
 
 	next, ok = p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	if next.Type() == token.KeywordWhere {
@@ -1156,7 +1160,7 @@ func (p *simpleParser) parseIndexedColumn(r reporter) (stmt *ast.IndexedColumn) 
 	}
 
 	next, ok = p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	if next.Type() == token.KeywordCollate {
@@ -1175,7 +1179,7 @@ func (p *simpleParser) parseIndexedColumn(r reporter) (stmt *ast.IndexedColumn) 
 	}
 
 	next, ok = p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	if next.Type() == token.KeywordAsc {
@@ -1226,5 +1230,1533 @@ func (p *simpleParser) parseCreateVirtualTableStmt(createToken token.Token, r re
 	}
 	r.unsupportedConstruct(next)
 	p.searchNext(r, token.StatementSeparator, token.EOF)
+	return
+}
+
+// parseDeleteStmt parses the DELETE statement as defined in:
+// https://sqlite.org/lang_delete.html
+func (p *simpleParser) parseDeleteStmt(r reporter) (stmt *ast.DeleteStmt) {
+	stmt = &ast.DeleteStmt{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordWith {
+		stmt.WithClause = p.parseWithClause(r)
+	}
+	p.searchNext(r, token.KeywordDelete)
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	stmt.Delete = next
+	p.consumeToken()
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordFrom {
+		stmt.From = next
+		p.consumeToken()
+	} else {
+		r.unexpectedToken(token.KeywordFrom)
+	}
+	stmt.QualifiedTableName = p.parseQualifiedTableName(r)
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+		return
+	}
+	if next.Type() == token.KeywordWhere {
+		stmt.Where = next
+		p.consumeToken()
+		stmt.Expr = p.parseExpression(r)
+	}
+
+	return
+}
+
+// parseWithClause parses the WithClause as defined in:
+// https://sqlite.org/syntax/with-clause.html
+func (p *simpleParser) parseWithClause(r reporter) (withClause *ast.WithClause) {
+	withClause = &ast.WithClause{}
+	p.searchNext(r, token.KeywordWith)
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	withClause.With = next
+	p.consumeToken()
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordRecursive {
+		withClause.Recursive = next
+		p.consumeToken()
+	}
+	for {
+		withClause.RecursiveCte = append(withClause.RecursiveCte, p.parseRecursiveCte(r))
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Value() == "," {
+			p.consumeToken()
+		} else {
+			break
+		}
+	}
+	return
+}
+
+func (p *simpleParser) parseRecursiveCte(r reporter) (recursiveCte *ast.RecursiveCte) {
+	recursiveCte = &ast.RecursiveCte{}
+	recursiveCte.CteTableName = p.parseCteTableName(r)
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordAs {
+		recursiveCte.As = next
+		p.consumeToken()
+	} else {
+		r.unexpectedToken(token.KeywordAs)
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Value() == "(" {
+		recursiveCte.LeftParen = next
+		p.consumeToken()
+	} else {
+		r.unexpectedToken(token.Delimiter)
+	}
+	recursiveCte.SelectStmt = p.parseSelectStmt(r)
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Value() == ")" {
+		recursiveCte.RightParen = next
+		p.consumeToken()
+	} else {
+		r.unexpectedToken(token.Delimiter)
+	}
+	return
+}
+
+// parseCteTableName parses the cte-table-name stmt as defined in:
+//https://sqlite.org/syntax/cte-table-name.html
+func (p *simpleParser) parseCteTableName(r reporter) (cteTableName *ast.CteTableName) {
+	cteTableName = &ast.CteTableName{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	cteTableName.TableName = next
+	p.consumeToken()
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+		return
+	}
+	if next.Value() == "(" {
+		cteTableName.LeftParen = next
+		p.consumeToken()
+		for {
+			columnName, ok := p.lookahead(r)
+			if !ok {
+				return
+			}
+			if columnName.Type() == token.Literal {
+				cteTableName.ColumnName = append(cteTableName.ColumnName, columnName)
+				p.consumeToken()
+			} else {
+				r.unexpectedToken(token.Literal)
+			}
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == "," {
+				p.consumeToken()
+			}
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == ")" {
+				cteTableName.RightParen = next
+				p.consumeToken()
+				break
+			}
+		}
+	}
+	return
+}
+
+// parseSelectStmt parses the select stmt as defined in:
+// https://sqlite.org/syntax/select-stmt.html
+func (p *simpleParser) parseSelectStmt(r reporter) (stmt *ast.SelectStmt) {
+	stmt = &ast.SelectStmt{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordWith {
+		stmt.With = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordRecursive {
+			stmt.Recursive = next
+			p.consumeToken()
+		}
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Literal {
+			for {
+				stmt.CommonTableExpression = append(stmt.CommonTableExpression, p.parseCommonTableExpression(r))
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Value() == "," {
+					p.consumeToken()
+				} else {
+					break
+				}
+			}
+		} else {
+			r.unexpectedToken(token.Literal)
+		}
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	// Keep looping and searching for the select core until its exhausted.
+	// We are sure that a select core starts here as its the type of stmt we expect.
+	for {
+		if !(next.Type() == token.KeywordSelect || next.Type() == token.KeywordValues) {
+			break
+		}
+		stmt.SelectCore = append(stmt.SelectCore, p.parseSelectCore(r))
+
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+			return
+		}
+	}
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+		return
+	}
+	if next.Type() == token.KeywordOrder {
+		stmt.Order = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordBy {
+			stmt.By = next
+			p.consumeToken()
+
+		} else {
+			r.unexpectedToken(token.KeywordBy)
+		}
+		for {
+			stmt.OrderingTerm = append(stmt.OrderingTerm, p.parseOrderingTerm(r))
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == "," {
+				p.consumeToken()
+			} else {
+				break
+			}
+		}
+	}
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+		return
+	}
+	if next.Type() == token.KeywordLimit {
+		stmt.Limit = next
+		p.consumeToken()
+		stmt.Expr1 = p.parseExpression(r)
+
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+			return
+		}
+		if next.Type() == token.KeywordOffset {
+			stmt.Offset = next
+			p.consumeToken()
+			stmt.Expr2 = p.parseExpression(r)
+		}
+		if next.Value() == "," {
+			stmt.Comma = next
+			p.consumeToken()
+			stmt.Expr2 = p.parseExpression(r)
+		}
+	}
+	return
+}
+
+// parseQualifiedTableName parses qualified-table-name as defined in:
+// https://sqlite.org/syntax/qualified-table-name.html
+func (p *simpleParser) parseQualifiedTableName(r reporter) (stmt *ast.QualifiedTableName) {
+	stmt = &ast.QualifiedTableName{}
+	schemaOrTableName, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	// We expect that the first literal can be either the schema name
+	// or the table name. When we confirm the existance of a period, we
+	// re-assign the table name and when we confirm that there is no
+	// period, we reset the schema name value to nil.
+	if schemaOrTableName.Type() == token.Literal {
+		stmt.TableName = schemaOrTableName
+		p.consumeToken()
+	}
+	next, ok := p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+		return
+	}
+	if next.Value() == "." {
+		stmt.Period = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Literal {
+			stmt.SchemaName = schemaOrTableName
+			stmt.TableName = next
+			p.consumeToken()
+		} else {
+			r.unexpectedToken(token.Literal)
+		}
+	}
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+		return
+	}
+	if next.Type() == token.KeywordAs {
+		stmt.As = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Literal {
+			stmt.Alias = next
+			p.consumeToken()
+		} else {
+			r.unexpectedToken(token.Literal)
+		}
+	}
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+		return
+	}
+	if next.Type() == token.KeywordIndexed {
+		stmt.Indexed = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordBy {
+			stmt.By = next
+			p.consumeToken()
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.Literal {
+				stmt.IndexName = next
+				p.consumeToken()
+			} else {
+				r.unexpectedToken(token.Literal)
+			}
+		} else {
+			r.unexpectedToken(token.KeywordBy)
+		}
+
+	}
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+		return
+	}
+	if next.Type() == token.KeywordNot {
+		stmt.Not = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordIndexed {
+			stmt.Indexed = next
+			p.consumeToken()
+		} else {
+			r.unexpectedToken(token.KeywordIndexed)
+		}
+	}
+	return
+}
+
+// parseCommonTableExpression parses common-table-expression as defined in:
+// https://sqlite.org/syntax/common-table-expression.html
+func (p *simpleParser) parseCommonTableExpression(r reporter) (stmt *ast.CommonTableExpression) {
+	stmt = &ast.CommonTableExpression{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.Literal {
+		stmt.TableName = next
+		p.consumeToken()
+	} else {
+		r.unexpectedToken(token.Literal)
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Value() == "(" {
+		stmt.LeftParen1 = next
+		p.consumeToken()
+		for {
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.Literal && next.Value() != "," {
+				stmt.ColumnName = append(stmt.ColumnName, next)
+				p.consumeToken()
+			}
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == "," {
+				p.consumeToken()
+			}
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == ")" {
+				stmt.RightParen1 = next
+				p.consumeToken()
+				break
+			}
+		}
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordAs {
+		stmt.As = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Value() == "(" {
+			stmt.LeftParen2 = next
+			p.consumeToken()
+			stmt.SelectStmt = p.parseSelectStmt(r)
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == ")" {
+				stmt.RightParen2 = next
+				p.consumeToken()
+			}
+		}
+	}
+	return
+}
+
+// parseSelectCore parses a core block of the select statement.
+// The select stmt gets multiple select core stmts, where,
+// each select core can be either starting with a "SELECT" keyword
+// or a "VALUES" keyword. The compound operator belongs to the select core
+// stmt which is right before it and not the one after.
+// Due to a bit of controversy in the table-or-subquery and the join-clause
+// stmts after FROM in SELECT core, all statements are parsed into join-clause.
+func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
+	stmt = &ast.SelectCore{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordSelect {
+		stmt.Select = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordDistinct {
+			stmt.Distinct = next
+			p.consumeToken()
+		} else if next.Type() == token.KeywordAll {
+			stmt.All = next
+			p.consumeToken()
+		}
+
+		for {
+			stmt.ResultColumn = append(stmt.ResultColumn, p.parseResultColumn(r))
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == "," {
+				p.consumeToken()
+			} else {
+				break
+			}
+		}
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordFrom {
+			stmt.From = next
+			p.consumeToken()
+			stmt.JoinClause = p.parseJoinClause(r)
+			if stmt.JoinClause == nil {
+				for {
+					stmt.TableOrSubquery = append(stmt.TableOrSubquery, p.parseTableOrSubquery(r))
+					next, ok = p.lookahead(r)
+					if !ok {
+						return
+					}
+					if next.Value() == "," {
+						p.consumeToken()
+					} else {
+						break
+					}
+				}
+			}
+		}
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordWhere {
+			stmt.Where = next
+			p.consumeToken()
+			stmt.Expr1 = p.parseExpression(r)
+		}
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordGroup {
+			stmt.Group = next
+			p.consumeToken()
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordBy {
+				stmt.By = next
+				p.consumeToken()
+			}
+			for {
+				stmt.Expr2 = append(stmt.Expr2, p.parseExpression(r))
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Value() == "," {
+					p.consumeToken()
+				} else {
+					break
+				}
+			}
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordHaving {
+				stmt.Having = next
+				p.consumeToken()
+				stmt.Expr3 = p.parseExpression(r)
+			}
+		}
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordWindow {
+			// Consuming the keyword window
+			stmt.Window = next
+			p.consumeToken()
+			for {
+				stmt.NamedWindow = append(stmt.NamedWindow, p.parseNamedWindow(r))
+
+				next, ok = p.optionalLookahead(r)
+				if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+					return
+				}
+				if next.Value() == "," {
+					p.consumeToken()
+				} else {
+					break
+				}
+			}
+		}
+	}
+	if next.Type() == token.KeywordValues {
+		stmt.Values = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Value() == "(" {
+			for {
+				stmt.ParenthesizedExpressions = append(stmt.ParenthesizedExpressions, p.parseParenthesizeExpression(r))
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Value() == "," {
+					p.consumeToken()
+				} else {
+					break
+				}
+			}
+		} else {
+			r.unexpectedSingleRuneToken('(')
+		}
+	}
+
+	// Checking whether there is a token that leads to a part of the statement
+	// ensures that stmt.CompoundOperator is nil, instead of an assigned empty value.
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+		return
+	}
+	if next.Type() == token.KeywordUnion || next.Type() == token.KeywordIntersect || next.Type() == token.KeywordExcept {
+		stmt.CompoundOperator = p.parseCompoundOperator(r)
+	}
+	return
+}
+
+// parseResultColumn parses result-column as defined in:
+// https://sqlite.org/syntax/result-column.html
+func (p *simpleParser) parseResultColumn(r reporter) (stmt *ast.ResultColumn) {
+	stmt = &ast.ResultColumn{}
+	tableNameOrAsteriskOrExpr, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	switch tableNameOrAsteriskOrExpr.Type() {
+	case token.BinaryOperator:
+		stmt.Asterisk = tableNameOrAsteriskOrExpr
+		p.consumeToken()
+	case token.Literal:
+		// Case where the expr can be a literal
+		stmt.Expr = p.parseExpression(r)
+		next, ok := p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Value() == "." {
+			stmt.TableName = tableNameOrAsteriskOrExpr
+			stmt.Expr = nil
+			stmt.Period = next
+			p.consumeToken()
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == "*" {
+				stmt.Asterisk = next
+				p.consumeToken()
+			}
+		} else {
+			next, ok := p.optionalLookahead(r)
+			if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+				return
+			}
+			if next.Type() == token.KeywordAs {
+				stmt.As = next
+				p.consumeToken()
+			}
+
+			next, ok = p.optionalLookahead(r)
+			if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+				return
+			}
+			if next.Type() == token.Literal {
+				stmt.ColumnAlias = next
+				p.consumeToken()
+			}
+		}
+	default:
+		stmt.Expr = p.parseExpression(r)
+		next, ok := p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+			return
+		}
+		if next.Type() == token.KeywordAs {
+			stmt.As = next
+			p.consumeToken()
+		}
+
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+			return
+		}
+		if next.Type() == token.Literal {
+			stmt.ColumnAlias = next
+			p.consumeToken()
+		}
+	}
+	return
+}
+
+func (p *simpleParser) parseNamedWindow(r reporter) (stmt *ast.NamedWindow) {
+	stmt = &ast.NamedWindow{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.Literal {
+		stmt.WindowName = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordAs {
+			stmt.As = next
+			p.consumeToken()
+			stmt.WindowDefn = p.parseWindowDefn(r)
+		} else {
+			r.unexpectedToken(token.KeywordAs)
+		}
+	}
+	return
+}
+
+// parseWindowDefn parses window-defn as defined in:
+// https://sqlite.org/syntax/window-defn.html
+func (p *simpleParser) parseWindowDefn(r reporter) (stmt *ast.WindowDefn) {
+	stmt = &ast.WindowDefn{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Value() == "(" {
+		stmt.LeftParen = next
+		p.consumeToken()
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.Literal {
+		stmt.BaseWindowName = next
+		p.consumeToken()
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordPartition {
+		stmt.Partition = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordBy {
+			stmt.By1 = next
+			p.consumeToken()
+		} else {
+			r.unexpectedToken(token.KeywordBy)
+		}
+		for {
+			stmt.Expr = append(stmt.Expr, p.parseExpression(r))
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == "," {
+				p.consumeToken()
+			} else {
+				break
+			}
+		}
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordOrder {
+		stmt.Order = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordBy {
+			stmt.By2 = next
+			p.consumeToken()
+		} else {
+			r.unexpectedToken(token.KeywordBy)
+		}
+		for {
+			stmt.OrderingTerm = append(stmt.OrderingTerm, p.parseOrderingTerm(r))
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == "," {
+				p.consumeToken()
+			} else {
+				break
+			}
+		}
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordRange || next.Type() == token.KeywordRows || next.Type() == token.KeywordGroups {
+		stmt.FrameSpec = p.parseFrameSpec(r)
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Value() == ")" {
+		stmt.RightParen = next
+		p.consumeToken()
+	}
+	return
+}
+
+// parsesOrderingTerm parses ordering-term as defined in:
+// https://sqlite.org/syntax/ordering-term.html
+func (p *simpleParser) parseOrderingTerm(r reporter) (stmt *ast.OrderingTerm) {
+	stmt = &ast.OrderingTerm{}
+	stmt.Expr = p.parseExpression(r)
+
+	next, ok := p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+		return
+	}
+	if next.Type() == token.KeywordCollate {
+		stmt.Collate = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Literal {
+			stmt.CollationName = next
+			p.consumeToken()
+		} else {
+			r.unexpectedToken(token.Literal)
+		}
+	}
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+		return
+	}
+	if next.Type() == token.KeywordAsc {
+		stmt.Asc = next
+		p.consumeToken()
+	}
+	if next.Type() == token.KeywordDesc {
+		stmt.Desc = next
+		p.consumeToken()
+	}
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+		return
+	}
+	if next.Type() == token.KeywordNulls {
+		stmt.Nulls = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordFirst {
+			stmt.First = next
+			p.consumeToken()
+		}
+		if next.Type() == token.KeywordLast {
+			stmt.Last = next
+			p.consumeToken()
+		}
+	}
+	return
+}
+
+// parseFrameSpec parses frame-spec as defined in:
+// https://sqlite.org/syntax/frame-spec.html
+func (p *simpleParser) parseFrameSpec(r reporter) (stmt *ast.FrameSpec) {
+	stmt = &ast.FrameSpec{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	switch next.Type() {
+	case token.KeywordRange:
+		stmt.Range = next
+		p.consumeToken()
+	case token.KeywordRows:
+		stmt.Rows = next
+		p.consumeToken()
+	case token.KeywordGroups:
+		stmt.Groups = next
+		p.consumeToken()
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	switch next.Type() {
+	case token.KeywordBetween:
+		stmt.Between = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		switch next.Type() {
+		case token.KeywordUnbounded:
+			stmt.Unbounded1 = next
+			p.consumeToken()
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordPreceding {
+				stmt.Preceding1 = next
+				p.consumeToken()
+			}
+		case token.KeywordCurrent:
+			stmt.Current1 = next
+			p.consumeToken()
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordRow {
+				// This is set as Row1 because this is one of the either paths
+				// taken by the FSM. Other path has 2x ROW's.
+				stmt.Row1 = next
+				p.consumeToken()
+			}
+		default:
+			stmt.Expr1 = p.parseExpression(r)
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordPreceding {
+				stmt.Preceding1 = next
+				p.consumeToken()
+			}
+			if next.Type() == token.KeywordFollowing {
+				stmt.Following1 = next
+				p.consumeToken()
+			}
+		}
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordAnd {
+			stmt.And = next
+			p.consumeToken()
+		}
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		switch next.Type() {
+		case token.KeywordUnbounded:
+			stmt.Unbounded2 = next
+			p.consumeToken()
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordFollowing {
+				stmt.Following2 = next
+				p.consumeToken()
+			}
+		case token.KeywordCurrent:
+			stmt.Current2 = next
+			p.consumeToken()
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordRow {
+				stmt.Row2 = next
+				p.consumeToken()
+			}
+		default:
+			stmt.Expr2 = p.parseExpression(r)
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordPreceding {
+				stmt.Preceding2 = next
+				p.consumeToken()
+			}
+			if next.Type() == token.KeywordFollowing {
+				stmt.Following2 = next
+				p.consumeToken()
+			}
+		}
+	case token.KeywordUnbounded:
+		stmt.Unbounded1 = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordPreceding {
+			stmt.Preceding1 = next
+			p.consumeToken()
+		}
+	case token.KeywordCurrent:
+		stmt.Current1 = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordRow {
+			stmt.Row1 = next
+			p.consumeToken()
+		}
+	default:
+		stmt.Expr1 = p.parseExpression(r)
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordPreceding {
+			stmt.Preceding1 = next
+			p.consumeToken()
+		}
+	}
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+		return
+	}
+	if next.Type() == token.KeywordExclude {
+		stmt.Exclude = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		switch next.Type() {
+		case token.KeywordNo:
+			stmt.No = next
+			p.consumeToken()
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordOthers {
+				stmt.Others = next
+				p.consumeToken()
+			}
+		case token.KeywordCurrent:
+			stmt.Current3 = next
+			p.consumeToken()
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordRow {
+				stmt.Row3 = next
+				p.consumeToken()
+			}
+		case token.KeywordGroup:
+			stmt.Group = next
+			p.consumeToken()
+		case token.KeywordTies:
+			stmt.Ties = next
+			p.consumeToken()
+		}
+	}
+	return
+}
+
+func (p *simpleParser) parseParenthesizeExpression(r reporter) (stmt *ast.ParenthesizedExpressions) {
+	stmt = &ast.ParenthesizedExpressions{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Value() == "(" {
+		stmt.LeftParen = next
+		p.consumeToken()
+		for {
+			stmt.Exprs = append(stmt.Exprs, p.parseExpression(r))
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == ")" {
+				stmt.RightParen = next
+				p.consumeToken()
+				break
+			}
+			if next.Value() == "," {
+				p.consumeToken()
+			}
+		}
+	}
+	return
+}
+
+// parseCompoundOperator parses compound-operator as defined in:
+// https://sqlite.org/syntax/compound-operator.html
+func (p *simpleParser) parseCompoundOperator(r reporter) (stmt *ast.CompoundOperator) {
+	stmt = &ast.CompoundOperator{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordUnion {
+		stmt.Union = next
+		p.consumeToken()
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+			return
+		}
+		if next.Type() == token.KeywordAll {
+			stmt.All = next
+			p.consumeToken()
+		}
+	}
+	if next.Type() == token.KeywordIntersect {
+		stmt.Intersect = next
+		p.consumeToken()
+	}
+	if next.Type() == token.KeywordExcept {
+		stmt.Except = next
+		p.consumeToken()
+	}
+	return
+}
+
+// parsetableOrSubquery parses table-or-subquery as defined in:
+// https://sqlite.org/syntax/table-or-subquery.html
+func (p *simpleParser) parseTableOrSubquery(r reporter) (stmt *ast.TableOrSubquery) {
+	stmt = &ast.TableOrSubquery{}
+	schemaOrTableNameOrLeftPar, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if schemaOrTableNameOrLeftPar.Type() == token.Literal {
+		stmt.TableName = schemaOrTableNameOrLeftPar
+		p.consumeToken()
+
+		next, ok := p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+			return
+		}
+		var tableNameOrTableFunctionName token.Token
+		if next.Value() == "." {
+			stmt.Period = next
+			p.consumeToken()
+			tableNameOrTableFunctionName, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.Literal {
+				stmt.SchemaName = schemaOrTableNameOrLeftPar
+				stmt.TableName = tableNameOrTableFunctionName
+				p.consumeToken()
+			} else {
+				r.unexpectedToken(token.Literal)
+			}
+		}
+
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+			return
+		}
+		if next.Type() == token.KeywordAs || next.Type() == token.KeywordIndexed || next.Type() == token.Literal || next.Type() == token.KeywordNot {
+			if next.Type() == token.KeywordAs {
+				stmt.As = next
+				p.consumeToken()
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Type() == token.Literal {
+					stmt.TableAlias = next
+					p.consumeToken()
+				} else {
+					r.unexpectedToken(token.Literal)
+				}
+			}
+			if next.Type() == token.Literal {
+				stmt.TableAlias = next
+				p.consumeToken()
+			}
+
+			next, ok = p.optionalLookahead(r)
+			if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+				return
+			}
+			if next.Type() == token.KeywordIndexed {
+				stmt.Indexed = next
+				p.consumeToken()
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Type() == token.KeywordBy {
+					stmt.By = next
+					p.consumeToken()
+					next, ok = p.lookahead(r)
+					if !ok {
+						return
+					}
+					if next.Type() == token.Literal {
+						stmt.IndexName = next
+						p.consumeToken()
+					} else {
+						r.unexpectedToken(token.Literal)
+					}
+				} else {
+					r.unexpectedToken(token.KeywordBy)
+				}
+			}
+			if next.Type() == token.KeywordNot {
+				stmt.Not = next
+				p.consumeToken()
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Type() == token.KeywordIndexed {
+					stmt.Indexed = next
+					p.consumeToken()
+				}
+			}
+		} else {
+			if next.Value() == "(" {
+				stmt.TableFunctionName = tableNameOrTableFunctionName
+				for {
+					// Since this rule allows an open bracket, we need to check whether an expr
+					// exists before we allow it to look for an expresion to avoid null ptr errors.
+					next, ok := p.lookahead(r)
+					if !ok {
+						return
+					}
+					if next.Value() == ")" {
+						stmt.RightParen = next
+						p.consumeToken()
+						break
+					}
+					stmt.Expr = append(stmt.Expr, p.parseExpression(r))
+					next, ok = p.lookahead(r)
+					if !ok {
+						return
+					}
+					if next.Value() == "," {
+						p.consumeToken()
+					}
+				}
+
+				next, ok = p.optionalLookahead(r)
+				if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+					return
+				}
+				if next.Type() == token.KeywordAs {
+					stmt.As = next
+					p.consumeToken()
+					next, ok = p.lookahead(r)
+					if !ok {
+						return
+					}
+					if next.Type() == token.Literal {
+						stmt.TableAlias = next
+						p.consumeToken()
+					}
+				}
+				if next.Type() == token.Literal {
+					stmt.TableAlias = next
+					p.consumeToken()
+				}
+			}
+		}
+	} else if schemaOrTableNameOrLeftPar.Value() == "(" {
+		stmt.SelectStmt = p.parseSelectStmt(r)
+		if stmt.SelectStmt == nil {
+			stmt.JoinClause = p.parseJoinClause(r)
+			if stmt.JoinClause == nil {
+				for {
+					stmt.TableOrSubquery = append(stmt.TableOrSubquery, p.parseTableOrSubquery(r))
+					next, ok := p.lookahead(r)
+					if !ok {
+						return
+					}
+					if next.Value() == "," {
+						p.consumeToken()
+					}
+					if next.Value() == ")" {
+						stmt.RightParen = next
+						p.consumeToken()
+						break
+					}
+				}
+			}
+			next, ok := p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == ")" {
+				stmt.RightParen = next
+				p.consumeToken()
+				return
+			}
+		} else {
+			next, ok := p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == ")" {
+				stmt.RightParen = next
+				p.consumeToken()
+			}
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordAs {
+				stmt.As = next
+				p.consumeToken()
+			}
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.Literal {
+				stmt.TableAlias = next
+				p.consumeToken()
+			}
+		}
+	}
+	return
+}
+
+// parseJoinClause parses join-clause as defined in:
+// https://sqlite.org/syntax/join-clause.html
+func (p *simpleParser) parseJoinClause(r reporter) (stmt *ast.JoinClause) {
+	stmt = &ast.JoinClause{}
+	stmt.TableOrSubquery = p.parseTableOrSubquery(r)
+
+	for {
+		next, ok := p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+			return
+		}
+		if !((next.Type() == token.KeywordNatural) || (next.Type() == token.KeywordJoin) || (next.Value() == ",") || (next.Type() == token.KeywordLeft) || (next.Type() == token.KeywordInner) || (next.Type() == token.KeywordCross)) {
+			break
+		}
+		stmt.JoinClausePart = p.parseJoinClausePart(r)
+	}
+	return
+}
+
+func (p *simpleParser) parseJoinClausePart(r reporter) (stmt *ast.JoinClausePart) {
+	stmt = &ast.JoinClausePart{}
+	stmt.JoinOperator = p.parseJoinOperator(r)
+	stmt.TableOrSubquery = p.parseTableOrSubquery(r)
+	// This check for existance of join constraint is necessary to return a nil
+	// value of join constraint, before an empty value is assigned to it
+	next, ok := p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+		return
+	}
+	if !(next.Type() == token.KeywordOn || next.Type() == token.KeywordUsing) {
+		return
+	}
+	stmt.JoinConstraint = p.parseJoinConstraint(r)
+	return
+}
+
+// parseJoinConstraint parses join-constraint as defined in:
+// https://sqlite.org/syntax/join-constraint.html
+func (p *simpleParser) parseJoinConstraint(r reporter) (stmt *ast.JoinConstraint) {
+	stmt = &ast.JoinConstraint{}
+	next, ok := p.optionalLookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordOn {
+		stmt.On = next
+		p.consumeToken()
+		stmt.Expr = p.parseExpression(r)
+	}
+	if next.Type() == token.KeywordUsing {
+		stmt.Using = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Value() == "(" {
+			stmt.LeftParen = next
+			p.consumeToken()
+		}
+		for {
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.Literal {
+				stmt.ColumnName = append(stmt.ColumnName, next)
+				p.consumeToken()
+			}
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == "," {
+				p.consumeToken()
+			} else if next.Value() == ")" {
+				stmt.RightParen = next
+				p.consumeToken()
+				break
+			}
+		}
+	}
+	return
+}
+
+// parseJoinOperator parses join-operator as defined in:
+// https://sqlite.org/syntax/join-operator.html
+func (p *simpleParser) parseJoinOperator(r reporter) (stmt *ast.JoinOperator) {
+	stmt = &ast.JoinOperator{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Value() == "," {
+		stmt.Comma = next
+		p.consumeToken()
+		return
+	}
+	if next.Type() == token.KeywordJoin {
+		stmt.Join = next
+		p.consumeToken()
+		return
+	}
+	if next.Type() == token.KeywordNatural {
+		stmt.Natural = next
+		p.consumeToken()
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordLeft {
+		stmt.Left = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordOuter {
+			stmt.Outer = next
+			p.consumeToken()
+		}
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordInner {
+		stmt.Inner = next
+		p.consumeToken()
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordCross {
+		stmt.Cross = next
+		p.consumeToken()
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordJoin {
+		stmt.Join = next
+		p.consumeToken()
+	}
 	return
 }

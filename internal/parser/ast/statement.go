@@ -604,9 +604,10 @@ type (
 		LeftParen      token.Token
 		BaseWindowName token.Token
 		Partition      token.Token
-		By             token.Token
+		By1            token.Token
 		Expr           []*Expr
 		Order          token.Token
+		By2            token.Token
 		OrderingTerm   []*OrderingTerm
 		FrameSpec      *FrameSpec
 		RightParen     token.Token
