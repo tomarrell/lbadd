@@ -91,7 +91,7 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 			return
 		}
 	}
-	if next.Type() == token.EOF {
+	if next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		p.consumeToken()
 		return
 	}
@@ -790,7 +790,7 @@ func (p *simpleParser) parseAnalyzeStmt(r reporter) (stmt *ast.AnalyzeStmt) {
 
 	// optionalLookahead is used, because ANALYZE alone is a valid statement
 	next, ok = p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	if next.Type() == token.Literal {
@@ -839,7 +839,7 @@ func (p *simpleParser) parseBeginStmt(r reporter) (stmt *ast.BeginStmt) {
 	p.consumeToken()
 
 	next, ok = p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	switch next.Type() {
@@ -855,7 +855,7 @@ func (p *simpleParser) parseBeginStmt(r reporter) (stmt *ast.BeginStmt) {
 	}
 
 	next, ok = p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	if next.Type() == token.KeywordTransaction {
@@ -882,7 +882,7 @@ func (p *simpleParser) parseCommitStmt(r reporter) (stmt *ast.CommitStmt) {
 	p.consumeToken()
 
 	next, ok = p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	if next.Type() == token.KeywordTransaction {
@@ -905,7 +905,7 @@ func (p *simpleParser) parseRollbackStmt(r reporter) (stmt *ast.RollbackStmt) {
 	p.consumeToken()
 
 	next, ok = p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	if next.Type() == token.KeywordTransaction {
@@ -917,7 +917,7 @@ func (p *simpleParser) parseRollbackStmt(r reporter) (stmt *ast.RollbackStmt) {
 	// check whether TO also exists. Out of TRANSACTION and TO, each not
 	// existing and existing, we have the following logic.
 	next, ok = p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	if next.Type() == token.KeywordTo {
@@ -1135,7 +1135,7 @@ func (p *simpleParser) parseCreateIndexStmt(createToken token.Token, r reporter)
 	}
 
 	next, ok = p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	if next.Type() == token.KeywordWhere {
@@ -1160,7 +1160,7 @@ func (p *simpleParser) parseIndexedColumn(r reporter) (stmt *ast.IndexedColumn) 
 	}
 
 	next, ok = p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	if next.Type() == token.KeywordCollate {
@@ -1179,7 +1179,7 @@ func (p *simpleParser) parseIndexedColumn(r reporter) (stmt *ast.IndexedColumn) 
 	}
 
 	next, ok = p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	if next.Type() == token.KeywordAsc {
@@ -1265,7 +1265,7 @@ func (p *simpleParser) parseDeleteStmt(r reporter) (stmt *ast.DeleteStmt) {
 	stmt.QualifiedTableName = p.parseQualifiedTableName(r)
 
 	next, ok = p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	if next.Type() == token.KeywordWhere {
@@ -1362,7 +1362,7 @@ func (p *simpleParser) parseCteTableName(r reporter) (cteTableName *ast.CteTable
 	p.consumeToken()
 
 	next, ok = p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	if next.Value() == "(" {
@@ -1456,13 +1456,13 @@ func (p *simpleParser) parseSelectStmt(r reporter) (stmt *ast.SelectStmt) {
 		stmt.SelectCore = append(stmt.SelectCore, p.parseSelectCore(r))
 
 		next, ok = p.optionalLookahead(r)
-		if !ok || next.Type() == token.EOF {
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 			return
 		}
 	}
 
 	next, ok = p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	if next.Type() == token.KeywordOrder {
@@ -1494,7 +1494,7 @@ func (p *simpleParser) parseSelectStmt(r reporter) (stmt *ast.SelectStmt) {
 	}
 
 	next, ok = p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	if next.Type() == token.KeywordLimit {
@@ -1503,7 +1503,7 @@ func (p *simpleParser) parseSelectStmt(r reporter) (stmt *ast.SelectStmt) {
 		stmt.Expr1 = p.parseExpression(r)
 
 		next, ok = p.optionalLookahead(r)
-		if !ok || next.Type() == token.EOF {
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 			return
 		}
 		if next.Type() == token.KeywordOffset {
@@ -1537,7 +1537,7 @@ func (p *simpleParser) parseQualifiedTableName(r reporter) (stmt *ast.QualifiedT
 		p.consumeToken()
 	}
 	next, ok := p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	if next.Value() == "." {
@@ -1557,7 +1557,7 @@ func (p *simpleParser) parseQualifiedTableName(r reporter) (stmt *ast.QualifiedT
 	}
 
 	next, ok = p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	if next.Type() == token.KeywordAs {
@@ -1576,7 +1576,7 @@ func (p *simpleParser) parseQualifiedTableName(r reporter) (stmt *ast.QualifiedT
 	}
 
 	next, ok = p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	if next.Type() == token.KeywordIndexed {
@@ -1606,7 +1606,7 @@ func (p *simpleParser) parseQualifiedTableName(r reporter) (stmt *ast.QualifiedT
 	}
 
 	next, ok = p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	if next.Type() == token.KeywordNot {
@@ -1831,7 +1831,7 @@ func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 				stmt.NamedWindow = append(stmt.NamedWindow, p.parseNamedWindow(r))
 
 				next, ok = p.optionalLookahead(r)
-				if !ok || next.Type() == token.EOF {
+				if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 					return
 				}
 				if next.Value() == "," {
@@ -1870,7 +1870,7 @@ func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 	// Checking whether there is a token that leads to a part of the statement
 	// ensures that stmt.CompoundOperator is nil, instead of an assigned empty value.
 	next, ok = p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	if next.Type() == token.KeywordUnion || next.Type() == token.KeywordIntersect || next.Type() == token.KeywordExcept {
@@ -1913,7 +1913,7 @@ func (p *simpleParser) parseResultColumn(r reporter) (stmt *ast.ResultColumn) {
 			}
 		} else {
 			next, ok := p.optionalLookahead(r)
-			if !ok || next.Type() == token.EOF {
+			if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 				return
 			}
 			if next.Type() == token.KeywordAs {
@@ -1922,7 +1922,7 @@ func (p *simpleParser) parseResultColumn(r reporter) (stmt *ast.ResultColumn) {
 			}
 
 			next, ok = p.optionalLookahead(r)
-			if !ok || next.Type() == token.EOF {
+			if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 				return
 			}
 			if next.Type() == token.Literal {
@@ -1933,7 +1933,7 @@ func (p *simpleParser) parseResultColumn(r reporter) (stmt *ast.ResultColumn) {
 	default:
 		stmt.Expr = p.parseExpression(r)
 		next, ok := p.optionalLookahead(r)
-		if !ok || next.Type() == token.EOF {
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 			return
 		}
 		if next.Type() == token.KeywordAs {
@@ -1942,7 +1942,7 @@ func (p *simpleParser) parseResultColumn(r reporter) (stmt *ast.ResultColumn) {
 		}
 
 		next, ok = p.optionalLookahead(r)
-		if !ok || next.Type() == token.EOF {
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 			return
 		}
 		if next.Type() == token.Literal {
@@ -2087,7 +2087,7 @@ func (p *simpleParser) parseOrderingTerm(r reporter) (stmt *ast.OrderingTerm) {
 	stmt.Expr = p.parseExpression(r)
 
 	next, ok := p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	if next.Type() == token.KeywordCollate {
@@ -2106,7 +2106,7 @@ func (p *simpleParser) parseOrderingTerm(r reporter) (stmt *ast.OrderingTerm) {
 	}
 
 	next, ok = p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	if next.Type() == token.KeywordAsc {
@@ -2119,7 +2119,7 @@ func (p *simpleParser) parseOrderingTerm(r reporter) (stmt *ast.OrderingTerm) {
 	}
 
 	next, ok = p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	if next.Type() == token.KeywordNulls {
@@ -2297,7 +2297,7 @@ func (p *simpleParser) parseFrameSpec(r reporter) (stmt *ast.FrameSpec) {
 		}
 	}
 	next, ok = p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	if next.Type() == token.KeywordExclude {
@@ -2381,7 +2381,7 @@ func (p *simpleParser) parseCompoundOperator(r reporter) (stmt *ast.CompoundOper
 		stmt.Union = next
 		p.consumeToken()
 		next, ok = p.optionalLookahead(r)
-		if !ok || next.Type() == token.EOF {
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 			return
 		}
 		if next.Type() == token.KeywordAll {
@@ -2413,7 +2413,7 @@ func (p *simpleParser) parseTableOrSubquery(r reporter) (stmt *ast.TableOrSubque
 		p.consumeToken()
 
 		next, ok := p.optionalLookahead(r)
-		if !ok || next.Type() == token.EOF {
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 			return
 		}
 		var tableNameOrTableFunctionName token.Token
@@ -2434,7 +2434,7 @@ func (p *simpleParser) parseTableOrSubquery(r reporter) (stmt *ast.TableOrSubque
 		}
 
 		next, ok = p.optionalLookahead(r)
-		if !ok || next.Type() == token.EOF {
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 			return
 		}
 		if next.Type() == token.KeywordAs || next.Type() == token.KeywordIndexed || next.Type() == token.Literal || next.Type() == token.KeywordNot {
@@ -2458,7 +2458,7 @@ func (p *simpleParser) parseTableOrSubquery(r reporter) (stmt *ast.TableOrSubque
 			}
 
 			next, ok = p.optionalLookahead(r)
-			if !ok || next.Type() == token.EOF {
+			if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 				return
 			}
 			if next.Type() == token.KeywordIndexed {
@@ -2523,7 +2523,7 @@ func (p *simpleParser) parseTableOrSubquery(r reporter) (stmt *ast.TableOrSubque
 				}
 
 				next, ok = p.optionalLookahead(r)
-				if !ok || next.Type() == token.EOF {
+				if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 					return
 				}
 				if next.Type() == token.KeywordAs {
@@ -2614,7 +2614,7 @@ func (p *simpleParser) parseJoinClause(r reporter) (stmt *ast.JoinClause) {
 
 	for {
 		next, ok := p.optionalLookahead(r)
-		if !ok || next.Type() == token.EOF {
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 			return
 		}
 		if !((next.Type() == token.KeywordNatural) || (next.Type() == token.KeywordJoin) || (next.Value() == ",") || (next.Type() == token.KeywordLeft) || (next.Type() == token.KeywordInner) || (next.Type() == token.KeywordCross)) {
@@ -2632,7 +2632,7 @@ func (p *simpleParser) parseJoinClausePart(r reporter) (stmt *ast.JoinClausePart
 	// This check for existance of join constraint is necessary to return a nil
 	// value of join constraint, before an empty value is assigned to it
 	next, ok := p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	if !(next.Type() == token.KeywordOn || next.Type() == token.KeywordUsing) {
