@@ -1,3 +1,0 @@
-SELECT H,D,I,F
-FROM S
-ORDER BY H,D,I,H,D,_

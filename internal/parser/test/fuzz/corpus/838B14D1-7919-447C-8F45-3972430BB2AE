@@ -1,0 +1,1 @@
+CREATE INDEX mySchema.myIndex ON myTable (exprLiteral) WHERE exprLiteral

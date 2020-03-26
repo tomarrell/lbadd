@@ -1,1 +1,0 @@
-SELECT*FROM(SELECT Y is null FROM S)

@@ -1,0 +1,1 @@
+WITH myTable AS (VALUES (myExpr)) DELETE FROM myTable

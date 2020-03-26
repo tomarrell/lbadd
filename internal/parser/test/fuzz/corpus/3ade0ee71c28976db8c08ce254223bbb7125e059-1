@@ -1,3 +1,0 @@
-SELECT p.*
-FROM Production.Product AS p
-ORDER BY Name ASC

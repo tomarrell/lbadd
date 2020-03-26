@@ -1,1 +1,0 @@
-SELECT Y is null FROM(SELECT Y is null

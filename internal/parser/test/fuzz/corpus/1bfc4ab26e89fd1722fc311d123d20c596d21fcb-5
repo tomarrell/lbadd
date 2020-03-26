@@ -1,2 +1,0 @@
-SELECT H,D,I,F
-FROM S group by H,D,I,H,H,A,I,H,_

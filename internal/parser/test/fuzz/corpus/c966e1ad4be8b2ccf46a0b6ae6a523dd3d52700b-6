@@ -1,1 +1,0 @@
-SELECT D FROM O having exists(SELECT D FROM O)

@@ -1,2 +1,0 @@
-SELECT H
-FROM S group by H.I,O.I,F.I,O.I,F.I,O.I,O.I,O.I,O.I,O.I,F.I,O.I,O.I,O.I,O.I,O.I,O.I,F.I,O.I,O.I

@@ -1,2 +1,0 @@
-SELECT p.*FROM io.t
-ORDER BY io.e

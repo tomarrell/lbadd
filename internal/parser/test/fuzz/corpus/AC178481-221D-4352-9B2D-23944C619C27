@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX IF NOT EXISTS myIndex ON myTable (exprLiteral)
