@@ -30,7 +30,7 @@ func scanKeyword{{ sanitize .path }}(s RuneScanner) (token.Type, bool) {
 	}{{ end }}
 	{{ if .hasValue }}return {{ .tokenType }}, true{{ else }}return token.Unknown, false{{ end }}{{ end }}
 }`))
-	header = `// Code generated; DO NOT EDIT.
+	header = `// Code generated with internal/tool/generate/keywordtrie; DO NOT EDIT.
 
 package ruleset
 
