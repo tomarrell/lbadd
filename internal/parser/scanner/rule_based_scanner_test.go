@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -278,7 +279,7 @@ func _TestRuleBasedScannerWithRuleset(input string, ruleset ruleset.Ruleset, wan
 		if len(got) < limit {
 			limit = len(got)
 		}
-
+		fmt.Println(got)
 		for i := 0; i < limit; i++ {
 			assert.Equal(want[i].Line(), got[i].Line(), "Line doesn't match")
 			assert.Equal(want[i].Col(), got[i].Col(), "Col doesn't match")

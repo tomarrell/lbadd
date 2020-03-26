@@ -561,14 +561,120 @@ func (p *simpleParser) parseColumnConstraint(r reporter) (constr *ast.ColumnCons
 // unsupported construct error.
 func (p *simpleParser) parseForeignKeyClause(r reporter) (clause *ast.ForeignKeyClause) {
 	clause = &ast.ForeignKeyClause{}
-
 	next, ok := p.lookahead(r)
 	if !ok {
 		return
 	}
-	r.unsupportedConstruct(next)
-	p.searchNext(r, token.StatementSeparator, token.EOF)
+	if next.Type() == token.KeywordReferences {
+		clause.References = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Literal {
+			clause.ForeignTable = next
+			p.consumeToken()
+
+			next, ok = p.optionalLookahead(r)
+			if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+				return
+			}
+			if next.Type() == token.Delimiter {
+				clause.LeftParen = next
+				p.consumeToken()
+				for {
+					next, ok = p.lookahead(r)
+					if !ok {
+						return
+					}
+					if next.Type() == token.Literal {
+						clause.ColumnName = append(clause.ColumnName, next)
+						p.consumeToken()
+						next, ok = p.lookahead(r)
+						if !ok {
+							return
+						}
+						if next.Value() == "," {
+							p.consumeToken()
+						}
+						if next.Value() == ")" {
+							clause.RightParen = next
+							p.consumeToken()
+							break
+						}
+					}
+				}
+			}
+
+			next, ok = p.optionalLookahead(r)
+			if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+				return
+			}
+			if next.Type() == token.KeywordOn || next.Type() == token.KeywordMatch {
+				for {
+					clause.ForeignKeyClauseCore = append(clause.ForeignKeyClauseCore, p.parseForeignKeyClauseCore(r))
+					next, ok = p.optionalLookahead(r)
+					if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+						return
+					}
+					if !(next.Type() == token.KeywordOn || next.Type() == token.KeywordMatch) {
+						break
+					}
+				}
+			}
+
+			next, ok = p.optionalLookahead(r)
+			if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+				return
+			}
+			if next.Type() == token.KeywordNot {
+				clause.Not = next
+				p.consumeToken()
+			}
+
+			next, ok = p.optionalLookahead(r)
+			if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+				return
+			}
+			if next.Type() == token.KeywordDeferrable {
+				clause.Deferrable = next
+				p.consumeToken()
+			}
+
+			next, ok = p.optionalLookahead(r)
+			if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+				return
+			}
+			if next.Type() == token.KeywordInitially {
+				clause.Initially = next
+				p.consumeToken()
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Type() == token.KeywordImmediate {
+					clause.Immediate = next
+					p.consumeToken()
+				} else if next.Type() == token.KeywordDeferred {
+					clause.Deferred = next
+					p.consumeToken()
+				}
+			}
+
+		} else {
+			r.unexpectedToken(token.Literal)
+		}
+	} else {
+		return
+	}
 	return
+}
+
+func (p *simpleParser) parseForeignKeyClauseCore(r reporter) (stmt *ast.ForeignKeyClauseCore) {
+	stmt = &ast.ForeignKeyClauseCore{}
+	return
+
 }
 
 func (p *simpleParser) parseConflictClause(r reporter) (clause *ast.ConflictClause) {
@@ -1194,12 +1300,136 @@ func (p *simpleParser) parseIndexedColumn(r reporter) (stmt *ast.IndexedColumn) 
 }
 
 func (p *simpleParser) parseCreateTableStmt(createToken, tempToken, temporaryToken token.Token, r reporter) (stmt *ast.CreateTableStmt) {
+	stmt.Create = createToken
+	stmt.Temp = tempToken
+	stmt.Temporary = temporaryToken
 	next, ok := p.lookahead(r)
 	if !ok {
 		return
 	}
-	r.unsupportedConstruct(next)
-	p.searchNext(r, token.StatementSeparator, token.EOF)
+	if next.Type() == token.KeywordTable {
+		stmt.Table = next
+		p.consumeToken()
+	} else {
+		r.unexpectedToken(token.KeywordTable)
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordIf {
+		stmt.If = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordNot {
+			stmt.Not = next
+			p.consumeToken()
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordExists {
+				stmt.Exists = next
+				p.consumeToken()
+			} else {
+				r.unexpectedToken(token.KeywordExists)
+			}
+		} else {
+			r.unexpectedToken(token.KeywordNot)
+		}
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.Literal {
+		stmt.SchemaName = next
+		stmt.TableName = next
+		p.consumeToken()
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Value() == "." {
+		stmt.Period = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Literal {
+			stmt.TableName = next
+			p.consumeToken()
+		} else {
+			r.unexpectedToken(token.Literal)
+		}
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	switch next.Type() {
+	case token.Delimiter:
+		stmt.LeftParen = next
+		p.consumeToken()
+		for {
+			stmt.ColumnDef = append(stmt.ColumnDef, p.parseColumnDef(r))
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == "," {
+				p.consumeToken()
+				tableConstraint := p.parseTableConstraint(r)
+				if tableConstraint != nil {
+					for {
+						stmt.TableConstraint = append(stmt.TableConstraint, tableConstraint)
+						next, ok = p.lookahead(r)
+						if !ok {
+							return
+						}
+						if next.Value() == "," {
+							p.consumeToken()
+						}
+						if next.Value() == ")" {
+							stmt.RightParen = next
+							break
+						}
+					}
+				}
+			}
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == ")" {
+				stmt.RightParen = next
+				p.consumeToken()
+				break
+			}
+			// The ROWID fiasco
+			// next, ok = p.optionalLookahead(r)
+			// if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+			// 	return
+			// }
+			// if next.Type() == token.KeywordWithout {
+			// 	token.Row
+			// }
+		}
+	case token.KeywordAs:
+		stmt.As = next
+		p.consumeToken()
+		stmt.SelectStmt = p.parseSelectStmt(r)
+	}
 	return
 }
 
@@ -2758,5 +2988,10 @@ func (p *simpleParser) parseJoinOperator(r reporter) (stmt *ast.JoinOperator) {
 		stmt.Join = next
 		p.consumeToken()
 	}
+	return
+}
+
+func (p *simpleParser) parseTableConstraint(r reporter) (stmt *ast.TableConstraint) {
+	stmt = &ast.TableConstraint{}
 	return
 }
