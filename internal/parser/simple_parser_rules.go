@@ -1887,10 +1887,12 @@ func (p *simpleParser) parseResultColumn(r reporter) (stmt *ast.ResultColumn) {
 	if !ok {
 		return
 	}
-	if tableNameOrAsteriskOrExpr.Value() == "*" {
+	switch tableNameOrAsteriskOrExpr.Type() {
+	case token.BinaryOperator:
 		stmt.Asterisk = tableNameOrAsteriskOrExpr
 		p.consumeToken()
-	} else if tableNameOrAsteriskOrExpr.Type() == token.Literal {
+	case token.Literal:
+		// Case where the expr can be a literal
 		stmt.Expr = p.parseExpression(r)
 		next, ok := p.lookahead(r)
 		if !ok {
@@ -1927,6 +1929,25 @@ func (p *simpleParser) parseResultColumn(r reporter) (stmt *ast.ResultColumn) {
 				stmt.ColumnAlias = next
 				p.consumeToken()
 			}
+		}
+	default:
+		stmt.Expr = p.parseExpression(r)
+		next, ok := p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF {
+			return
+		}
+		if next.Type() == token.KeywordAs {
+			stmt.As = next
+			p.consumeToken()
+		}
+
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF {
+			return
+		}
+		if next.Type() == token.Literal {
+			stmt.ColumnAlias = next
+			p.consumeToken()
 		}
 	}
 	return
