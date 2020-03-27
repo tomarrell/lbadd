@@ -7,6 +7,8 @@ import (
 	"github.com/tomarrell/lbadd/internal/parser/scanner/token"
 )
 
+//go:generate go run ../../../tool/generate/keywordtrie ./ruleset_default_keyword_trie.go
+
 var (
 	// Default is the ruleset that this application uses by default. The rules
 	// are inspired by Sqlite, however they do not care as much about
