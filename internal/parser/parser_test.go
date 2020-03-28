@@ -4463,6 +4463,1102 @@ func TestSingleStatementParse(t *testing.T) {
 				},
 			},
 		},
+		{
+			`CREATE TABLE basic with basic select`,
+			"CREATE TABLE myTable AS SELECT *",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					As:        token.New(1, 22, 21, 2, token.KeywordAs, "AS"),
+					SelectStmt: &ast.SelectStmt{
+						SelectCore: []*ast.SelectCore{
+							&ast.SelectCore{
+								Select: token.New(1, 25, 24, 6, token.KeywordSelect, "SELECT"),
+								ResultColumn: []*ast.ResultColumn{
+									&ast.ResultColumn{
+										Asterisk: token.New(1, 32, 31, 1, token.BinaryOperator, "*"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			`CREATE TABLE with TEMP`,
+			"CREATE TEMP TABLE myTable AS SELECT *",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Temp:      token.New(1, 8, 7, 4, token.KeywordTemp, "TEMP"),
+					Table:     token.New(1, 13, 12, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 19, 18, 7, token.Literal, "myTable"),
+					As:        token.New(1, 27, 26, 2, token.KeywordAs, "AS"),
+					SelectStmt: &ast.SelectStmt{
+						SelectCore: []*ast.SelectCore{
+							&ast.SelectCore{
+								Select: token.New(1, 30, 29, 6, token.KeywordSelect, "SELECT"),
+								ResultColumn: []*ast.ResultColumn{
+									&ast.ResultColumn{
+										Asterisk: token.New(1, 37, 36, 1, token.BinaryOperator, "*"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			`CREATE TABLE with TEMPORARY`,
+			"CREATE TEMPORARY TABLE myTable AS SELECT *",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Temporary: token.New(1, 8, 7, 9, token.KeywordTemporary, "TEMPORARY"),
+					Table:     token.New(1, 18, 17, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 24, 23, 7, token.Literal, "myTable"),
+					As:        token.New(1, 32, 31, 2, token.KeywordAs, "AS"),
+					SelectStmt: &ast.SelectStmt{
+						SelectCore: []*ast.SelectCore{
+							&ast.SelectCore{
+								Select: token.New(1, 35, 34, 6, token.KeywordSelect, "SELECT"),
+								ResultColumn: []*ast.ResultColumn{
+									&ast.ResultColumn{
+										Asterisk: token.New(1, 42, 41, 1, token.BinaryOperator, "*"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			`CREATE TABLE with IF NOT EXISTS`,
+			"CREATE TABLE IF NOT EXISTS myTable AS SELECT *",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					If:        token.New(1, 14, 13, 2, token.KeywordIf, "IF"),
+					Not:       token.New(1, 17, 16, 3, token.KeywordNot, "NOT"),
+					Exists:    token.New(1, 21, 20, 6, token.KeywordExists, "EXISTS"),
+					TableName: token.New(1, 28, 27, 7, token.Literal, "myTable"),
+					As:        token.New(1, 36, 35, 2, token.KeywordAs, "AS"),
+					SelectStmt: &ast.SelectStmt{
+						SelectCore: []*ast.SelectCore{
+							&ast.SelectCore{
+								Select: token.New(1, 39, 38, 6, token.KeywordSelect, "SELECT"),
+								ResultColumn: []*ast.ResultColumn{
+									&ast.ResultColumn{
+										Asterisk: token.New(1, 46, 45, 1, token.BinaryOperator, "*"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			`CREATE TABLE with schema and table name`,
+			"CREATE TABLE mySchema.myTable AS SELECT *",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:     token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:      token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					SchemaName: token.New(1, 14, 13, 8, token.Literal, "mySchema"),
+					Period:     token.New(1, 22, 21, 1, token.Literal, "."),
+					TableName:  token.New(1, 23, 22, 7, token.Literal, "myTable"),
+					As:         token.New(1, 31, 30, 2, token.KeywordAs, "AS"),
+					SelectStmt: &ast.SelectStmt{
+						SelectCore: []*ast.SelectCore{
+							&ast.SelectCore{
+								Select: token.New(1, 34, 33, 6, token.KeywordSelect, "SELECT"),
+								ResultColumn: []*ast.ResultColumn{
+									&ast.ResultColumn{
+										Asterisk: token.New(1, 41, 40, 1, token.BinaryOperator, "*"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single basic column-def`,
+			"CREATE TABLE myTable (myColumn)",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 8, token.Literal, "myColumn"),
+						},
+					},
+					RightParen: token.New(1, 31, 30, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with multiple basic column-def`,
+			"CREATE TABLE myTable (myColumn1,myColumn2)",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 9, token.Literal, "myColumn1"),
+						},
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 33, 32, 9, token.Literal, "myColumn2"),
+						},
+					},
+					RightParen: token.New(1, 42, 41, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single basic column-def and basic table-constraint`,
+			"CREATE TABLE myTable (myColumn1,CHECK (myExpr))",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 9, token.Literal, "myColumn1"),
+						},
+					},
+					TableConstraint: []*ast.TableConstraint{
+						&ast.TableConstraint{
+							Check:     token.New(1, 33, 32, 5, token.KeywordCheck, "CHECK"),
+							LeftParen: token.New(1, 39, 38, 1, token.Delimiter, "("),
+							Expr: &ast.Expr{
+								LiteralValue: token.New(1, 40, 39, 6, token.Literal, "myExpr"),
+							},
+							RightParen: token.New(1, 46, 45, 1, token.Delimiter, ")"),
+						},
+					},
+					RightParen: token.New(1, 47, 46, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single basic column-def and table-constraint and CONSTRAINT`,
+			"CREATE TABLE myTable (myColumn1,CONSTRAINT myConstraint CHECK (myExpr))",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 9, token.Literal, "myColumn1"),
+						},
+					},
+					TableConstraint: []*ast.TableConstraint{
+						&ast.TableConstraint{
+							Constraint: token.New(1, 33, 32, 10, token.KeywordConstraint, "CONSTRAINT"),
+							Name:       token.New(1, 44, 43, 12, token.Literal, "myConstraint"),
+							Check:      token.New(1, 57, 56, 5, token.KeywordCheck, "CHECK"),
+							LeftParen:  token.New(1, 63, 62, 1, token.Delimiter, "("),
+							Expr: &ast.Expr{
+								LiteralValue: token.New(1, 64, 63, 6, token.Literal, "myExpr"),
+							},
+							RightParen: token.New(1, 70, 69, 1, token.Delimiter, ")"),
+						},
+					},
+					RightParen: token.New(1, 71, 70, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single basic column-def and table-constraint and PRIMARY KEY with single indexed-column`,
+			"CREATE TABLE myTable (myColumn1,PRIMARY KEY (myExpr))",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 9, token.Literal, "myColumn1"),
+						},
+					},
+					TableConstraint: []*ast.TableConstraint{
+						&ast.TableConstraint{
+							Primary:   token.New(1, 33, 32, 7, token.KeywordPrimary, "PRIMARY"),
+							Key:       token.New(1, 41, 40, 3, token.KeywordKey, "KEY"),
+							LeftParen: token.New(1, 45, 44, 1, token.Delimiter, "("),
+							IndexedColumn: []*ast.IndexedColumn{
+								&ast.IndexedColumn{
+									ColumnName: token.New(1, 46, 45, 6, token.Literal, "myExpr"),
+								},
+							},
+							RightParen: token.New(1, 52, 51, 1, token.Delimiter, ")"),
+						},
+					},
+					RightParen: token.New(1, 53, 52, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single basic column-def and table-constraint and PRIMARY KEY with single indexed-column and conflict-clause with ROLLBACK`,
+			"CREATE TABLE myTable (myColumn1,PRIMARY KEY (myExpr) ON CONFLICT ROLLBACK)",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 9, token.Literal, "myColumn1"),
+						},
+					},
+					TableConstraint: []*ast.TableConstraint{
+						&ast.TableConstraint{
+							Primary:   token.New(1, 33, 32, 7, token.KeywordPrimary, "PRIMARY"),
+							Key:       token.New(1, 41, 40, 3, token.KeywordKey, "KEY"),
+							LeftParen: token.New(1, 45, 44, 1, token.Delimiter, "("),
+							IndexedColumn: []*ast.IndexedColumn{
+								&ast.IndexedColumn{
+									ColumnName: token.New(1, 46, 45, 6, token.Literal, "myExpr"),
+								},
+							},
+							RightParen: token.New(1, 52, 51, 1, token.Delimiter, ")"),
+							ConflictClause: &ast.ConflictClause{
+								On:       token.New(1, 54, 53, 2, token.KeywordOn, "ON"),
+								Conflict: token.New(1, 57, 56, 8, token.KeywordConflict, "CONFLICT"),
+								Rollback: token.New(1, 66, 65, 8, token.KeywordRollback, "ROLLBACK"),
+							},
+						},
+					},
+					RightParen: token.New(1, 74, 73, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single basic column-def and table-constraint and PRIMARY KEY with single indexed-column and conflict-clause with ABORT`,
+			"CREATE TABLE myTable (myColumn1,PRIMARY KEY (myExpr) ON CONFLICT ABORT)",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 9, token.Literal, "myColumn1"),
+						},
+					},
+					TableConstraint: []*ast.TableConstraint{
+						&ast.TableConstraint{
+							Primary:   token.New(1, 33, 32, 7, token.KeywordPrimary, "PRIMARY"),
+							Key:       token.New(1, 41, 40, 3, token.KeywordKey, "KEY"),
+							LeftParen: token.New(1, 45, 44, 1, token.Delimiter, "("),
+							IndexedColumn: []*ast.IndexedColumn{
+								&ast.IndexedColumn{
+									ColumnName: token.New(1, 46, 45, 6, token.Literal, "myExpr"),
+								},
+							},
+							RightParen: token.New(1, 52, 51, 1, token.Delimiter, ")"),
+							ConflictClause: &ast.ConflictClause{
+								On:       token.New(1, 54, 53, 2, token.KeywordOn, "ON"),
+								Conflict: token.New(1, 57, 56, 8, token.KeywordConflict, "CONFLICT"),
+								Abort:    token.New(1, 66, 65, 5, token.KeywordAbort, "ABORT"),
+							},
+						},
+					},
+					RightParen: token.New(1, 71, 70, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single basic column-def and table-constraint and PRIMARY KEY with single indexed-column and conflict-clause with FAIL`,
+			"CREATE TABLE myTable (myColumn1,PRIMARY KEY (myExpr) ON CONFLICT FAIL)",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 9, token.Literal, "myColumn1"),
+						},
+					},
+					TableConstraint: []*ast.TableConstraint{
+						&ast.TableConstraint{
+							Primary:   token.New(1, 33, 32, 7, token.KeywordPrimary, "PRIMARY"),
+							Key:       token.New(1, 41, 40, 3, token.KeywordKey, "KEY"),
+							LeftParen: token.New(1, 45, 44, 1, token.Delimiter, "("),
+							IndexedColumn: []*ast.IndexedColumn{
+								&ast.IndexedColumn{
+									ColumnName: token.New(1, 46, 45, 6, token.Literal, "myExpr"),
+								},
+							},
+							RightParen: token.New(1, 52, 51, 1, token.Delimiter, ")"),
+							ConflictClause: &ast.ConflictClause{
+								On:       token.New(1, 54, 53, 2, token.KeywordOn, "ON"),
+								Conflict: token.New(1, 57, 56, 8, token.KeywordConflict, "CONFLICT"),
+								Fail:     token.New(1, 66, 65, 4, token.KeywordFail, "FAIL"),
+							},
+						},
+					},
+					RightParen: token.New(1, 70, 69, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single basic column-def and table-constraint and PRIMARY KEY with single indexed-column and conflict-clause with IGNORE`,
+			"CREATE TABLE myTable (myColumn1,PRIMARY KEY (myExpr) ON CONFLICT IGNORE)",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 9, token.Literal, "myColumn1"),
+						},
+					},
+					TableConstraint: []*ast.TableConstraint{
+						&ast.TableConstraint{
+							Primary:   token.New(1, 33, 32, 7, token.KeywordPrimary, "PRIMARY"),
+							Key:       token.New(1, 41, 40, 3, token.KeywordKey, "KEY"),
+							LeftParen: token.New(1, 45, 44, 1, token.Delimiter, "("),
+							IndexedColumn: []*ast.IndexedColumn{
+								&ast.IndexedColumn{
+									ColumnName: token.New(1, 46, 45, 6, token.Literal, "myExpr"),
+								},
+							},
+							RightParen: token.New(1, 52, 51, 1, token.Delimiter, ")"),
+							ConflictClause: &ast.ConflictClause{
+								On:       token.New(1, 54, 53, 2, token.KeywordOn, "ON"),
+								Conflict: token.New(1, 57, 56, 8, token.KeywordConflict, "CONFLICT"),
+								Ignore:   token.New(1, 66, 65, 6, token.KeywordIgnore, "IGNORE"),
+							},
+						},
+					},
+					RightParen: token.New(1, 72, 71, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single basic column-def and table-constraint and PRIMARY KEY with single indexed-column and conflict-clause with REPLACE`,
+			"CREATE TABLE myTable (myColumn1,PRIMARY KEY (myExpr) ON CONFLICT REPLACE)",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 9, token.Literal, "myColumn1"),
+						},
+					},
+					TableConstraint: []*ast.TableConstraint{
+						&ast.TableConstraint{
+							Primary:   token.New(1, 33, 32, 7, token.KeywordPrimary, "PRIMARY"),
+							Key:       token.New(1, 41, 40, 3, token.KeywordKey, "KEY"),
+							LeftParen: token.New(1, 45, 44, 1, token.Delimiter, "("),
+							IndexedColumn: []*ast.IndexedColumn{
+								&ast.IndexedColumn{
+									ColumnName: token.New(1, 46, 45, 6, token.Literal, "myExpr"),
+								},
+							},
+							RightParen: token.New(1, 52, 51, 1, token.Delimiter, ")"),
+							ConflictClause: &ast.ConflictClause{
+								On:       token.New(1, 54, 53, 2, token.KeywordOn, "ON"),
+								Conflict: token.New(1, 57, 56, 8, token.KeywordConflict, "CONFLICT"),
+								Replace:  token.New(1, 66, 65, 7, token.KeywordReplace, "REPLACE"),
+							},
+						},
+					},
+					RightParen: token.New(1, 73, 72, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single basic column-def and table-constraint and UNIQUE`,
+			"CREATE TABLE myTable (myColumn1,UNIQUE (myExpr))",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 9, token.Literal, "myColumn1"),
+						},
+					},
+					TableConstraint: []*ast.TableConstraint{
+						&ast.TableConstraint{
+							Unique:    token.New(1, 33, 32, 6, token.KeywordUnique, "UNIQUE"),
+							LeftParen: token.New(1, 40, 39, 1, token.Delimiter, "("),
+							IndexedColumn: []*ast.IndexedColumn{
+								&ast.IndexedColumn{
+									ColumnName: token.New(1, 41, 40, 6, token.Literal, "myExpr"),
+								},
+							},
+							RightParen: token.New(1, 47, 46, 1, token.Delimiter, ")"),
+						},
+					},
+					RightParen: token.New(1, 48, 47, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single basic column-def and table-constraint and FOREIGN KEY and single column name and basic foreign key clause`,
+			"CREATE TABLE myTable (myColumn1,FOREIGN KEY (myCol) REFERENCES myForeignTable)",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 9, token.Literal, "myColumn1"),
+						},
+					},
+					TableConstraint: []*ast.TableConstraint{
+						&ast.TableConstraint{
+							Foreign:   token.New(1, 33, 32, 7, token.KeywordForeign, "FOREIGN"),
+							Key:       token.New(1, 41, 40, 3, token.KeywordKey, "KEY"),
+							LeftParen: token.New(1, 45, 44, 1, token.Delimiter, "("),
+							ColumnName: []token.Token{
+								token.New(1, 46, 45, 5, token.Literal, "myCol"),
+							},
+							RightParen: token.New(1, 51, 50, 1, token.Delimiter, ")"),
+							ForeignKeyClause: &ast.ForeignKeyClause{
+								References:   token.New(1, 53, 52, 10, token.KeywordReferences, "REFERENCES"),
+								ForeignTable: token.New(1, 64, 63, 14, token.Literal, "myForeignTable"),
+							},
+						},
+					},
+					RightParen: token.New(1, 78, 77, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single basic column-def and table-constraint and FOREIGN KEY and multiple column name and basic foreign key clause`,
+			"CREATE TABLE myTable (myColumn1,FOREIGN KEY (myCol1,myCol2) REFERENCES myForeignTable)",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 9, token.Literal, "myColumn1"),
+						},
+					},
+					TableConstraint: []*ast.TableConstraint{
+						&ast.TableConstraint{
+							Foreign:   token.New(1, 33, 32, 7, token.KeywordForeign, "FOREIGN"),
+							Key:       token.New(1, 41, 40, 3, token.KeywordKey, "KEY"),
+							LeftParen: token.New(1, 45, 44, 1, token.Delimiter, "("),
+							ColumnName: []token.Token{
+								token.New(1, 46, 45, 6, token.Literal, "myCol1"),
+								token.New(1, 53, 52, 6, token.Literal, "myCol2"),
+							},
+							RightParen: token.New(1, 59, 58, 1, token.Delimiter, ")"),
+							ForeignKeyClause: &ast.ForeignKeyClause{
+								References:   token.New(1, 61, 60, 10, token.KeywordReferences, "REFERENCES"),
+								ForeignTable: token.New(1, 72, 71, 14, token.Literal, "myForeignTable"),
+							},
+						},
+					},
+					RightParen: token.New(1, 86, 85, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single basic column-def and table-constraint and FOREIGN KEY and single column name, foreign key clause with single column name`,
+			"CREATE TABLE myTable (myColumn1,FOREIGN KEY (myCol) REFERENCES myForeignTable (myNewCol))",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 9, token.Literal, "myColumn1"),
+						},
+					},
+					TableConstraint: []*ast.TableConstraint{
+						&ast.TableConstraint{
+							Foreign:   token.New(1, 33, 32, 7, token.KeywordForeign, "FOREIGN"),
+							Key:       token.New(1, 41, 40, 3, token.KeywordKey, "KEY"),
+							LeftParen: token.New(1, 45, 44, 1, token.Delimiter, "("),
+							ColumnName: []token.Token{
+								token.New(1, 46, 45, 5, token.Literal, "myCol"),
+							},
+							RightParen: token.New(1, 51, 50, 1, token.Delimiter, ")"),
+							ForeignKeyClause: &ast.ForeignKeyClause{
+								References:   token.New(1, 53, 52, 10, token.KeywordReferences, "REFERENCES"),
+								ForeignTable: token.New(1, 64, 63, 14, token.Literal, "myForeignTable"),
+								LeftParen:    token.New(1, 79, 78, 1, token.Delimiter, "("),
+								ColumnName: []token.Token{
+									token.New(1, 80, 79, 8, token.Literal, "myNewCol"),
+								},
+								RightParen: token.New(1, 88, 87, 1, token.Delimiter, ")"),
+							},
+						},
+					},
+					RightParen: token.New(1, 89, 88, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single basic column-def and table-constraint and FOREIGN KEY and single column name, foreign key clause with mutiple column name`,
+			"CREATE TABLE myTable (myColumn1,FOREIGN KEY (myCol) REFERENCES myForeignTable (myNewCol1,myNewCol2))",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 9, token.Literal, "myColumn1"),
+						},
+					},
+					TableConstraint: []*ast.TableConstraint{
+						&ast.TableConstraint{
+							Foreign:   token.New(1, 33, 32, 7, token.KeywordForeign, "FOREIGN"),
+							Key:       token.New(1, 41, 40, 3, token.KeywordKey, "KEY"),
+							LeftParen: token.New(1, 45, 44, 1, token.Delimiter, "("),
+							ColumnName: []token.Token{
+								token.New(1, 46, 45, 5, token.Literal, "myCol"),
+							},
+							RightParen: token.New(1, 51, 50, 1, token.Delimiter, ")"),
+							ForeignKeyClause: &ast.ForeignKeyClause{
+								References:   token.New(1, 53, 52, 10, token.KeywordReferences, "REFERENCES"),
+								ForeignTable: token.New(1, 64, 63, 14, token.Literal, "myForeignTable"),
+								LeftParen:    token.New(1, 79, 78, 1, token.Delimiter, "("),
+								ColumnName: []token.Token{
+									token.New(1, 80, 79, 9, token.Literal, "myNewCol1"),
+									token.New(1, 90, 89, 9, token.Literal, "myNewCol2"),
+								},
+								RightParen: token.New(1, 99, 98, 1, token.Delimiter, ")"),
+							},
+						},
+					},
+					RightParen: token.New(1, 100, 99, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single basic column-def and table-constraint and FOREIGN KEY and single column name and foreign key clause(fkc) with variations of fkc core - ON DELETE SET NULL`,
+			"CREATE TABLE myTable (myColumn1,FOREIGN KEY (myCol) REFERENCES myForeignTable ON DELETE SET NULL)",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 9, token.Literal, "myColumn1"),
+						},
+					},
+					TableConstraint: []*ast.TableConstraint{
+						&ast.TableConstraint{
+							Foreign:   token.New(1, 33, 32, 7, token.KeywordForeign, "FOREIGN"),
+							Key:       token.New(1, 41, 40, 3, token.KeywordKey, "KEY"),
+							LeftParen: token.New(1, 45, 44, 1, token.Delimiter, "("),
+							ColumnName: []token.Token{
+								token.New(1, 46, 45, 5, token.Literal, "myCol"),
+							},
+							RightParen: token.New(1, 51, 50, 1, token.Delimiter, ")"),
+							ForeignKeyClause: &ast.ForeignKeyClause{
+								References:   token.New(1, 53, 52, 10, token.KeywordReferences, "REFERENCES"),
+								ForeignTable: token.New(1, 64, 63, 14, token.Literal, "myForeignTable"),
+								ForeignKeyClauseCore: []*ast.ForeignKeyClauseCore{
+									&ast.ForeignKeyClauseCore{
+										On:     token.New(1, 79, 78, 2, token.KeywordOn, "ON"),
+										Delete: token.New(1, 82, 81, 6, token.KeywordDelete, "DELETE"),
+										Set:    token.New(1, 89, 88, 3, token.KeywordSet, "SET"),
+										Null:   token.New(1, 93, 92, 4, token.KeywordNull, "NULL"),
+									},
+								},
+							},
+						},
+					},
+					RightParen: token.New(1, 97, 96, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single basic column-def and table-constraint and FOREIGN KEY and single column name and foreign key clause(fkc) with variations of fkc core - ON DELETE SET DEFAULT`,
+			"CREATE TABLE myTable (myColumn1,FOREIGN KEY (myCol) REFERENCES myForeignTable ON DELETE SET DEFAULT)",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 9, token.Literal, "myColumn1"),
+						},
+					},
+					TableConstraint: []*ast.TableConstraint{
+						&ast.TableConstraint{
+							Foreign:   token.New(1, 33, 32, 7, token.KeywordForeign, "FOREIGN"),
+							Key:       token.New(1, 41, 40, 3, token.KeywordKey, "KEY"),
+							LeftParen: token.New(1, 45, 44, 1, token.Delimiter, "("),
+							ColumnName: []token.Token{
+								token.New(1, 46, 45, 5, token.Literal, "myCol"),
+							},
+							RightParen: token.New(1, 51, 50, 1, token.Delimiter, ")"),
+							ForeignKeyClause: &ast.ForeignKeyClause{
+								References:   token.New(1, 53, 52, 10, token.KeywordReferences, "REFERENCES"),
+								ForeignTable: token.New(1, 64, 63, 14, token.Literal, "myForeignTable"),
+								ForeignKeyClauseCore: []*ast.ForeignKeyClauseCore{
+									&ast.ForeignKeyClauseCore{
+										On:      token.New(1, 79, 78, 2, token.KeywordOn, "ON"),
+										Delete:  token.New(1, 82, 81, 6, token.KeywordDelete, "DELETE"),
+										Set:     token.New(1, 89, 88, 3, token.KeywordSet, "SET"),
+										Default: token.New(1, 93, 92, 7, token.KeywordDefault, "DEFAULT"),
+									},
+								},
+							},
+						},
+					},
+					RightParen: token.New(1, 100, 99, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single basic column-def and table-constraint and FOREIGN KEY and single column name and foreign key clause(fkc) with variations of fkc core - ON DELETE CASCADE`,
+			"CREATE TABLE myTable (myColumn1,FOREIGN KEY (myCol) REFERENCES myForeignTable ON DELETE CASCADE)",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 9, token.Literal, "myColumn1"),
+						},
+					},
+					TableConstraint: []*ast.TableConstraint{
+						&ast.TableConstraint{
+							Foreign:   token.New(1, 33, 32, 7, token.KeywordForeign, "FOREIGN"),
+							Key:       token.New(1, 41, 40, 3, token.KeywordKey, "KEY"),
+							LeftParen: token.New(1, 45, 44, 1, token.Delimiter, "("),
+							ColumnName: []token.Token{
+								token.New(1, 46, 45, 5, token.Literal, "myCol"),
+							},
+							RightParen: token.New(1, 51, 50, 1, token.Delimiter, ")"),
+							ForeignKeyClause: &ast.ForeignKeyClause{
+								References:   token.New(1, 53, 52, 10, token.KeywordReferences, "REFERENCES"),
+								ForeignTable: token.New(1, 64, 63, 14, token.Literal, "myForeignTable"),
+								ForeignKeyClauseCore: []*ast.ForeignKeyClauseCore{
+									&ast.ForeignKeyClauseCore{
+										On:      token.New(1, 79, 78, 2, token.KeywordOn, "ON"),
+										Delete:  token.New(1, 82, 81, 6, token.KeywordDelete, "DELETE"),
+										Cascade: token.New(1, 89, 88, 7, token.KeywordCascade, "CASCADE"),
+									},
+								},
+							},
+						},
+					},
+					RightParen: token.New(1, 96, 95, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single basic column-def and table-constraint and FOREIGN KEY and single column name and foreign key clause(fkc) with variations of fkc core - ON DELETE RESTRICT`,
+			"CREATE TABLE myTable (myColumn1,FOREIGN KEY (myCol) REFERENCES myForeignTable ON DELETE RESTRICT)",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 9, token.Literal, "myColumn1"),
+						},
+					},
+					TableConstraint: []*ast.TableConstraint{
+						&ast.TableConstraint{
+							Foreign:   token.New(1, 33, 32, 7, token.KeywordForeign, "FOREIGN"),
+							Key:       token.New(1, 41, 40, 3, token.KeywordKey, "KEY"),
+							LeftParen: token.New(1, 45, 44, 1, token.Delimiter, "("),
+							ColumnName: []token.Token{
+								token.New(1, 46, 45, 5, token.Literal, "myCol"),
+							},
+							RightParen: token.New(1, 51, 50, 1, token.Delimiter, ")"),
+							ForeignKeyClause: &ast.ForeignKeyClause{
+								References:   token.New(1, 53, 52, 10, token.KeywordReferences, "REFERENCES"),
+								ForeignTable: token.New(1, 64, 63, 14, token.Literal, "myForeignTable"),
+								ForeignKeyClauseCore: []*ast.ForeignKeyClauseCore{
+									&ast.ForeignKeyClauseCore{
+										On:       token.New(1, 79, 78, 2, token.KeywordOn, "ON"),
+										Delete:   token.New(1, 82, 81, 6, token.KeywordDelete, "DELETE"),
+										Restrict: token.New(1, 89, 88, 8, token.KeywordRestrict, "RESTRICT"),
+									},
+								},
+							},
+						},
+					},
+					RightParen: token.New(1, 97, 96, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single basic column-def and table-constraint and FOREIGN KEY and single column name and foreign key clause(fkc) with variations of fkc core - ON DELETE NO ACTION`,
+			"CREATE TABLE myTable (myColumn1,FOREIGN KEY (myCol) REFERENCES myForeignTable ON DELETE NO ACTION)",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 9, token.Literal, "myColumn1"),
+						},
+					},
+					TableConstraint: []*ast.TableConstraint{
+						&ast.TableConstraint{
+							Foreign:   token.New(1, 33, 32, 7, token.KeywordForeign, "FOREIGN"),
+							Key:       token.New(1, 41, 40, 3, token.KeywordKey, "KEY"),
+							LeftParen: token.New(1, 45, 44, 1, token.Delimiter, "("),
+							ColumnName: []token.Token{
+								token.New(1, 46, 45, 5, token.Literal, "myCol"),
+							},
+							RightParen: token.New(1, 51, 50, 1, token.Delimiter, ")"),
+							ForeignKeyClause: &ast.ForeignKeyClause{
+								References:   token.New(1, 53, 52, 10, token.KeywordReferences, "REFERENCES"),
+								ForeignTable: token.New(1, 64, 63, 14, token.Literal, "myForeignTable"),
+								ForeignKeyClauseCore: []*ast.ForeignKeyClauseCore{
+									&ast.ForeignKeyClauseCore{
+										On:     token.New(1, 79, 78, 2, token.KeywordOn, "ON"),
+										Delete: token.New(1, 82, 81, 6, token.KeywordDelete, "DELETE"),
+										No:     token.New(1, 89, 88, 2, token.KeywordNo, "NO"),
+										Action: token.New(1, 92, 91, 6, token.KeywordAction, "ACTION"),
+									},
+								},
+							},
+						},
+					},
+					RightParen: token.New(1, 98, 97, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single basic column-def and table-constraint and FOREIGN KEY and single column name and foreign key clause(fkc) with variations of fkc core - ON UPDATE NO ACTION`,
+			"CREATE TABLE myTable (myColumn1,FOREIGN KEY (myCol) REFERENCES myForeignTable ON UPDATE NO ACTION)",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 9, token.Literal, "myColumn1"),
+						},
+					},
+					TableConstraint: []*ast.TableConstraint{
+						&ast.TableConstraint{
+							Foreign:   token.New(1, 33, 32, 7, token.KeywordForeign, "FOREIGN"),
+							Key:       token.New(1, 41, 40, 3, token.KeywordKey, "KEY"),
+							LeftParen: token.New(1, 45, 44, 1, token.Delimiter, "("),
+							ColumnName: []token.Token{
+								token.New(1, 46, 45, 5, token.Literal, "myCol"),
+							},
+							RightParen: token.New(1, 51, 50, 1, token.Delimiter, ")"),
+							ForeignKeyClause: &ast.ForeignKeyClause{
+								References:   token.New(1, 53, 52, 10, token.KeywordReferences, "REFERENCES"),
+								ForeignTable: token.New(1, 64, 63, 14, token.Literal, "myForeignTable"),
+								ForeignKeyClauseCore: []*ast.ForeignKeyClauseCore{
+									&ast.ForeignKeyClauseCore{
+										On:     token.New(1, 79, 78, 2, token.KeywordOn, "ON"),
+										Update: token.New(1, 82, 81, 6, token.KeywordUpdate, "UPDATE"),
+										No:     token.New(1, 89, 88, 2, token.KeywordNo, "NO"),
+										Action: token.New(1, 92, 91, 6, token.KeywordAction, "ACTION"),
+									},
+								},
+							},
+						},
+					},
+					RightParen: token.New(1, 98, 97, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single basic column-def and table-constraint and FOREIGN KEY and single column name and foreign key clause(fkc) with variations of fkc core - ON UPDATE NO ACTION`,
+			"CREATE TABLE myTable (myColumn1,FOREIGN KEY (myCol) REFERENCES myForeignTable MATCH myMatch)",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 9, token.Literal, "myColumn1"),
+						},
+					},
+					TableConstraint: []*ast.TableConstraint{
+						&ast.TableConstraint{
+							Foreign:   token.New(1, 33, 32, 7, token.KeywordForeign, "FOREIGN"),
+							Key:       token.New(1, 41, 40, 3, token.KeywordKey, "KEY"),
+							LeftParen: token.New(1, 45, 44, 1, token.Delimiter, "("),
+							ColumnName: []token.Token{
+								token.New(1, 46, 45, 5, token.Literal, "myCol"),
+							},
+							RightParen: token.New(1, 51, 50, 1, token.Delimiter, ")"),
+							ForeignKeyClause: &ast.ForeignKeyClause{
+								References:   token.New(1, 53, 52, 10, token.KeywordReferences, "REFERENCES"),
+								ForeignTable: token.New(1, 64, 63, 14, token.Literal, "myForeignTable"),
+								ForeignKeyClauseCore: []*ast.ForeignKeyClauseCore{
+									&ast.ForeignKeyClauseCore{
+										Match: token.New(1, 79, 78, 5, token.KeywordMatch, "MATCH"),
+										Name:  token.New(1, 85, 84, 7, token.Literal, "myMatch"),
+									},
+								},
+							},
+						},
+					},
+					RightParen: token.New(1, 92, 91, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single basic column-def and table-constraint and FOREIGN KEY and single column name and foreign key clause(fkc) with multple fkc cores`,
+			"CREATE TABLE myTable (myColumn1,FOREIGN KEY (myCol) REFERENCES myForeignTable MATCH myMatch ON DELETE NO ACTION)",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 9, token.Literal, "myColumn1"),
+						},
+					},
+					TableConstraint: []*ast.TableConstraint{
+						&ast.TableConstraint{
+							Foreign:   token.New(1, 33, 32, 7, token.KeywordForeign, "FOREIGN"),
+							Key:       token.New(1, 41, 40, 3, token.KeywordKey, "KEY"),
+							LeftParen: token.New(1, 45, 44, 1, token.Delimiter, "("),
+							ColumnName: []token.Token{
+								token.New(1, 46, 45, 5, token.Literal, "myCol"),
+							},
+							RightParen: token.New(1, 51, 50, 1, token.Delimiter, ")"),
+							ForeignKeyClause: &ast.ForeignKeyClause{
+								References:   token.New(1, 53, 52, 10, token.KeywordReferences, "REFERENCES"),
+								ForeignTable: token.New(1, 64, 63, 14, token.Literal, "myForeignTable"),
+								ForeignKeyClauseCore: []*ast.ForeignKeyClauseCore{
+									&ast.ForeignKeyClauseCore{
+										Match: token.New(1, 79, 78, 5, token.KeywordMatch, "MATCH"),
+										Name:  token.New(1, 85, 84, 7, token.Literal, "myMatch"),
+									},
+									&ast.ForeignKeyClauseCore{
+										On:     token.New(1, 93, 92, 2, token.KeywordOn, "ON"),
+										Delete: token.New(1, 96, 95, 6, token.KeywordDelete, "DELETE"),
+										No:     token.New(1, 103, 102, 2, token.KeywordNo, "NO"),
+										Action: token.New(1, 106, 105, 6, token.KeywordAction, "ACTION"),
+									},
+								},
+							},
+						},
+					},
+					RightParen: token.New(1, 112, 111, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single basic column-def and table-constraint and FOREIGN KEY and single column name and foreign key clause(fkc) with DEFERRABLE`,
+			"CREATE TABLE myTable (myColumn1,FOREIGN KEY (myCol) REFERENCES myForeignTable DEFERRABLE)",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 9, token.Literal, "myColumn1"),
+						},
+					},
+					TableConstraint: []*ast.TableConstraint{
+						&ast.TableConstraint{
+							Foreign:   token.New(1, 33, 32, 7, token.KeywordForeign, "FOREIGN"),
+							Key:       token.New(1, 41, 40, 3, token.KeywordKey, "KEY"),
+							LeftParen: token.New(1, 45, 44, 1, token.Delimiter, "("),
+							ColumnName: []token.Token{
+								token.New(1, 46, 45, 5, token.Literal, "myCol"),
+							},
+							RightParen: token.New(1, 51, 50, 1, token.Delimiter, ")"),
+							ForeignKeyClause: &ast.ForeignKeyClause{
+								References:   token.New(1, 53, 52, 10, token.KeywordReferences, "REFERENCES"),
+								ForeignTable: token.New(1, 64, 63, 14, token.Literal, "myForeignTable"),
+								Deferrable:   token.New(1, 79, 78, 10, token.KeywordDeferrable, "DEFERRABLE"),
+							},
+						},
+					},
+					RightParen: token.New(1, 89, 88, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single basic column-def and table-constraint and FOREIGN KEY and single column name and foreign key clause(fkc) with NOT DEFERRABLE`,
+			"CREATE TABLE myTable (myColumn1,FOREIGN KEY (myCol) REFERENCES myForeignTable NOT DEFERRABLE)",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 9, token.Literal, "myColumn1"),
+						},
+					},
+					TableConstraint: []*ast.TableConstraint{
+						&ast.TableConstraint{
+							Foreign:   token.New(1, 33, 32, 7, token.KeywordForeign, "FOREIGN"),
+							Key:       token.New(1, 41, 40, 3, token.KeywordKey, "KEY"),
+							LeftParen: token.New(1, 45, 44, 1, token.Delimiter, "("),
+							ColumnName: []token.Token{
+								token.New(1, 46, 45, 5, token.Literal, "myCol"),
+							},
+							RightParen: token.New(1, 51, 50, 1, token.Delimiter, ")"),
+							ForeignKeyClause: &ast.ForeignKeyClause{
+								References:   token.New(1, 53, 52, 10, token.KeywordReferences, "REFERENCES"),
+								ForeignTable: token.New(1, 64, 63, 14, token.Literal, "myForeignTable"),
+								Not:          token.New(1, 79, 78, 3, token.KeywordNot, "NOT"),
+								Deferrable:   token.New(1, 83, 82, 10, token.KeywordDeferrable, "DEFERRABLE"),
+							},
+						},
+					},
+					RightParen: token.New(1, 93, 92, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single basic column-def and table-constraint and FOREIGN KEY and single column name and foreign key clause(fkc) with DEFERRABLE INITIALLY DEFERRED`,
+			"CREATE TABLE myTable (myColumn1,FOREIGN KEY (myCol) REFERENCES myForeignTable DEFERRABLE INITIALLY DEFERRED)",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 9, token.Literal, "myColumn1"),
+						},
+					},
+					TableConstraint: []*ast.TableConstraint{
+						&ast.TableConstraint{
+							Foreign:   token.New(1, 33, 32, 7, token.KeywordForeign, "FOREIGN"),
+							Key:       token.New(1, 41, 40, 3, token.KeywordKey, "KEY"),
+							LeftParen: token.New(1, 45, 44, 1, token.Delimiter, "("),
+							ColumnName: []token.Token{
+								token.New(1, 46, 45, 5, token.Literal, "myCol"),
+							},
+							RightParen: token.New(1, 51, 50, 1, token.Delimiter, ")"),
+							ForeignKeyClause: &ast.ForeignKeyClause{
+								References:   token.New(1, 53, 52, 10, token.KeywordReferences, "REFERENCES"),
+								ForeignTable: token.New(1, 64, 63, 14, token.Literal, "myForeignTable"),
+								Deferrable:   token.New(1, 79, 78, 10, token.KeywordDeferrable, "DEFERRABLE"),
+								Initially:    token.New(1, 90, 89, 9, token.KeywordInitially, "INITIALLY"),
+								Deferred:     token.New(1, 100, 99, 8, token.KeywordDeferred, "DEFERRED"),
+							},
+						},
+					},
+					RightParen: token.New(1, 108, 107, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single basic column-def and table-constraint and FOREIGN KEY and single column name and foreign key clause(fkc) with DEFERRABLE INITIALLY IMMEDIATE`,
+			"CREATE TABLE myTable (myColumn1,FOREIGN KEY (myCol) REFERENCES myForeignTable DEFERRABLE INITIALLY IMMEDIATE)",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 9, token.Literal, "myColumn1"),
+						},
+					},
+					TableConstraint: []*ast.TableConstraint{
+						&ast.TableConstraint{
+							Foreign:   token.New(1, 33, 32, 7, token.KeywordForeign, "FOREIGN"),
+							Key:       token.New(1, 41, 40, 3, token.KeywordKey, "KEY"),
+							LeftParen: token.New(1, 45, 44, 1, token.Delimiter, "("),
+							ColumnName: []token.Token{
+								token.New(1, 46, 45, 5, token.Literal, "myCol"),
+							},
+							RightParen: token.New(1, 51, 50, 1, token.Delimiter, ")"),
+							ForeignKeyClause: &ast.ForeignKeyClause{
+								References:   token.New(1, 53, 52, 10, token.KeywordReferences, "REFERENCES"),
+								ForeignTable: token.New(1, 64, 63, 14, token.Literal, "myForeignTable"),
+								Deferrable:   token.New(1, 79, 78, 10, token.KeywordDeferrable, "DEFERRABLE"),
+								Initially:    token.New(1, 90, 89, 9, token.KeywordInitially, "INITIALLY"),
+								Immediate:    token.New(1, 100, 99, 9, token.KeywordImmediate, "IMMEDIATE"),
+							},
+						},
+					},
+					RightParen: token.New(1, 109, 108, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single basic column-def`,
+			"CREATE TABLE myTable (myColumn)",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 8, token.Literal, "myColumn"),
+						},
+					},
+					RightParen: token.New(1, 31, 30, 1, token.Delimiter, ")"),
+				},
+			},
+		},
 	}
 	for _, input := range inputs {
 		t.Run(input.Name, func(t *testing.T) {

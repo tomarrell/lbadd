@@ -789,7 +789,7 @@ type (
 		Expr             *Expr
 		RightParen       token.Token
 		Default          token.Token
-		SignedNumber     token.Token
+		SignedNumber     *SignedNumber
 		LiteralValue     token.Token
 		Collate          token.Token
 		CollationName    token.Token

@@ -346,7 +346,6 @@ func (p *simpleParser) parseTypeName(r reporter) (name *ast.TypeName) {
 	} else {
 		return
 	}
-
 	return
 }
 
@@ -535,21 +534,108 @@ func (p *simpleParser) parseColumnConstraint(r reporter) (constr *ast.ColumnCons
 			// assume that the opening paren has been omitted, report the
 			// error but proceed as if it was found
 		}
-
 	case token.KeywordDefault:
 		constr.Default = next
 		p.consumeToken()
+		constr.SignedNumber = p.parseSignedNumber(r)
+		if constr.SignedNumber != nil {
+			return
+		}
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Literal {
+			constr.LiteralValue = next
+			p.consumeToken()
+		}
+		if constr.LiteralValue != nil {
+			return
+		}
 
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Delimiter && next.Value() == "(" {
+			constr.LeftParen = next
+			p.consumeToken()
+			constr.Expr = p.parseExpression(r)
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.Delimiter && next.Value() == ")" {
+				constr.RightParen = next
+				p.consumeToken()
+			} else {
+				r.unexpectedSingleRuneToken(')')
+			}
+		}
 	case token.KeywordCollate:
 		constr.Collate = next
 		p.consumeToken()
-
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Literal {
+			constr.CollationName = next
+			p.consumeToken()
+		}
+	case token.KeywordReferences:
+		constr.ForeignKeyClause = p.parseForeignKeyClause(r)
 	case token.KeywordGenerated:
 		constr.Generated = next
 		p.consumeToken()
 
-	case token.KeywordReferences:
-		constr.ForeignKeyClause = p.parseForeignKeyClause(r)
+		next, ok := p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordAlways {
+			constr.Always = next
+		}
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		fallthrough
+	case token.KeywordAs:
+		constr.As = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Delimiter && next.Value() == "(" {
+			constr.LeftParen = next
+			p.consumeToken()
+			constr.Expr = p.parseExpression(r)
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.Delimiter && next.Value() == ")" {
+				constr.RightParen = next
+				p.consumeToken()
+			} else {
+				r.unexpectedSingleRuneToken(')')
+			}
+		}
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordStored {
+			constr.Stored = next
+			p.consumeToken()
+		}
+		if next.Type() == token.KeywordVirtual {
+			constr.Stored = next
+			p.consumeToken()
+		}
 	default:
 		r.unexpectedToken(token.KeywordPrimary, token.KeywordNot, token.KeywordUnique, token.KeywordCheck, token.KeywordDefault, token.KeywordCollate, token.KeywordGenerated, token.KeywordReferences)
 	}
@@ -557,8 +643,8 @@ func (p *simpleParser) parseColumnConstraint(r reporter) (constr *ast.ColumnCons
 	return
 }
 
-// parseForeignKeyClause is not implemented yet and will always result in an
-// unsupported construct error.
+// parseForeignKeyClause parses the foreign-key-clause stmt as defined in:
+// https://sqlite.org/syntax/foreign-key-clause.html
 func (p *simpleParser) parseForeignKeyClause(r reporter) (clause *ast.ForeignKeyClause) {
 	clause = &ast.ForeignKeyClause{}
 	next, ok := p.lookahead(r)
@@ -575,95 +661,92 @@ func (p *simpleParser) parseForeignKeyClause(r reporter) (clause *ast.ForeignKey
 		if next.Type() == token.Literal {
 			clause.ForeignTable = next
 			p.consumeToken()
+		}
 
-			next, ok = p.optionalLookahead(r)
-			if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
-				return
-			}
-			if next.Type() == token.Delimiter {
-				clause.LeftParen = next
-				p.consumeToken()
-				for {
-					next, ok = p.lookahead(r)
-					if !ok {
-						return
-					}
-					if next.Type() == token.Literal {
-						clause.ColumnName = append(clause.ColumnName, next)
-						p.consumeToken()
-						next, ok = p.lookahead(r)
-						if !ok {
-							return
-						}
-						if next.Value() == "," {
-							p.consumeToken()
-						}
-						if next.Value() == ")" {
-							clause.RightParen = next
-							p.consumeToken()
-							break
-						}
-					}
-				}
-			}
-
-			next, ok = p.optionalLookahead(r)
-			if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
-				return
-			}
-			if next.Type() == token.KeywordOn || next.Type() == token.KeywordMatch {
-				for {
-					clause.ForeignKeyClauseCore = append(clause.ForeignKeyClauseCore, p.parseForeignKeyClauseCore(r))
-					next, ok = p.optionalLookahead(r)
-					if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
-						return
-					}
-					if !(next.Type() == token.KeywordOn || next.Type() == token.KeywordMatch) {
-						break
-					}
-				}
-			}
-
-			next, ok = p.optionalLookahead(r)
-			if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
-				return
-			}
-			if next.Type() == token.KeywordNot {
-				clause.Not = next
-				p.consumeToken()
-			}
-
-			next, ok = p.optionalLookahead(r)
-			if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
-				return
-			}
-			if next.Type() == token.KeywordDeferrable {
-				clause.Deferrable = next
-				p.consumeToken()
-			}
-
-			next, ok = p.optionalLookahead(r)
-			if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
-				return
-			}
-			if next.Type() == token.KeywordInitially {
-				clause.Initially = next
-				p.consumeToken()
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+			return
+		}
+		if next.Type() == token.Delimiter && next.Value() == "(" {
+			clause.LeftParen = next
+			p.consumeToken()
+			for {
 				next, ok = p.lookahead(r)
 				if !ok {
 					return
 				}
-				if next.Type() == token.KeywordImmediate {
-					clause.Immediate = next
+				if next.Type() == token.Literal {
+					clause.ColumnName = append(clause.ColumnName, next)
 					p.consumeToken()
-				} else if next.Type() == token.KeywordDeferred {
-					clause.Deferred = next
-					p.consumeToken()
+					next, ok = p.lookahead(r)
+					if !ok {
+						return
+					}
+					if next.Value() == "," {
+						p.consumeToken()
+					}
+					if next.Value() == ")" {
+						clause.RightParen = next
+						p.consumeToken()
+						break
+					}
 				}
 			}
+		}
 
-		} else {
-			r.unexpectedToken(token.Literal)
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+			return
+		}
+		if next.Type() == token.KeywordOn || next.Type() == token.KeywordMatch {
+			for {
+				clause.ForeignKeyClauseCore = append(clause.ForeignKeyClauseCore, p.parseForeignKeyClauseCore(r))
+				next, ok = p.optionalLookahead(r)
+				if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+					return
+				}
+				if !(next.Type() == token.KeywordOn || next.Type() == token.KeywordMatch) {
+					break
+				}
+			}
+		}
+
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+			return
+		}
+		if next.Type() == token.KeywordNot {
+			clause.Not = next
+			p.consumeToken()
+		}
+
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+			return
+		}
+		if next.Type() == token.KeywordDeferrable {
+			clause.Deferrable = next
+			p.consumeToken()
+		}
+
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+			return
+		}
+		if next.Type() == token.KeywordInitially {
+			clause.Initially = next
+			p.consumeToken()
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordImmediate {
+				clause.Immediate = next
+				p.consumeToken()
+			} else if next.Type() == token.KeywordDeferred {
+				clause.Deferred = next
+				p.consumeToken()
+			}
 		}
 	} else {
 		return
@@ -673,6 +756,79 @@ func (p *simpleParser) parseForeignKeyClause(r reporter) (clause *ast.ForeignKey
 
 func (p *simpleParser) parseForeignKeyClauseCore(r reporter) (stmt *ast.ForeignKeyClauseCore) {
 	stmt = &ast.ForeignKeyClauseCore{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordOn {
+		stmt.On = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordDelete {
+			stmt.Delete = next
+			p.consumeToken()
+		} else if next.Type() == token.KeywordUpdate {
+			stmt.Update = next
+			p.consumeToken()
+		}
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		switch next.Type() {
+		case token.KeywordSet:
+			stmt.Set = next
+			p.consumeToken()
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordNull {
+				stmt.Null = next
+				p.consumeToken()
+			} else if next.Type() == token.KeywordDefault {
+				stmt.Default = next
+				p.consumeToken()
+			}
+		case token.KeywordCascade:
+			stmt.Cascade = next
+			p.consumeToken()
+		case token.KeywordRestrict:
+			stmt.Restrict = next
+			p.consumeToken()
+		case token.KeywordNo:
+			stmt.No = next
+			p.consumeToken()
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordAction {
+				stmt.Action = next
+				p.consumeToken()
+			} else {
+				r.unexpectedToken(token.KeywordAction)
+			}
+		}
+
+	} else if next.Type() == token.KeywordMatch {
+		stmt.Match = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Literal {
+			stmt.Name = next
+			p.consumeToken()
+		} else {
+			r.unexpectedToken(token.Literal)
+		}
+	}
 	return
 
 }
@@ -1300,6 +1456,7 @@ func (p *simpleParser) parseIndexedColumn(r reporter) (stmt *ast.IndexedColumn) 
 }
 
 func (p *simpleParser) parseCreateTableStmt(createToken, tempToken, temporaryToken token.Token, r reporter) (stmt *ast.CreateTableStmt) {
+	stmt = &ast.CreateTableStmt{}
 	stmt.Create = createToken
 	stmt.Temp = tempToken
 	stmt.Temporary = temporaryToken
@@ -1370,6 +1527,8 @@ func (p *simpleParser) parseCreateTableStmt(createToken, tempToken, temporaryTok
 		} else {
 			r.unexpectedToken(token.Literal)
 		}
+	} else {
+		stmt.SchemaName = nil
 	}
 
 	next, ok = p.lookahead(r)
@@ -1381,32 +1540,48 @@ func (p *simpleParser) parseCreateTableStmt(createToken, tempToken, temporaryTok
 		stmt.LeftParen = next
 		p.consumeToken()
 		for {
-			stmt.ColumnDef = append(stmt.ColumnDef, p.parseColumnDef(r))
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.Literal {
+				stmt.ColumnDef = append(stmt.ColumnDef, p.parseColumnDef(r))
+			} else {
+				break
+			}
 			next, ok = p.lookahead(r)
 			if !ok {
 				return
 			}
 			if next.Value() == "," {
 				p.consumeToken()
-				tableConstraint := p.parseTableConstraint(r)
-				if tableConstraint != nil {
-					for {
-						stmt.TableConstraint = append(stmt.TableConstraint, tableConstraint)
-						next, ok = p.lookahead(r)
-						if !ok {
-							return
-						}
-						if next.Value() == "," {
-							p.consumeToken()
-						}
-						if next.Value() == ")" {
-							stmt.RightParen = next
-							break
-						}
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				for {
+					if next.Type() == token.KeywordConstraint ||
+						next.Type() == token.KeywordPrimary ||
+						next.Type() == token.KeywordUnique ||
+						next.Type() == token.KeywordCheck ||
+						next.Type() == token.KeywordForeign {
+						stmt.TableConstraint = append(stmt.TableConstraint, p.parseTableConstraint(r))
+					} else {
+						break
+					}
+					next, ok = p.lookahead(r)
+					if !ok {
+						return
+					}
+					if next.Value() == "," {
+						p.consumeToken()
+					}
+					if next.Value() == ")" {
+						stmt.RightParen = next
+						break
 					}
 				}
 			}
-
 			next, ok = p.lookahead(r)
 			if !ok {
 				return
@@ -1416,14 +1591,6 @@ func (p *simpleParser) parseCreateTableStmt(createToken, tempToken, temporaryTok
 				p.consumeToken()
 				break
 			}
-			// The ROWID fiasco
-			// next, ok = p.optionalLookahead(r)
-			// if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
-			// 	return
-			// }
-			// if next.Type() == token.KeywordWithout {
-			// 	token.Row
-			// }
 		}
 	case token.KeywordAs:
 		stmt.As = next
@@ -1965,8 +2132,8 @@ func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 
 		for {
 			stmt.ResultColumn = append(stmt.ResultColumn, p.parseResultColumn(r))
-			next, ok = p.lookahead(r)
-			if !ok {
+			next, ok = p.optionalLookahead(r)
+			if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 				return
 			}
 			if next.Value() == "," {
@@ -2993,5 +3160,140 @@ func (p *simpleParser) parseJoinOperator(r reporter) (stmt *ast.JoinOperator) {
 
 func (p *simpleParser) parseTableConstraint(r reporter) (stmt *ast.TableConstraint) {
 	stmt = &ast.TableConstraint{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordConstraint {
+		stmt.Constraint = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Literal {
+			stmt.Name = next
+			p.consumeToken()
+		} else {
+			r.unexpectedToken(token.Literal)
+		}
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordPrimary || next.Type() == token.KeywordUnique {
+		if next.Type() == token.KeywordPrimary {
+			stmt.Primary = next
+			p.consumeToken()
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordKey {
+				stmt.Key = next
+				p.consumeToken()
+			}
+		} else {
+			stmt.Unique = next
+			p.consumeToken()
+		}
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Value() == "(" {
+			stmt.LeftParen = next
+			p.consumeToken()
+		}
+		for {
+			stmt.IndexedColumn = append(stmt.IndexedColumn, p.parseIndexedColumn(r))
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == "," {
+				p.consumeToken()
+			}
+			if next.Value() == ")" {
+				stmt.RightParen = next
+				p.consumeToken()
+				break
+			}
+		}
+
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+			return
+		}
+		if next.Type() == token.KeywordOn {
+			stmt.ConflictClause = p.parseConflictClause(r)
+		}
+	} else {
+		if next.Type() == token.KeywordCheck {
+			stmt.Check = next
+			p.consumeToken()
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == "(" {
+				stmt.LeftParen = next
+				p.consumeToken()
+			}
+			stmt.Expr = p.parseExpression(r)
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == ")" {
+				stmt.RightParen = next
+				p.consumeToken()
+			}
+		}
+		if next.Type() == token.KeywordForeign {
+			stmt.Foreign = next
+			p.consumeToken()
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordKey {
+				stmt.Key = next
+				p.consumeToken()
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Value() == "(" {
+					stmt.LeftParen = next
+					p.consumeToken()
+				}
+				for {
+					next, ok = p.lookahead(r)
+					if !ok {
+						return
+					}
+					if next.Type() == token.Literal {
+						stmt.ColumnName = append(stmt.ColumnName, next)
+						p.consumeToken()
+					}
+					if next.Value() == "," {
+						p.consumeToken()
+					}
+					if next.Value() == ")" {
+						stmt.RightParen = next
+						p.consumeToken()
+						break
+					}
+				}
+				stmt.ForeignKeyClause = p.parseForeignKeyClause(r)
+			} else {
+				r.unexpectedToken(token.KeywordKey)
+			}
+		}
+	}
 	return
 }
