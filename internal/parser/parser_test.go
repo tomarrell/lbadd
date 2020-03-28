@@ -5542,8 +5542,8 @@ func TestSingleStatementParse(t *testing.T) {
 			},
 		},
 		{
-			`CREATE TABLE with single basic column-def`,
-			"CREATE TABLE myTable (myColumn)",
+			`CREATE TABLE with single column-def with column constraint NOT NULL`,
+			"CREATE TABLE myTable (myColumn CONSTRAINT myConstraint NOT NULL)",
 			&ast.SQLStmt{
 				CreateTableStmt: &ast.CreateTableStmt{
 					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
@@ -5553,9 +5553,392 @@ func TestSingleStatementParse(t *testing.T) {
 					ColumnDef: []*ast.ColumnDef{
 						&ast.ColumnDef{
 							ColumnName: token.New(1, 23, 22, 8, token.Literal, "myColumn"),
+							ColumnConstraint: []*ast.ColumnConstraint{
+								&ast.ColumnConstraint{
+									Constraint: token.New(1, 32, 31, 10, token.KeywordConstraint, "CONSTRAINT"),
+									Name:       token.New(1, 43, 42, 12, token.Literal, "myConstraint"),
+									Not:        token.New(1, 56, 55, 3, token.KeywordNot, "NOT"),
+									Null:       token.New(1, 60, 59, 4, token.KeywordNull, "NULL"),
+								},
+							},
 						},
 					},
-					RightParen: token.New(1, 31, 30, 1, token.Delimiter, ")"),
+					RightParen: token.New(1, 64, 63, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single column-def with column constraint UNIQUE`,
+			"CREATE TABLE myTable (myColumn CONSTRAINT myConstraint UNIQUE)",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 8, token.Literal, "myColumn"),
+							ColumnConstraint: []*ast.ColumnConstraint{
+								&ast.ColumnConstraint{
+									Constraint: token.New(1, 32, 31, 10, token.KeywordConstraint, "CONSTRAINT"),
+									Name:       token.New(1, 43, 42, 12, token.Literal, "myConstraint"),
+									Unique:     token.New(1, 56, 55, 6, token.KeywordUnique, "UNIQUE"),
+								},
+							},
+						},
+					},
+					RightParen: token.New(1, 62, 61, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single column-def with column constraint CHECK`,
+			"CREATE TABLE myTable (myColumn CONSTRAINT myConstraint CHECK (myExpr))",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 8, token.Literal, "myColumn"),
+							ColumnConstraint: []*ast.ColumnConstraint{
+								&ast.ColumnConstraint{
+									Constraint: token.New(1, 32, 31, 10, token.KeywordConstraint, "CONSTRAINT"),
+									Name:       token.New(1, 43, 42, 12, token.Literal, "myConstraint"),
+									Check:      token.New(1, 56, 55, 5, token.KeywordCheck, "CHECK"),
+									LeftParen:  token.New(1, 62, 61, 1, token.Delimiter, "("),
+									Expr: &ast.Expr{
+										LiteralValue: token.New(1, 63, 62, 6, token.Literal, "myExpr"),
+									},
+									RightParen: token.New(1, 69, 68, 1, token.Delimiter, ")"),
+								},
+							},
+						},
+					},
+					RightParen: token.New(1, 70, 69, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single column-def with column constraint COLLATE`,
+			"CREATE TABLE myTable (myColumn COLLATE myCollation)",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 8, token.Literal, "myColumn"),
+							ColumnConstraint: []*ast.ColumnConstraint{
+								&ast.ColumnConstraint{
+									Collate:       token.New(1, 32, 31, 7, token.KeywordCollate, "COLLATE"),
+									CollationName: token.New(1, 40, 39, 11, token.Literal, "myCollation"),
+								},
+							},
+						},
+					},
+					RightParen: token.New(1, 51, 50, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single column-def with column constraint fkc`,
+			"CREATE TABLE myTable (myColumn REFERENCES myForeignTable)",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 8, token.Literal, "myColumn"),
+							ColumnConstraint: []*ast.ColumnConstraint{
+								&ast.ColumnConstraint{
+									ForeignKeyClause: &ast.ForeignKeyClause{
+										References:   token.New(1, 32, 31, 10, token.KeywordReferences, "REFERENCES"),
+										ForeignTable: token.New(1, 43, 42, 14, token.Literal, "myForeignTable"),
+									},
+								},
+							},
+						},
+					},
+					RightParen: token.New(1, 57, 56, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single column-def with column constraint PRIMARY KEY basic`,
+			"CREATE TABLE myTable (myColumn PRIMARY KEY)",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 8, token.Literal, "myColumn"),
+							ColumnConstraint: []*ast.ColumnConstraint{
+								&ast.ColumnConstraint{
+									Primary: token.New(1, 32, 31, 7, token.KeywordPrimary, "PRIMARY"),
+									Key:     token.New(1, 40, 39, 3, token.KeywordKey, "KEY"),
+								},
+							},
+						},
+					},
+					RightParen: token.New(1, 43, 42, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single column-def with column constraint PRIMARY KEY with ASC and AUTOINCREMENT`,
+			"CREATE TABLE myTable (myColumn PRIMARY KEY ASC AUTOINCREMENT)",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 8, token.Literal, "myColumn"),
+							ColumnConstraint: []*ast.ColumnConstraint{
+								&ast.ColumnConstraint{
+									Primary:       token.New(1, 32, 31, 7, token.KeywordPrimary, "PRIMARY"),
+									Key:           token.New(1, 40, 39, 3, token.KeywordKey, "KEY"),
+									Asc:           token.New(1, 44, 43, 3, token.KeywordAsc, "ASC"),
+									Autoincrement: token.New(1, 48, 47, 13, token.KeywordAutoincrement, "AUTOINCREMENT"),
+								},
+							},
+						},
+					},
+					RightParen: token.New(1, 61, 60, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single column-def with column constraint PRIMARY KEY with DESC and AUTOINCREMENT`,
+			"CREATE TABLE myTable (myColumn PRIMARY KEY DESC AUTOINCREMENT)",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 8, token.Literal, "myColumn"),
+							ColumnConstraint: []*ast.ColumnConstraint{
+								&ast.ColumnConstraint{
+									Primary:       token.New(1, 32, 31, 7, token.KeywordPrimary, "PRIMARY"),
+									Key:           token.New(1, 40, 39, 3, token.KeywordKey, "KEY"),
+									Desc:          token.New(1, 44, 43, 4, token.KeywordDesc, "DESC"),
+									Autoincrement: token.New(1, 49, 48, 13, token.KeywordAutoincrement, "AUTOINCREMENT"),
+								},
+							},
+						},
+					},
+					RightParen: token.New(1, 62, 61, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single column-def with column constraint GENERATED ALWAYS and AS`,
+			"CREATE TABLE myTable (myColumn GENERATED ALWAYS AS (myExpr))",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 8, token.Literal, "myColumn"),
+							ColumnConstraint: []*ast.ColumnConstraint{
+								&ast.ColumnConstraint{
+									Generated: token.New(1, 32, 31, 9, token.KeywordGenerated, "GENERATED"),
+									Always:    token.New(1, 42, 41, 6, token.KeywordAlways, "ALWAYS"),
+									As:        token.New(1, 49, 48, 2, token.KeywordAs, "AS"),
+									LeftParen: token.New(1, 52, 51, 1, token.Delimiter, "("),
+									Expr: &ast.Expr{
+										LiteralValue: token.New(1, 53, 52, 6, token.Literal, "myExpr"),
+									},
+									RightParen: token.New(1, 59, 58, 1, token.Delimiter, ")"),
+								},
+							},
+						},
+					},
+					RightParen: token.New(1, 60, 59, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single column-def with column constraint AS and STORED`,
+			"CREATE TABLE myTable (myColumn AS (myExpr) STORED)",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 8, token.Literal, "myColumn"),
+							ColumnConstraint: []*ast.ColumnConstraint{
+								&ast.ColumnConstraint{
+									As:        token.New(1, 32, 31, 2, token.KeywordAs, "AS"),
+									LeftParen: token.New(1, 35, 34, 1, token.Delimiter, "("),
+									Expr: &ast.Expr{
+										LiteralValue: token.New(1, 36, 35, 6, token.Literal, "myExpr"),
+									},
+									RightParen: token.New(1, 42, 41, 1, token.Delimiter, ")"),
+									Stored:     token.New(1, 44, 43, 6, token.KeywordStored, "STORED"),
+								},
+							},
+						},
+					},
+					RightParen: token.New(1, 50, 49, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single column-def with column constraint AS and VIRTUAL`,
+			"CREATE TABLE myTable (myColumn AS (myExpr) VIRTUAL)",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 8, token.Literal, "myColumn"),
+							ColumnConstraint: []*ast.ColumnConstraint{
+								&ast.ColumnConstraint{
+									As:        token.New(1, 32, 31, 2, token.KeywordAs, "AS"),
+									LeftParen: token.New(1, 35, 34, 1, token.Delimiter, "("),
+									Expr: &ast.Expr{
+										LiteralValue: token.New(1, 36, 35, 6, token.Literal, "myExpr"),
+									},
+									RightParen: token.New(1, 42, 41, 1, token.Delimiter, ")"),
+									Virtual:    token.New(1, 44, 43, 7, token.KeywordVirtual, "VIRTUAL"),
+								},
+							},
+						},
+					},
+					RightParen: token.New(1, 51, 50, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single column-def with column constraint DEFAULT and expr`,
+			"CREATE TABLE myTable (myColumn DEFAULT (myExpr))",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 8, token.Literal, "myColumn"),
+							ColumnConstraint: []*ast.ColumnConstraint{
+								&ast.ColumnConstraint{
+									Default:   token.New(1, 32, 31, 7, token.KeywordDefault, "DEFAULT"),
+									LeftParen: token.New(1, 40, 39, 1, token.Delimiter, "("),
+									Expr: &ast.Expr{
+										LiteralValue: token.New(1, 41, 40, 6, token.Literal, "myExpr"),
+									},
+									RightParen: token.New(1, 47, 46, 1, token.Delimiter, ")"),
+								},
+							},
+						},
+					},
+					RightParen: token.New(1, 48, 47, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single column-def with column constraint DEFAULT and positive signed number 1`,
+			"CREATE TABLE myTable (myColumn DEFAULT +91)",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 8, token.Literal, "myColumn"),
+							ColumnConstraint: []*ast.ColumnConstraint{
+								&ast.ColumnConstraint{
+									Default: token.New(1, 32, 31, 7, token.KeywordDefault, "DEFAULT"),
+									SignedNumber: &ast.SignedNumber{
+										Sign:           token.New(1, 40, 39, 1, token.UnaryOperator, "+"),
+										NumericLiteral: token.New(1, 41, 40, 2, token.Literal, "91"),
+									},
+								},
+							},
+						},
+					},
+					RightParen: token.New(1, 43, 42, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single column-def with column constraint DEFAULT and negative signed number 1`,
+			"CREATE TABLE myTable (myColumn DEFAULT -91)",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 8, token.Literal, "myColumn"),
+							ColumnConstraint: []*ast.ColumnConstraint{
+								&ast.ColumnConstraint{
+									Default: token.New(1, 32, 31, 7, token.KeywordDefault, "DEFAULT"),
+									SignedNumber: &ast.SignedNumber{
+										Sign:           token.New(1, 40, 39, 1, token.UnaryOperator, "-"),
+										NumericLiteral: token.New(1, 41, 40, 2, token.Literal, "91"),
+									},
+								},
+							},
+						},
+					},
+					RightParen: token.New(1, 43, 42, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE TABLE with single column-def with column constraint DEFAULT and negative signed number 1`,
+			"CREATE TABLE myTable (myColumn DEFAULT myLiteral)",
+			&ast.SQLStmt{
+				CreateTableStmt: &ast.CreateTableStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Table:     token.New(1, 8, 7, 5, token.KeywordTable, "TABLE"),
+					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
+					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
+					ColumnDef: []*ast.ColumnDef{
+						&ast.ColumnDef{
+							ColumnName: token.New(1, 23, 22, 8, token.Literal, "myColumn"),
+							ColumnConstraint: []*ast.ColumnConstraint{
+								&ast.ColumnConstraint{
+									Default:      token.New(1, 32, 31, 7, token.KeywordDefault, "DEFAULT"),
+									LiteralValue: token.New(1, 40, 39, 9, token.Literal, "myLiteral"),
+								},
+							},
+						},
+					},
+					RightParen: token.New(1, 49, 48, 1, token.Delimiter, ")"),
 				},
 			},
 		},

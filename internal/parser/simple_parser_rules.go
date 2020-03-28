@@ -282,6 +282,7 @@ func (p *simpleParser) parseColumnDef(r reporter) (def *ast.ColumnDef) {
 				next.Type() == token.KeywordDefault ||
 				next.Type() == token.KeywordCollate ||
 				next.Type() == token.KeywordGenerated ||
+				next.Type() == token.KeywordAs ||
 				next.Type() == token.KeywordReferences {
 				def.ColumnConstraint = append(def.ColumnConstraint, p.parseColumnConstraint(r))
 			} else {
@@ -537,10 +538,18 @@ func (p *simpleParser) parseColumnConstraint(r reporter) (constr *ast.ColumnCons
 	case token.KeywordDefault:
 		constr.Default = next
 		p.consumeToken()
-		constr.SignedNumber = p.parseSignedNumber(r)
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.UnaryOperator { //} || next.Type() == token.NumericLiteral {
+			constr.SignedNumber = p.parseSignedNumber(r)
+		}
+		// Only either of the 3 cases can exist, thus, if one of the cases is found, return.
 		if constr.SignedNumber != nil {
 			return
 		}
+
 		next, ok = p.lookahead(r)
 		if !ok {
 			return
@@ -595,16 +604,18 @@ func (p *simpleParser) parseColumnConstraint(r reporter) (constr *ast.ColumnCons
 		}
 		if next.Type() == token.KeywordAlways {
 			constr.Always = next
+			p.consumeToken()
 		}
-
+		fallthrough
+	case token.KeywordAs:
 		next, ok = p.lookahead(r)
 		if !ok {
 			return
 		}
-		fallthrough
-	case token.KeywordAs:
-		constr.As = next
-		p.consumeToken()
+		if next.Type() == token.KeywordAs {
+			constr.As = next
+			p.consumeToken()
+		}
 		next, ok = p.lookahead(r)
 		if !ok {
 			return
@@ -633,13 +644,12 @@ func (p *simpleParser) parseColumnConstraint(r reporter) (constr *ast.ColumnCons
 			p.consumeToken()
 		}
 		if next.Type() == token.KeywordVirtual {
-			constr.Stored = next
+			constr.Virtual = next
 			p.consumeToken()
 		}
 	default:
-		r.unexpectedToken(token.KeywordPrimary, token.KeywordNot, token.KeywordUnique, token.KeywordCheck, token.KeywordDefault, token.KeywordCollate, token.KeywordGenerated, token.KeywordReferences)
+		r.unexpectedToken(token.KeywordPrimary, token.KeywordNot, token.KeywordUnique, token.KeywordCheck, token.KeywordDefault, token.KeywordCollate, token.KeywordGenerated, token.KeywordAs, token.KeywordReferences)
 	}
-
 	return
 }
 
