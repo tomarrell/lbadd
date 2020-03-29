@@ -14,3 +14,6 @@ We have to test for the following basic failures:
 3. Overloading peer.
 4. Corruption of data in transit.
 
+## Graceful handling of failures
+
+Accepting failures exist and handling them gracefully enables creation of more resilient and stabler systems. Having _circuit breakers_, _backoff mechanisms in clients_ and _validation and coordination mechanisms_ are some of the pointers to be followed. 
