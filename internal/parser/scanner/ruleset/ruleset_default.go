@@ -241,7 +241,7 @@ func defaultNumericLiteralRule(s RuneScanner) (token.Type, bool) {
 		// loop consumes only hexadecimals of form `0xNUMBER`. Since all other cases
 		// are not consumed, the `LookAhead` below, gets the previous rune conveniently.
 		next, ok := s.Lookahead()
-		// continue on cases where the decimal point/exponent/exponent operator is already not found or not this particular rune.
+		// continue in case the decimal point/exponent/exponent operator is already not found or not this particular rune.
 		if !(ok && (defaultNumericLiteral.Matches(next) || (!decimalPointFlag && defaultDecimalPoint.Matches(next)) || (!exponentFlag && defaultExponent.Matches(next)) || (!exponentOperatorFlag && defaultExponentOperator.Matches(next)))) {
 			break
 		}
@@ -271,7 +271,7 @@ func defaultNumericLiteralRule(s RuneScanner) (token.Type, bool) {
 		}
 		s.ConsumeRune()
 	}
-	// This cases checks for "." passing as numericLiterals
+	// This case checks for "." passing as numericLiterals
 	if decimalPointFlag && !numericLiteralFlag {
 		return token.Unknown, false
 	}
