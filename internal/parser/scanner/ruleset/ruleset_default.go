@@ -250,5 +250,5 @@ func defaultNumericLiteralRule(s RuneScanner) (token.Type, bool) {
 		}
 		s.ConsumeRune()
 	}
-	return token.Literal, true
+	return token.LiteralNumeric, true
 }
