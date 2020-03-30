@@ -15,6 +15,6 @@ type Executor interface {
 }
 
 // New creates a new, ready to use Executor.
-func New(log zerolog.Logger) Executor {
-	return newSimpleExecutor(log)
+func New(log zerolog.Logger, databaseFile string) Executor {
+	return newSimpleExecutor(log, databaseFile)
 }

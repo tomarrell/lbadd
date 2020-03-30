@@ -3,9 +3,11 @@ module github.com/tomarrell/lbadd
 go 1.13
 
 require (
+	github.com/awnumar/memguard v0.22.1
 	github.com/google/go-cmp v0.4.0
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/rs/zerolog v1.18.0
+	github.com/spf13/afero v1.1.2
 	github.com/spf13/cobra v0.0.6
 	github.com/stretchr/testify v1.4.0
 	golang.org/x/text v0.3.2
