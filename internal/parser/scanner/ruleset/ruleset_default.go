@@ -271,7 +271,7 @@ func defaultNumericLiteralRule(s RuneScanner) (token.Type, bool) {
 		}
 		s.ConsumeRune()
 	}
-	// This cases checks for "." passing as numericLiterals
+	// This case checks for "." passing as numericLiterals
 	if decimalPointFlag && !numericLiteralFlag {
 		return token.Unknown, false
 	}
