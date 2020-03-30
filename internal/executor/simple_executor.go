@@ -10,12 +10,14 @@ import (
 var _ Executor = (*simpleExecutor)(nil)
 
 type simpleExecutor struct {
-	log zerolog.Logger
+	log          zerolog.Logger
+	databaseFile string
 }
 
-func newSimpleExecutor(log zerolog.Logger) *simpleExecutor {
+func newSimpleExecutor(log zerolog.Logger, databaseFile string) *simpleExecutor {
 	return &simpleExecutor{
-		log: log,
+		log:          log,
+		databaseFile: databaseFile,
 	}
 }
 
