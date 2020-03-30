@@ -98,6 +98,8 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 	return
 }
 
+// parseAlterTableStmt parses the alter-table stmt as defined in:
+// https://sqlite.org/lang_altertable.html
 func (p *simpleParser) parseAlterTableStmt(r reporter) (stmt *ast.AlterTableStmt) {
 	stmt = &ast.AlterTableStmt{}
 
@@ -258,6 +260,8 @@ func (p *simpleParser) parseAlterTableStmt(r reporter) (stmt *ast.AlterTableStmt
 	return
 }
 
+// parseColumnDef parses the column-def stmt as defined in:
+// https://sqlite.org/syntax/column-def.html
 func (p *simpleParser) parseColumnDef(r reporter) (def *ast.ColumnDef) {
 	def = &ast.ColumnDef{}
 
@@ -293,6 +297,8 @@ func (p *simpleParser) parseColumnDef(r reporter) (def *ast.ColumnDef) {
 	return
 }
 
+// parseTypeName parses the type-name stmt as defined in:
+// https://sqlite.org/syntax/type-name.html
 func (p *simpleParser) parseTypeName(r reporter) (name *ast.TypeName) {
 	name = &ast.TypeName{}
 
@@ -350,6 +356,8 @@ func (p *simpleParser) parseTypeName(r reporter) (name *ast.TypeName) {
 	return
 }
 
+// parseSignedNumber parses the signed-number stmt as defined in:
+// https://sqlite.org/syntax/signed-number.html
 func (p *simpleParser) parseSignedNumber(r reporter) (num *ast.SignedNumber) {
 	num = &ast.SignedNumber{}
 
@@ -381,6 +389,8 @@ func (p *simpleParser) parseSignedNumber(r reporter) (num *ast.SignedNumber) {
 	return
 }
 
+// parseColumnConstraint parses the column-constraint stmt as defined in:
+// https://sqlite.org/syntax/column-constraint.html
 func (p *simpleParser) parseColumnConstraint(r reporter) (constr *ast.ColumnConstraint) {
 	constr = &ast.ColumnConstraint{}
 
@@ -700,6 +710,8 @@ func (p *simpleParser) parseForeignKeyClause(r reporter) (clause *ast.ForeignKey
 						p.consumeToken()
 						break
 					}
+				} else {
+					break
 				}
 			}
 		}
@@ -708,16 +720,15 @@ func (p *simpleParser) parseForeignKeyClause(r reporter) (clause *ast.ForeignKey
 		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 			return
 		}
-		if next.Type() == token.KeywordOn || next.Type() == token.KeywordMatch {
-			for {
+		for {
+			if next.Type() == token.KeywordOn || next.Type() == token.KeywordMatch {
 				clause.ForeignKeyClauseCore = append(clause.ForeignKeyClauseCore, p.parseForeignKeyClauseCore(r))
-				next, ok = p.optionalLookahead(r)
-				if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
-					return
-				}
-				if !(next.Type() == token.KeywordOn || next.Type() == token.KeywordMatch) {
-					break
-				}
+			} else {
+				break
+			}
+			next, ok = p.optionalLookahead(r)
+			if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+				return
 			}
 		}
 
@@ -843,6 +854,8 @@ func (p *simpleParser) parseForeignKeyClauseCore(r reporter) (stmt *ast.ForeignK
 
 }
 
+// parseConflictClause parses conflict-clause stmt as defined in:
+// https://sqlite.org/syntax/conflict-clause.html
 func (p *simpleParser) parseConflictClause(r reporter) (clause *ast.ConflictClause) {
 	clause = &ast.ConflictClause{}
 
@@ -1705,7 +1718,13 @@ func (p *simpleParser) parseWithClause(r reporter) (withClause *ast.WithClause) 
 		p.consumeToken()
 	}
 	for {
-		withClause.RecursiveCte = append(withClause.RecursiveCte, p.parseRecursiveCte(r))
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Literal {
+			withClause.RecursiveCte = append(withClause.RecursiveCte, p.parseRecursiveCte(r))
+		}
 		next, ok = p.lookahead(r)
 		if !ok {
 			return
@@ -1765,8 +1784,10 @@ func (p *simpleParser) parseCteTableName(r reporter) (cteTableName *ast.CteTable
 	if !ok {
 		return
 	}
-	cteTableName.TableName = next
-	p.consumeToken()
+	if next.Type() == token.Literal {
+		cteTableName.TableName = next
+		p.consumeToken()
+	}
 
 	next, ok = p.optionalLookahead(r)
 	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
@@ -1785,6 +1806,7 @@ func (p *simpleParser) parseCteTableName(r reporter) (cteTableName *ast.CteTable
 				p.consumeToken()
 			} else {
 				r.unexpectedToken(token.Literal)
+				break
 			}
 
 			next, ok = p.lookahead(r)
@@ -1828,43 +1850,40 @@ func (p *simpleParser) parseSelectStmt(r reporter) (stmt *ast.SelectStmt) {
 			stmt.Recursive = next
 			p.consumeToken()
 		}
-		next, ok = p.lookahead(r)
-		if !ok {
-			return
-		}
-		if next.Type() == token.Literal {
-			for {
-				stmt.CommonTableExpression = append(stmt.CommonTableExpression, p.parseCommonTableExpression(r))
-				next, ok = p.lookahead(r)
-				if !ok {
-					return
-				}
-				if next.Value() == "," {
-					p.consumeToken()
-				} else {
-					break
-				}
+
+		for {
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
 			}
-		} else {
-			r.unexpectedToken(token.Literal)
+			if next.Type() == token.Literal {
+				stmt.CommonTableExpression = append(stmt.CommonTableExpression, p.parseCommonTableExpression(r))
+			} else {
+				break
+			}
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Value() == "," {
+				p.consumeToken()
+			} else {
+				break
+			}
 		}
 	}
 
-	next, ok = p.lookahead(r)
-	if !ok {
-		return
-	}
 	// Keep looping and searching for the select core until its exhausted.
 	// We are sure that a select core starts here as its the type of stmt we expect.
 	for {
-		if !(next.Type() == token.KeywordSelect || next.Type() == token.KeywordValues) {
-			break
-		}
-		stmt.SelectCore = append(stmt.SelectCore, p.parseSelectCore(r))
-
 		next, ok = p.optionalLookahead(r)
 		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 			return
+		}
+		if next.Type() == token.KeywordSelect || next.Type() == token.KeywordValues {
+			stmt.SelectCore = append(stmt.SelectCore, p.parseSelectCore(r))
+		} else {
+			break
 		}
 	}
 
@@ -2454,6 +2473,10 @@ func (p *simpleParser) parseWindowDefn(r reporter) (stmt *ast.WindowDefn) {
 		} else {
 			r.unexpectedToken(token.KeywordBy)
 		}
+		// possible area of error
+		// When there are statements that arent parsed by ordering term, they might loop here forever.
+		// Fix might be to check for expr existing in the beginning, which is not possible due to the
+		// vastness of expr.
 		for {
 			stmt.OrderingTerm = append(stmt.OrderingTerm, p.parseOrderingTerm(r))
 			next, ok = p.lookahead(r)
