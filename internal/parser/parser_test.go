@@ -78,7 +78,7 @@ func TestSingleStatementParse(t *testing.T) {
 							},
 							LeftParen: token.New(1, 41, 40, 1, token.Delimiter, "("),
 							SignedNumber1: &ast.SignedNumber{
-								NumericLiteral: token.New(1, 42, 41, 2, token.Literal, "15"),
+								NumericLiteral: token.New(1, 42, 41, 2, token.LiteralNumeric, "15"),
 							},
 							RightParen: token.New(1, 44, 43, 1, token.Delimiter, ")"),
 						},
@@ -118,7 +118,7 @@ func TestSingleStatementParse(t *testing.T) {
 							},
 							LeftParen: token.New(1, 34, 33, 1, token.Delimiter, "("),
 							SignedNumber1: &ast.SignedNumber{
-								NumericLiteral: token.New(1, 35, 34, 2, token.Literal, "15"),
+								NumericLiteral: token.New(1, 35, 34, 2, token.LiteralNumeric, "15"),
 							},
 							RightParen: token.New(1, 37, 36, 1, token.Delimiter, ")"),
 						},
@@ -5881,7 +5881,7 @@ func TestSingleStatementParse(t *testing.T) {
 									Default: token.New(1, 32, 31, 7, token.KeywordDefault, "DEFAULT"),
 									SignedNumber: &ast.SignedNumber{
 										Sign:           token.New(1, 40, 39, 1, token.UnaryOperator, "+"),
-										NumericLiteral: token.New(1, 41, 40, 2, token.Literal, "91"),
+										NumericLiteral: token.New(1, 41, 40, 2, token.LiteralNumeric, "91"),
 									},
 								},
 							},
@@ -5908,7 +5908,7 @@ func TestSingleStatementParse(t *testing.T) {
 									Default: token.New(1, 32, 31, 7, token.KeywordDefault, "DEFAULT"),
 									SignedNumber: &ast.SignedNumber{
 										Sign:           token.New(1, 40, 39, 1, token.UnaryOperator, "-"),
-										NumericLiteral: token.New(1, 41, 40, 2, token.Literal, "91"),
+										NumericLiteral: token.New(1, 41, 40, 2, token.LiteralNumeric, "91"),
 									},
 								},
 							},

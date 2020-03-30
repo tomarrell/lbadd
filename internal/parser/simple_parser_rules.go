@@ -374,16 +374,16 @@ func (p *simpleParser) parseSignedNumber(r reporter) (num *ast.SignedNumber) {
 		if !ok {
 			return
 		}
-		if next.Type() != token.Literal {
-			r.unexpectedToken(token.Literal)
+		if next.Type() != token.LiteralNumeric {
+			r.unexpectedToken(token.LiteralNumeric)
 			return
 		}
 		fallthrough
-	case token.Literal:
+	case token.LiteralNumeric:
 		num.NumericLiteral = next
 		p.consumeToken()
 	default:
-		r.unexpectedToken(token.UnaryOperator, token.Literal)
+		r.unexpectedToken(token.UnaryOperator, token.LiteralNumeric)
 		return
 	}
 	return
@@ -552,7 +552,7 @@ func (p *simpleParser) parseColumnConstraint(r reporter) (constr *ast.ColumnCons
 		if !ok {
 			return
 		}
-		if next.Type() == token.UnaryOperator { //} || next.Type() == token.NumericLiteral {
+		if next.Type() == token.UnaryOperator || next.Type() == token.LiteralNumeric {
 			constr.SignedNumber = p.parseSignedNumber(r)
 		}
 		// Only either of the 3 cases can exist, thus, if one of the cases is found, return.
@@ -1431,6 +1431,8 @@ func (p *simpleParser) parseCreateIndexStmt(createToken token.Token, r reporter)
 	return
 }
 
+// parseIndexedColumn parses the indexed-column statement as defined in:
+// https://sqlite.org/syntax/indexed-column.html
 func (p *simpleParser) parseIndexedColumn(r reporter) (stmt *ast.IndexedColumn) {
 	stmt = &ast.IndexedColumn{}
 	next, ok := p.lookahead(r)
@@ -2980,8 +2982,17 @@ func (p *simpleParser) parseTableOrSubquery(r reporter) (stmt *ast.TableOrSubque
 			stmt.JoinClause = p.parseJoinClause(r)
 			if stmt.JoinClause == nil {
 				for {
-					stmt.TableOrSubquery = append(stmt.TableOrSubquery, p.parseTableOrSubquery(r))
 					next, ok := p.lookahead(r)
+					if !ok {
+						return
+					}
+					if next.Type() == token.Delimiter || next.Type() == token.Literal {
+						stmt.TableOrSubquery = append(stmt.TableOrSubquery, p.parseTableOrSubquery(r))
+					} else {
+						break
+					}
+
+					next, ok = p.lookahead(r)
 					if !ok {
 						return
 					}
@@ -3047,10 +3058,16 @@ func (p *simpleParser) parseJoinClause(r reporter) (stmt *ast.JoinClause) {
 		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 			return
 		}
-		if !((next.Type() == token.KeywordNatural) || (next.Type() == token.KeywordJoin) || (next.Value() == ",") || (next.Type() == token.KeywordLeft) || (next.Type() == token.KeywordInner) || (next.Type() == token.KeywordCross)) {
+		if next.Type() == token.KeywordNatural ||
+			next.Type() == token.KeywordJoin ||
+			next.Value() == "," ||
+			next.Type() == token.KeywordLeft ||
+			next.Type() == token.KeywordInner ||
+			next.Type() == token.KeywordCross {
+			stmt.JoinClausePart = p.parseJoinClausePart(r)
+		} else {
 			break
 		}
-		stmt.JoinClausePart = p.parseJoinClausePart(r)
 	}
 	return
 }

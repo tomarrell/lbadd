@@ -194,7 +194,7 @@ func TestRuleBasedScanner(t *testing.T) {
 				token.New(1, 1, 0, 9, token.LiteralNumeric, "11.672E19"),
 				token.New(1, 11, 10, 10, token.LiteralNumeric, "11.672E+19"),
 				token.New(1, 22, 21, 2, token.Literal, "11"),
-				token.New(1, 24, 23, 1, token.Error, "unexpected token: '.' at offset 23"),
+				token.New(1, 24, 23, 1, token.Literal, "."),
 				token.New(1, 25, 24, 7, token.Literal, "657EE19"),
 				token.New(1, 33, 32, 10, token.LiteralNumeric, "0xCAFEBABE"),
 				token.New(1, 44, 43, 6, token.LiteralNumeric, "2.5E-1"),
@@ -278,7 +278,6 @@ func _TestRuleBasedScannerWithRuleset(input string, ruleset ruleset.Ruleset, wan
 		if len(got) < limit {
 			limit = len(got)
 		}
-
 		for i := 0; i < limit; i++ {
 			assert.Equal(want[i].Line(), got[i].Line(), "Line doesn't match")
 			assert.Equal(want[i].Col(), got[i].Col(), "Col doesn't match")
