@@ -213,10 +213,23 @@ func defaultNumericLiteralRule(s RuneScanner) (token.Type, bool) {
 			}
 			if next == 'x' {
 				s.ConsumeRune()
-				return defaultUnquotedLiteralRule(s)
+				if next, ok := s.Lookahead(); !(ok && defaultLiteral.Matches(next)) {
+					return token.Unknown, false
+				}
+				s.ConsumeRune()
+
+				for {
+					next, ok := s.Lookahead()
+					if !(ok && defaultLiteral.Matches(next)) {
+						break
+					}
+					s.ConsumeRune()
+				}
+				return token.LiteralNumeric, true
 			}
 		}
 	}
+
 	for {
 		// in the above case, if there was a `0.34` as a part of the string to read,
 		// the loop would have broken without consuming the rune; because the above
