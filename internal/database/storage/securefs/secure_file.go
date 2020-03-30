@@ -170,7 +170,8 @@ func (f *secureFile) Sync() error {
 	if err = f.file.Truncate(0); err != nil {
 		return fmt.Errorf("truncate: %w", err)
 	}
-	// Truncate alone doesn't work for memory files, see https://github.com/spf13/afero/issues/235
+	// Truncate alone doesn't work for, golang doesn't touch the file position
+	// indicator on truncate at all
 	_, err = f.file.Seek(0, io.SeekStart)
 	if err != nil {
 		return fmt.Errorf("seek: %w", err)
