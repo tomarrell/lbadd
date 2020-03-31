@@ -14,6 +14,27 @@ A raft server may be in any of the 3 states; leader, follower or candidate. All 
 2. Log Replication
 3. Safety
 
+A detailed description of all the modules follow:
+
+### Leader Election
+* Startup: All servers start in the follower state and begin by requesting votes to be elected as a leader.
+* Pre-election: The server increments its `currentTerm` by one, changes to `candidate` state and sends out `RequestVotes` RPC parallely to all the peers. 
+* Vote condition: FCFS basis. If there was no request to the server, it votes for itself (read 3.6 and clear out when to vote for itself)
+* Election timeout: A preset time for which the server waits to see if a peer requested a vote. It is randomly chosen between 150-300ms.
+* Election is repeated after an election timeout until:
+  1. The server wins the election
+  2. A peer establishes itself as leader.
+  3. Election timer times out or a split vote occurs (leading to no leader) and the process will be repeated.
+ * Election win: Majority votes in the term. (More details in safety) The state of the winner is now `Leader` and the others are `Followers`.
+ * Maintaining leaders reign: The leader sends `heartbeats` to all servers to establish its reign. This also checks whether other servers are alive based on the response and informs other servers that the leader still is alive too. If the servers do not get timely heartbeat messages, they transform from the `follower` state to `candidate` state.
+ * Transition from working state to Election happens when a leader fails.
+ * Maintaining sanity: While waiting for votes, if a `AppendEntriesRPC` is received by the server, and the term of the leader is greater than of equal to the "waiter"'s term, the leader is considered to be legitimate and the waiter becomes a follower of the leader. If the term of the leader is lesser, it is rejected.
+ * The split vote problem: Though not that common, split votes can occur. To make sure this doesnt continue indefinitely, election timeouts are randomised,
+ 
+### Log Replication
+
+### Safety
+
 ## A strict testing mechanism
 
 The testing mechanism to be implemented will enable us in figuring out the problems existing in the implementation leading to a more resilient system.
