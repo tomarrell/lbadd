@@ -17,6 +17,8 @@ A raft server may be in any of the 3 states; leader, follower or candidate. All 
 A detailed description of all the modules follow:
 
 ### Leader Election
+
+#### Spec
 * Startup: All servers start in the follower state and begin by requesting votes to be elected as a leader.
 * Pre-election: The server increments its `currentTerm` by one, changes to `candidate` state and sends out `RequestVotes` RPC parallely to all the peers. 
 * Vote condition: FCFS basis. If there was no request to the server, it votes for itself (read 3.6 and clear out when to vote for itself)
@@ -29,9 +31,21 @@ A detailed description of all the modules follow:
  * Maintaining leaders reign: The leader sends `heartbeats` to all servers to establish its reign. This also checks whether other servers are alive based on the response and informs other servers that the leader still is alive too. If the servers do not get timely heartbeat messages, they transform from the `follower` state to `candidate` state.
  * Transition from working state to Election happens when a leader fails.
  * Maintaining sanity: While waiting for votes, if a `AppendEntriesRPC` is received by the server, and the term of the leader is greater than of equal to the "waiter"'s term, the leader is considered to be legitimate and the waiter becomes a follower of the leader. If the term of the leader is lesser, it is rejected.
- * The split vote problem: Though not that common, split votes can occur. To make sure this doesnt continue indefinitely, election timeouts are randomised,
+ * The split vote problem: Though not that common, split votes can occur. To make sure this doesnt continue indefinitely, election timeouts are randomised, making the split votes less probable.
  
+
+#### Implementation
+
 ### Log Replication
+
+#### Spec
+
+* Pre-log replication: Once a leader is elected, it starts servicing the client. The leader appends a new request to its `New Entry` log then issues `AppendEntriesRPC` in parallel to all its peers. 
+* Successful log: When all logs have been applied successfully to all follower machines, the leader applies the entry to its state machine and returns the result to the client.
+* Repeating `AppendEntries`: `AppendEntriesRPC` are repeated indefinitely until all followers eventually store all log entries.
+* Log entry storage: 
+
+#### Implementation
 
 ### Safety
 
