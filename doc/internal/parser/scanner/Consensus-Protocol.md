@@ -4,6 +4,7 @@ Before talking about consensus, we need to discuss some logistics based on how t
 
 * Communication: Distributed systems need a method to communicate between each other. Remote Procedure Calls is the mechanism using which a standalone server can talk to another. The standard Go package [RPC](https://golang.org/pkg/net/rpc/) serves us the purpose. 
 * Security: Access control mechanisms need to be in place to decide on access to functions in the servers based on their state (leader, follower, candidate)
+* Routing to leader: One of the issues with a varying leader is for the clients to know which IP address to contact for the service. We can solve this problem by advertising any/all IPs of the cluster and simply forward this request to the current leader; OR have a proxy that can forward the request to the current leader wheneve the requests come in.
 
 Maintaining consensus is one of the major parts of a distributed system. To know to have achieved a stable system, we need the following two parts of implementation.
 
@@ -61,3 +62,8 @@ We have to test for the following basic failures:
 ## Graceful handling of failures
 
 Accepting failures exist and handling them gracefully enables creation of more resilient and stable systems. Having _circuit breakers_, _backoff mechanisms in clients_ and _validation and coordination mechanisms_ are some of the pointers to be followed. 
+
+## Running Lbadd on Raft
+
+* Background: Raft is just a consensus protocol that helps keep different database servers in sync. We need methods to issue a command and enable the sync between servers.
+* Logistics: The `AppendEntriesRPC` will have the command to be executed by the client. This command goes through the leader, is applied by all the followers and then committed by the leader. Thus ensuring an in-sync distributed database.
