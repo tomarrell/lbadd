@@ -4,7 +4,8 @@ Before talking about consensus, we need to discuss some logistics based on how t
 
 * Communication: Distributed systems need a method to communicate between each other. Remote Procedure Calls is the mechanism using which a standalone server can talk to another. The standard Go package [RPC](https://golang.org/pkg/net/rpc/) serves us the purpose. 
 * Security: Access control mechanisms need to be in place to decide on access to functions in the servers based on their state (leader, follower, candidate)
-* Routing to leader: One of the issues with a varying leader is for the clients to know which IP address to contact for the service. We can solve this problem by advertising any/all IPs of the cluster and simply forward this request to the current leader; OR have a proxy that can forward the request to the current leader wheneve the requests come in.
+* Routing to leader: One of the issues with a varying leader is for the clients to know which IP address to contact for the service. We can solve this problem by advertising any/all IPs of the cluster and simply forward this request to the current leader; OR have a proxy that can forward the request to the current leader wheneve the requests come in. (Section client interaction of post has another approach which works too)
+* The servers will be implemented in the `interal/master` or `internal/worker` folders which will import the raft API and perform their functions.
 
 Maintaining consensus is one of the major parts of a distributed system. To know to have achieved a stable system, we need the following two parts of implementation.
 
@@ -37,6 +38,8 @@ A detailed description of all the modules follow:
 
 #### Implementation
 
+* A separate `interal/raft` folder will have a raft implementation which provides APIs for each server to call.
+* 
 ### Log Replication
 
 #### Spec
