@@ -47,7 +47,9 @@ A detailed description of all the modules follow:
 * Pre-log replication: Once a leader is elected, it starts servicing the client. The leader appends a new request to its `New Entry` log then issues `AppendEntriesRPC` in parallel to all its peers. 
 * Successful log: When all logs have been applied successfully to all follower machines, the leader applies the entry to its state machine and returns the result to the client.
 * Repeating `AppendEntries`: `AppendEntriesRPC` are repeated indefinitely until all followers eventually store all log entries.
-* Log entry storage: 
+* Log entry storage: Log entries are a queue of state machine commands which are applied to that particular state machine. Log entries are associated with a term number to indicate the term of application of that log along with an integer index to identify a particular logs position.
+* Committed entry: A log entry is called committed once its replicated on the majority of the servers in the cluster. Once an entry is committed, it commits all the previous entries in the leaders log, including the entries created by the previous leaders. Once a follower learns that 
+* Add more from section 3.6
 
 #### Implementation
 
