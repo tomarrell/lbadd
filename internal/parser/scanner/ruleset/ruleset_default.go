@@ -57,6 +57,7 @@ var (
 		FuncRule(defaultQuotedLiteralRule),
 		FuncRule(defaultNumericLiteralRule),
 		FuncRule(defaultUnquotedLiteralRule),
+		FuncRule(defaultDecimalPointRule),
 	}
 )
 
@@ -193,6 +194,7 @@ func defaultNumericLiteralRule(s RuneScanner) (token.Type, bool) {
 	decimalPointFlag := false
 	exponentFlag := false
 	exponentOperatorFlag := false
+	numericLiteralFlag := false
 	// Checking whether the first element is a number or a decimal point.
 	// If neither, an unknown token error is raised.
 	next, ok := s.Lookahead()
@@ -202,6 +204,9 @@ func defaultNumericLiteralRule(s RuneScanner) (token.Type, bool) {
 	// If the literal starts with a decimal point, it is recorded in the flag.
 	if defaultDecimalPoint.Matches(next) {
 		decimalPointFlag = true
+	}
+	if defaultNumericLiteral.Matches(next) {
+		numericLiteralFlag = true
 	}
 	s.ConsumeRune()
 	// case of hexadecimal numbers
@@ -213,17 +218,30 @@ func defaultNumericLiteralRule(s RuneScanner) (token.Type, bool) {
 			}
 			if next == 'x' {
 				s.ConsumeRune()
-				return defaultUnquotedLiteralRule(s)
+				if next, ok := s.Lookahead(); !(ok && defaultLiteral.Matches(next)) {
+					return token.Unknown, false
+				}
+				s.ConsumeRune()
+
+				for {
+					next, ok := s.Lookahead()
+					if !(ok && defaultLiteral.Matches(next)) {
+						break
+					}
+					s.ConsumeRune()
+				}
+				return token.LiteralNumeric, true
 			}
 		}
 	}
+
 	for {
 		// in the above case, if there was a `0.34` as a part of the string to read,
 		// the loop would have broken without consuming the rune; because the above
 		// loop consumes only hexadecimals of form `0xNUMBER`. Since all other cases
 		// are not consumed, the `LookAhead` below, gets the previous rune conveniently.
 		next, ok := s.Lookahead()
-		// continue on cases where the decimal point/exponent/exponent opeartor is already not found or not this particular rune.
+		// continue in case the decimal point/exponent/exponent operator is already not found or not this particular rune.
 		if !(ok && (defaultNumericLiteral.Matches(next) || (!decimalPointFlag && defaultDecimalPoint.Matches(next)) || (!exponentFlag && defaultExponent.Matches(next)) || (!exponentOperatorFlag && defaultExponentOperator.Matches(next)))) {
 			break
 		}
@@ -248,7 +266,23 @@ func defaultNumericLiteralRule(s RuneScanner) (token.Type, bool) {
 		if defaultDecimalPoint.Matches(next) {
 			decimalPointFlag = true
 		}
+		if defaultNumericLiteral.Matches(next) {
+			numericLiteralFlag = true
+		}
 		s.ConsumeRune()
 	}
+	// This case checks for "." passing as numericLiterals
+	if decimalPointFlag && !numericLiteralFlag {
+		return token.Unknown, false
+	}
+	return token.LiteralNumeric, true
+}
+
+func defaultDecimalPointRule(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !(ok && defaultDecimalPoint.Matches(next)) {
+		return token.Unknown, false
+	}
+	s.ConsumeRune()
 	return token.Literal, true
 }

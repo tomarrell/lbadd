@@ -65,6 +65,7 @@ var (
 		"FOREIGN":           token.KeywordForeign,
 		"FROM":              token.KeywordFrom,
 		"FULL":              token.KeywordFull,
+		"GENERATED":         token.KeywordGenerated,
 		"GLOB":              token.KeywordGlob,
 		"GROUP":             token.KeywordGroup,
 		"GROUPS":            token.KeywordGroups,

@@ -170,6 +170,7 @@ const (
 	KeywordWithout
 
 	Literal
+	LiteralNumeric
 
 	UnaryOperator
 	BinaryOperator
