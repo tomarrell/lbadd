@@ -5942,6 +5942,30 @@ func TestSingleStatementParse(t *testing.T) {
 				},
 			},
 		},
+		{
+			`SELECT standalone`,
+			"SELECT * FROM users",
+			&ast.SQLStmt{
+				SelectStmt: &ast.SelectStmt{
+					SelectCore: []*ast.SelectCore{
+						&ast.SelectCore{
+							Select: token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+							ResultColumn: []*ast.ResultColumn{
+								&ast.ResultColumn{
+									Asterisk: token.New(1, 8, 7, 1, token.BinaryOperator, "*"),
+								},
+							},
+							From: token.New(1, 10, 9, 4, token.KeywordFrom, "FROM"),
+							JoinClause: &ast.JoinClause{
+								TableOrSubquery: &ast.TableOrSubquery{
+									TableName: token.New(1, 15, 14, 5, token.Literal, "users"),
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 	for _, input := range inputs {
 		t.Run(input.Name, func(t *testing.T) {

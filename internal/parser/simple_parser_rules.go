@@ -60,6 +60,8 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 		stmt.CommitStmt = p.parseCommitStmt(r)
 	case token.KeywordRollback:
 		stmt.RollbackStmt = p.parseRollbackStmt(r)
+	case token.KeywordSelect:
+		stmt.SelectStmt = p.parseSelectStmt(r)
 	case token.KeywordVacuum:
 		stmt.VacuumStmt = p.parseVacuumStmt(r)
 	case token.KeywordWith:
@@ -1720,15 +1722,15 @@ func (p *simpleParser) parseWithClause(r reporter) (withClause *ast.WithClause) 
 		p.consumeToken()
 	}
 	for {
-		next, ok = p.lookahead(r)
-		if !ok {
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 			return
 		}
 		if next.Type() == token.Literal {
 			withClause.RecursiveCte = append(withClause.RecursiveCte, p.parseRecursiveCte(r))
 		}
-		next, ok = p.lookahead(r)
-		if !ok {
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 			return
 		}
 		if next.Value() == "," {
@@ -2174,8 +2176,8 @@ func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 			}
 		}
 
-		next, ok = p.lookahead(r)
-		if !ok {
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 			return
 		}
 		if next.Type() == token.KeywordFrom {
@@ -2198,8 +2200,8 @@ func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 			}
 		}
 
-		next, ok = p.lookahead(r)
-		if !ok {
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 			return
 		}
 		if next.Type() == token.KeywordWhere {
@@ -2208,8 +2210,8 @@ func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 			stmt.Expr1 = p.parseExpression(r)
 		}
 
-		next, ok = p.lookahead(r)
-		if !ok {
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 			return
 		}
 		if next.Type() == token.KeywordGroup {
@@ -2247,8 +2249,8 @@ func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 			}
 		}
 
-		next, ok = p.lookahead(r)
-		if !ok {
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 			return
 		}
 		if next.Type() == token.KeywordWindow {
