@@ -3347,3 +3347,140 @@ func (p *simpleParser) parseTableConstraint(r reporter) (stmt *ast.TableConstrai
 	}
 	return
 }
+
+func (p *simpleParser) parseInsertStmt(r reporter) (stmt *ast.InsertStmt) {
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordWith {
+		stmt.WithClause = p.parseWithClause(r)
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordInsert {
+		stmt.Insert = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordOr {
+			stmt.Or = next
+			p.consumeToken()
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			switch next.Type() {
+			case token.KeywordReplace:
+				stmt.Replace = next
+			case token.KeywordRollback:
+				stmt.Rollback = next
+			case token.KeywordAbort:
+				stmt.Abort = next
+			case token.KeywordFail:
+				stmt.Fail = next
+			case token.KeywordIgnore:
+				stmt.Ignore = next
+			}
+			p.consumeToken()
+		}
+	} else if next.Type() == token.KeywordReplace {
+		stmt.Replace = next
+		p.consumeToken()
+	} else {
+		r.unexpectedToken(token.KeywordInsert, token.KeywordReplace)
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordInto {
+		stmt.Into = next
+		p.consumeToken()
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.Literal {
+		stmt.SchemaName = next
+		stmt.TableName = next
+		p.consumeToken()
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Value() == "." {
+		stmt.Period = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Literal {
+			stmt.TableName = next
+			p.consumeToken()
+		} else {
+			r.unexpectedToken(token.Literal)
+		}
+	} else {
+		stmt.SchemaName = nil
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordAs {
+		stmt.As = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Literal {
+			stmt.Alias = next
+			p.consumeToken()
+		} else {
+			r.unexpectedToken(token.Literal)
+		}
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.Delimiter && next.Value() == "(" {
+		stmt.LeftParen = next
+		p.consumeToken()
+		for {
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.Literal {
+				stmt.ColumnName = append(stmt.ColumnName, next)
+				p.consumeToken()
+			}
+			if next.Value() == "," {
+				p.consumeToken()
+			}
+			if next.Type() == token.Delimiter && next.Value() == ")" {
+				stmt.RightParen = next
+				p.consumeToken()
+				break
+			}
+		}
+	}
+
+	return
+}

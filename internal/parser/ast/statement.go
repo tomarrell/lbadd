@@ -308,12 +308,12 @@ type (
 		TableName                token.Token
 		As                       token.Token
 		Alias                    token.Token
-		LeftParen1               token.Token
+		LeftParen                token.Token
 		ColumnName               []token.Token
-		RightParen2              token.Token
-		Default                  token.Token
+		RightParen               token.Token
 		Values                   token.Token
 		SelectStmt               *SelectStmt
+		Default                  token.Token
 		ParenthesizedExpressions *[]ParenthesizedExpressions
 		UpsertClause             *UpsertClause
 	}
