@@ -1,4 +1,4 @@
-// Code generated; DO NOT EDIT.
+// Code generated with internal/tool/generate/keywordtrie; DO NOT EDIT.
 
 package ruleset
 
@@ -3179,6 +3179,10 @@ func scanKeywordG(s RuneScanner) (token.Type, bool) {
 	}
 	switch next {
 	
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordGE(s)
+	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordGL(s)
@@ -3188,6 +3192,108 @@ func scanKeywordG(s RuneScanner) (token.Type, bool) {
 		return scanKeywordGR(s)
 	}
 	return token.Unknown, false
+}
+
+func scanKeywordGE(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	
+	case 'N', 'n':
+		s.ConsumeRune()
+		return scanKeywordGEN(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordGEN(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordGENE(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordGENE(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	
+	case 'R', 'r':
+		s.ConsumeRune()
+		return scanKeywordGENER(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordGENER(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	
+	case 'A', 'a':
+		s.ConsumeRune()
+		return scanKeywordGENERA(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordGENERA(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	
+	case 'T', 't':
+		s.ConsumeRune()
+		return scanKeywordGENERAT(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordGENERAT(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	
+	case 'E', 'e':
+		s.ConsumeRune()
+		return scanKeywordGENERATE(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordGENERATE(s RuneScanner) (token.Type, bool) {
+	next, ok := s.Lookahead()
+	if !ok {
+		return token.Unknown, false
+	}
+	switch next {
+	
+	case 'D', 'd':
+		s.ConsumeRune()
+		return scanKeywordGENERATED(s)
+	}
+	return token.Unknown, false
+}
+
+func scanKeywordGENERATED(s RuneScanner) (token.Type, bool) {
+	return token.KeywordGenerated, true
 }
 
 func scanKeywordGL(s RuneScanner) (token.Type, bool) {
