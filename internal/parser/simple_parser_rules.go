@@ -3348,6 +3348,8 @@ func (p *simpleParser) parseTableConstraint(r reporter) (stmt *ast.TableConstrai
 	return
 }
 
+// parseInsertStmt parses insert-stmt as defined in:
+// https://sqlite.org/lang_insert.html
 func (p *simpleParser) parseInsertStmt(r reporter) (stmt *ast.InsertStmt) {
 	stmt = &ast.InsertStmt{}
 	next, ok := p.lookahead(r)
@@ -3526,21 +3528,23 @@ func (p *simpleParser) parseInsertStmt(r reporter) (stmt *ast.InsertStmt) {
 	return
 }
 
-func (p *simpleParser) parseUpsertClause(r reporter) (stmt *ast.UpsertClause) {
-	stmt = &ast.UpsertClause{}
+// parseUpsertClause parses upsert-clause as defined in:
+// https://sqlite.org/syntax/upsert-clause.html
+func (p *simpleParser) parseUpsertClause(r reporter) (clause *ast.UpsertClause) {
+	clause = &ast.UpsertClause{}
 	next, ok := p.lookahead(r)
 	if !ok {
 		return
 	}
 	if next.Type() == token.KeywordOn {
-		stmt.On = next
+		clause.On = next
 		p.consumeToken()
 		next, ok = p.lookahead(r)
 		if !ok {
 			return
 		}
 		if next.Type() == token.KeywordConflict {
-			stmt.Conflict = next
+			clause.Conflict = next
 			p.consumeToken()
 		} else {
 			r.unexpectedToken(token.KeywordConflict)
@@ -3551,7 +3555,7 @@ func (p *simpleParser) parseUpsertClause(r reporter) (stmt *ast.UpsertClause) {
 			return
 		}
 		if next.Type() == token.Delimiter && next.Value() == "(" {
-			stmt.LeftParen = next
+			clause.LeftParen = next
 			p.consumeToken()
 			for {
 				next, ok = p.lookahead(r)
@@ -3561,11 +3565,11 @@ func (p *simpleParser) parseUpsertClause(r reporter) (stmt *ast.UpsertClause) {
 				if next.Value() == "," {
 					p.consumeToken()
 				} else if next.Type() == token.Delimiter && next.Value() == ")" {
-					stmt.RightParen = next
+					clause.RightParen = next
 					p.consumeToken()
 					break
 				} else {
-					stmt.IndexedColumn = append(stmt.IndexedColumn, p.parseIndexedColumn(r))
+					clause.IndexedColumn = append(clause.IndexedColumn, p.parseIndexedColumn(r))
 				}
 			}
 		}
@@ -3575,9 +3579,9 @@ func (p *simpleParser) parseUpsertClause(r reporter) (stmt *ast.UpsertClause) {
 			return
 		}
 		if next.Type() == token.KeywordWhere {
-			stmt.Where1 = next
+			clause.Where1 = next
 			p.consumeToken()
-			stmt.Expr1 = p.parseExpression(r)
+			clause.Expr1 = p.parseExpression(r)
 		}
 
 		next, ok = p.lookahead(r)
@@ -3585,7 +3589,7 @@ func (p *simpleParser) parseUpsertClause(r reporter) (stmt *ast.UpsertClause) {
 			return
 		}
 		if next.Type() == token.KeywordDo {
-			stmt.Do = next
+			clause.Do = next
 			p.consumeToken()
 		}
 
@@ -3594,19 +3598,19 @@ func (p *simpleParser) parseUpsertClause(r reporter) (stmt *ast.UpsertClause) {
 			return
 		}
 		if next.Type() == token.KeywordNothing {
-			stmt.Nothing = next
+			clause.Nothing = next
 			p.consumeToken()
 			return
 		}
 		if next.Type() == token.KeywordUpdate {
-			stmt.Update = next
+			clause.Update = next
 			p.consumeToken()
 			next, ok = p.lookahead(r)
 			if !ok {
 				return
 			}
 			if next.Type() == token.KeywordSet {
-				stmt.Set = next
+				clause.Set = next
 				p.consumeToken()
 
 			} else {
@@ -3625,7 +3629,7 @@ func (p *simpleParser) parseUpsertClause(r reporter) (stmt *ast.UpsertClause) {
 			if next.Value() == "," {
 				p.consumeToken()
 			}
-			stmt.UpdateSetter = append(stmt.UpdateSetter, p.parseUpdateSetter(r))
+			clause.UpdateSetter = append(clause.UpdateSetter, p.parseUpdateSetter(r))
 		}
 
 		next, ok = p.optionalLookahead(r)
@@ -3633,9 +3637,9 @@ func (p *simpleParser) parseUpsertClause(r reporter) (stmt *ast.UpsertClause) {
 			return
 		}
 		if next.Type() == token.KeywordWhere {
-			stmt.Where2 = next
+			clause.Where2 = next
 			p.consumeToken()
-			stmt.Expr2 = p.parseExpression(r)
+			clause.Expr2 = p.parseExpression(r)
 		}
 	}
 	return
@@ -3670,6 +3674,8 @@ func (p *simpleParser) parseUpdateSetter(r reporter) (stmt *ast.UpdateSetter) {
 	return
 }
 
+// parseColumnNameList parses column-name-list as defined in:
+// https://sqlite.org/syntax/column-name-list.html
 func (p *simpleParser) parseColumnNameList(r reporter) (stmt *ast.ColumnNameList) {
 	stmt = &ast.ColumnNameList{}
 	next, ok := p.lookahead(r)
@@ -3703,6 +3709,8 @@ func (p *simpleParser) parseColumnNameList(r reporter) (stmt *ast.ColumnNameList
 	return
 }
 
+// parseUpdateStmt parses update-stmt as defined in:
+// https://sqlite.org/lang_update.html
 func (p *simpleParser) parseUpdateStmt(r reporter) (stmt *ast.UpdateStmt) {
 	stmt = &ast.UpdateStmt{}
 	next, ok := p.lookahead(r)
@@ -3903,6 +3911,556 @@ func (p *simpleParser) parseReIndexStmt(r reporter) (stmt *ast.ReIndexStmt) {
 	if next.Type() == token.Literal {
 		stmt.TableOrIndexName = next
 		p.consumeToken()
+	}
+	return
+}
+
+// parseDropIndexStmt parses drop-index stmts as defined in:
+// https://sqlite.org/lang_dropindex.html
+func (p *simpleParser) parseDropIndexStmt(r reporter) (stmt *ast.DropIndexStmt) {
+	stmt = &ast.DropIndexStmt{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordDrop {
+		stmt.Drop = next
+		p.consumeToken()
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordIndex {
+			stmt.Index = next
+			p.consumeToken()
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordIf {
+				stmt.If = next
+				p.consumeToken()
+
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Type() == token.KeywordExists {
+					stmt.Exists = next
+					p.consumeToken()
+				}
+			}
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.Literal {
+				stmt.SchemaName = next
+				stmt.IndexName = next
+				p.consumeToken()
+			}
+
+			next, ok = p.optionalLookahead(r)
+			if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+				stmt.SchemaName = nil
+				return
+			}
+			if next.Value() == "." {
+				stmt.Period = next
+				p.consumeToken()
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Type() == token.Literal {
+					stmt.IndexName = next
+					p.consumeToken()
+				} else {
+					r.unexpectedToken(token.Literal)
+				}
+			}
+		} else {
+			r.unexpectedToken(token.KeywordIndex)
+		}
+	}
+	return
+}
+
+// parseDropTableStmt parses drop-index stmts as defined in:
+// https://sqlite.org/lang_droptable.html
+func (p *simpleParser) parseDropTableStmt(r reporter) (stmt *ast.DropTableStmt) {
+	stmt = &ast.DropTableStmt{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordDrop {
+		stmt.Drop = next
+		p.consumeToken()
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordTable {
+			stmt.Table = next
+			p.consumeToken()
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordIf {
+				stmt.If = next
+				p.consumeToken()
+
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Type() == token.KeywordExists {
+					stmt.Exists = next
+					p.consumeToken()
+				}
+			}
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.Literal {
+				stmt.SchemaName = next
+				stmt.TableName = next
+				p.consumeToken()
+			}
+
+			next, ok = p.optionalLookahead(r)
+			if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+				stmt.SchemaName = nil
+				return
+			}
+			if next.Value() == "." {
+				stmt.Period = next
+				p.consumeToken()
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Type() == token.Literal {
+					stmt.TableName = next
+					p.consumeToken()
+				} else {
+					r.unexpectedToken(token.Literal)
+				}
+			}
+		} else {
+			r.unexpectedToken(token.KeywordIndex)
+		}
+	}
+	return
+}
+
+// parseDropViewStmt parses drop-index stmts as defined in:
+// https://sqlite.org/lang_dropview.html
+func (p *simpleParser) parseDropViewStmt(r reporter) (stmt *ast.DropViewStmt) {
+	stmt = &ast.DropViewStmt{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordDrop {
+		stmt.Drop = next
+		p.consumeToken()
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordView {
+			stmt.View = next
+			p.consumeToken()
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordIf {
+				stmt.If = next
+				p.consumeToken()
+
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Type() == token.KeywordExists {
+					stmt.Exists = next
+					p.consumeToken()
+				}
+			}
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.Literal {
+				stmt.SchemaName = next
+				stmt.ViewName = next
+				p.consumeToken()
+			}
+
+			next, ok = p.optionalLookahead(r)
+			if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+				stmt.SchemaName = nil
+				return
+			}
+			if next.Value() == "." {
+				stmt.Period = next
+				p.consumeToken()
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Type() == token.Literal {
+					stmt.ViewName = next
+					p.consumeToken()
+				} else {
+					r.unexpectedToken(token.Literal)
+				}
+			}
+		} else {
+			r.unexpectedToken(token.KeywordIndex)
+		}
+	}
+	return
+}
+
+// parseDropTriggerStmt parses drop-index stmts as defined in:
+// https://sqlite.org/lang_droptrigger.html
+func (p *simpleParser) parseDropTriggerStmt(r reporter) (stmt *ast.DropTriggerStmt) {
+	stmt = &ast.DropTriggerStmt{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordDrop {
+		stmt.Drop = next
+		p.consumeToken()
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordTrigger {
+			stmt.Trigger = next
+			p.consumeToken()
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordIf {
+				stmt.If = next
+				p.consumeToken()
+
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Type() == token.KeywordExists {
+					stmt.Exists = next
+					p.consumeToken()
+				}
+			}
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.Literal {
+				stmt.SchemaName = next
+				stmt.TriggerName = next
+				p.consumeToken()
+			}
+
+			next, ok = p.optionalLookahead(r)
+			if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+				stmt.SchemaName = nil
+				return
+			}
+			if next.Value() == "." {
+				stmt.Period = next
+				p.consumeToken()
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Type() == token.Literal {
+					stmt.TriggerName = next
+					p.consumeToken()
+				} else {
+					r.unexpectedToken(token.Literal)
+				}
+			}
+		} else {
+			r.unexpectedToken(token.KeywordIndex)
+		}
+	}
+	return
+}
+
+// parseFilterClause parses the filter-clause as defined in:
+// https://sqlite.org/syntax/filter-clause.html
+func (p *simpleParser) parseFilterClause(r reporter) (clause *ast.FilterClause) {
+	clause = &ast.FilterClause{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordFilter {
+		clause.Filter = next
+		p.consumeToken()
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Delimiter && next.Value() == "(" {
+			clause.LeftParen = next
+			p.consumeToken()
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordWhere {
+				clause.Where = next
+				p.consumeToken()
+
+				clause.Expr = p.parseExpression(r)
+
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Type() == token.Delimiter && next.Value() == ")" {
+					clause.RightParen = next
+					p.consumeToken()
+				} else {
+					r.unexpectedSingleRuneToken(')')
+				}
+			} else {
+				r.unexpectedToken(token.KeywordWhere)
+			}
+		} else {
+			r.unexpectedSingleRuneToken('(')
+		}
+	}
+	return
+}
+
+// parseOverClause parses over-clause as defined in:
+// https://sqlite.org/syntax/over-clause.html
+func (p *simpleParser) parseOverClause(r reporter) (clause *ast.OverClause) {
+	clause = &ast.OverClause{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordOver {
+		clause.Over = next
+		p.consumeToken()
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Literal {
+			clause.WindowName = next
+			p.consumeToken()
+			return
+		}
+		if next.Type() == token.Delimiter && next.Value() == "(" {
+			clause.LeftParen = next
+			p.consumeToken()
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.Literal {
+				clause.BaseWindowName = next
+				p.consumeToken()
+			}
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordPartition {
+				clause.Partition = next
+				p.consumeToken()
+
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Type() == token.KeywordBy {
+					clause.By = next
+					p.consumeToken()
+
+					for {
+						next, ok = p.lookahead(r)
+						if !ok {
+							return
+						}
+						if next.Value() == "," {
+							p.consumeToken()
+						}
+						if next.Type() == token.KeywordOrder || next.Type() == token.KeywordRange || next.Type() == token.KeywordRows || next.Type() == token.KeywordGroups || next.Value() == ")" {
+							break
+						}
+						clause.Expr = append(clause.Expr, p.parseExpression(r))
+					}
+				} else {
+					r.unexpectedToken(token.KeywordBy)
+				}
+			}
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordOrder {
+				clause.Order = next
+				p.consumeToken()
+
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Type() == token.KeywordBy {
+					clause.By = next
+					p.consumeToken()
+
+					for {
+						next, ok = p.lookahead(r)
+						if !ok {
+							return
+						}
+						if next.Value() == "," {
+							p.consumeToken()
+						}
+						if next.Type() == token.KeywordRange || next.Type() == token.KeywordRows || next.Type() == token.KeywordGroups || next.Value() == ")" {
+							break
+						}
+						clause.OrderingTerm = append(clause.OrderingTerm, p.parseOrderingTerm(r))
+					}
+				} else {
+					r.unexpectedToken(token.KeywordBy)
+				}
+			}
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordRange || next.Type() == token.KeywordRows || next.Type() == token.KeywordGroups {
+				clause.FrameSpec = p.parseFrameSpec(r)
+			}
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.Delimiter && next.Value() == ")" {
+				clause.RightParen = next
+				p.consumeToken()
+			}
+		}
+	} else {
+		r.unexpectedToken(token.KeywordOver)
+	}
+	return
+}
+
+// parseRaiseFunction parses raise-function as defined in:
+// https://sqlite.org/syntax/raise-function.html
+func (p *simpleParser) parseRaiseFunction(r reporter) (stmt *ast.RaiseFunction) {
+	stmt = &ast.RaiseFunction{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordRaise {
+		stmt.Raise = next
+		p.consumeToken()
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Delimiter && next.Value() == "(" {
+			stmt.LeftParen = next
+			p.consumeToken()
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordIgnore {
+				stmt.Ignore = next
+				p.consumeToken()
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Type() == token.Delimiter && next.Value() == ")" {
+					stmt.RightParen = next
+					p.consumeToken()
+				} else {
+					r.unexpectedSingleRuneToken(')')
+				}
+			}
+
+			if next.Type() == token.KeywordRollback || next.Type() == token.KeywordAbort || next.Type() == token.KeywordFail {
+				if next.Type() == token.KeywordRollback {
+					stmt.Rollback = next
+				} else if next.Type() == token.KeywordAbort {
+					stmt.Abort = next
+				} else if next.Type() == token.KeywordFail {
+					stmt.Fail = next
+				} else {
+					r.unexpectedToken(token.KeywordRollback, token.KeywordAbort, token.KeywordFail)
+				}
+				p.consumeToken()
+
+				next, ok = p.lookahead(r)
+				if next.Value() == "," {
+					stmt.Comma = next
+					p.consumeToken()
+
+					next, ok = p.lookahead(r)
+					if !ok {
+						return
+					}
+					if next.Type() == token.Literal {
+						stmt.ErrorMessage = next
+						p.consumeToken()
+					} else {
+						r.unexpectedToken(token.Literal)
+					}
+				} else {
+					r.unexpectedSingleRuneToken(',')
+				}
+			}
+		} else {
+			r.unexpectedToken(token.Delimiter)
+		}
+	} else {
+		r.unexpectedToken(token.KeywordRaise)
 	}
 	return
 }
