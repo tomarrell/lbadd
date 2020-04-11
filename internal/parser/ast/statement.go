@@ -314,7 +314,7 @@ type (
 		Values                   token.Token
 		SelectStmt               *SelectStmt
 		Default                  token.Token
-		ParenthesizedExpressions *[]ParenthesizedExpressions
+		ParenthesizedExpressions []*ParenthesizedExpressions
 		UpsertClause             *UpsertClause
 	}
 

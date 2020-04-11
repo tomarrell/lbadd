@@ -3482,5 +3482,191 @@ func (p *simpleParser) parseInsertStmt(r reporter) (stmt *ast.InsertStmt) {
 		}
 	}
 
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordValues {
+		stmt.SelectStmt = p.parseSelectStmt(r)
+		// Since VALUES and parenthesized expressions can be parsed on its own in insert-stmt and also in select-stmt,
+		// the way of distinction of which goes where is the following.
+		// If there cant be multiple values of select core AND nothing that the select-stmt parses exists after the
+		// VALUES and parenthesized expressions clause, we move the stmts to insert-stmt's variables.
+		if stmt.SelectStmt.Order == nil && stmt.SelectStmt.Limit == nil && !(len(stmt.SelectStmt.SelectCore) <= 1) {
+			stmt.SelectStmt.SelectCore[0].Values = stmt.Values
+			stmt.SelectStmt.SelectCore[0].ParenthesizedExpressions = stmt.ParenthesizedExpressions
+			stmt.SelectStmt = nil
+		}
+	} else if next.Type() == token.KeywordDefault {
+		stmt.Default = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() != token.KeywordValues {
+			stmt.Values = next
+			p.consumeToken()
+		} else {
+			r.unexpectedToken(token.KeywordValues)
+		}
+	}
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+		return
+	}
+	if next.Type() == token.KeywordOn {
+		stmt.UpsertClause = p.parseUpsertClause(r)
+	} else {
+		r.unexpectedToken(token.KeywordOn)
+	}
+
+	return
+}
+
+func (p *simpleParser) parseUpsertClause(r reporter) (stmt *ast.UpsertClause) {
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordOn {
+		stmt.On = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordConflict {
+			stmt.Conflict = next
+			p.consumeToken()
+		} else {
+			r.unexpectedToken(token.KeywordConflict)
+		}
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Delimiter && next.Value() == "(" {
+			stmt.LeftParen = next
+			p.consumeToken()
+			for {
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Value() == "," {
+					p.consumeToken()
+				} else if next.Type() == token.Delimiter && next.Value() == ")" {
+					stmt.RightParen = next
+					p.consumeToken()
+					break
+				} else {
+					stmt.IndexedColumn = append(stmt.IndexedColumn, p.parseIndexedColumn(r))
+				}
+			}
+		}
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordWhere {
+			stmt.Where1 = next
+			p.consumeToken()
+			stmt.Expr1 = p.parseExpression(r)
+		}
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordDo {
+			stmt.Do = next
+			p.consumeToken()
+		}
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordNothing {
+			stmt.Nothing = next
+			p.consumeToken()
+			return
+		}
+		if next.Type() == token.KeywordUpdate {
+			stmt.Update = next
+			p.consumeToken()
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordSet {
+				stmt.Set = next
+				p.consumeToken()
+
+			} else {
+				r.unexpectedToken(token.KeywordSet)
+			}
+		}
+
+		for {
+			next, ok = p.optionalLookahead(r)
+			if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+				return
+			}
+			if next.Type() == token.KeywordWhere {
+				break
+			}
+			if next.Value() == "," {
+				p.consumeToken()
+			}
+			stmt.UpdateSetter = append(stmt.UpdateSetter, p.parseUpdateSetter(r))
+		}
+
+		next, ok = p.optionalLookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordWhere {
+			stmt.Where2 = next
+			p.consumeToken()
+			stmt.Expr2 = p.parseExpression(r)
+		}
+	}
+	return
+}
+
+func (p *simpleParser) parseUpdateSetter(r reporter) (stmt *ast.UpdateSetter) {
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.Delimiter {
+		stmt.ColumnNameList = p.parseColumnNameList(r)
+	} else if next.Type() == token.Literal {
+		stmt.ColumnName = next
+		p.consumeToken()
+	} else {
+		r.unexpectedToken(token.Delimiter, token.Literal)
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Value() == "=" {
+		stmt.Assign = next
+		p.consumeToken()
+		stmt.Expr = p.parseExpression(r)
+	} else {
+		r.unexpectedSingleRuneToken('=')
+	}
+	return
+}
+
+func (p *simpleParser) parseColumnNameList(r reporter) (stmt *ast.ColumnNameList) {
 	return
 }
