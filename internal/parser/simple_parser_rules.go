@@ -3349,6 +3349,7 @@ func (p *simpleParser) parseTableConstraint(r reporter) (stmt *ast.TableConstrai
 }
 
 func (p *simpleParser) parseInsertStmt(r reporter) (stmt *ast.InsertStmt) {
+	stmt = &ast.InsertStmt{}
 	next, ok := p.lookahead(r)
 	if !ok {
 		return
@@ -3526,6 +3527,7 @@ func (p *simpleParser) parseInsertStmt(r reporter) (stmt *ast.InsertStmt) {
 }
 
 func (p *simpleParser) parseUpsertClause(r reporter) (stmt *ast.UpsertClause) {
+	stmt = &ast.UpsertClause{}
 	next, ok := p.lookahead(r)
 	if !ok {
 		return
@@ -3640,6 +3642,7 @@ func (p *simpleParser) parseUpsertClause(r reporter) (stmt *ast.UpsertClause) {
 }
 
 func (p *simpleParser) parseUpdateSetter(r reporter) (stmt *ast.UpdateSetter) {
+	stmt = &ast.UpdateSetter{}
 	next, ok := p.lookahead(r)
 	if !ok {
 		return
@@ -3668,5 +3671,6 @@ func (p *simpleParser) parseUpdateSetter(r reporter) (stmt *ast.UpdateSetter) {
 }
 
 func (p *simpleParser) parseColumnNameList(r reporter) (stmt *ast.ColumnNameList) {
+	stmt = &ast.ColumnNameList{}
 	return
 }
