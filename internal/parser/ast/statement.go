@@ -30,7 +30,7 @@ type (
 		DropTriggerStmt        *DropTriggerStmt
 		DropViewStmt           *DropViewStmt
 		InsertStmt             *InsertStmt
-		ReindexStmt            *ReindexStmt
+		ReIndexStmt            *ReIndexStmt
 		ReleaseStmt            *ReleaseStmt
 		RollbackStmt           *RollbackStmt
 		SavepointStmt          *SavepointStmt
