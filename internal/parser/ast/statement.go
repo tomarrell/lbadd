@@ -325,9 +325,9 @@ type (
 		RightParen token.Token
 	}
 
-	// ReindexStmt as in the SQLite grammar.
-	ReindexStmt struct {
-		Reindex          token.Token
+	// ReIndexStmt as in the SQLite grammar.
+	ReIndexStmt struct {
+		ReIndex          token.Token
 		CollationName    token.Token
 		SchemaName       token.Token
 		Period           token.Token

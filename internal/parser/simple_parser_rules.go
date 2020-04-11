@@ -3647,7 +3647,7 @@ func (p *simpleParser) parseUpdateSetter(r reporter) (stmt *ast.UpdateSetter) {
 	if !ok {
 		return
 	}
-	if next.Type() == token.Delimiter {
+	if next.Type() == token.Delimiter && next.Value() == "(" {
 		stmt.ColumnNameList = p.parseColumnNameList(r)
 	} else if next.Type() == token.Literal {
 		stmt.ColumnName = next
@@ -3672,5 +3672,237 @@ func (p *simpleParser) parseUpdateSetter(r reporter) (stmt *ast.UpdateSetter) {
 
 func (p *simpleParser) parseColumnNameList(r reporter) (stmt *ast.ColumnNameList) {
 	stmt = &ast.ColumnNameList{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.Delimiter && next.Value() == "(" {
+		stmt.LeftParen = next
+		p.consumeToken()
+	} else {
+		r.unexpectedSingleRuneToken('(')
+	}
+	for {
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Delimiter && next.Value() == ")" {
+			stmt.RightParen = next
+			p.consumeToken()
+			break
+		}
+		if next.Type() == token.Literal {
+			stmt.ColumnName = append(stmt.ColumnName, next)
+			p.consumeToken()
+		}
+		if next.Value() == "," {
+			p.consumeToken()
+		}
+	}
+	return
+}
+
+func (p *simpleParser) parseUpdateStmt(r reporter) (stmt *ast.UpdateStmt) {
+	stmt = &ast.UpdateStmt{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordWith {
+		stmt.WithClause = p.parseWithClause(r)
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordUpdate {
+		stmt.Update = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordOr {
+			stmt.Or = next
+			p.consumeToken()
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			switch next.Type() {
+			case token.KeywordRollback:
+				stmt.Rollback = next
+			case token.KeywordAbort:
+				stmt.Abort = next
+			case token.KeywordReplace:
+				stmt.Replace = next
+			case token.KeywordFail:
+				stmt.Fail = next
+			case token.KeywordIgnore:
+				stmt.Ignore = next
+			}
+			p.consumeToken()
+		}
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Literal {
+			stmt.QualifiedTableName = p.parseQualifiedTableName(r)
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordSet {
+				stmt.Set = next
+				p.consumeToken()
+
+				for {
+					next, ok = p.optionalLookahead(r)
+					if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+						return
+					}
+					if next.Type() == token.KeywordWhere {
+						break
+					}
+					if next.Value() == "," {
+						p.consumeToken()
+					}
+					stmt.UpdateSetter = append(stmt.UpdateSetter, p.parseUpdateSetter(r))
+				}
+
+				next, ok = p.optionalLookahead(r)
+				if !ok {
+					return
+				}
+				if next.Type() == token.KeywordWhere {
+					stmt.Where = next
+					p.consumeToken()
+					stmt.Expr = p.parseExpression(r)
+				}
+
+			} else {
+				r.unexpectedToken(token.KeywordSet)
+			}
+		} else {
+			r.unexpectedToken(token.Literal)
+		}
+	} else {
+		r.unexpectedToken(token.KeywordUpdate)
+	}
+	return
+}
+
+// parseSavepointStmt parses the savepoint-stmt as defined in:
+// https://sqlite.org/lang_savepoint.html
+func (p *simpleParser) parseSavepointStmt(r reporter) (stmt *ast.SavepointStmt) {
+	stmt = &ast.SavepointStmt{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordSavepoint {
+		stmt.Savepoint = next
+		p.consumeToken()
+	} else {
+		r.unexpectedToken(token.KeywordSavepoint)
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.Literal {
+		stmt.SavepointName = next
+		p.consumeToken()
+	} else {
+		r.unexpectedToken(token.Literal)
+	}
+	return
+}
+
+// parseReleaseStmt parses the release-stmt as defined in:
+// https://sqlite.org/lang_savepoint.html
+func (p *simpleParser) parseReleaseStmt(r reporter) (stmt *ast.ReleaseStmt) {
+	stmt = &ast.ReleaseStmt{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordRelease {
+		stmt.Release = next
+		p.consumeToken()
+	} else {
+		r.unexpectedToken(token.KeywordSavepoint)
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordSavepoint {
+		stmt.Savepoint = next
+		p.consumeToken()
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.Literal {
+		stmt.SavepointName = next
+		p.consumeToken()
+	} else {
+		r.unexpectedToken(token.Literal)
+	}
+	return
+}
+
+// parseReIndexStmt parses the release-stmt as defined in:
+// https://sqlite.org/lang_reindex.html
+func (p *simpleParser) parseReIndexStmt(r reporter) (stmt *ast.ReIndexStmt) {
+	stmt = &ast.ReIndexStmt{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordReindex {
+		stmt.ReIndex = next
+		p.consumeToken()
+	}
+
+	collationOrSchemaName, ok := p.lookahead(r)
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+		return
+	}
+	if collationOrSchemaName.Type() == token.Literal {
+		stmt.CollationName = next
+		stmt.SchemaName = next
+		p.consumeToken()
+	} else {
+		r.unexpectedToken(token.Literal)
+	}
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+		return
+	}
+	if next.Value() == "." {
+		stmt.CollationName = nil
+		stmt.Period = next
+		p.consumeToken()
+	}
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+		return
+	}
+	if next.Type() == token.Literal {
+		stmt.TableOrIndexName = next
+		p.consumeToken()
+	}
 	return
 }
