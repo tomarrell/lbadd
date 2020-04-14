@@ -30,7 +30,7 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 	}
 
 	// according to the grammar, these are the tokens that initiate a statement
-	p.searchNext(r, token.StatementSeparator, token.EOF, token.KeywordAlter, token.KeywordAnalyze, token.KeywordAttach, token.KeywordBegin, token.KeywordCommit, token.KeywordCreate, token.KeywordDelete, token.KeywordDetach, token.KeywordDrop, token.KeywordEnd, token.KeywordInsert, token.KeywordPragma, token.KeywordReindex, token.KeywordRelease, token.KeywordRollback, token.KeywordSavepoint, token.KeywordSelect, token.KeywordUpdate, token.KeywordWith, token.KeywordVacuum)
+	p.searchNext(r, token.StatementSeparator, token.EOF, token.KeywordAlter, token.KeywordAnalyze, token.KeywordAttach, token.KeywordBegin, token.KeywordCommit, token.KeywordCreate, token.KeywordDelete, token.KeywordDetach, token.KeywordDrop, token.KeywordEnd, token.KeywordInsert, token.KeywordPragma, token.KeywordReindex, token.KeywordRelease, token.KeywordRollback, token.KeywordSavepoint, token.KeywordSelect, token.KeywordUpdate, token.KeywordVacuum, token.KeywordValues, token.KeywordWith)
 
 	next, ok := p.unsafeLowLevelLookahead()
 	if !ok {
@@ -60,8 +60,12 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 		stmt.CommitStmt = p.parseCommitStmt(r)
 	case token.KeywordRollback:
 		stmt.RollbackStmt = p.parseRollbackStmt(r)
+	case token.KeywordSelect:
+		stmt.SelectStmt = p.parseSelectStmt(r)
 	case token.KeywordVacuum:
 		stmt.VacuumStmt = p.parseVacuumStmt(r)
+	case token.KeywordValues:
+		stmt.SelectStmt = p.parseSelectStmt(r)
 	case token.KeywordWith:
 		stmt.DeleteStmt = p.parseDeleteStmt(r)
 	case token.StatementSeparator:
@@ -1720,15 +1724,15 @@ func (p *simpleParser) parseWithClause(r reporter) (withClause *ast.WithClause) 
 		p.consumeToken()
 	}
 	for {
-		next, ok = p.lookahead(r)
-		if !ok {
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 			return
 		}
 		if next.Type() == token.Literal {
 			withClause.RecursiveCte = append(withClause.RecursiveCte, p.parseRecursiveCte(r))
 		}
-		next, ok = p.lookahead(r)
-		if !ok {
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 			return
 		}
 		if next.Value() == "," {
@@ -2174,8 +2178,8 @@ func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 			}
 		}
 
-		next, ok = p.lookahead(r)
-		if !ok {
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 			return
 		}
 		if next.Type() == token.KeywordFrom {
@@ -2198,8 +2202,8 @@ func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 			}
 		}
 
-		next, ok = p.lookahead(r)
-		if !ok {
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 			return
 		}
 		if next.Type() == token.KeywordWhere {
@@ -2208,8 +2212,8 @@ func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 			stmt.Expr1 = p.parseExpression(r)
 		}
 
-		next, ok = p.lookahead(r)
-		if !ok {
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 			return
 		}
 		if next.Type() == token.KeywordGroup {
@@ -2247,8 +2251,8 @@ func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 			}
 		}
 
-		next, ok = p.lookahead(r)
-		if !ok {
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 			return
 		}
 		if next.Type() == token.KeywordWindow {
@@ -2279,9 +2283,9 @@ func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 		}
 		if next.Value() == "(" {
 			for {
-				stmt.ParenthesizedExpressions = append(stmt.ParenthesizedExpressions, p.parseParenthesizeExpression(r))
-				next, ok = p.lookahead(r)
-				if !ok {
+				stmt.ParenthesizedExpressions = append(stmt.ParenthesizedExpressions, p.parseParenthesizedExpression(r))
+				next, ok = p.optionalLookahead(r)
+				if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 					return
 				}
 				if next.Value() == "," {
@@ -2773,7 +2777,7 @@ func (p *simpleParser) parseFrameSpec(r reporter) (stmt *ast.FrameSpec) {
 	return
 }
 
-func (p *simpleParser) parseParenthesizeExpression(r reporter) (stmt *ast.ParenthesizedExpressions) {
+func (p *simpleParser) parseParenthesizedExpression(r reporter) (stmt *ast.ParenthesizedExpressions) {
 	stmt = &ast.ParenthesizedExpressions{}
 	next, ok := p.lookahead(r)
 	if !ok {

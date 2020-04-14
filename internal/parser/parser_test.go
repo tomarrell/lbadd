@@ -5942,6 +5942,54 @@ func TestSingleStatementParse(t *testing.T) {
 				},
 			},
 		},
+		{
+			`SELECT standalone`,
+			"SELECT * FROM users",
+			&ast.SQLStmt{
+				SelectStmt: &ast.SelectStmt{
+					SelectCore: []*ast.SelectCore{
+						&ast.SelectCore{
+							Select: token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+							ResultColumn: []*ast.ResultColumn{
+								&ast.ResultColumn{
+									Asterisk: token.New(1, 8, 7, 1, token.BinaryOperator, "*"),
+								},
+							},
+							From: token.New(1, 10, 9, 4, token.KeywordFrom, "FROM"),
+							JoinClause: &ast.JoinClause{
+								TableOrSubquery: &ast.TableOrSubquery{
+									TableName: token.New(1, 15, 14, 5, token.Literal, "users"),
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			`SELECT standalone with VALUES`,
+			"VALUES (expr)",
+			&ast.SQLStmt{
+				SelectStmt: &ast.SelectStmt{
+					SelectCore: []*ast.SelectCore{
+						&ast.SelectCore{
+							Values: token.New(1, 1, 0, 6, token.KeywordValues, "VALUES"),
+							ParenthesizedExpressions: []*ast.ParenthesizedExpressions{
+								&ast.ParenthesizedExpressions{
+									LeftParen: token.New(1, 8, 7, 1, token.Delimiter, "("),
+									Exprs: []*ast.Expr{
+										&ast.Expr{
+											LiteralValue: token.New(1, 9, 8, 4, token.Literal, "expr"),
+										},
+									},
+									RightParen: token.New(1, 13, 12, 1, token.Delimiter, ")"),
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 	for _, input := range inputs {
 		t.Run(input.Name, func(t *testing.T) {
