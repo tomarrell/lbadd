@@ -30,7 +30,7 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 	}
 
 	// according to the grammar, these are the tokens that initiate a statement
-	p.searchNext(r, token.StatementSeparator, token.EOF, token.KeywordAlter, token.KeywordAnalyze, token.KeywordAttach, token.KeywordBegin, token.KeywordCommit, token.KeywordCreate, token.KeywordDelete, token.KeywordDetach, token.KeywordDrop, token.KeywordEnd, token.KeywordInsert, token.KeywordPragma, token.KeywordReindex, token.KeywordRelease, token.KeywordRollback, token.KeywordSavepoint, token.KeywordSelect, token.KeywordUpdate, token.KeywordWith, token.KeywordVacuum)
+	p.searchNext(r, token.StatementSeparator, token.EOF, token.KeywordAlter, token.KeywordAnalyze, token.KeywordAttach, token.KeywordBegin, token.KeywordCommit, token.KeywordCreate, token.KeywordDelete, token.KeywordDetach, token.KeywordDrop, token.KeywordEnd, token.KeywordInsert, token.KeywordPragma, token.KeywordReindex, token.KeywordRelease, token.KeywordRollback, token.KeywordSavepoint, token.KeywordSelect, token.KeywordUpdate, token.KeywordVacuum, token.KeywordValues, token.KeywordWith)
 
 	next, ok := p.unsafeLowLevelLookahead()
 	if !ok {
@@ -60,8 +60,12 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 		stmt.CommitStmt = p.parseCommitStmt(r)
 	case token.KeywordRollback:
 		stmt.RollbackStmt = p.parseRollbackStmt(r)
+	case token.KeywordSelect:
+		stmt.SelectStmt = p.parseSelectStmt(r)
 	case token.KeywordVacuum:
 		stmt.VacuumStmt = p.parseVacuumStmt(r)
+	case token.KeywordValues:
+		stmt.SelectStmt = p.parseSelectStmt(r)
 	case token.KeywordWith:
 		stmt.DeleteStmt = p.parseDeleteStmt(r)
 	case token.StatementSeparator:
