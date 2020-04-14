@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"fmt"
+
 	"github.com/tomarrell/lbadd/internal/parser/ast"
 	"github.com/tomarrell/lbadd/internal/parser/scanner/token"
 )
@@ -30,7 +32,7 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 	}
 
 	// according to the grammar, these are the tokens that initiate a statement
-	p.searchNext(r, token.StatementSeparator, token.EOF, token.KeywordAlter, token.KeywordAnalyze, token.KeywordAttach, token.KeywordBegin, token.KeywordCommit, token.KeywordCreate, token.KeywordDelete, token.KeywordDetach, token.KeywordDrop, token.KeywordEnd, token.KeywordInsert, token.KeywordPragma, token.KeywordReindex, token.KeywordRelease, token.KeywordRollback, token.KeywordSavepoint, token.KeywordSelect, token.KeywordUpdate, token.KeywordVacuum, token.KeywordValues, token.KeywordWith)
+	p.searchNext(r, token.StatementSeparator, token.EOF, token.KeywordAlter, token.KeywordAnalyze, token.KeywordAttach, token.KeywordBegin, token.KeywordCommit, token.KeywordCreate, token.KeywordDelete, token.KeywordDetach, token.KeywordDrop, token.KeywordEnd, token.KeywordInsert, token.KeywordPragma, token.KeywordReindex, token.KeywordRelease, token.KeywordReplace, token.KeywordRollback, token.KeywordSavepoint, token.KeywordSelect, token.KeywordUpdate, token.KeywordVacuum, token.KeywordValues, token.KeywordWith)
 
 	next, ok := p.unsafeLowLevelLookahead()
 	if !ok {
@@ -58,6 +60,10 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 		stmt.DetachStmt = p.parseDetachDatabaseStmt(r)
 	case token.KeywordEnd:
 		stmt.CommitStmt = p.parseCommitStmt(r)
+	case token.KeywordInsert:
+		stmt.InsertStmt = p.parseInsertStmt(r)
+	case token.KeywordReplace:
+		stmt.InsertStmt = p.parseInsertStmt(r)
 	case token.KeywordRollback:
 		stmt.RollbackStmt = p.parseRollbackStmt(r)
 	case token.KeywordSelect:
@@ -1724,6 +1730,7 @@ func (p *simpleParser) parseWithClause(r reporter) (withClause *ast.WithClause) 
 		p.consumeToken()
 	}
 	for {
+		fmt.Println("BRO")
 		next, ok = p.optionalLookahead(r)
 		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 			return
@@ -1738,9 +1745,12 @@ func (p *simpleParser) parseWithClause(r reporter) (withClause *ast.WithClause) 
 		if next.Value() == "," {
 			p.consumeToken()
 		} else {
+			fmt.Println(next.Value())
 			break
 		}
+		fmt.Println("THE")
 	}
+	fmt.Println("WHAT")
 	return
 }
 
@@ -3362,8 +3372,9 @@ func (p *simpleParser) parseInsertStmt(r reporter) (stmt *ast.InsertStmt) {
 	}
 	if next.Type() == token.KeywordWith {
 		stmt.WithClause = p.parseWithClause(r)
+		fmt.Println("GGoo")
 	}
-
+	fmt.Println("GG")
 	next, ok = p.lookahead(r)
 	if !ok {
 		return
@@ -3499,9 +3510,9 @@ func (p *simpleParser) parseInsertStmt(r reporter) (stmt *ast.InsertStmt) {
 		// the way of distinction of which goes where is the following.
 		// If there cant be multiple values of select core AND nothing that the select-stmt parses exists after the
 		// VALUES and parenthesized expressions clause, we move the stmts to insert-stmt's variables.
-		if stmt.SelectStmt.Order == nil && stmt.SelectStmt.Limit == nil && !(len(stmt.SelectStmt.SelectCore) <= 1) {
-			stmt.SelectStmt.SelectCore[0].Values = stmt.Values
-			stmt.SelectStmt.SelectCore[0].ParenthesizedExpressions = stmt.ParenthesizedExpressions
+		if stmt.SelectStmt.Order == nil && stmt.SelectStmt.Limit == nil && !(len(stmt.SelectStmt.SelectCore) > 1) {
+			stmt.Values = stmt.SelectStmt.SelectCore[0].Values
+			stmt.ParenthesizedExpressions = stmt.SelectStmt.SelectCore[0].ParenthesizedExpressions
 			stmt.SelectStmt = nil
 		}
 	} else if next.Type() == token.KeywordDefault {
@@ -3511,12 +3522,14 @@ func (p *simpleParser) parseInsertStmt(r reporter) (stmt *ast.InsertStmt) {
 		if !ok {
 			return
 		}
-		if next.Type() != token.KeywordValues {
+		if next.Type() == token.KeywordValues {
 			stmt.Values = next
 			p.consumeToken()
 		} else {
 			r.unexpectedToken(token.KeywordValues)
 		}
+	} else if next.Type() == token.KeywordSelect {
+		stmt.SelectStmt = p.parseSelectStmt(r)
 	}
 
 	next, ok = p.optionalLookahead(r)
