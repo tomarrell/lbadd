@@ -1,8 +1,6 @@
 package parser
 
 import (
-	"fmt"
-
 	"github.com/tomarrell/lbadd/internal/parser/ast"
 	"github.com/tomarrell/lbadd/internal/parser/scanner/token"
 )
@@ -55,15 +53,15 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 	case token.KeywordCreate:
 		p.parseCreateStmt(stmt, r)
 	case token.KeywordDelete:
-		stmt.DeleteStmt = p.parseDeleteStmt(r)
+		stmt.DeleteStmt = p.parseDeleteStmt(nil, r)
 	case token.KeywordDetach:
 		stmt.DetachStmt = p.parseDetachDatabaseStmt(r)
 	case token.KeywordEnd:
 		stmt.CommitStmt = p.parseCommitStmt(r)
 	case token.KeywordInsert:
-		stmt.InsertStmt = p.parseInsertStmt(r)
+		stmt.InsertStmt = p.parseInsertStmt(nil, r)
 	case token.KeywordReplace:
-		stmt.InsertStmt = p.parseInsertStmt(r)
+		stmt.InsertStmt = p.parseInsertStmt(nil, r)
 	case token.KeywordRollback:
 		stmt.RollbackStmt = p.parseRollbackStmt(r)
 	case token.KeywordSelect:
@@ -73,7 +71,7 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 	case token.KeywordValues:
 		stmt.SelectStmt = p.parseSelectStmt(r)
 	case token.KeywordWith:
-		stmt.DeleteStmt = p.parseDeleteStmt(r)
+		p.parseWithClauseBeginnerStmts(stmt, r)
 	case token.StatementSeparator:
 		r.incompleteStatement()
 		p.consumeToken()
@@ -1667,17 +1665,11 @@ func (p *simpleParser) parseCreateVirtualTableStmt(createToken token.Token, r re
 
 // parseDeleteStmt parses the DELETE statement as defined in:
 // https://sqlite.org/lang_delete.html
-func (p *simpleParser) parseDeleteStmt(r reporter) (stmt *ast.DeleteStmt) {
+func (p *simpleParser) parseDeleteStmt(withClause *ast.WithClause, r reporter) (stmt *ast.DeleteStmt) {
 	stmt = &ast.DeleteStmt{}
-	next, ok := p.lookahead(r)
-	if !ok {
-		return
-	}
-	if next.Type() == token.KeywordWith {
-		stmt.WithClause = p.parseWithClause(r)
-	}
+	stmt.WithClause = withClause
 	p.searchNext(r, token.KeywordDelete)
-	next, ok = p.lookahead(r)
+	next, ok := p.lookahead(r)
 	if !ok {
 		return
 	}
@@ -1730,7 +1722,6 @@ func (p *simpleParser) parseWithClause(r reporter) (withClause *ast.WithClause) 
 		p.consumeToken()
 	}
 	for {
-		fmt.Println("BRO")
 		next, ok = p.optionalLookahead(r)
 		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 			return
@@ -1745,12 +1736,9 @@ func (p *simpleParser) parseWithClause(r reporter) (withClause *ast.WithClause) 
 		if next.Value() == "," {
 			p.consumeToken()
 		} else {
-			fmt.Println(next.Value())
 			break
 		}
-		fmt.Println("THE")
 	}
-	fmt.Println("WHAT")
 	return
 }
 
@@ -3364,18 +3352,10 @@ func (p *simpleParser) parseTableConstraint(r reporter) (stmt *ast.TableConstrai
 
 // parseInsertStmt parses insert-stmt as defined in:
 // https://sqlite.org/lang_insert.html
-func (p *simpleParser) parseInsertStmt(r reporter) (stmt *ast.InsertStmt) {
+func (p *simpleParser) parseInsertStmt(withClause *ast.WithClause, r reporter) (stmt *ast.InsertStmt) {
 	stmt = &ast.InsertStmt{}
+	stmt.WithClause = withClause
 	next, ok := p.lookahead(r)
-	if !ok {
-		return
-	}
-	if next.Type() == token.KeywordWith {
-		stmt.WithClause = p.parseWithClause(r)
-		fmt.Println("GGoo")
-	}
-	fmt.Println("GG")
-	next, ok = p.lookahead(r)
 	if !ok {
 		return
 	}
@@ -3728,17 +3708,12 @@ func (p *simpleParser) parseColumnNameList(r reporter) (stmt *ast.ColumnNameList
 
 // parseUpdateStmt parses update-stmt as defined in:
 // https://sqlite.org/lang_update.html
-func (p *simpleParser) parseUpdateStmt(r reporter) (stmt *ast.UpdateStmt) {
+func (p *simpleParser) parseUpdateStmt(withClause *ast.WithClause, r reporter) (stmt *ast.UpdateStmt) {
 	stmt = &ast.UpdateStmt{}
-	next, ok := p.lookahead(r)
-	if !ok {
-		return
-	}
-	if next.Type() == token.KeywordWith {
-		stmt.WithClause = p.parseWithClause(r)
-	}
 
-	next, ok = p.lookahead(r)
+	stmt.WithClause = withClause
+
+	next, ok := p.lookahead(r)
 	if !ok {
 		return
 	}
@@ -4480,4 +4455,28 @@ func (p *simpleParser) parseRaiseFunction(r reporter) (stmt *ast.RaiseFunction) 
 		r.unexpectedToken(token.KeywordRaise)
 	}
 	return
+}
+
+func (p *simpleParser) parseWithClauseBeginnerStmts(stmt *ast.SQLStmt, r reporter) {
+	withClause := &ast.WithClause{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordWith {
+		withClause = p.parseWithClause(r)
+	}
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	switch next.Type() {
+	case token.KeywordDelete:
+		stmt.DeleteStmt = p.parseDeleteStmt(withClause, r)
+	case token.KeywordInsert:
+		stmt.InsertStmt = p.parseInsertStmt(withClause, r)
+	case token.KeywordUpdate:
+		stmt.UpdateStmt = p.parseUpdateStmt(withClause, r)
+	}
 }
