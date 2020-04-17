@@ -1,0 +1,1 @@
+WITHmT AS(VALUES(m,m),(m,m))DELETE FROM myTable
