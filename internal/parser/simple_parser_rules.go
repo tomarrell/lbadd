@@ -1916,12 +1916,120 @@ func (p *simpleParser) parseCreateTriggerStmt(sqlStmt *ast.SQLStmt, createToken,
 }
 
 func (p *simpleParser) parseCreateViewStmt(createToken, tempToken, temporaryToken token.Token, r reporter) (stmt *ast.CreateViewStmt) {
+	stmt = &ast.CreateViewStmt{}
+	stmt.Create = createToken
+	stmt.Temp = tempToken
+	stmt.Temporary = temporaryToken
 	next, ok := p.lookahead(r)
 	if !ok {
 		return
 	}
-	r.unsupportedConstruct(next)
-	p.searchNext(r, token.StatementSeparator, token.EOF)
+	if next.Type() == token.KeywordView {
+		stmt.View = next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordIf {
+			stmt.If = next
+			p.consumeToken()
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordNot {
+				stmt.Not = next
+				p.consumeToken()
+
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Type() == token.KeywordExists {
+					stmt.Exists = next
+					p.consumeToken()
+				} else {
+					r.unexpectedToken(token.KeywordExists)
+				}
+			} else {
+				r.unexpectedToken(token.KeywordNot)
+			}
+		}
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Literal {
+			stmt.SchemaName = next
+			stmt.ViewName = next
+			p.consumeToken()
+		}
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Value() == "." {
+			stmt.Period = next
+			p.consumeToken()
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.Literal {
+				stmt.ViewName = next
+				p.consumeToken()
+			} else {
+				r.unexpectedToken(token.Literal)
+			}
+		} else {
+			stmt.SchemaName = nil
+		}
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Delimiter && next.Value() == "(" {
+			stmt.LeftParen = next
+			p.consumeToken()
+
+			for {
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Type() == token.Literal {
+					stmt.ColumnName = append(stmt.ColumnName, next)
+					p.consumeToken()
+				} else if next.Value() == "," {
+					p.consumeToken()
+				} else if next.Type() == token.Delimiter && next.Value() == ")" {
+					stmt.RightParen = next
+					p.consumeToken()
+					break
+				} else {
+					r.unexpectedToken(token.Literal, token.Delimiter)
+					break
+				}
+			}
+		}
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordAs {
+			stmt.As = next
+			p.consumeToken()
+			stmt.SelectStmt = p.parseSelectStmt(nil, r)
+		}
+	} else {
+		r.unexpectedToken(token.KeywordView)
+	}
 	return
 }
 
