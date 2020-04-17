@@ -358,18 +358,16 @@ type (
 
 	// SelectStmt as in the SQLite grammar.
 	SelectStmt struct {
-		With                  token.Token
-		Recursive             token.Token
-		CommonTableExpression []*CommonTableExpression
-		SelectCore            []*SelectCore
-		Order                 token.Token
-		By                    token.Token
-		OrderingTerm          []*OrderingTerm
-		Limit                 token.Token
-		Expr1                 *Expr
-		Offset                token.Token
-		Comma                 token.Token
-		Expr2                 *Expr
+		WithClause   *WithClause
+		SelectCore   []*SelectCore
+		Order        token.Token
+		By           token.Token
+		OrderingTerm []*OrderingTerm
+		Limit        token.Token
+		Expr1        *Expr
+		Offset       token.Token
+		Comma        token.Token
+		Expr2        *Expr
 	}
 
 	// SelectCore as in the SQLite grammar.
@@ -486,7 +484,6 @@ type (
 	// Expr as in the SQLite grammar.
 	Expr struct {
 		LiteralValue   token.Token
-		BindParameter  token.Token
 		SchemaName     token.Token
 		Period1        token.Token
 		TableName      token.Token
