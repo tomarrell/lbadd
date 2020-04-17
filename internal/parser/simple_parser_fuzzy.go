@@ -5,7 +5,7 @@ package parser
 const (
 	// DataNotInteresting indicates, that the input was not interesting, meaning
 	// that the input was not valid and the parser handled detected and returned
-	// an error.
+	// an error. The input will still be added to the corpus.
 	DataNotInteresting int = 0
 	// DataInteresting indicates a valid parser input. The fuzzer should keep it
 	// and modify it further.
