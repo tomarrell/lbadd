@@ -661,28 +661,33 @@ type (
 
 	// ForeignKeyClause as in the SQLite grammar.
 	ForeignKeyClause struct {
-		References   token.Token
-		ForeignTable token.Token
-		LeftParen    token.Token
-		ColumnName   []token.Token
-		RightParen   token.Token
-		On           token.Token
-		Delete       token.Token
-		Update       token.Token
-		Set          token.Token
-		Null         token.Token
-		Default      token.Token
-		Cascade      token.Token
-		Restrict     token.Token
-		No           token.Token
-		Action       token.Token
-		Match        token.Token
-		Name         token.Token
-		Not          token.Token
-		Deferrable   token.Token
-		Initially    token.Token
-		Deferred     token.Token
-		Immediate    token.Token
+		References           token.Token
+		ForeignTable         token.Token
+		LeftParen            token.Token
+		ColumnName           []token.Token
+		RightParen           token.Token
+		ForeignKeyClauseCore []*ForeignKeyClauseCore
+		Not                  token.Token
+		Deferrable           token.Token
+		Initially            token.Token
+		Deferred             token.Token
+		Immediate            token.Token
+	}
+
+	// ForeignKeyClauseCore as in the SQLite grammar.
+	ForeignKeyClauseCore struct {
+		On       token.Token
+		Delete   token.Token
+		Update   token.Token
+		Set      token.Token
+		Null     token.Token
+		Default  token.Token
+		Cascade  token.Token
+		Restrict token.Token
+		No       token.Token
+		Action   token.Token
+		Match    token.Token
+		Name     token.Token
 	}
 
 	// CommonTableExpression as in the SQLite grammar.
@@ -784,7 +789,7 @@ type (
 		Expr             *Expr
 		RightParen       token.Token
 		Default          token.Token
-		SignedNumber     token.Token
+		SignedNumber     *SignedNumber
 		LiteralValue     token.Token
 		Collate          token.Token
 		CollationName    token.Token
