@@ -53,7 +53,7 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 	case token.KeywordCreate:
 		p.parseCreateStmts(stmt, r)
 	case token.KeywordDelete:
-		stmt.DeleteStmt = p.parseDeleteStmt(nil, r)
+		p.parseDeleteStmts(stmt, nil, r)
 	case token.KeywordDetach:
 		stmt.DetachStmt = p.parseDetachDatabaseStmt(r)
 	case token.KeywordDrop:
@@ -75,7 +75,7 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 	case token.KeywordSelect:
 		stmt.SelectStmt = p.parseSelectStmt(nil, r)
 	case token.KeywordUpdate:
-		stmt.UpdateStmt = p.parseUpdateStmt(nil, r)
+		p.parseUpdateStmts(stmt, nil, r)
 	case token.KeywordVacuum:
 		stmt.VacuumStmt = p.parseVacuumStmt(r)
 	case token.KeywordValues:
@@ -1895,9 +1895,9 @@ func (p *simpleParser) parseCreateTriggerStmt(sqlStmt *ast.SQLStmt, createToken,
 						}
 					} else {
 						if next.Type() == token.KeywordUpdate {
-							stmt.UpdateStmt = append(stmt.UpdateStmt, p.parseUpdateStmt(nil, r))
+							stmt.UpdateStmt = append(stmt.UpdateStmt, p.parseUpdateStmt(nil, nil, r))
 						} else if next.Type() == token.KeywordDelete {
-							stmt.DeleteStmt = append(stmt.DeleteStmt, p.parseDeleteStmt(nil, r))
+							stmt.DeleteStmt = append(stmt.DeleteStmt, p.parseDeleteStmt(nil, nil, r))
 						} else if next.Type() == token.KeywordSelect {
 							stmt.SelectStmt = append(stmt.SelectStmt, p.parseSelectStmt(nil, r))
 						} else if next.Type() == token.KeywordInsert || next.Type() == token.KeywordReplace {
@@ -1915,6 +1915,8 @@ func (p *simpleParser) parseCreateTriggerStmt(sqlStmt *ast.SQLStmt, createToken,
 	return
 }
 
+// createViewStmt parses create-view stmts as defined in:
+// https://sqlite.org/lang_createview.html
 func (p *simpleParser) parseCreateViewStmt(createToken, tempToken, temporaryToken token.Token, r reporter) (stmt *ast.CreateViewStmt) {
 	stmt = &ast.CreateViewStmt{}
 	stmt.Create = createToken
@@ -2033,30 +2035,156 @@ func (p *simpleParser) parseCreateViewStmt(createToken, tempToken, temporaryToke
 	return
 }
 
+// parseCreateVirtualTableStmt parses create-virtual-stmts as defined in:
+// https://sqlite.org/lang_createvtab.html
 func (p *simpleParser) parseCreateVirtualTableStmt(createToken token.Token, r reporter) (stmt *ast.CreateVirtualTableStmt) {
+	stmt = &ast.CreateVirtualTableStmt{}
+	stmt.Create = createToken
+
 	next, ok := p.lookahead(r)
 	if !ok {
 		return
 	}
-	r.unsupportedConstruct(next)
-	p.searchNext(r, token.StatementSeparator, token.EOF)
+	if next.Type() == token.KeywordVirtual {
+		stmt.Virtual = next
+		p.consumeToken()
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordTable {
+			stmt.Table = next
+			p.consumeToken()
+		}
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordIf {
+			stmt.If = next
+			p.consumeToken()
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordNot {
+				stmt.Not = next
+				p.consumeToken()
+
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Type() == token.KeywordExists {
+					stmt.Exists = next
+					p.consumeToken()
+				} else {
+					r.unexpectedToken(token.KeywordExists)
+				}
+			} else {
+				r.unexpectedToken(token.KeywordNot)
+			}
+		}
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Literal {
+			stmt.SchemaName = next
+			stmt.TableName = next
+			p.consumeToken()
+		}
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Value() == "." {
+			stmt.Period = next
+			p.consumeToken()
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.Literal {
+				stmt.TableName = next
+				p.consumeToken()
+			} else {
+				r.unexpectedToken(token.Literal)
+			}
+		} else {
+			stmt.SchemaName = nil
+		}
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordUsing {
+			stmt.Using = next
+			p.consumeToken()
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.Literal {
+				stmt.ModuleName = next
+				p.consumeToken()
+
+				next, ok = p.optionalLookahead(r)
+				if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+					return
+				}
+				if next.Type() == token.Delimiter && next.Value() == "(" {
+					stmt.LeftParen = next
+					p.consumeToken()
+
+					for {
+						next, ok = p.lookahead(r)
+						if !ok {
+							return
+						}
+						if next.Type() == token.Literal {
+							stmt.ModuleArgument = append(stmt.ModuleArgument, next)
+							p.consumeToken()
+						} else if next.Type() == token.Delimiter && next.Value() == ")" {
+							stmt.RightParen = next
+							p.consumeToken()
+							return
+						} else if next.Value() == "," {
+							p.consumeToken()
+						} else {
+							break
+						}
+					}
+				}
+			} else {
+				r.unexpectedToken(token.Literal)
+			}
+		}
+	} else {
+		r.unexpectedToken(token.KeywordVirtual)
+	}
 	return
 }
 
-// parseDeleteStmt parses the DELETE statement as defined in:
-// https://sqlite.org/lang_delete.html
-func (p *simpleParser) parseDeleteStmt(withClause *ast.WithClause, r reporter) (stmt *ast.DeleteStmt) {
-	stmt = &ast.DeleteStmt{}
+func (p *simpleParser) parseDeleteStmtHelper(withClause *ast.WithClause, r reporter) (deleteStmt *ast.DeleteStmt) {
+	deleteStmt = &ast.DeleteStmt{}
 
 	if withClause != nil {
-		stmt.WithClause = withClause
+		deleteStmt.WithClause = withClause
 	} else {
 		next, ok := p.lookahead(r)
 		if !ok {
 			return
 		}
 		if next.Type() == token.KeywordWith {
-			stmt.WithClause = p.parseWithClause(r)
+			deleteStmt.WithClause = p.parseWithClause(r)
 		}
 	}
 
@@ -2065,7 +2193,7 @@ func (p *simpleParser) parseDeleteStmt(withClause *ast.WithClause, r reporter) (
 		return
 	}
 	if next.Type() == token.KeywordDelete {
-		stmt.Delete = next
+		deleteStmt.Delete = next
 		p.consumeToken()
 	} else {
 		r.unexpectedToken(token.KeywordDelete)
@@ -2076,23 +2204,107 @@ func (p *simpleParser) parseDeleteStmt(withClause *ast.WithClause, r reporter) (
 		return
 	}
 	if next.Type() == token.KeywordFrom {
-		stmt.From = next
+		deleteStmt.From = next
 		p.consumeToken()
 	} else {
 		r.unexpectedToken(token.KeywordFrom)
 	}
-	stmt.QualifiedTableName = p.parseQualifiedTableName(r)
+	deleteStmt.QualifiedTableName = p.parseQualifiedTableName(r)
 
 	next, ok = p.optionalLookahead(r)
 	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	if next.Type() == token.KeywordWhere {
-		stmt.Where = next
+		deleteStmt.Where = next
 		p.consumeToken()
-		stmt.Expr = p.parseExpression(r)
+		deleteStmt.Expr = p.parseExpression(r)
+	}
+	return
+}
+
+func (p *simpleParser) parseDeleteStmts(sqlStmt *ast.SQLStmt, withClause *ast.WithClause, r reporter) {
+	deleteStmt := p.parseDeleteStmtHelper(withClause, r)
+
+	next, ok := p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+		sqlStmt.DeleteStmt = deleteStmt
+	}
+	if next.Type() == token.KeywordOrder || next.Type() == token.KeywordLimit {
+		sqlStmt.DeleteStmtLimited = p.parseDeleteStmtLimited(deleteStmt, r)
+	}
+}
+
+// parseDeleteStmt parses the DELETE statement as defined in:
+// https://sqlite.org/lang_delete.html
+func (p *simpleParser) parseDeleteStmt(deleteStmt *ast.DeleteStmt, withClause *ast.WithClause, r reporter) *ast.DeleteStmt {
+	if deleteStmt != nil {
+		return deleteStmt
+	}
+	return p.parseDeleteStmtHelper(withClause, r)
+}
+
+// parseDeleteStmt parses the delete-stmt-limited statement as defined in:
+// https://sqlite.org/lang_delete.html
+func (p *simpleParser) parseDeleteStmtLimited(deleteStmt *ast.DeleteStmt, r reporter) (stmt *ast.DeleteStmtLimited) {
+	stmt = &ast.DeleteStmtLimited{}
+	stmt.DeleteStmt = deleteStmt
+
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordOrder {
+		stmt.Order = next
+		p.consumeToken()
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordBy {
+			stmt.By = next
+			p.consumeToken()
+
+			for {
+				stmt.OrderingTerm = append(stmt.OrderingTerm, p.parseOrderingTerm(r))
+				next, ok = p.optionalLookahead(r)
+				if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+					return
+				}
+				if next.Value() == "," {
+					p.consumeToken()
+				} else {
+					break
+				}
+			}
+		} else {
+			r.unexpectedToken(token.KeywordBy)
+		}
 	}
 
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+		return
+	}
+	if next.Type() == token.KeywordLimit {
+		stmt.Limit = next
+		p.consumeToken()
+		stmt.Expr1 = p.parseExpression(r)
+
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+			return
+		}
+		if next.Type() == token.KeywordOffset {
+			stmt.Offset = next
+			p.consumeToken()
+		} else if next.Value() == "," {
+			stmt.Comma = next
+			p.consumeToken()
+		}
+		stmt.Expr2 = p.parseExpression(r)
+	}
 	return
 }
 
@@ -4010,20 +4222,18 @@ func (p *simpleParser) parseColumnNameList(r reporter) (stmt *ast.ColumnNameList
 	return
 }
 
-// parseUpdateStmt parses update-stmt as defined in:
-// https://sqlite.org/lang_update.html
-func (p *simpleParser) parseUpdateStmt(withClause *ast.WithClause, r reporter) (stmt *ast.UpdateStmt) {
-	stmt = &ast.UpdateStmt{}
+func (p *simpleParser) parseUpdateStmtHelper(withClause *ast.WithClause, r reporter) (updateStmt *ast.UpdateStmt) {
+	updateStmt = &ast.UpdateStmt{}
 
 	if withClause != nil {
-		stmt.WithClause = withClause
+		updateStmt.WithClause = withClause
 	} else {
 		next, ok := p.lookahead(r)
 		if !ok {
 			return
 		}
 		if next.Type() == token.KeywordWith {
-			stmt.WithClause = p.parseWithClause(r)
+			updateStmt.WithClause = p.parseWithClause(r)
 		}
 	}
 
@@ -4032,14 +4242,14 @@ func (p *simpleParser) parseUpdateStmt(withClause *ast.WithClause, r reporter) (
 		return
 	}
 	if next.Type() == token.KeywordUpdate {
-		stmt.Update = next
+		updateStmt.Update = next
 		p.consumeToken()
 		next, ok = p.lookahead(r)
 		if !ok {
 			return
 		}
 		if next.Type() == token.KeywordOr {
-			stmt.Or = next
+			updateStmt.Or = next
 			p.consumeToken()
 			next, ok = p.lookahead(r)
 			if !ok {
@@ -4047,15 +4257,15 @@ func (p *simpleParser) parseUpdateStmt(withClause *ast.WithClause, r reporter) (
 			}
 			switch next.Type() {
 			case token.KeywordRollback:
-				stmt.Rollback = next
+				updateStmt.Rollback = next
 			case token.KeywordAbort:
-				stmt.Abort = next
+				updateStmt.Abort = next
 			case token.KeywordReplace:
-				stmt.Replace = next
+				updateStmt.Replace = next
 			case token.KeywordFail:
-				stmt.Fail = next
+				updateStmt.Fail = next
 			case token.KeywordIgnore:
-				stmt.Ignore = next
+				updateStmt.Ignore = next
 			}
 			p.consumeToken()
 		}
@@ -4065,13 +4275,13 @@ func (p *simpleParser) parseUpdateStmt(withClause *ast.WithClause, r reporter) (
 			return
 		}
 		if next.Type() == token.Literal {
-			stmt.QualifiedTableName = p.parseQualifiedTableName(r)
+			updateStmt.QualifiedTableName = p.parseQualifiedTableName(r)
 			next, ok = p.lookahead(r)
 			if !ok {
 				return
 			}
 			if next.Type() == token.KeywordSet {
-				stmt.Set = next
+				updateStmt.Set = next
 				p.consumeToken()
 
 				for {
@@ -4079,13 +4289,13 @@ func (p *simpleParser) parseUpdateStmt(withClause *ast.WithClause, r reporter) (
 					if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 						return
 					}
-					if next.Type() == token.KeywordWhere {
+					if next.Type() == token.KeywordWhere || next.Type() == token.KeywordOrder || next.Type() == token.KeywordLimit {
 						break
 					}
 					if next.Value() == "," {
 						p.consumeToken()
 					}
-					stmt.UpdateSetter = append(stmt.UpdateSetter, p.parseUpdateSetter(r))
+					updateStmt.UpdateSetter = append(updateStmt.UpdateSetter, p.parseUpdateSetter(r))
 				}
 
 				next, ok = p.optionalLookahead(r)
@@ -4093,9 +4303,9 @@ func (p *simpleParser) parseUpdateStmt(withClause *ast.WithClause, r reporter) (
 					return
 				}
 				if next.Type() == token.KeywordWhere {
-					stmt.Where = next
+					updateStmt.Where = next
 					p.consumeToken()
-					stmt.Expr = p.parseExpression(r)
+					updateStmt.Expr = p.parseExpression(r)
 				}
 
 			} else {
@@ -4106,6 +4316,89 @@ func (p *simpleParser) parseUpdateStmt(withClause *ast.WithClause, r reporter) (
 		}
 	} else {
 		r.unexpectedToken(token.KeywordUpdate)
+	}
+	return
+}
+
+func (p *simpleParser) parseUpdateStmts(sqlStmt *ast.SQLStmt, withClause *ast.WithClause, r reporter) {
+	updateStmt := p.parseUpdateStmtHelper(withClause, r)
+
+	next, ok := p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+		sqlStmt.UpdateStmt = updateStmt
+	}
+	if next.Type() == token.KeywordOrder || next.Type() == token.KeywordLimit {
+		sqlStmt.UpdateStmtLimited = p.parseUpdateStmtLimited(updateStmt, r)
+	}
+}
+
+// parseUpdateStmt parses update-stmt as defined in:
+// https://sqlite.org/lang_update.html
+func (p *simpleParser) parseUpdateStmt(updateStmt *ast.UpdateStmt, withClause *ast.WithClause, r reporter) (stmt *ast.UpdateStmt) {
+	if updateStmt != nil {
+		return updateStmt
+	}
+	return p.parseUpdateStmtHelper(withClause, r)
+}
+
+func (p *simpleParser) parseUpdateStmtLimited(updateStmt *ast.UpdateStmt, r reporter) (stmt *ast.UpdateStmtLimited) {
+	stmt = &ast.UpdateStmtLimited{}
+	stmt.UpdateStmt = updateStmt
+
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordOrder {
+		stmt.Order = next
+		p.consumeToken()
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordBy {
+			stmt.By = next
+			p.consumeToken()
+
+			for {
+				stmt.OrderingTerm = append(stmt.OrderingTerm, p.parseOrderingTerm(r))
+				next, ok = p.optionalLookahead(r)
+				if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+					return
+				}
+				if next.Value() == "," {
+					p.consumeToken()
+				} else {
+					break
+				}
+			}
+		} else {
+			r.unexpectedToken(token.KeywordBy)
+		}
+	}
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+		return
+	}
+	if next.Type() == token.KeywordLimit {
+		stmt.Limit = next
+		p.consumeToken()
+		stmt.Expr1 = p.parseExpression(r)
+
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+			return
+		}
+		if next.Type() == token.KeywordOffset {
+			stmt.Offset = next
+			p.consumeToken()
+		} else if next.Value() == "," {
+			stmt.Comma = next
+			p.consumeToken()
+		}
+		stmt.Expr2 = p.parseExpression(r)
 	}
 	return
 }
@@ -4764,11 +5057,11 @@ func (p *simpleParser) parseWithClauseBeginnerStmts(stmt *ast.SQLStmt, r reporte
 	}
 	switch next.Type() {
 	case token.KeywordDelete:
-		stmt.DeleteStmt = p.parseDeleteStmt(withClause, r)
+		p.parseDeleteStmts(stmt, withClause, r)
 	case token.KeywordInsert:
 		stmt.InsertStmt = p.parseInsertStmt(withClause, r)
 	case token.KeywordUpdate:
-		stmt.UpdateStmt = p.parseUpdateStmt(withClause, r)
+		p.parseUpdateStmts(stmt, withClause, r)
 	case token.KeywordSelect:
 		stmt.SelectStmt = p.parseSelectStmt(withClause, r)
 	}

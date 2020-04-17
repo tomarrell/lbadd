@@ -1117,7 +1117,7 @@ func TestSingleStatementParse(t *testing.T) {
 						With:      token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						Recursive: token.New(1, 6, 5, 9, token.KeywordRecursive, "RECURSIVE"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 16, 15, 7, token.Literal, "myTable"),
 									LeftParen: token.New(1, 24, 23, 1, token.Delimiter, "("),
@@ -1130,10 +1130,10 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 35, 34, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 36, 35, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 43, 42, 1, token.BinaryOperator, "*"),
 												},
 											},
@@ -1161,7 +1161,7 @@ func TestSingleStatementParse(t *testing.T) {
 						With:      token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						Recursive: token.New(1, 6, 5, 9, token.KeywordRecursive, "RECURSIVE"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 16, 15, 7, token.Literal, "myTable"),
 									LeftParen: token.New(1, 24, 23, 1, token.Delimiter, "("),
@@ -1175,10 +1175,10 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 43, 42, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 44, 43, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 51, 50, 1, token.BinaryOperator, "*"),
 												},
 											},
@@ -1205,7 +1205,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -1223,10 +1223,10 @@ func TestSingleStatementParse(t *testing.T) {
 												LeftParen: token.New(1, 34, 33, 1, token.Delimiter, "("),
 												SelectStmt: &ast.SelectStmt{
 													SelectCore: []*ast.SelectCore{
-														&ast.SelectCore{
+														{
 															Select: token.New(1, 35, 34, 6, token.KeywordSelect, "SELECT"),
 															ResultColumn: []*ast.ResultColumn{
-																&ast.ResultColumn{
+																{
 																	Asterisk: token.New(1, 42, 41, 1, token.BinaryOperator, "*"),
 																},
 															},
@@ -1238,10 +1238,10 @@ func TestSingleStatementParse(t *testing.T) {
 										},
 									},
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 45, 44, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 52, 51, 1, token.BinaryOperator, "*"),
 												},
 											},
@@ -1268,7 +1268,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -1291,10 +1291,10 @@ func TestSingleStatementParse(t *testing.T) {
 												LeftParen: token.New(1, 42, 41, 1, token.Delimiter, "("),
 												SelectStmt: &ast.SelectStmt{
 													SelectCore: []*ast.SelectCore{
-														&ast.SelectCore{
+														{
 															Select: token.New(1, 43, 42, 6, token.KeywordSelect, "SELECT"),
 															ResultColumn: []*ast.ResultColumn{
-																&ast.ResultColumn{
+																{
 																	Asterisk: token.New(1, 50, 49, 1, token.BinaryOperator, "*"),
 																},
 															},
@@ -1306,10 +1306,10 @@ func TestSingleStatementParse(t *testing.T) {
 										},
 									},
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 53, 52, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 60, 59, 1, token.BinaryOperator, "*"),
 												},
 											},
@@ -1336,7 +1336,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -1355,10 +1355,10 @@ func TestSingleStatementParse(t *testing.T) {
 												LeftParen: token.New(1, 44, 43, 1, token.Delimiter, "("),
 												SelectStmt: &ast.SelectStmt{
 													SelectCore: []*ast.SelectCore{
-														&ast.SelectCore{
+														{
 															Select: token.New(1, 45, 44, 6, token.KeywordSelect, "SELECT"),
 															ResultColumn: []*ast.ResultColumn{
-																&ast.ResultColumn{
+																{
 																	Asterisk: token.New(1, 52, 51, 1, token.BinaryOperator, "*"),
 																},
 															},
@@ -1370,10 +1370,10 @@ func TestSingleStatementParse(t *testing.T) {
 										},
 									},
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 55, 54, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 62, 61, 1, token.BinaryOperator, "*"),
 												},
 											},
@@ -1400,7 +1400,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -1424,10 +1424,10 @@ func TestSingleStatementParse(t *testing.T) {
 												LeftParen: token.New(1, 50, 49, 1, token.Delimiter, "("),
 												SelectStmt: &ast.SelectStmt{
 													SelectCore: []*ast.SelectCore{
-														&ast.SelectCore{
+														{
 															Select: token.New(1, 51, 50, 6, token.KeywordSelect, "SELECT"),
 															ResultColumn: []*ast.ResultColumn{
-																&ast.ResultColumn{
+																{
 																	Asterisk: token.New(1, 58, 57, 1, token.BinaryOperator, "*"),
 																},
 															},
@@ -1439,10 +1439,10 @@ func TestSingleStatementParse(t *testing.T) {
 										},
 									},
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 61, 60, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 68, 67, 1, token.BinaryOperator, "*"),
 												},
 											},
@@ -1469,7 +1469,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -1477,11 +1477,11 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select:   token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											Distinct: token.New(1, 25, 24, 8, token.KeywordDistinct, "DISTINCT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 34, 33, 1, token.BinaryOperator, "*"),
 												},
 											},
@@ -1508,7 +1508,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -1516,11 +1516,11 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											All:    token.New(1, 25, 24, 3, token.KeywordAll, "ALL"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 29, 28, 1, token.BinaryOperator, "*"),
 												},
 											},
@@ -1547,7 +1547,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -1555,10 +1555,10 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													TableName: token.New(1, 25, 24, 7, token.Literal, "myTable"),
 													Period:    token.New(1, 32, 31, 1, token.Literal, "."),
 													Asterisk:  token.New(1, 33, 32, 1, token.BinaryOperator, "*"),
@@ -1587,7 +1587,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -1595,10 +1595,10 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Expr: &ast.Expr{
 														LiteralValue: token.New(1, 25, 24, 6, token.Literal, "myExpr"),
 													},
@@ -1627,7 +1627,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -1635,10 +1635,10 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Expr: &ast.Expr{
 														LiteralValue: token.New(1, 25, 24, 6, token.Literal, "myExpr"),
 													},
@@ -1668,7 +1668,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -1676,10 +1676,10 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Expr: &ast.Expr{
 														LiteralValue: token.New(1, 25, 24, 6, token.Literal, "myExpr"),
 													},
@@ -1710,7 +1710,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -1718,10 +1718,10 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
@@ -4924,16 +4924,16 @@ func TestSingleStatementParse(t *testing.T) {
 					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
 					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
 					ColumnDef: []*ast.ColumnDef{
-						&ast.ColumnDef{
+						{
 							ColumnName: token.New(1, 23, 22, 9, token.Literal, "myColumn1"),
 						},
 					},
 					TableConstraint: []*ast.TableConstraint{
-						&ast.TableConstraint{
+						{
 							Unique:    token.New(1, 33, 32, 6, token.KeywordUnique, "UNIQUE"),
 							LeftParen: token.New(1, 40, 39, 1, token.Delimiter, "("),
 							IndexedColumn: []*ast.IndexedColumn{
-								&ast.IndexedColumn{
+								{
 									ColumnName: token.New(1, 41, 40, 6, token.Literal, "myExpr"),
 								},
 							},
@@ -4954,12 +4954,12 @@ func TestSingleStatementParse(t *testing.T) {
 					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
 					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
 					ColumnDef: []*ast.ColumnDef{
-						&ast.ColumnDef{
+						{
 							ColumnName: token.New(1, 23, 22, 9, token.Literal, "myColumn1"),
 						},
 					},
 					TableConstraint: []*ast.TableConstraint{
-						&ast.TableConstraint{
+						{
 							Foreign:   token.New(1, 33, 32, 7, token.KeywordForeign, "FOREIGN"),
 							Key:       token.New(1, 41, 40, 3, token.KeywordKey, "KEY"),
 							LeftParen: token.New(1, 45, 44, 1, token.Delimiter, "("),
@@ -4987,12 +4987,12 @@ func TestSingleStatementParse(t *testing.T) {
 					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
 					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
 					ColumnDef: []*ast.ColumnDef{
-						&ast.ColumnDef{
+						{
 							ColumnName: token.New(1, 23, 22, 9, token.Literal, "myColumn1"),
 						},
 					},
 					TableConstraint: []*ast.TableConstraint{
-						&ast.TableConstraint{
+						{
 							Foreign:   token.New(1, 33, 32, 7, token.KeywordForeign, "FOREIGN"),
 							Key:       token.New(1, 41, 40, 3, token.KeywordKey, "KEY"),
 							LeftParen: token.New(1, 45, 44, 1, token.Delimiter, "("),
@@ -5021,12 +5021,12 @@ func TestSingleStatementParse(t *testing.T) {
 					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
 					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
 					ColumnDef: []*ast.ColumnDef{
-						&ast.ColumnDef{
+						{
 							ColumnName: token.New(1, 23, 22, 9, token.Literal, "myColumn1"),
 						},
 					},
 					TableConstraint: []*ast.TableConstraint{
-						&ast.TableConstraint{
+						{
 							Foreign:   token.New(1, 33, 32, 7, token.KeywordForeign, "FOREIGN"),
 							Key:       token.New(1, 41, 40, 3, token.KeywordKey, "KEY"),
 							LeftParen: token.New(1, 45, 44, 1, token.Delimiter, "("),
@@ -5059,12 +5059,12 @@ func TestSingleStatementParse(t *testing.T) {
 					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
 					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
 					ColumnDef: []*ast.ColumnDef{
-						&ast.ColumnDef{
+						{
 							ColumnName: token.New(1, 23, 22, 9, token.Literal, "myColumn1"),
 						},
 					},
 					TableConstraint: []*ast.TableConstraint{
-						&ast.TableConstraint{
+						{
 							Foreign:   token.New(1, 33, 32, 7, token.KeywordForeign, "FOREIGN"),
 							Key:       token.New(1, 41, 40, 3, token.KeywordKey, "KEY"),
 							LeftParen: token.New(1, 45, 44, 1, token.Delimiter, "("),
@@ -5342,12 +5342,12 @@ func TestSingleStatementParse(t *testing.T) {
 					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
 					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
 					ColumnDef: []*ast.ColumnDef{
-						&ast.ColumnDef{
+						{
 							ColumnName: token.New(1, 23, 22, 9, token.Literal, "myColumn1"),
 						},
 					},
 					TableConstraint: []*ast.TableConstraint{
-						&ast.TableConstraint{
+						{
 							Foreign:   token.New(1, 33, 32, 7, token.KeywordForeign, "FOREIGN"),
 							Key:       token.New(1, 41, 40, 3, token.KeywordKey, "KEY"),
 							LeftParen: token.New(1, 45, 44, 1, token.Delimiter, "("),
@@ -5359,7 +5359,7 @@ func TestSingleStatementParse(t *testing.T) {
 								References:   token.New(1, 53, 52, 10, token.KeywordReferences, "REFERENCES"),
 								ForeignTable: token.New(1, 64, 63, 14, token.Literal, "myForeignTable"),
 								ForeignKeyClauseCore: []*ast.ForeignKeyClauseCore{
-									&ast.ForeignKeyClauseCore{
+									{
 										Match: token.New(1, 79, 78, 5, token.KeywordMatch, "MATCH"),
 										Name:  token.New(1, 85, 84, 7, token.Literal, "myMatch"),
 									},
@@ -5381,12 +5381,12 @@ func TestSingleStatementParse(t *testing.T) {
 					TableName: token.New(1, 14, 13, 7, token.Literal, "myTable"),
 					LeftParen: token.New(1, 22, 21, 1, token.Delimiter, "("),
 					ColumnDef: []*ast.ColumnDef{
-						&ast.ColumnDef{
+						{
 							ColumnName: token.New(1, 23, 22, 9, token.Literal, "myColumn1"),
 						},
 					},
 					TableConstraint: []*ast.TableConstraint{
-						&ast.TableConstraint{
+						{
 							Foreign:   token.New(1, 33, 32, 7, token.KeywordForeign, "FOREIGN"),
 							Key:       token.New(1, 41, 40, 3, token.KeywordKey, "KEY"),
 							LeftParen: token.New(1, 45, 44, 1, token.Delimiter, "("),
@@ -5398,11 +5398,11 @@ func TestSingleStatementParse(t *testing.T) {
 								References:   token.New(1, 53, 52, 10, token.KeywordReferences, "REFERENCES"),
 								ForeignTable: token.New(1, 64, 63, 14, token.Literal, "myForeignTable"),
 								ForeignKeyClauseCore: []*ast.ForeignKeyClauseCore{
-									&ast.ForeignKeyClauseCore{
+									{
 										Match: token.New(1, 79, 78, 5, token.KeywordMatch, "MATCH"),
 										Name:  token.New(1, 85, 84, 7, token.Literal, "myMatch"),
 									},
-									&ast.ForeignKeyClauseCore{
+									{
 										On:     token.New(1, 93, 92, 2, token.KeywordOn, "ON"),
 										Delete: token.New(1, 96, 95, 6, token.KeywordDelete, "DELETE"),
 										No:     token.New(1, 103, 102, 2, token.KeywordNo, "NO"),
@@ -7869,6 +7869,559 @@ func TestSingleStatementParse(t *testing.T) {
 						},
 					},
 					End: token.New(1, 70, 69, 3, token.KeywordEnd, "END"),
+				},
+			},
+		},
+		{
+			`CREATE VIEW basic`,
+			"CREATE VIEW myView AS SELECT *",
+			&ast.SQLStmt{
+				CreateViewStmt: &ast.CreateViewStmt{
+					Create:   token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					View:     token.New(1, 8, 7, 4, token.KeywordView, "VIEW"),
+					ViewName: token.New(1, 13, 12, 6, token.Literal, "myView"),
+					As:       token.New(1, 20, 19, 2, token.KeywordAs, "AS"),
+					SelectStmt: &ast.SelectStmt{
+						SelectCore: []*ast.SelectCore{
+							{
+								Select: token.New(1, 23, 22, 6, token.KeywordSelect, "SELECT"),
+								ResultColumn: []*ast.ResultColumn{
+									{
+										Asterisk: token.New(1, 30, 29, 1, token.BinaryOperator, "*"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			`CREATE VIEW with single col-name`,
+			"CREATE VIEW myView (myCol) AS SELECT *",
+			&ast.SQLStmt{
+				CreateViewStmt: &ast.CreateViewStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					View:      token.New(1, 8, 7, 4, token.KeywordView, "VIEW"),
+					ViewName:  token.New(1, 13, 12, 6, token.Literal, "myView"),
+					LeftParen: token.New(1, 20, 19, 1, token.Delimiter, "("),
+					ColumnName: []token.Token{
+						token.New(1, 21, 20, 5, token.Literal, "myCol"),
+					},
+					RightParen: token.New(1, 26, 25, 1, token.Delimiter, ")"),
+					As:         token.New(1, 28, 27, 2, token.KeywordAs, "AS"),
+					SelectStmt: &ast.SelectStmt{
+						SelectCore: []*ast.SelectCore{
+							{
+								Select: token.New(1, 31, 30, 6, token.KeywordSelect, "SELECT"),
+								ResultColumn: []*ast.ResultColumn{
+									{
+										Asterisk: token.New(1, 38, 37, 1, token.BinaryOperator, "*"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			`CREATE VIEW with multiple col-name`,
+			"CREATE VIEW myView (myCol1,myCol2) AS SELECT *",
+			&ast.SQLStmt{
+				CreateViewStmt: &ast.CreateViewStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					View:      token.New(1, 8, 7, 4, token.KeywordView, "VIEW"),
+					ViewName:  token.New(1, 13, 12, 6, token.Literal, "myView"),
+					LeftParen: token.New(1, 20, 19, 1, token.Delimiter, "("),
+					ColumnName: []token.Token{
+						token.New(1, 21, 20, 6, token.Literal, "myCol1"),
+						token.New(1, 28, 27, 6, token.Literal, "myCol2"),
+					},
+					RightParen: token.New(1, 34, 33, 1, token.Delimiter, ")"),
+					As:         token.New(1, 36, 35, 2, token.KeywordAs, "AS"),
+					SelectStmt: &ast.SelectStmt{
+						SelectCore: []*ast.SelectCore{
+							{
+								Select: token.New(1, 39, 38, 6, token.KeywordSelect, "SELECT"),
+								ResultColumn: []*ast.ResultColumn{
+									{
+										Asterisk: token.New(1, 46, 45, 1, token.BinaryOperator, "*"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			`CREATE VIEW with Schema`,
+			"CREATE VIEW mySchema.myView AS SELECT *",
+			&ast.SQLStmt{
+				CreateViewStmt: &ast.CreateViewStmt{
+					Create:     token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					View:       token.New(1, 8, 7, 4, token.KeywordView, "VIEW"),
+					SchemaName: token.New(1, 13, 12, 8, token.Literal, "mySchema"),
+					Period:     token.New(1, 21, 20, 1, token.Literal, "."),
+					ViewName:   token.New(1, 22, 21, 6, token.Literal, "myView"),
+					As:         token.New(1, 29, 28, 2, token.KeywordAs, "AS"),
+					SelectStmt: &ast.SelectStmt{
+						SelectCore: []*ast.SelectCore{
+							{
+								Select: token.New(1, 32, 31, 6, token.KeywordSelect, "SELECT"),
+								ResultColumn: []*ast.ResultColumn{
+									{
+										Asterisk: token.New(1, 39, 38, 1, token.BinaryOperator, "*"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			`CREATE VIEW woth IF NOT EXISTS`,
+			"CREATE VIEW IF NOT EXISTS myView AS SELECT *",
+			&ast.SQLStmt{
+				CreateViewStmt: &ast.CreateViewStmt{
+					Create:   token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					View:     token.New(1, 8, 7, 4, token.KeywordView, "VIEW"),
+					If:       token.New(1, 13, 12, 2, token.KeywordIf, "IF"),
+					Not:      token.New(1, 16, 15, 3, token.KeywordNot, "NOT"),
+					Exists:   token.New(1, 20, 19, 6, token.KeywordExists, "EXISTS"),
+					ViewName: token.New(1, 27, 26, 6, token.Literal, "myView"),
+					As:       token.New(1, 34, 33, 2, token.KeywordAs, "AS"),
+					SelectStmt: &ast.SelectStmt{
+						SelectCore: []*ast.SelectCore{
+							{
+								Select: token.New(1, 37, 36, 6, token.KeywordSelect, "SELECT"),
+								ResultColumn: []*ast.ResultColumn{
+									{
+										Asterisk: token.New(1, 44, 43, 1, token.BinaryOperator, "*"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			`CREATE VIEW with TEMP`,
+			"CREATE TEMP VIEW myView AS SELECT *",
+			&ast.SQLStmt{
+				CreateViewStmt: &ast.CreateViewStmt{
+					Create:   token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Temp:     token.New(1, 8, 7, 4, token.KeywordTemp, "TEMP"),
+					View:     token.New(1, 13, 12, 4, token.KeywordView, "VIEW"),
+					ViewName: token.New(1, 18, 17, 6, token.Literal, "myView"),
+					As:       token.New(1, 25, 24, 2, token.KeywordAs, "AS"),
+					SelectStmt: &ast.SelectStmt{
+						SelectCore: []*ast.SelectCore{
+							{
+								Select: token.New(1, 28, 27, 6, token.KeywordSelect, "SELECT"),
+								ResultColumn: []*ast.ResultColumn{
+									{
+										Asterisk: token.New(1, 35, 34, 1, token.BinaryOperator, "*"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			`CREATE VIEW with TEMPORARY`,
+			"CREATE TEMPORARY VIEW myView AS SELECT *",
+			&ast.SQLStmt{
+				CreateViewStmt: &ast.CreateViewStmt{
+					Create:    token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Temporary: token.New(1, 8, 7, 9, token.KeywordTemporary, "TEMPORARY"),
+					View:      token.New(1, 18, 17, 4, token.KeywordView, "VIEW"),
+					ViewName:  token.New(1, 23, 22, 6, token.Literal, "myView"),
+					As:        token.New(1, 30, 29, 2, token.KeywordAs, "AS"),
+					SelectStmt: &ast.SelectStmt{
+						SelectCore: []*ast.SelectCore{
+							{
+								Select: token.New(1, 33, 32, 6, token.KeywordSelect, "SELECT"),
+								ResultColumn: []*ast.ResultColumn{
+									{
+										Asterisk: token.New(1, 40, 39, 1, token.BinaryOperator, "*"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			`CREATE VIRTUAL TABLE basic`,
+			"CREATE VIRTUAL TABLE myTable USING myModule",
+			&ast.SQLStmt{
+				CreateVirtualTableStmt: &ast.CreateVirtualTableStmt{
+					Create:     token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Virtual:    token.New(1, 8, 7, 7, token.KeywordVirtual, "VIRTUAL"),
+					Table:      token.New(1, 16, 15, 5, token.KeywordTable, "TABLE"),
+					TableName:  token.New(1, 22, 21, 7, token.Literal, "myTable"),
+					Using:      token.New(1, 30, 29, 5, token.KeywordUsing, "USING"),
+					ModuleName: token.New(1, 36, 35, 8, token.Literal, "myModule"),
+				},
+			},
+		},
+		{
+			`CREATE VIRTUAL TABLE with single module-argument`,
+			"CREATE VIRTUAL TABLE myTable USING myModule (myModArg)",
+			&ast.SQLStmt{
+				CreateVirtualTableStmt: &ast.CreateVirtualTableStmt{
+					Create:     token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Virtual:    token.New(1, 8, 7, 7, token.KeywordVirtual, "VIRTUAL"),
+					Table:      token.New(1, 16, 15, 5, token.KeywordTable, "TABLE"),
+					TableName:  token.New(1, 22, 21, 7, token.Literal, "myTable"),
+					Using:      token.New(1, 30, 29, 5, token.KeywordUsing, "USING"),
+					ModuleName: token.New(1, 36, 35, 8, token.Literal, "myModule"),
+					LeftParen:  token.New(1, 45, 44, 1, token.Delimiter, "("),
+					ModuleArgument: []token.Token{
+						token.New(1, 46, 45, 8, token.Literal, "myModArg"),
+					},
+					RightParen: token.New(1, 54, 53, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE VIRTUAL TABLE with mutiple module-argument`,
+			"CREATE VIRTUAL TABLE myTable USING myModule (myModArg1,myModArg2)",
+			&ast.SQLStmt{
+				CreateVirtualTableStmt: &ast.CreateVirtualTableStmt{
+					Create:     token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Virtual:    token.New(1, 8, 7, 7, token.KeywordVirtual, "VIRTUAL"),
+					Table:      token.New(1, 16, 15, 5, token.KeywordTable, "TABLE"),
+					TableName:  token.New(1, 22, 21, 7, token.Literal, "myTable"),
+					Using:      token.New(1, 30, 29, 5, token.KeywordUsing, "USING"),
+					ModuleName: token.New(1, 36, 35, 8, token.Literal, "myModule"),
+					LeftParen:  token.New(1, 45, 44, 1, token.Delimiter, "("),
+					ModuleArgument: []token.Token{
+						token.New(1, 46, 45, 9, token.Literal, "myModArg1"),
+						token.New(1, 56, 55, 9, token.Literal, "myModArg2"),
+					},
+					RightParen: token.New(1, 65, 64, 1, token.Delimiter, ")"),
+				},
+			},
+		},
+		{
+			`CREATE VIRTUAL TABLE with schema`,
+			"CREATE VIRTUAL TABLE mySchema.myTable USING myModule",
+			&ast.SQLStmt{
+				CreateVirtualTableStmt: &ast.CreateVirtualTableStmt{
+					Create:     token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Virtual:    token.New(1, 8, 7, 7, token.KeywordVirtual, "VIRTUAL"),
+					Table:      token.New(1, 16, 15, 5, token.KeywordTable, "TABLE"),
+					SchemaName: token.New(1, 22, 21, 8, token.Literal, "mySchema"),
+					Period:     token.New(1, 30, 29, 1, token.Literal, "."),
+					TableName:  token.New(1, 31, 30, 7, token.Literal, "myTable"),
+					Using:      token.New(1, 39, 38, 5, token.KeywordUsing, "USING"),
+					ModuleName: token.New(1, 45, 44, 8, token.Literal, "myModule"),
+				},
+			},
+		},
+		{
+			`CREATE VIRTUAL TABLE with IF NOT EXISTS`,
+			"CREATE VIRTUAL TABLE IF NOT EXISTS myTable USING myModule",
+			&ast.SQLStmt{
+				CreateVirtualTableStmt: &ast.CreateVirtualTableStmt{
+					Create:     token.New(1, 1, 0, 6, token.KeywordCreate, "CREATE"),
+					Virtual:    token.New(1, 8, 7, 7, token.KeywordVirtual, "VIRTUAL"),
+					Table:      token.New(1, 16, 15, 5, token.KeywordTable, "TABLE"),
+					If:         token.New(1, 22, 21, 2, token.KeywordIf, "IF"),
+					Not:        token.New(1, 25, 24, 3, token.KeywordNot, "NOT"),
+					Exists:     token.New(1, 29, 28, 6, token.KeywordExists, "EXISTS"),
+					TableName:  token.New(1, 36, 35, 7, token.Literal, "myTable"),
+					Using:      token.New(1, 44, 43, 5, token.KeywordUsing, "USING"),
+					ModuleName: token.New(1, 50, 49, 8, token.Literal, "myModule"),
+				},
+			},
+		},
+		{
+			`DELETE limited with ORDER basic`,
+			"DELETE FROM myTable ORDER BY myOrder",
+			&ast.SQLStmt{
+				DeleteStmtLimited: &ast.DeleteStmtLimited{
+					DeleteStmt: &ast.DeleteStmt{
+						Delete: token.New(1, 1, 0, 6, token.KeywordDelete, "DELETE"),
+						From:   token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+						QualifiedTableName: &ast.QualifiedTableName{
+							TableName: token.New(1, 13, 12, 7, token.Literal, "myTable"),
+						},
+					},
+					Order: token.New(1, 21, 20, 5, token.KeywordOrder, "ORDER"),
+					By:    token.New(1, 27, 26, 2, token.KeywordBy, "BY"),
+					OrderingTerm: []*ast.OrderingTerm{
+						{
+							Expr: &ast.Expr{
+								LiteralValue: token.New(1, 30, 29, 7, token.Literal, "myOrder"),
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			`DELETE limited with ORDER with multiple ordering terms`,
+			"DELETE FROM myTable ORDER BY myOrder1,myOrder2",
+			&ast.SQLStmt{
+				DeleteStmtLimited: &ast.DeleteStmtLimited{
+					DeleteStmt: &ast.DeleteStmt{
+						Delete: token.New(1, 1, 0, 6, token.KeywordDelete, "DELETE"),
+						From:   token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+						QualifiedTableName: &ast.QualifiedTableName{
+							TableName: token.New(1, 13, 12, 7, token.Literal, "myTable"),
+						},
+					},
+					Order: token.New(1, 21, 20, 5, token.KeywordOrder, "ORDER"),
+					By:    token.New(1, 27, 26, 2, token.KeywordBy, "BY"),
+					OrderingTerm: []*ast.OrderingTerm{
+						{
+							Expr: &ast.Expr{
+								LiteralValue: token.New(1, 30, 29, 8, token.Literal, "myOrder1"),
+							},
+						},
+						{
+							Expr: &ast.Expr{
+								LiteralValue: token.New(1, 39, 38, 8, token.Literal, "myOrder2"),
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			`DELETE limited with LIMIT basic`,
+			"DELETE FROM myTable LIMIT myLimit",
+			&ast.SQLStmt{
+				DeleteStmtLimited: &ast.DeleteStmtLimited{
+					DeleteStmt: &ast.DeleteStmt{
+						Delete: token.New(1, 1, 0, 6, token.KeywordDelete, "DELETE"),
+						From:   token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+						QualifiedTableName: &ast.QualifiedTableName{
+							TableName: token.New(1, 13, 12, 7, token.Literal, "myTable"),
+						},
+					},
+					Limit: token.New(1, 21, 20, 5, token.KeywordLimit, "LIMIT"),
+					Expr1: &ast.Expr{
+						LiteralValue: token.New(1, 27, 26, 7, token.Literal, "myLimit"),
+					},
+				},
+			},
+		},
+		{
+			`DELETE limited with LIMIT with OFFSET`,
+			"DELETE FROM myTable LIMIT myLimit OFFSET myExpr",
+			&ast.SQLStmt{
+				DeleteStmtLimited: &ast.DeleteStmtLimited{
+					DeleteStmt: &ast.DeleteStmt{
+						Delete: token.New(1, 1, 0, 6, token.KeywordDelete, "DELETE"),
+						From:   token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+						QualifiedTableName: &ast.QualifiedTableName{
+							TableName: token.New(1, 13, 12, 7, token.Literal, "myTable"),
+						},
+					},
+					Limit: token.New(1, 21, 20, 5, token.KeywordLimit, "LIMIT"),
+					Expr1: &ast.Expr{
+						LiteralValue: token.New(1, 27, 26, 7, token.Literal, "myLimit"),
+					},
+					Offset: token.New(1, 35, 34, 6, token.KeywordOffset, "OFFSET"),
+					Expr2: &ast.Expr{
+						LiteralValue: token.New(1, 42, 41, 6, token.Literal, "myExpr"),
+					},
+				},
+			},
+		},
+		{
+			`DELETE limited with LIMIT with comma`,
+			"DELETE FROM myTable LIMIT myLimit,myExpr",
+			&ast.SQLStmt{
+				DeleteStmtLimited: &ast.DeleteStmtLimited{
+					DeleteStmt: &ast.DeleteStmt{
+						Delete: token.New(1, 1, 0, 6, token.KeywordDelete, "DELETE"),
+						From:   token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+						QualifiedTableName: &ast.QualifiedTableName{
+							TableName: token.New(1, 13, 12, 7, token.Literal, "myTable"),
+						},
+					},
+					Limit: token.New(1, 21, 20, 5, token.KeywordLimit, "LIMIT"),
+					Expr1: &ast.Expr{
+						LiteralValue: token.New(1, 27, 26, 7, token.Literal, "myLimit"),
+					},
+					Comma: token.New(1, 34, 33, 1, token.Delimiter, ","),
+					Expr2: &ast.Expr{
+						LiteralValue: token.New(1, 35, 34, 6, token.Literal, "myExpr"),
+					},
+				},
+			},
+		},
+		{
+			`UPDATE LIMITED with ORDER`,
+			"UPDATE myTable SET myCol = myNewCol ORDER BY myOrder",
+			&ast.SQLStmt{
+				UpdateStmtLimited: &ast.UpdateStmtLimited{
+					UpdateStmt: &ast.UpdateStmt{
+						Update: token.New(1, 1, 0, 6, token.KeywordUpdate, "UPDATE"),
+						QualifiedTableName: &ast.QualifiedTableName{
+							TableName: token.New(1, 8, 7, 7, token.Literal, "myTable"),
+						},
+						Set: token.New(1, 16, 15, 3, token.KeywordSet, "SET"),
+						UpdateSetter: []*ast.UpdateSetter{
+							{
+								ColumnName: token.New(1, 20, 19, 5, token.Literal, "myCol"),
+								Assign:     token.New(1, 26, 25, 1, token.BinaryOperator, "="),
+								Expr: &ast.Expr{
+									LiteralValue: token.New(1, 28, 27, 8, token.Literal, "myNewCol"),
+								},
+							},
+						},
+					},
+					Order: token.New(1, 37, 36, 5, token.KeywordOrder, "ORDER"),
+					By:    token.New(1, 43, 42, 2, token.KeywordBy, "BY"),
+					OrderingTerm: []*ast.OrderingTerm{
+						{
+							Expr: &ast.Expr{
+								LiteralValue: token.New(1, 46, 45, 7, token.Literal, "myOrder"),
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			`UPDATE LIMITED with ORDER with multiple ordering terms`,
+			"UPDATE myTable SET myCol = myNewCol ORDER BY myOrder1,myOrder2",
+			&ast.SQLStmt{
+				UpdateStmtLimited: &ast.UpdateStmtLimited{
+					UpdateStmt: &ast.UpdateStmt{
+						Update: token.New(1, 1, 0, 6, token.KeywordUpdate, "UPDATE"),
+						QualifiedTableName: &ast.QualifiedTableName{
+							TableName: token.New(1, 8, 7, 7, token.Literal, "myTable"),
+						},
+						Set: token.New(1, 16, 15, 3, token.KeywordSet, "SET"),
+						UpdateSetter: []*ast.UpdateSetter{
+							{
+								ColumnName: token.New(1, 20, 19, 5, token.Literal, "myCol"),
+								Assign:     token.New(1, 26, 25, 1, token.BinaryOperator, "="),
+								Expr: &ast.Expr{
+									LiteralValue: token.New(1, 28, 27, 8, token.Literal, "myNewCol"),
+								},
+							},
+						},
+					},
+					Order: token.New(1, 37, 36, 5, token.KeywordOrder, "ORDER"),
+					By:    token.New(1, 43, 42, 2, token.KeywordBy, "BY"),
+					OrderingTerm: []*ast.OrderingTerm{
+						{
+							Expr: &ast.Expr{
+								LiteralValue: token.New(1, 46, 45, 8, token.Literal, "myOrder1"),
+							},
+						},
+						{
+							Expr: &ast.Expr{
+								LiteralValue: token.New(1, 55, 54, 8, token.Literal, "myOrder2"),
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			`UPDATE LIMITED with LIMIT basic`,
+			"UPDATE myTable SET myCol = myNewCol LIMIT myLimit",
+			&ast.SQLStmt{
+				UpdateStmtLimited: &ast.UpdateStmtLimited{
+					UpdateStmt: &ast.UpdateStmt{
+						Update: token.New(1, 1, 0, 6, token.KeywordUpdate, "UPDATE"),
+						QualifiedTableName: &ast.QualifiedTableName{
+							TableName: token.New(1, 8, 7, 7, token.Literal, "myTable"),
+						},
+						Set: token.New(1, 16, 15, 3, token.KeywordSet, "SET"),
+						UpdateSetter: []*ast.UpdateSetter{
+							{
+								ColumnName: token.New(1, 20, 19, 5, token.Literal, "myCol"),
+								Assign:     token.New(1, 26, 25, 1, token.BinaryOperator, "="),
+								Expr: &ast.Expr{
+									LiteralValue: token.New(1, 28, 27, 8, token.Literal, "myNewCol"),
+								},
+							},
+						},
+					},
+					Limit: token.New(1, 37, 36, 5, token.KeywordLimit, "LIMIT"),
+					Expr1: &ast.Expr{
+						LiteralValue: token.New(1, 43, 42, 7, token.Literal, "myLimit"),
+					},
+				},
+			},
+		},
+		{
+			`UPDATE LIMITED with LIMIT with OFFSET`,
+			"UPDATE myTable SET myCol = myNewCol LIMIT myLimit OFFSET myExpr",
+			&ast.SQLStmt{
+				UpdateStmtLimited: &ast.UpdateStmtLimited{
+					UpdateStmt: &ast.UpdateStmt{
+						Update: token.New(1, 1, 0, 6, token.KeywordUpdate, "UPDATE"),
+						QualifiedTableName: &ast.QualifiedTableName{
+							TableName: token.New(1, 8, 7, 7, token.Literal, "myTable"),
+						},
+						Set: token.New(1, 16, 15, 3, token.KeywordSet, "SET"),
+						UpdateSetter: []*ast.UpdateSetter{
+							{
+								ColumnName: token.New(1, 20, 19, 5, token.Literal, "myCol"),
+								Assign:     token.New(1, 26, 25, 1, token.BinaryOperator, "="),
+								Expr: &ast.Expr{
+									LiteralValue: token.New(1, 28, 27, 8, token.Literal, "myNewCol"),
+								},
+							},
+						},
+					},
+					Limit: token.New(1, 37, 36, 5, token.KeywordLimit, "LIMIT"),
+					Expr1: &ast.Expr{
+						LiteralValue: token.New(1, 43, 42, 7, token.Literal, "myLimit"),
+					},
+					Offset: token.New(1, 51, 50, 6, token.KeywordOffset, "OFFSET"),
+					Expr2: &ast.Expr{
+						LiteralValue: token.New(1, 58, 57, 6, token.Literal, "myExpr"),
+					},
+				},
+			},
+		},
+		{
+			`UPDATE LIMITED with LIMIT with comma`,
+			"UPDATE myTable SET myCol = myNewCol LIMIT myLimit,myExpr",
+			&ast.SQLStmt{
+				UpdateStmtLimited: &ast.UpdateStmtLimited{
+					UpdateStmt: &ast.UpdateStmt{
+						Update: token.New(1, 1, 0, 6, token.KeywordUpdate, "UPDATE"),
+						QualifiedTableName: &ast.QualifiedTableName{
+							TableName: token.New(1, 8, 7, 7, token.Literal, "myTable"),
+						},
+						Set: token.New(1, 16, 15, 3, token.KeywordSet, "SET"),
+						UpdateSetter: []*ast.UpdateSetter{
+							{
+								ColumnName: token.New(1, 20, 19, 5, token.Literal, "myCol"),
+								Assign:     token.New(1, 26, 25, 1, token.BinaryOperator, "="),
+								Expr: &ast.Expr{
+									LiteralValue: token.New(1, 28, 27, 8, token.Literal, "myNewCol"),
+								},
+							},
+						},
+					},
+					Limit: token.New(1, 37, 36, 5, token.KeywordLimit, "LIMIT"),
+					Expr1: &ast.Expr{
+						LiteralValue: token.New(1, 43, 42, 7, token.Literal, "myLimit"),
+					},
+					Comma: token.New(1, 50, 49, 1, token.Delimiter, ","),
+					Expr2: &ast.Expr{
+						LiteralValue: token.New(1, 51, 50, 6, token.Literal, "myExpr"),
+					},
 				},
 			},
 		},

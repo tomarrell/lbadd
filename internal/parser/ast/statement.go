@@ -222,10 +222,10 @@ type (
 		By           token.Token
 		OrderingTerm []*OrderingTerm
 		Limit        token.Token
-		Expr2        *Expr
+		Expr1        *Expr
 		Offset       token.Token
 		Comma        token.Token
-		Expr3        *Expr
+		Expr2        *Expr
 	}
 
 	// DetachStmt as in the SQLite grammar.
@@ -423,7 +423,7 @@ type (
 		*UpdateStmt
 		Order        token.Token
 		By           token.Token
-		OrderingTerm []token.Token
+		OrderingTerm []*OrderingTerm
 		Limit        token.Token
 		Expr1        *Expr
 		Offset       token.Token
