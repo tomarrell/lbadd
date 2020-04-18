@@ -5,7 +5,15 @@ package ruleset
 import "github.com/tomarrell/lbadd/internal/parser/scanner/token"
 
 func defaultKeywordsRule(s RuneScanner) (token.Type, bool) {
-	return scanKeyword(s)
+	tok, ok := scanKeyword(s)
+	if !ok {
+		return token.Unknown, false
+	}
+	peek, noEof := s.Lookahead()
+	if noEof && defaultLiteral.Matches(peek) { // keywords must be terminated with a whitespace
+		return token.Unknown, false
+	}
+	return tok, ok
 }
 
 func scanKeyword(s RuneScanner) (token.Type, bool) {
