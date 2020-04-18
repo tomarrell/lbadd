@@ -2,6 +2,12 @@
 
 package parser
 
+import (
+	"time"
+
+	"github.com/tomarrell/lbadd/internal/parser/ast"
+)
+
 const (
 	// DataNotInteresting indicates, that the input was not interesting, meaning
 	// that the input was not valid and the parser handled detected and returned
@@ -18,17 +24,35 @@ const (
 func Fuzz(data []byte) int {
 	input := string(data)
 	parser := New(input)
+stmts:
 	for {
-		stmt, errs, ok := parser.Next()
-		if !ok {
-			break
-		}
-		if len(errs) != 0 {
-			return DataNotInteresting
-		}
-		if stmt == nil {
-			panic("ok, no errors, but also no statement")
+		res := make(chan result)
+		go waitForParseResult(parser, res)
+		select {
+		case <-time.After(5 * time.Second):
+			panic("timeout after 5s")
+		case result := <-res:
+			if !result.ok {
+				break stmts
+			}
+			if len(result.errs) != 0 {
+				return DataNotInteresting
+			}
+			if result.stmt == nil {
+				panic("ok, no errors, but also no statement")
+			}
 		}
 	}
 	return DataInteresting
+}
+
+type result struct {
+	stmt *ast.SQLStmt
+	errs []error
+	ok   bool
+}
+
+func waitForParseResult(parser Parser, ch chan<- result) {
+	stmt, errs, ok := parser.Next()
+	ch <- result{stmt, errs, ok}
 }
