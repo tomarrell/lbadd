@@ -12,10 +12,7 @@ const (
 	fuzzCorpusDir = "test/fuzz/corpus"
 )
 
-// TestFuzzCorpus runs the current fuzzing corpus. Every element in the corpus
-// was added with the condition that no errors have risen from it. This means,
-// that if we find an error while running the corpus, this is most likely a
-// regression.
+// TestFuzzCorpus runs the current fuzzing corpus.
 func TestFuzzCorpus(t *testing.T) {
 	assert := assert.New(t)
 
