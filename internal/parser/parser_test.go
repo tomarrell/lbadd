@@ -8425,7 +8425,445 @@ func TestSingleStatementParse(t *testing.T) {
 				},
 			},
 		},
+		{
+			"DELETE with expr with unaryOperator",
+			"DELETE FROM myTable WHERE ~myExpr",
+			&ast.SQLStmt{
+				DeleteStmt: &ast.DeleteStmt{
+					Delete: token.New(1, 1, 0, 6, token.KeywordDelete, "DELETE"),
+					From:   token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+					QualifiedTableName: &ast.QualifiedTableName{
+						TableName: token.New(1, 13, 12, 7, token.Literal, "myTable"),
+					},
+					Where: token.New(1, 21, 20, 5, token.KeywordWhere, "WHERE"),
+					Expr: &ast.Expr{
+						UnaryOperator: token.New(1, 27, 26, 1, token.UnaryOperator, "~"),
+						Expr1: &ast.Expr{
+							LiteralValue: token.New(1, 28, 27, 6, token.Literal, "myExpr"),
+						},
+					},
+				},
+			},
+		},
+		// {
+		// 	"DELETE with expr with exprs flanked around binaryOperator",
+		// 	"DELETE FROM myTable WHERE ~myExpr",
+		// 	&ast.SQLStmt{
+		// 		DeleteStmt: &ast.DeleteStmt{
+		// 			Delete: token.New(1, 1, 0, 6, token.KeywordDelete, "DELETE"),
+		// 			From:   token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+		// 			QualifiedTableName: &ast.QualifiedTableName{
+		// 				TableName: token.New(1, 13, 12, 7, token.Literal, "myTable"),
+		// 			},
+		// 			Where: token.New(1, 21, 20, 5, token.KeywordWhere, "WHERE"),
+		// 			Expr: &ast.Expr{
+		// 				UnaryOperator: token.New(1, 27, 26, 1, token.UnaryOperator, "~"),
+		// 				Expr1: &ast.Expr{
+		// 					LiteralValue: token.New(1, 28, 27, 6, token.Literal, "myExpr"),
+		// 				},
+		// 			},
+		// 		},
+		// 	},
+		// },
+		{
+			"DELETE with expr in parenthesis",
+			"DELETE FROM myTable WHERE (myExpr1,myExpr2)",
+			&ast.SQLStmt{
+				DeleteStmt: &ast.DeleteStmt{
+					Delete: token.New(1, 1, 0, 6, token.KeywordDelete, "DELETE"),
+					From:   token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+					QualifiedTableName: &ast.QualifiedTableName{
+						TableName: token.New(1, 13, 12, 7, token.Literal, "myTable"),
+					},
+					Where: token.New(1, 21, 20, 5, token.KeywordWhere, "WHERE"),
+					Expr: &ast.Expr{
+						LeftParen: token.New(1, 27, 26, 1, token.Delimiter, "("),
+						Expr: []*ast.Expr{
+							{
+								LiteralValue: token.New(1, 28, 27, 7, token.Literal, "myExpr1"),
+							},
+							{
+								LiteralValue: token.New(1, 36, 35, 7, token.Literal, "myExpr2"),
+							},
+						},
+						RightParen: token.New(1, 43, 42, 1, token.Delimiter, ")"),
+					},
+				},
+			},
+		},
+		{
+			"DELETE with expr with CAST",
+			"DELETE FROM myTable WHERE CAST (myExpr AS myName)",
+			&ast.SQLStmt{
+				DeleteStmt: &ast.DeleteStmt{
+					Delete: token.New(1, 1, 0, 6, token.KeywordDelete, "DELETE"),
+					From:   token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+					QualifiedTableName: &ast.QualifiedTableName{
+						TableName: token.New(1, 13, 12, 7, token.Literal, "myTable"),
+					},
+					Where: token.New(1, 21, 20, 5, token.KeywordWhere, "WHERE"),
+					Expr: &ast.Expr{
+						Cast:      token.New(1, 27, 26, 4, token.KeywordCast, "CAST"),
+						LeftParen: token.New(1, 32, 31, 1, token.Delimiter, "("),
+						Expr1: &ast.Expr{
+							LiteralValue: token.New(1, 33, 32, 6, token.Literal, "myExpr"),
+						},
+						As: token.New(1, 40, 39, 2, token.KeywordAs, "AS"),
+						TypeName: &ast.TypeName{
+							Name: []token.Token{
+								token.New(1, 43, 42, 6, token.Literal, "myName"),
+							},
+						},
+						RightParen: token.New(1, 49, 48, 1, token.Delimiter, ")"),
+					},
+				},
+			},
+		},
+		{
+			`DELETE with expr with basic raise function`,
+			"DELETE FROM myTable WHERE RAISE (IGNORE)",
+			&ast.SQLStmt{
+				DeleteStmt: &ast.DeleteStmt{
+					Delete: token.New(1, 1, 0, 6, token.KeywordDelete, "DELETE"),
+					From:   token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+					QualifiedTableName: &ast.QualifiedTableName{
+						TableName: token.New(1, 13, 12, 7, token.Literal, "myTable"),
+					},
+					Where: token.New(1, 21, 20, 5, token.KeywordWhere, "WHERE"),
+					Expr: &ast.Expr{
+						RaiseFunction: &ast.RaiseFunction{
+							Raise:      token.New(1, 27, 26, 5, token.KeywordRaise, "RAISE"),
+							LeftParen:  token.New(1, 33, 32, 1, token.Delimiter, "("),
+							Ignore:     token.New(1, 34, 33, 6, token.KeywordIgnore, "IGNORE"),
+							RightParen: token.New(1, 40, 39, 1, token.Delimiter, ")"),
+						},
+					},
+				},
+			},
+		},
+		{
+			`DELETE with expr with raise function with ROLLBACK`,
+			"DELETE FROM myTable WHERE RAISE (ROLLBACK,myError)",
+			&ast.SQLStmt{
+				DeleteStmt: &ast.DeleteStmt{
+					Delete: token.New(1, 1, 0, 6, token.KeywordDelete, "DELETE"),
+					From:   token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+					QualifiedTableName: &ast.QualifiedTableName{
+						TableName: token.New(1, 13, 12, 7, token.Literal, "myTable"),
+					},
+					Where: token.New(1, 21, 20, 5, token.KeywordWhere, "WHERE"),
+					Expr: &ast.Expr{
+						RaiseFunction: &ast.RaiseFunction{
+							Raise:        token.New(1, 27, 26, 5, token.KeywordRaise, "RAISE"),
+							LeftParen:    token.New(1, 33, 32, 1, token.Delimiter, "("),
+							Rollback:     token.New(1, 34, 33, 8, token.KeywordRollback, "ROLLBACK"),
+							Comma:        token.New(1, 42, 41, 1, token.Delimiter, ","),
+							ErrorMessage: token.New(1, 43, 42, 7, token.Literal, "myError"),
+							RightParen:   token.New(1, 50, 49, 1, token.Delimiter, ")"),
+						},
+					},
+				},
+			},
+		},
+		{
+			`DELETE with expr with raise function with ROLLBACK`,
+			"DELETE FROM myTable WHERE RAISE (ABORT,myError)",
+			&ast.SQLStmt{
+				DeleteStmt: &ast.DeleteStmt{
+					Delete: token.New(1, 1, 0, 6, token.KeywordDelete, "DELETE"),
+					From:   token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+					QualifiedTableName: &ast.QualifiedTableName{
+						TableName: token.New(1, 13, 12, 7, token.Literal, "myTable"),
+					},
+					Where: token.New(1, 21, 20, 5, token.KeywordWhere, "WHERE"),
+					Expr: &ast.Expr{
+						RaiseFunction: &ast.RaiseFunction{
+							Raise:        token.New(1, 27, 26, 5, token.KeywordRaise, "RAISE"),
+							LeftParen:    token.New(1, 33, 32, 1, token.Delimiter, "("),
+							Abort:        token.New(1, 34, 33, 5, token.KeywordAbort, "ABORT"),
+							Comma:        token.New(1, 39, 38, 1, token.Delimiter, ","),
+							ErrorMessage: token.New(1, 40, 39, 7, token.Literal, "myError"),
+							RightParen:   token.New(1, 47, 46, 1, token.Delimiter, ")"),
+						},
+					},
+				},
+			},
+		},
+		{
+			`DELETE with expr with raise function with ROLLBACK`,
+			"DELETE FROM myTable WHERE RAISE (FAIL,myError)",
+			&ast.SQLStmt{
+				DeleteStmt: &ast.DeleteStmt{
+					Delete: token.New(1, 1, 0, 6, token.KeywordDelete, "DELETE"),
+					From:   token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+					QualifiedTableName: &ast.QualifiedTableName{
+						TableName: token.New(1, 13, 12, 7, token.Literal, "myTable"),
+					},
+					Where: token.New(1, 21, 20, 5, token.KeywordWhere, "WHERE"),
+					Expr: &ast.Expr{
+						RaiseFunction: &ast.RaiseFunction{
+							Raise:        token.New(1, 27, 26, 5, token.KeywordRaise, "RAISE"),
+							LeftParen:    token.New(1, 33, 32, 1, token.Delimiter, "("),
+							Fail:         token.New(1, 34, 33, 4, token.KeywordFail, "FAIL"),
+							Comma:        token.New(1, 38, 37, 1, token.Delimiter, ","),
+							ErrorMessage: token.New(1, 39, 38, 7, token.Literal, "myError"),
+							RightParen:   token.New(1, 46, 45, 1, token.Delimiter, ")"),
+						},
+					},
+				},
+			},
+		},
+		{
+			`DELETE with expr with basic CASE`,
+			"DELETE FROM myTable WHERE CASE WHEN expr1 THEN expr2 END",
+			&ast.SQLStmt{
+				DeleteStmt: &ast.DeleteStmt{
+					Delete: token.New(1, 1, 0, 6, token.KeywordDelete, "DELETE"),
+					From:   token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+					QualifiedTableName: &ast.QualifiedTableName{
+						TableName: token.New(1, 13, 12, 7, token.Literal, "myTable"),
+					},
+					Where: token.New(1, 21, 20, 5, token.KeywordWhere, "WHERE"),
+					Expr: &ast.Expr{
+						Case: token.New(1, 27, 26, 4, token.KeywordCase, "CASE"),
+						WhenThenClause: []*ast.WhenThenClause{
+							{
+								When: token.New(1, 32, 31, 4, token.KeywordWhen, "WHEN"),
+								Expr1: &ast.Expr{
+									LiteralValue: token.New(1, 37, 36, 5, token.Literal, "expr1"),
+								},
+								Then: token.New(1, 43, 42, 4, token.KeywordThen, "THEN"),
+								Expr2: &ast.Expr{
+									LiteralValue: token.New(1, 48, 47, 5, token.Literal, "expr2"),
+								},
+							},
+						},
+						End: token.New(1, 54, 53, 3, token.KeywordEnd, "END"),
+					},
+				},
+			},
+		},
+		{
+			"DELETE with basic with clause, select stmt's result column with table name and col name",
+			"WITH myTable AS (SELECT myTable.myCol) DELETE FROM myTable",
+			&ast.SQLStmt{
+				DeleteStmt: &ast.DeleteStmt{
+					WithClause: &ast.WithClause{
+						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
+						RecursiveCte: []*ast.RecursiveCte{
+							{
+								CteTableName: &ast.CteTableName{
+									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
+								},
+								As:        token.New(1, 14, 13, 2, token.KeywordAs, "AS"),
+								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
+								SelectStmt: &ast.SelectStmt{
+									SelectCore: []*ast.SelectCore{
+										{
+											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
+											ResultColumn: []*ast.ResultColumn{
+												{
+													Expr: &ast.Expr{
+														TableName:  token.New(1, 25, 24, 7, token.Literal, "myTable"),
+														Period1:    token.New(1, 32, 31, 1, token.Literal, "."),
+														ColumnName: token.New(1, 33, 32, 5, token.Literal, "myCol"),
+													},
+												},
+											},
+										},
+									},
+								},
+								RightParen: token.New(1, 38, 37, 1, token.Delimiter, ")"),
+							},
+						},
+					},
+					Delete: token.New(1, 40, 39, 6, token.KeywordDelete, "DELETE"),
+					From:   token.New(1, 47, 46, 4, token.KeywordFrom, "FROM"),
+					QualifiedTableName: &ast.QualifiedTableName{
+						TableName: token.New(1, 52, 51, 7, token.Literal, "myTable"),
+					},
+				},
+			},
+		},
+		{
+			"DELETE with basic with clause, select stmt's result column with table name col name and schema name",
+			"WITH myTable AS (SELECT mySchema.myTable.myCol) DELETE FROM myTable",
+			&ast.SQLStmt{
+				DeleteStmt: &ast.DeleteStmt{
+					WithClause: &ast.WithClause{
+						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
+						RecursiveCte: []*ast.RecursiveCte{
+							{
+								CteTableName: &ast.CteTableName{
+									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
+								},
+								As:        token.New(1, 14, 13, 2, token.KeywordAs, "AS"),
+								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
+								SelectStmt: &ast.SelectStmt{
+									SelectCore: []*ast.SelectCore{
+										{
+											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
+											ResultColumn: []*ast.ResultColumn{
+												{
+													Expr: &ast.Expr{
+														SchemaName: token.New(1, 25, 24, 8, token.Literal, "mySchema"),
+														Period1:    token.New(1, 33, 32, 1, token.Literal, "."),
+														TableName:  token.New(1, 34, 33, 7, token.Literal, "myTable"),
+														Period2:    token.New(1, 41, 40, 1, token.Literal, "."),
+														ColumnName: token.New(1, 42, 41, 5, token.Literal, "myCol"),
+													},
+												},
+											},
+										},
+									},
+								},
+								RightParen: token.New(1, 47, 46, 1, token.Delimiter, ")"),
+							},
+						},
+					},
+					Delete: token.New(1, 49, 48, 6, token.KeywordDelete, "DELETE"),
+					From:   token.New(1, 56, 55, 4, token.KeywordFrom, "FROM"),
+					QualifiedTableName: &ast.QualifiedTableName{
+						TableName: token.New(1, 61, 60, 7, token.Literal, "myTable"),
+					},
+				},
+			},
+		},
+		{
+			`DELETE with expr with basic table and column name`,
+			"DELETE FROM myTable WHERE tableName.ColumnName",
+			&ast.SQLStmt{
+				DeleteStmt: &ast.DeleteStmt{
+					Delete: token.New(1, 1, 0, 6, token.KeywordDelete, "DELETE"),
+					From:   token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+					QualifiedTableName: &ast.QualifiedTableName{
+						TableName: token.New(1, 13, 12, 7, token.Literal, "myTable"),
+					},
+					Where: token.New(1, 21, 20, 5, token.KeywordWhere, "WHERE"),
+					Expr: &ast.Expr{
+						TableName:  token.New(1, 27, 26, 9, token.Literal, "tableName"),
+						Period1:    token.New(1, 36, 35, 1, token.Literal, "."),
+						ColumnName: token.New(1, 37, 36, 10, token.Literal, "ColumnName"),
+					},
+				},
+			},
+		},
+		{
+			`DELETE with expr with basic schema,table and column name`,
+			"DELETE FROM myTable WHERE mySchema.tableName.ColumnName",
+			&ast.SQLStmt{
+				DeleteStmt: &ast.DeleteStmt{
+					Delete: token.New(1, 1, 0, 6, token.KeywordDelete, "DELETE"),
+					From:   token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+					QualifiedTableName: &ast.QualifiedTableName{
+						TableName: token.New(1, 13, 12, 7, token.Literal, "myTable"),
+					},
+					Where: token.New(1, 21, 20, 5, token.KeywordWhere, "WHERE"),
+					Expr: &ast.Expr{
+						SchemaName: token.New(1, 27, 26, 8, token.Literal, "mySchema"),
+						Period1:    token.New(1, 35, 34, 1, token.Literal, "."),
+						TableName:  token.New(1, 36, 35, 9, token.Literal, "tableName"),
+						Period2:    token.New(1, 45, 44, 1, token.Literal, "."),
+						ColumnName: token.New(1, 46, 45, 10, token.Literal, "ColumnName"),
+					},
+				},
+			},
+		},
+		{
+			"DELETE with expr with NOT EXISTS basic",
+			"DELETE FROM myTable WHERE (SELECT *)",
+			&ast.SQLStmt{
+				DeleteStmt: &ast.DeleteStmt{
+					Delete: token.New(1, 1, 0, 6, token.KeywordDelete, "DELETE"),
+					From:   token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+					QualifiedTableName: &ast.QualifiedTableName{
+						TableName: token.New(1, 13, 12, 7, token.Literal, "myTable"),
+					},
+					Where: token.New(1, 21, 20, 5, token.KeywordWhere, "WHERE"),
+					Expr: &ast.Expr{
+						LeftParen: token.New(1, 27, 26, 1, token.Delimiter, "("),
+						SelectStmt: &ast.SelectStmt{
+							SelectCore: []*ast.SelectCore{
+								{
+									Select: token.New(1, 28, 27, 6, token.KeywordSelect, "SELECT"),
+									ResultColumn: []*ast.ResultColumn{
+										{
+											Asterisk: token.New(1, 35, 34, 1, token.BinaryOperator, "*"),
+										},
+									},
+								},
+							},
+						},
+						RightParen: token.New(1, 36, 35, 1, token.Delimiter, ")"),
+					},
+				},
+			},
+		},
+		{
+			"DELETE with expr with NOT EXISTS with EXISTS",
+			"DELETE FROM myTable WHERE EXISTS (SELECT *)",
+			&ast.SQLStmt{
+				DeleteStmt: &ast.DeleteStmt{
+					Delete: token.New(1, 1, 0, 6, token.KeywordDelete, "DELETE"),
+					From:   token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+					QualifiedTableName: &ast.QualifiedTableName{
+						TableName: token.New(1, 13, 12, 7, token.Literal, "myTable"),
+					},
+					Where: token.New(1, 21, 20, 5, token.KeywordWhere, "WHERE"),
+					Expr: &ast.Expr{
+						Exists:    token.New(1, 27, 26, 6, token.KeywordExists, "EXISTS"),
+						LeftParen: token.New(1, 34, 33, 1, token.Delimiter, "("),
+						SelectStmt: &ast.SelectStmt{
+							SelectCore: []*ast.SelectCore{
+								{
+									Select: token.New(1, 35, 34, 6, token.KeywordSelect, "SELECT"),
+									ResultColumn: []*ast.ResultColumn{
+										{
+											Asterisk: token.New(1, 42, 41, 1, token.BinaryOperator, "*"),
+										},
+									},
+								},
+							},
+						},
+						RightParen: token.New(1, 43, 42, 1, token.Delimiter, ")"),
+					},
+				},
+			},
+		},
+		{
+			"DELETE with expr with NOT EXISTS",
+			"DELETE FROM myTable WHERE NOT EXISTS (SELECT *)",
+			&ast.SQLStmt{
+				DeleteStmt: &ast.DeleteStmt{
+					Delete: token.New(1, 1, 0, 6, token.KeywordDelete, "DELETE"),
+					From:   token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+					QualifiedTableName: &ast.QualifiedTableName{
+						TableName: token.New(1, 13, 12, 7, token.Literal, "myTable"),
+					},
+					Where: token.New(1, 21, 20, 5, token.KeywordWhere, "WHERE"),
+					Expr: &ast.Expr{
+						Not:       token.New(1, 27, 26, 3, token.KeywordNot, "NOT"),
+						Exists:    token.New(1, 31, 30, 6, token.KeywordExists, "EXISTS"),
+						LeftParen: token.New(1, 38, 37, 1, token.Delimiter, "("),
+						SelectStmt: &ast.SelectStmt{
+							SelectCore: []*ast.SelectCore{
+								{
+									Select: token.New(1, 39, 38, 6, token.KeywordSelect, "SELECT"),
+									ResultColumn: []*ast.ResultColumn{
+										{
+											Asterisk: token.New(1, 46, 45, 1, token.BinaryOperator, "*"),
+										},
+									},
+								},
+							},
+						},
+						RightParen: token.New(1, 47, 46, 1, token.Delimiter, ")"),
+					},
+				},
+			},
+		},
 	}
+
 	for _, input := range inputs {
 		t.Run(input.Name, func(t *testing.T) {
 			assert := assert.New(t)

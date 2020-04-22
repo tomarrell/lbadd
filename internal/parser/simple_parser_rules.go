@@ -336,15 +336,12 @@ func (p *simpleParser) parseTypeName(r reporter) (name *ast.TypeName) {
 		}
 	}
 
-	if next, ok := p.lookahead(r); ok && next.Type() == token.Delimiter {
-		if next.Value() == "(" {
-			name.LeftParen = next
-			p.consumeToken()
+	if next, ok := p.lookahead(r); ok && next.Type() == token.Delimiter && next.Value() == "(" {
+		name.LeftParen = next
+		p.consumeToken()
 
-			name.SignedNumber1 = p.parseSignedNumber(r)
-		} else {
-			r.unexpectedToken(token.Delimiter)
-		}
+		name.SignedNumber1 = p.parseSignedNumber(r)
+
 	} else {
 		return
 	}
@@ -936,24 +933,311 @@ func (p *simpleParser) parseConflictClause(r reporter) (clause *ast.ConflictClau
 // unsupported construct error.
 func (p *simpleParser) parseExpression(r reporter) (expr *ast.Expr) {
 	expr = &ast.Expr{}
+	// The following rules being LR have been converted to remove the LR.
+	// Details of the conversion follow above the implementations.
+	// S - is the starting production rule for expr.
 
+	// S -> (literal) S' and S -> (schema.table.column) S'
 	literal, ok := p.lookahead(r)
 	if !ok {
 		return
 	}
-	if literal.Type() == token.Literal {
+	if literal.Type() == token.Literal || literal.Type() == token.LiteralNumeric {
 		expr.LiteralValue = literal
 		p.consumeToken()
+		next, ok := p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+			return
+		}
+		if next.Value() == "." {
+			return p.parseExpr2(literal, nil, nil, r)
+		}
 		return
 	}
 
-	// next, ok := p.lookahead(r)
-	// if !ok {
-	// 	return
-	// }
-	// if next.Value() == "." {
+	// S -> (unary op) S'
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.UnaryOperator {
+		expr.UnaryOperator = next
+		p.consumeToken()
+		expr.Expr1 = p.parseExpression(r)
+		return
+	}
 
-	// }
+	// S -> (parenth. expr) S'
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.Delimiter && next.Value() == "(" {
+		expr.LeftParen = next
+		p.consumeToken()
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if !(next.Type() == token.KeywordWith || next.Type() == token.KeywordSelect || next.Type() == token.KeywordValues) {
+			for {
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Value() == "," {
+					p.consumeToken()
+				}
+				if next.Type() == token.Delimiter && next.Value() == ")" {
+					expr.RightParen = next
+					p.consumeToken()
+					return
+				}
+				expr.Expr = append(expr.Expr, p.parseExpression(r))
+			}
+		} else {
+			expr.SelectStmt = p.parseSelectStmt(nil, r)
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.Delimiter {
+				expr.RightParen = next
+				p.consumeToken()
+				return
+			}
+		}
+	}
+
+	// S -> (CAST) S'
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordCast {
+		expr.Cast = next
+		p.consumeToken()
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Delimiter && next.Value() == "(" {
+			expr.LeftParen = next
+			p.consumeToken()
+
+			expr.Expr1 = p.parseExpression(r)
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.KeywordAs {
+				expr.As = next
+				p.consumeToken()
+
+				expr.TypeName = p.parseTypeName(r)
+
+				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
+				if next.Type() == token.Delimiter && next.Value() == ")" {
+					expr.RightParen = next
+					p.consumeToken()
+				}
+			}
+		} else {
+			r.unexpectedToken(token.Delimiter)
+		}
+		return
+	}
+
+	// S -> (NOT EXISTS) S'
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordNot {
+		expr.Not = next
+		p.consumeToken()
+	}
+	next, ok = p.lookahead(r)
+	if next.Type() == token.KeywordExists {
+		expr.Exists = next
+		p.consumeToken()
+	}
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.Delimiter && next.Value() == "(" {
+		expr.LeftParen = next
+		p.consumeToken()
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordSelect || next.Type() == token.KeywordWith || next.Type() == token.KeywordValues {
+			expr.SelectStmt = p.parseSelectStmt(nil, r)
+
+			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
+			if next.Type() == token.Delimiter {
+				expr.RightParen = next
+				p.consumeToken()
+				return
+			}
+		} else {
+			r.unexpectedToken(token.KeywordSelect, token.KeywordValues, token.KeywordWith)
+		}
+	}
+
+	// S -> (CASE) S'
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordCase {
+		expr.Case = next
+		p.consumeToken()
+		expr.Expr1 = p.parseExpression(r)
+
+		for {
+			next, ok = p.lookahead(r)
+			if next.Type() == token.KeywordEnd || next.Type() == token.KeywordElse {
+				break
+			}
+			expr.WhenThenClause = append(expr.WhenThenClause, p.parseWhenThenClause(r))
+		}
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordElse {
+			expr.Else = next
+			p.consumeToken()
+			expr.Expr2 = p.parseExpression(r)
+		}
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordEnd {
+			expr.End = next
+			p.consumeToken()
+			return
+		}
+		r.unexpectedToken(token.KeywordEnd)
+		return
+	}
+
+	// S -> (raise-function) S'
+	next, ok = p.lookahead(r)
+	if next.Type() == token.KeywordRaise {
+		raiseFunction := p.parseRaiseFunction(r)
+		expr.RaiseFunction = raiseFunction
+		return
+	}
+
+	// expr can safely assigned to nil as every possible type of expr returns
+	// in all the above cases from their respective functions.
+	expr = nil
+	return
+}
+
+func (p *simpleParser) parseExpr2(schemaOrTableName, period, tableOrColName token.Token, r reporter) (expr *ast.Expr) {
+	expr = &ast.Expr{}
+	if period == nil && tableOrColName == nil {
+		next, ok := p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+			return
+		}
+		if next.Value() == "." {
+			period := next
+			p.consumeToken()
+			tableOrColumnName, ok := p.lookahead(r)
+			if !ok {
+				return
+			}
+			if tableOrColumnName.Type() != token.Literal {
+				return
+			}
+			p.consumeToken()
+			return p.parseExpr2Helper(schemaOrTableName, period, tableOrColumnName, r)
+		} else {
+			return
+		}
+	} else {
+		return p.parseExpr2Helper(schemaOrTableName, period, tableOrColName, r)
+	}
+	expr = nil
+	return
+}
+
+func (p *simpleParser) parseExpr2Helper(schemaOrTableName, period, tableOrColName token.Token, r reporter) (expr *ast.Expr) {
+	expr = &ast.Expr{}
+	next, ok := p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+		expr.TableName = schemaOrTableName
+		expr.Period1 = period
+		expr.ColumnName = tableOrColName
+		return
+	}
+	if next.Value() == "." {
+		p.consumeToken()
+		expr.Period2 = next
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Literal {
+			p.consumeToken()
+			expr.ColumnName = next
+			expr.TableName = tableOrColName
+			expr.SchemaName = schemaOrTableName
+			expr.Period1 = period
+		} else {
+			r.unexpectedToken(token.Literal)
+		}
+	} else {
+		expr.TableName = schemaOrTableName
+		expr.Period1 = period
+		expr.ColumnName = tableOrColName
+	}
+	return
+}
+func (p *simpleParser) parseWhenThenClause(r reporter) (stmt *ast.WhenThenClause) {
+	stmt = &ast.WhenThenClause{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordWhen {
+		stmt.When = next
+		p.consumeToken()
+	} else {
+		r.unexpectedToken(token.KeywordWhen)
+	}
+
+	stmt.Expr1 = p.parseExpression(r)
+
+	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.KeywordThen {
+		stmt.Then = next
+		p.consumeToken()
+	}
+
+	stmt.Expr2 = p.parseExpression(r)
 	return
 }
 
@@ -2229,9 +2513,12 @@ func (p *simpleParser) parseDeleteStmts(sqlStmt *ast.SQLStmt, withClause *ast.Wi
 	next, ok := p.optionalLookahead(r)
 	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		sqlStmt.DeleteStmt = deleteStmt
+		return
 	}
 	if next.Type() == token.KeywordOrder || next.Type() == token.KeywordLimit {
 		sqlStmt.DeleteStmtLimited = p.parseDeleteStmtLimited(deleteStmt, r)
+	} else {
+		r.unexpectedToken(token.KeywordLimit, token.KeywordOrder)
 	}
 }
 
@@ -2378,6 +2665,7 @@ func (p *simpleParser) parseRecursiveCte(r reporter) (recursiveCte *ast.Recursiv
 	if !ok {
 		return
 	}
+
 	if next.Value() == ")" {
 		recursiveCte.RightParen = next
 		p.consumeToken()
@@ -2826,43 +3114,45 @@ func (p *simpleParser) parseResultColumn(r reporter) (stmt *ast.ResultColumn) {
 		stmt.Asterisk = tableNameOrAsteriskOrExpr
 		p.consumeToken()
 	case token.Literal:
-		// Case where the expr can be a literal
-		stmt.Expr = p.parseExpression(r)
-		next, ok := p.lookahead(r)
-		if !ok {
+		p.consumeToken()
+		period, ok := p.optionalLookahead(r)
+		if !ok || period.Type() == token.EOF || period.Type() == token.StatementSeparator {
 			return
 		}
-		if next.Value() == "." {
-			stmt.TableName = tableNameOrAsteriskOrExpr
-			stmt.Expr = nil
-			stmt.Period = next
+		if period.Value() == "." {
 			p.consumeToken()
-			next, ok = p.lookahead(r)
+			next, ok := p.lookahead(r)
 			if !ok {
 				return
 			}
-			if next.Value() == "*" {
+			if next.Type() == token.Literal {
+				p.consumeToken()
+				stmt.Expr = p.parseExpr2(tableNameOrAsteriskOrExpr, period, next, r)
+			} else if next.Value() == "*" {
 				stmt.Asterisk = next
 				p.consumeToken()
+				stmt.TableName = tableNameOrAsteriskOrExpr
+				stmt.Period = period
 			}
 		} else {
-			next, ok := p.optionalLookahead(r)
-			if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
-				return
-			}
-			if next.Type() == token.KeywordAs {
-				stmt.As = next
-				p.consumeToken()
-			}
+			stmt.Expr = &ast.Expr{LiteralValue: tableNameOrAsteriskOrExpr}
+		}
+		next, ok := p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+			return
+		}
+		if next.Type() == token.KeywordAs {
+			stmt.As = next
+			p.consumeToken()
+		}
 
-			next, ok = p.optionalLookahead(r)
-			if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
-				return
-			}
-			if next.Type() == token.Literal {
-				stmt.ColumnAlias = next
-				p.consumeToken()
-			}
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+			return
+		}
+		if next.Type() == token.Literal {
+			stmt.ColumnAlias = next
+			p.consumeToken()
 		}
 	default:
 		stmt.Expr = p.parseExpression(r)
@@ -4341,6 +4631,8 @@ func (p *simpleParser) parseUpdateStmt(updateStmt *ast.UpdateStmt, withClause *a
 	return p.parseUpdateStmtHelper(withClause, r)
 }
 
+// parseUpdateStmtLimited parses update-stmt-limited as defined in:
+// https://sqlite.org/syntax/update-stmt-limited.html
 func (p *simpleParser) parseUpdateStmtLimited(updateStmt *ast.UpdateStmt, r reporter) (stmt *ast.UpdateStmtLimited) {
 	stmt = &ast.UpdateStmtLimited{}
 	stmt.UpdateStmt = updateStmt
@@ -5025,6 +5317,17 @@ func (p *simpleParser) parseRaiseFunction(r reporter) (stmt *ast.RaiseFunction) 
 					if next.Type() == token.Literal {
 						stmt.ErrorMessage = next
 						p.consumeToken()
+
+						next, ok = p.lookahead(r)
+						if !ok {
+							return
+						}
+						if next.Type() == token.Delimiter && next.Value() == ")" {
+							stmt.RightParen = next
+							p.consumeToken()
+						} else {
+							r.unexpectedSingleRuneToken(')')
+						}
 					} else {
 						r.unexpectedToken(token.Literal)
 					}
@@ -5037,6 +5340,7 @@ func (p *simpleParser) parseRaiseFunction(r reporter) (stmt *ast.RaiseFunction) 
 		}
 	} else {
 		r.unexpectedToken(token.KeywordRaise)
+		stmt = nil
 	}
 	return
 }

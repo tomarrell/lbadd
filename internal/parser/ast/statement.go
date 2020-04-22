@@ -503,6 +503,7 @@ type (
 		OverClause     *OverClause
 		Cast           token.Token
 		As             token.Token
+		TypeName       *TypeName
 		Collate        token.Token
 		CollationName  token.Token
 		Not            token.Token
@@ -522,12 +523,17 @@ type (
 		TableFunction  token.Token
 		Exists         token.Token
 		Case           token.Token
-		When           token.Token
-		Then           token.Token
+		WhenThenClause []*WhenThenClause
 		Else           token.Token
-		Expr4          *Expr
 		End            token.Token
 		RaiseFunction  *RaiseFunction
+	}
+
+	WhenThenClause struct {
+		When  token.Token
+		Expr1 *Expr
+		Then  token.Token
+		Expr2 *Expr
 	}
 
 	// FilterClause as in the SQLite grammar.
