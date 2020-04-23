@@ -951,6 +951,15 @@ func (p *simpleParser) parseExpression(r reporter) (expr *ast.Expr) {
 		}
 		if next.Value() == "." {
 			return p.parseExpr2(literal, nil, nil, r)
+		} else if next.Type() == token.Delimiter && next.Value() == "(" {
+			return p.parseExpr5(literal, r)
+		} else {
+			expr.Expr1 = p.parseExprRecursive(expr, r)
+			if expr.Expr1 != nil {
+				expr.Expr1.LiteralValue = expr.LiteralValue
+				expr.LiteralValue = nil
+			}
+			return
 		}
 		return
 	}
@@ -1152,6 +1161,31 @@ func (p *simpleParser) parseExpression(r reporter) (expr *ast.Expr) {
 	return
 }
 
+func (p *simpleParser) parseExprRecursive(exprParent *ast.Expr, r reporter) (expr *ast.Expr) {
+	expr = &ast.Expr{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	switch next.Type() {
+	case token.BinaryOperator:
+		return p.parseExpr4(exprParent, r)
+	case token.KeywordCollate:
+	case token.KeywordNot:
+	case token.KeywordLike:
+	case token.KeywordGlob:
+	case token.KeywordRegexp:
+	case token.KeywordMatch:
+	case token.KeywordIsnull:
+	case token.KeywordNotnull:
+	case token.KeywordIs:
+	case token.KeywordBetween:
+	case token.KeywordIn:
+	}
+	expr = nil
+	return
+}
+
 func (p *simpleParser) parseExpr2(schemaOrTableName, period, tableOrColName token.Token, r reporter) (expr *ast.Expr) {
 	expr = &ast.Expr{}
 	if period == nil && tableOrColName == nil {
@@ -1213,6 +1247,101 @@ func (p *simpleParser) parseExpr2Helper(schemaOrTableName, period, tableOrColNam
 	}
 	return
 }
+
+func (p *simpleParser) parseExpr4(exprParent *ast.Expr, r reporter) (expr *ast.Expr) {
+	expr = &ast.Expr{}
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.BinaryOperator {
+		exprParent.BinaryOperator = next
+		p.consumeToken()
+		exprParent.Expr2 = p.parseExpression(r)
+	}
+	return
+}
+
+func (p *simpleParser) parseExpr5(functionName token.Token, r reporter) (expr *ast.Expr) {
+	expr = &ast.Expr{}
+	expr.FunctionName = functionName
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.Delimiter && next.Value() == "(" {
+		expr.LeftParen = next
+		p.consumeToken()
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.KeywordDistinct {
+			expr.Distinct = next
+			p.consumeToken()
+			expr.Expr = p.parseExprSequence(r)
+		} else if next.Type() == token.BinaryOperator {
+			expr.Asterisk = next
+			p.consumeToken()
+		} else if next.Type() == token.Delimiter && next.Value() == ")" {
+			expr.RightParen = next
+			p.consumeToken()
+		} else {
+			expr.Expr = p.parseExprSequence(r)
+		}
+
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+			return
+		}
+		if next.Type() == token.Delimiter && next.Value() == ")" {
+			expr.RightParen = next
+			p.consumeToken()
+		}
+
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+			return
+		}
+		if next.Type() == token.KeywordFilter {
+			expr.FilterClause = p.parseFilterClause(r)
+		}
+
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+			return
+		}
+		if next.Type() == token.KeywordOver {
+			expr.OverClause = p.parseOverClause(r)
+		}
+	}
+	return
+}
+
+func (p *simpleParser) parseExprSequence(r reporter) (exprs []*ast.Expr) {
+	exprs = []*ast.Expr{}
+	for {
+		next, ok := p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Delimiter && next.Value() == ")" {
+			return
+		}
+		if next.Value() == "," {
+			p.consumeToken()
+		}
+		exprVal := p.parseExpression(r)
+		if exprVal == nil {
+			break
+		} else {
+			exprs = append(exprs, exprVal)
+		}
+	}
+	return
+}
+
 func (p *simpleParser) parseWhenThenClause(r reporter) (stmt *ast.WhenThenClause) {
 	stmt = &ast.WhenThenClause{}
 	next, ok := p.lookahead(r)
@@ -2517,8 +2646,6 @@ func (p *simpleParser) parseDeleteStmts(sqlStmt *ast.SQLStmt, withClause *ast.Wi
 	}
 	if next.Type() == token.KeywordOrder || next.Type() == token.KeywordLimit {
 		sqlStmt.DeleteStmtLimited = p.parseDeleteStmtLimited(deleteStmt, r)
-	} else {
-		r.unexpectedToken(token.KeywordLimit, token.KeywordOrder)
 	}
 }
 
