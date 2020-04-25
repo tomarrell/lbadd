@@ -2825,7 +2825,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -2833,16 +2833,16 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
 											Window: token.New(1, 27, 26, 6, token.KeywordWindow, "WINDOW"),
 											NamedWindow: []*ast.NamedWindow{
-												&ast.NamedWindow{
+												{
 													WindowName: token.New(1, 34, 33, 8, token.Literal, "myWindow"),
 													As:         token.New(1, 43, 42, 2, token.KeywordAs, "AS"),
 													WindowDefn: &ast.WindowDefn{
@@ -2850,12 +2850,14 @@ func TestSingleStatementParse(t *testing.T) {
 														Order:     token.New(1, 47, 46, 5, token.KeywordOrder, "ORDER"),
 														By2:       token.New(1, 53, 52, 2, token.KeywordBy, "BY"),
 														OrderingTerm: []*ast.OrderingTerm{
-															&ast.OrderingTerm{
+															{
 																Expr: &ast.Expr{
-																	LiteralValue: token.New(1, 56, 55, 7, token.Literal, "myExpr1"),
+																	Expr1: &ast.Expr{
+																		LiteralValue: token.New(1, 56, 55, 7, token.Literal, "myExpr1"),
+																	},
+																	Collate:       token.New(1, 64, 63, 7, token.KeywordCollate, "COLLATE"),
+																	CollationName: token.New(1, 72, 71, 11, token.Literal, "myCollation"),
 																},
-																Collate:       token.New(1, 64, 63, 7, token.KeywordCollate, "COLLATE"),
-																CollationName: token.New(1, 72, 71, 11, token.Literal, "myCollation"),
 															},
 														},
 														RightParen: token.New(1, 83, 82, 1, token.Delimiter, ")"),
@@ -9040,6 +9042,35 @@ func TestSingleStatementParse(t *testing.T) {
 								LiteralValue: token.New(1, 43, 42, 7, token.Literal, "myExpr3"),
 							},
 						},
+					},
+				},
+			},
+		},
+		{
+			"DELETE with expr with exprs with COLLATE, multiple recursion",
+			"DELETE FROM myTable WHERE myExpr COLLATE myColl1 COLLATE myColl2 COLLATE myColl3",
+			&ast.SQLStmt{
+				DeleteStmt: &ast.DeleteStmt{
+					Delete: token.New(1, 1, 0, 6, token.KeywordDelete, "DELETE"),
+					From:   token.New(1, 8, 7, 4, token.KeywordFrom, "FROM"),
+					QualifiedTableName: &ast.QualifiedTableName{
+						TableName: token.New(1, 13, 12, 7, token.Literal, "myTable"),
+					},
+					Where: token.New(1, 21, 20, 5, token.KeywordWhere, "WHERE"),
+					Expr: &ast.Expr{
+						Expr1: &ast.Expr{
+							Expr1: &ast.Expr{
+								Expr1: &ast.Expr{
+									LiteralValue: token.New(1, 27, 26, 6, token.Literal, "myExpr"),
+								},
+								Collate:       token.New(1, 34, 33, 7, token.KeywordCollate, "COLLATE"),
+								CollationName: token.New(1, 42, 41, 7, token.Literal, "myColl1"),
+							},
+							Collate:       token.New(1, 50, 49, 7, token.KeywordCollate, "COLLATE"),
+							CollationName: token.New(1, 58, 57, 7, token.Literal, "myColl2"),
+						},
+						Collate:       token.New(1, 66, 65, 7, token.KeywordCollate, "COLLATE"),
+						CollationName: token.New(1, 74, 73, 7, token.Literal, "myColl3"),
 					},
 				},
 			},

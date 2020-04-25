@@ -933,7 +933,7 @@ func (p *simpleParser) parseConflictClause(r reporter) (clause *ast.ConflictClau
 // unsupported construct error.
 func (p *simpleParser) parseExpression(r reporter) (expr *ast.Expr) {
 	expr = &ast.Expr{}
-	// The following rules being LR have been converted to remove the LR.
+	// The following rules being LR, have been converted to remove the LR.
 	// Details of the conversion follow above the implementations.
 	// S - is the starting production rule for expr.
 
@@ -954,14 +954,12 @@ func (p *simpleParser) parseExpression(r reporter) (expr *ast.Expr) {
 		} else if next.Type() == token.Delimiter && next.Value() == "(" {
 			return p.parseExpr5(literal, r)
 		} else {
-			expr.Expr1 = p.parseExprRecursive(expr, r)
-			if expr.Expr1 != nil {
-				expr.Expr1.LiteralValue = expr.LiteralValue
-				expr.LiteralValue = nil
+			returnExpr := p.parseExprRecursive(&ast.Expr{LiteralValue: literal}, r)
+			if returnExpr != nil {
+				expr = returnExpr
 			}
 			return
 		}
-		return
 	}
 
 	// S -> (unary op) S'
@@ -1161,16 +1159,18 @@ func (p *simpleParser) parseExpression(r reporter) (expr *ast.Expr) {
 	return
 }
 
-func (p *simpleParser) parseExprRecursive(exprParent *ast.Expr, r reporter) (expr *ast.Expr) {
-	expr = &ast.Expr{}
+// parseExprRecursive will get the smaller expr and will be asked to return a bigger expr
+// IF it exists.
+func (p *simpleParser) parseExprRecursive(expr *ast.Expr, r reporter) *ast.Expr {
 	next, ok := p.lookahead(r)
 	if !ok {
-		return
+		return nil
 	}
 	switch next.Type() {
 	case token.BinaryOperator:
-		return p.parseExpr4(exprParent, r)
+		return p.parseExpr4(expr, r)
 	case token.KeywordCollate:
+		return p.parseExpr8(expr, r)
 	case token.KeywordNot:
 	case token.KeywordLike:
 	case token.KeywordGlob:
@@ -1182,8 +1182,7 @@ func (p *simpleParser) parseExprRecursive(exprParent *ast.Expr, r reporter) (exp
 	case token.KeywordBetween:
 	case token.KeywordIn:
 	}
-	expr = nil
-	return
+	return nil
 }
 
 func (p *simpleParser) parseExpr2(schemaOrTableName, period, tableOrColName token.Token, r reporter) (expr *ast.Expr) {
@@ -1194,7 +1193,7 @@ func (p *simpleParser) parseExpr2(schemaOrTableName, period, tableOrColName toke
 			return
 		}
 		if next.Value() == "." {
-			period := next
+			period := next //LiteralValue: token.New(1, 35, 34, 7, token.Literal, "myExpr2"),
 			p.consumeToken()
 			tableOrColumnName, ok := p.lookahead(r)
 			if !ok {
@@ -1248,18 +1247,28 @@ func (p *simpleParser) parseExpr2Helper(schemaOrTableName, period, tableOrColNam
 	return
 }
 
-func (p *simpleParser) parseExpr4(exprParent *ast.Expr, r reporter) (expr *ast.Expr) {
-	expr = &ast.Expr{}
+// Implements S' -> (binary-op) S'
+func (p *simpleParser) parseExpr4(expr *ast.Expr, r reporter) *ast.Expr {
+	exprParent := &ast.Expr{}
+	exprParent.Expr1 = expr
 	next, ok := p.lookahead(r)
 	if !ok {
-		return
+		return nil
 	}
 	if next.Type() == token.BinaryOperator {
 		exprParent.BinaryOperator = next
 		p.consumeToken()
 		exprParent.Expr2 = p.parseExpression(r)
 	}
-	return
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+		return exprParent
+	}
+	resultExpr := p.parseExprRecursive(exprParent, r)
+	if resultExpr != nil {
+		return resultExpr
+	}
+	return exprParent
 }
 
 func (p *simpleParser) parseExpr5(functionName token.Token, r reporter) (expr *ast.Expr) {
@@ -1341,6 +1350,42 @@ func (p *simpleParser) parseExprSequence(r reporter) (exprs []*ast.Expr) {
 	}
 	return
 }
+
+func (p *simpleParser) parseExpr8(expr *ast.Expr, r reporter) *ast.Expr {
+	exprParent := &ast.Expr{}
+	exprParent.Expr1 = expr
+	next, ok := p.lookahead(r)
+	if !ok {
+		return nil
+	}
+	if next.Type() == token.KeywordCollate {
+		exprParent.Collate = next
+		p.consumeToken()
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return nil
+		}
+		if next.Type() == token.Literal {
+			exprParent.CollationName = next
+			p.consumeToken()
+		} else {
+			r.unexpectedToken(token.Literal)
+		}
+	}
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+		return exprParent
+	}
+	resultExpr := p.parseExprRecursive(exprParent, r)
+	if resultExpr != nil {
+		return resultExpr
+	}
+	return exprParent
+}
+
+// func (p *simpleParser) parseExpr9()
 
 func (p *simpleParser) parseWhenThenClause(r reporter) (stmt *ast.WhenThenClause) {
 	stmt = &ast.WhenThenClause{}
@@ -3441,26 +3486,8 @@ func (p *simpleParser) parseOrderingTerm(r reporter) (stmt *ast.OrderingTerm) {
 	stmt = &ast.OrderingTerm{}
 	stmt.Expr = p.parseExpression(r)
 
+	// Since Expr can take in COLLATE and collation-name, it has been omitted and pushed to expr.
 	next, ok := p.optionalLookahead(r)
-	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
-		return
-	}
-	if next.Type() == token.KeywordCollate {
-		stmt.Collate = next
-		p.consumeToken()
-		next, ok = p.lookahead(r)
-		if !ok {
-			return
-		}
-		if next.Type() == token.Literal {
-			stmt.CollationName = next
-			p.consumeToken()
-		} else {
-			r.unexpectedToken(token.Literal)
-		}
-	}
-
-	next, ok = p.optionalLookahead(r)
 	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
