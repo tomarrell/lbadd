@@ -518,6 +518,7 @@ type (
 		Null           token.Token
 		Is             token.Token
 		Between        token.Token
+		And            token.Token
 		In             token.Token
 		SelectStmt     *SelectStmt
 		TableFunction  token.Token

@@ -933,9 +933,10 @@ func (p *simpleParser) parseConflictClause(r reporter) (clause *ast.ConflictClau
 // unsupported construct error.
 func (p *simpleParser) parseExpression(r reporter) (expr *ast.Expr) {
 	expr = &ast.Expr{}
-	// The following rules being LR, have been converted to remove the LR.
+	// The following rules being Left Recursive, have been converted to remove it.
 	// Details of the conversion follow above the implementations.
 	// S - is the starting production rule for expr.
+	// S -> SX | Y is converted to S -> YS' and S' -> XS'
 
 	// S -> (literal) S' and S -> (schema.table.column) S'
 	literal, ok := p.lookahead(r)
@@ -971,6 +972,15 @@ func (p *simpleParser) parseExpression(r reporter) (expr *ast.Expr) {
 		expr.UnaryOperator = next
 		p.consumeToken()
 		expr.Expr1 = p.parseExpression(r)
+
+		next, ok := p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+			return
+		}
+		returnExpr := p.parseExprRecursive(expr, r)
+		if returnExpr != nil {
+			expr = returnExpr
+		}
 		return
 	}
 
@@ -999,6 +1009,16 @@ func (p *simpleParser) parseExpression(r reporter) (expr *ast.Expr) {
 				if next.Type() == token.Delimiter && next.Value() == ")" {
 					expr.RightParen = next
 					p.consumeToken()
+
+					next, ok := p.optionalLookahead(r)
+					if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+						return
+					}
+
+					returnExpr := p.parseExprRecursive(expr, r)
+					if returnExpr != nil {
+						expr = returnExpr
+					}
 					return
 				}
 				expr.Expr = append(expr.Expr, p.parseExpression(r))
@@ -1053,6 +1073,15 @@ func (p *simpleParser) parseExpression(r reporter) (expr *ast.Expr) {
 				if next.Type() == token.Delimiter && next.Value() == ")" {
 					expr.RightParen = next
 					p.consumeToken()
+
+					next, ok := p.optionalLookahead(r)
+					if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+						return
+					}
+					returnExpr := p.parseExprRecursive(expr, r)
+					if returnExpr != nil {
+						expr = returnExpr
+					}
 				}
 			}
 		} else {
@@ -1094,9 +1123,18 @@ func (p *simpleParser) parseExpression(r reporter) (expr *ast.Expr) {
 			if !ok {
 				return
 			}
-			if next.Type() == token.Delimiter {
+			if next.Type() == token.Delimiter && next.Value() == ")" {
 				expr.RightParen = next
 				p.consumeToken()
+
+				next, ok := p.optionalLookahead(r)
+				if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+					return
+				}
+				returnExpr := p.parseExprRecursive(expr, r)
+				if returnExpr != nil {
+					expr = returnExpr
+				}
 				return
 			}
 		} else {
@@ -1139,9 +1177,18 @@ func (p *simpleParser) parseExpression(r reporter) (expr *ast.Expr) {
 		if next.Type() == token.KeywordEnd {
 			expr.End = next
 			p.consumeToken()
-			return
+
+			next, ok := p.optionalLookahead(r)
+			if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+				return
+			}
+			returnExpr := p.parseExprRecursive(expr, r)
+			if returnExpr != nil {
+				expr = returnExpr
+			}
+		} else {
+			r.unexpectedToken(token.KeywordEnd)
 		}
-		r.unexpectedToken(token.KeywordEnd)
 		return
 	}
 
@@ -1150,6 +1197,15 @@ func (p *simpleParser) parseExpression(r reporter) (expr *ast.Expr) {
 	if next.Type() == token.KeywordRaise {
 		raiseFunction := p.parseRaiseFunction(r)
 		expr.RaiseFunction = raiseFunction
+
+		next, ok := p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+			return
+		}
+		returnExpr := p.parseExprRecursive(expr, r)
+		if returnExpr != nil {
+			expr = returnExpr
+		}
 		return
 	}
 
@@ -1162,8 +1218,8 @@ func (p *simpleParser) parseExpression(r reporter) (expr *ast.Expr) {
 // parseExprRecursive will get the smaller expr and will be asked to return a bigger expr
 // IF it exists.
 func (p *simpleParser) parseExprRecursive(expr *ast.Expr, r reporter) *ast.Expr {
-	next, ok := p.lookahead(r)
-	if !ok {
+	next, ok := p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return nil
 	}
 	switch next.Type() {
@@ -1172,15 +1228,46 @@ func (p *simpleParser) parseExprRecursive(expr *ast.Expr, r reporter) *ast.Expr 
 	case token.KeywordCollate:
 		return p.parseExpr8(expr, r)
 	case token.KeywordNot:
+		tokenNot := next
+		p.consumeToken()
+		next, ok = p.lookahead(r)
+		if !ok {
+			return nil
+		}
+		switch next.Type() {
+		case token.KeywordLike:
+			return p.parseExpr9(expr, tokenNot, r)
+		case token.KeywordGlob:
+			return p.parseExpr9(expr, tokenNot, r)
+		case token.KeywordRegexp:
+			return p.parseExpr9(expr, tokenNot, r)
+		case token.KeywordMatch:
+			return p.parseExpr9(expr, tokenNot, r)
+		case token.KeywordNull:
+			return p.parseExpr10(expr, tokenNot, r)
+		case token.KeywordBetween:
+			return p.parseExpr12(expr, tokenNot, r)
+		case token.KeywordIn:
+			return p.parseExpr13(expr, tokenNot, r)
+		}
 	case token.KeywordLike:
+		return p.parseExpr9(expr, nil, r)
 	case token.KeywordGlob:
+		return p.parseExpr9(expr, nil, r)
 	case token.KeywordRegexp:
+		return p.parseExpr9(expr, nil, r)
 	case token.KeywordMatch:
+		return p.parseExpr9(expr, nil, r)
 	case token.KeywordIsnull:
+		return p.parseExpr10(expr, nil, r)
 	case token.KeywordNotnull:
+		return p.parseExpr10(expr, nil, r)
 	case token.KeywordIs:
+		return p.parseExpr11(expr, r)
 	case token.KeywordBetween:
+		return p.parseExpr12(expr, nil, r)
 	case token.KeywordIn:
+		return p.parseExpr13(expr, nil, r)
 	}
 	return nil
 }
@@ -1193,7 +1280,7 @@ func (p *simpleParser) parseExpr2(schemaOrTableName, period, tableOrColName toke
 			return
 		}
 		if next.Value() == "." {
-			period := next //LiteralValue: token.New(1, 35, 34, 7, token.Literal, "myExpr2"),
+			period := next
 			p.consumeToken()
 			tableOrColumnName, ok := p.lookahead(r)
 			if !ok {
@@ -1203,12 +1290,22 @@ func (p *simpleParser) parseExpr2(schemaOrTableName, period, tableOrColName toke
 				return
 			}
 			p.consumeToken()
-			return p.parseExpr2Helper(schemaOrTableName, period, tableOrColumnName, r)
+			expr = p.parseExpr2Helper(schemaOrTableName, period, tableOrColumnName, r)
+			returnExpr := p.parseExprRecursive(expr, r)
+			if returnExpr != nil {
+				expr = returnExpr
+			}
+			return
 		} else {
 			return
 		}
 	} else {
-		return p.parseExpr2Helper(schemaOrTableName, period, tableOrColName, r)
+		expr = p.parseExpr2Helper(schemaOrTableName, period, tableOrColName, r)
+		returnExpr := p.parseExprRecursive(expr, r)
+		if returnExpr != nil {
+			expr = returnExpr
+		}
+		return
 	}
 	expr = nil
 	return
@@ -1260,6 +1357,7 @@ func (p *simpleParser) parseExpr4(expr *ast.Expr, r reporter) *ast.Expr {
 		p.consumeToken()
 		exprParent.Expr2 = p.parseExpression(r)
 	}
+
 	next, ok = p.optionalLookahead(r)
 	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return exprParent
@@ -1324,6 +1422,15 @@ func (p *simpleParser) parseExpr5(functionName token.Token, r reporter) (expr *a
 		if next.Type() == token.KeywordOver {
 			expr.OverClause = p.parseOverClause(r)
 		}
+
+		next, ok := p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+			return
+		}
+		returnExpr := p.parseExprRecursive(expr, r)
+		if returnExpr != nil {
+			expr = returnExpr
+		}
 	}
 	return
 }
@@ -1385,7 +1492,302 @@ func (p *simpleParser) parseExpr8(expr *ast.Expr, r reporter) *ast.Expr {
 	return exprParent
 }
 
-// func (p *simpleParser) parseExpr9()
+func (p *simpleParser) parseExpr9(expr *ast.Expr, tokenNot token.Token, r reporter) *ast.Expr {
+	exprParent := &ast.Expr{}
+	exprParent.Expr1 = expr
+	exprParent.Not = tokenNot
+
+	next, ok := p.lookahead(r)
+	if !ok {
+		return nil
+	}
+	switch next.Type() {
+	case token.KeywordLike:
+		exprParent.Like = next
+		p.consumeToken()
+	case token.KeywordGlob:
+		exprParent.Glob = next
+		p.consumeToken()
+	case token.KeywordRegexp:
+		exprParent.Regexp = next
+		p.consumeToken()
+	case token.KeywordMatch:
+		exprParent.Match = next
+		p.consumeToken()
+	}
+
+	exprParent.Expr2 = p.parseExpression(r)
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+		return exprParent
+	}
+	if next.Type() == token.KeywordEscape {
+		exprParent.Escape = next
+		p.consumeToken()
+		exprParent.Expr3 = p.parseExpression(r)
+	}
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+		return exprParent
+	}
+	resultExpr := p.parseExprRecursive(exprParent, r)
+	if resultExpr != nil {
+		return resultExpr
+	}
+	return exprParent
+}
+
+func (p *simpleParser) parseExpr10(expr *ast.Expr, tokenNot token.Token, r reporter) *ast.Expr {
+	exprParent := &ast.Expr{}
+	exprParent.Expr1 = expr
+	exprParent.Not = tokenNot
+
+	next, ok := p.lookahead(r)
+	if !ok {
+		return nil
+	}
+	switch next.Type() {
+	case token.KeywordIsnull:
+		exprParent.Isnull = next
+		p.consumeToken()
+	case token.KeywordNotnull:
+		exprParent.Notnull = next
+		p.consumeToken()
+	case token.KeywordNull:
+		exprParent.Null = next
+		p.consumeToken()
+	}
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+		return exprParent
+	}
+	resultExpr := p.parseExprRecursive(exprParent, r)
+	if resultExpr != nil {
+		return resultExpr
+	}
+	return exprParent
+}
+
+func (p *simpleParser) parseExpr11(expr *ast.Expr, r reporter) *ast.Expr {
+	exprParent := &ast.Expr{}
+	exprParent.Expr1 = expr
+
+	next, ok := p.lookahead(r)
+	if !ok {
+		return nil
+	}
+	if next.Type() == token.KeywordIs {
+		exprParent.Is = next
+		p.consumeToken()
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return nil
+		}
+		if next.Type() == token.KeywordNot {
+			exprParent.Not = next
+			p.consumeToken()
+		}
+
+		exprParent.Expr2 = p.parseExpression(r)
+	} else {
+		r.unexpectedToken(token.KeywordIs)
+	}
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+		return exprParent
+	}
+	resultExpr := p.parseExprRecursive(exprParent, r)
+	if resultExpr != nil {
+		return resultExpr
+	}
+	return exprParent
+}
+
+func (p *simpleParser) parseExpr12(expr *ast.Expr, tokenNot token.Token, r reporter) *ast.Expr {
+	exprParent := &ast.Expr{}
+	exprParent.Expr1 = expr
+	exprParent.Not = tokenNot
+
+	next, ok := p.lookahead(r)
+	if !ok {
+		return nil
+	}
+	if next.Type() == token.KeywordBetween {
+		exprParent.Between = next
+		p.consumeToken()
+
+		exprParent.Expr2 = p.parseExpression(r)
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return nil
+		}
+		if next.Type() == token.KeywordAnd {
+			exprParent.And = next
+			p.consumeToken()
+
+			exprParent.Expr3 = p.parseExpression(r)
+		} else {
+			r.unexpectedToken(token.KeywordAnd)
+		}
+	} else {
+		r.unexpectedToken(token.KeywordBetween)
+	}
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+		return exprParent
+	}
+	resultExpr := p.parseExprRecursive(exprParent, r)
+	if resultExpr != nil {
+		return resultExpr
+	}
+	return exprParent
+}
+
+func (p *simpleParser) parseExpr13(expr *ast.Expr, tokenNot token.Token, r reporter) *ast.Expr {
+	exprParent := &ast.Expr{}
+	exprParent.Expr1 = expr
+
+	exprParent.Not = tokenNot
+
+	next, ok := p.lookahead(r)
+	if !ok {
+		return nil
+	}
+	if next.Type() == token.KeywordIn {
+		exprParent.In = next
+		p.consumeToken()
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return nil
+		}
+		switch next.Type() {
+		case token.Delimiter:
+			if next.Value() == "(" {
+				exprParent.LeftParen = next
+				p.consumeToken()
+
+				next, ok = p.lookahead(r)
+				if !ok {
+					return nil
+				}
+				if next.Type() == token.KeywordWith || next.Type() == token.KeywordSelect || next.Type() == token.KeywordValues {
+					exprParent.SelectStmt = p.parseSelectStmt(nil, r)
+				} else if next.Type() == token.Delimiter && next.Value() == ")" {
+					exprParent.RightParen = next
+					p.consumeToken()
+				} else {
+					exprParent.Expr = p.parseExprSequence(r)
+				}
+
+				next, ok = p.optionalLookahead(r)
+				if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+					return exprParent
+				}
+				if next.Type() == token.Delimiter && next.Value() == ")" {
+					exprParent.RightParen = next
+					p.consumeToken()
+				}
+			} else {
+				r.unexpectedSingleRuneToken('(')
+			}
+		case token.Literal:
+			schemaOrTableName := next
+			p.consumeToken()
+
+			periodOrDelimiter, ok := p.optionalLookahead(r)
+			if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+				p.parseExpr13Sub2(exprParent, nil, nil, schemaOrTableName, r)
+				return exprParent
+			}
+			if periodOrDelimiter.Value() == "." {
+				p.consumeToken()
+				literal, ok := p.lookahead(r)
+				if !ok {
+					return nil
+				}
+				if literal.Type() == token.Literal {
+					p.consumeToken()
+					next, ok = p.optionalLookahead(r)
+					if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+						p.parseExpr13Sub2(exprParent, schemaOrTableName, periodOrDelimiter, literal, r)
+						return exprParent
+					}
+					if next.Type() == token.Delimiter && next.Value() == "(" {
+						p.parseExpr13Sub3(exprParent, schemaOrTableName, periodOrDelimiter, literal, r)
+					} else {
+						p.parseExpr13Sub2(exprParent, schemaOrTableName, periodOrDelimiter, literal, r)
+					}
+				} else {
+					r.unexpectedToken(token.Literal)
+				}
+			} else if periodOrDelimiter.Type() == token.Delimiter && periodOrDelimiter.Value() == "(" {
+				p.parseExpr13Sub3(exprParent, nil, nil, schemaOrTableName, r)
+			} else {
+				p.parseExpr13Sub2(exprParent, nil, nil, schemaOrTableName, r)
+			}
+		}
+	}
+
+	next, ok = p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+		return exprParent
+	}
+	resultExpr := p.parseExprRecursive(exprParent, r)
+	if resultExpr != nil {
+		return resultExpr
+	}
+	return exprParent
+}
+
+func (p *simpleParser) parseExpr13Sub2(exprParent *ast.Expr, schemaName, period, tableName token.Token, r reporter) {
+	exprParent.SchemaName = schemaName
+	exprParent.Period1 = period
+	exprParent.TableName = tableName
+	return
+}
+
+func (p *simpleParser) parseExpr13Sub3(exprParent *ast.Expr, schemaName, period, tableFunctionName token.Token, r reporter) {
+	exprParent.SchemaName = schemaName
+	exprParent.Period1 = period
+	exprParent.TableFunction = tableFunctionName
+
+	next, ok := p.lookahead(r)
+	if !ok {
+		return
+	}
+	if next.Type() == token.Delimiter && next.Value() == "(" {
+		exprParent.LeftParen = next
+		p.consumeToken()
+
+		next, ok = p.lookahead(r)
+		if !ok {
+			return
+		}
+		if next.Type() == token.Delimiter && next.Value() == ")" {
+			exprParent.RightParen = next
+			p.consumeToken()
+		} else {
+			exprParent.Expr = p.parseExprSequence(r)
+		}
+
+		next, ok = p.optionalLookahead(r)
+		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+			return
+		}
+		if next.Type() == token.Delimiter && next.Value() == ")" {
+			exprParent.RightParen = next
+			p.consumeToken()
+		}
+	}
+}
 
 func (p *simpleParser) parseWhenThenClause(r reporter) (stmt *ast.WhenThenClause) {
 	stmt = &ast.WhenThenClause{}
