@@ -1194,6 +1194,9 @@ func (p *simpleParser) parseExpression(r reporter) (expr *ast.Expr) {
 
 	// S -> (raise-function) S'
 	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
 	if next.Type() == token.KeywordRaise {
 		raiseFunction := p.parseRaiseFunction(r)
 		expr.RaiseFunction = raiseFunction
@@ -1747,7 +1750,6 @@ func (p *simpleParser) parseExpr13Sub2(exprParent *ast.Expr, schemaName, period,
 	exprParent.SchemaName = schemaName
 	exprParent.Period1 = period
 	exprParent.TableName = tableName
-	return
 }
 
 func (p *simpleParser) parseExpr13Sub3(exprParent *ast.Expr, schemaName, period, tableFunctionName token.Token, r reporter) {
@@ -5858,6 +5860,9 @@ func (p *simpleParser) parseRaiseFunction(r reporter) (stmt *ast.RaiseFunction) 
 				p.consumeToken()
 
 				next, ok = p.lookahead(r)
+				if !ok {
+					return
+				}
 				if next.Value() == "," {
 					stmt.Comma = next
 					p.consumeToken()
