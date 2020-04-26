@@ -529,6 +529,7 @@ type (
 		RaiseFunction  *RaiseFunction
 	}
 
+	// WhenThenClause as in the SQLite grammar
 	WhenThenClause struct {
 		When  token.Token
 		Expr1 *Expr
