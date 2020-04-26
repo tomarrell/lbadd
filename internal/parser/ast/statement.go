@@ -4,7 +4,6 @@ import (
 	"github.com/tomarrell/lbadd/internal/parser/scanner/token"
 )
 
-// All AST nodes.
 type (
 	// SQLStmt as in the SQLite grammar.
 	SQLStmt struct {
