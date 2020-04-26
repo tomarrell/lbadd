@@ -1296,18 +1296,14 @@ func (p *simpleParser) parseExpr2(schemaOrTableName, period, tableOrColName toke
 				expr = returnExpr
 			}
 			return
-		} else {
-			return
-		}
-	} else {
-		expr = p.parseExpr2Helper(schemaOrTableName, period, tableOrColName, r)
-		returnExpr := p.parseExprRecursive(expr, r)
-		if returnExpr != nil {
-			expr = returnExpr
 		}
 		return
 	}
-	expr = nil
+	expr = p.parseExpr2Helper(schemaOrTableName, period, tableOrColName, r)
+	returnExpr := p.parseExprRecursive(expr, r)
+	if returnExpr != nil {
+		expr = returnExpr
+	}
 	return
 }
 
