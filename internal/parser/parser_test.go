@@ -1754,7 +1754,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -1762,10 +1762,10 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
@@ -1806,7 +1806,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -1814,10 +1814,10 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
@@ -1864,7 +1864,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -1872,10 +1872,10 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
@@ -1924,7 +1924,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -1932,10 +1932,10 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
@@ -1985,7 +1985,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -1993,10 +1993,10 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
@@ -2037,7 +2037,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -2045,10 +2045,10 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
@@ -2090,7 +2090,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -2098,10 +2098,10 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
@@ -2143,7 +2143,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -2151,10 +2151,10 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
@@ -2197,7 +2197,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -2205,10 +2205,10 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
@@ -2250,7 +2250,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -2258,10 +2258,10 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
@@ -2303,7 +2303,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -2311,10 +2311,10 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
@@ -2345,7 +2345,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -2353,17 +2353,17 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
 											Group: token.New(1, 27, 26, 5, token.KeywordGroup, "GROUP"),
 											By:    token.New(1, 33, 32, 2, token.KeywordBy, "BY"),
 											Expr2: []*ast.Expr{
-												&ast.Expr{
+												{
 													LiteralValue: token.New(1, 36, 35, 6, token.Literal, "myExpr"),
 												},
 											},
@@ -2390,7 +2390,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -2398,20 +2398,20 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
 											Group: token.New(1, 27, 26, 5, token.KeywordGroup, "GROUP"),
 											By:    token.New(1, 33, 32, 2, token.KeywordBy, "BY"),
 											Expr2: []*ast.Expr{
-												&ast.Expr{
+												{
 													LiteralValue: token.New(1, 36, 35, 7, token.Literal, "myExpr1"),
 												},
-												&ast.Expr{
+												{
 													LiteralValue: token.New(1, 44, 43, 7, token.Literal, "myExpr2"),
 												},
 											},
@@ -2438,7 +2438,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -2446,20 +2446,20 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
 											Group: token.New(1, 27, 26, 5, token.KeywordGroup, "GROUP"),
 											By:    token.New(1, 33, 32, 2, token.KeywordBy, "BY"),
 											Expr2: []*ast.Expr{
-												&ast.Expr{
+												{
 													LiteralValue: token.New(1, 36, 35, 7, token.Literal, "myExpr1"),
 												},
-												&ast.Expr{
+												{
 													LiteralValue: token.New(1, 44, 43, 7, token.Literal, "myExpr2"),
 												},
 											},
@@ -2490,7 +2490,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -2498,16 +2498,16 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
 											Window: token.New(1, 27, 26, 6, token.KeywordWindow, "WINDOW"),
 											NamedWindow: []*ast.NamedWindow{
-												&ast.NamedWindow{
+												{
 													WindowName: token.New(1, 34, 33, 8, token.Literal, "myWindow"),
 													As:         token.New(1, 43, 42, 2, token.KeywordAs, "AS"),
 													WindowDefn: &ast.WindowDefn{
@@ -2539,7 +2539,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -2547,16 +2547,16 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
 											Window: token.New(1, 27, 26, 6, token.KeywordWindow, "WINDOW"),
 											NamedWindow: []*ast.NamedWindow{
-												&ast.NamedWindow{
+												{
 													WindowName: token.New(1, 34, 33, 8, token.Literal, "myWindow"),
 													As:         token.New(1, 43, 42, 2, token.KeywordAs, "AS"),
 													WindowDefn: &ast.WindowDefn{
@@ -2589,7 +2589,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -2597,16 +2597,16 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
 											Window: token.New(1, 27, 26, 6, token.KeywordWindow, "WINDOW"),
 											NamedWindow: []*ast.NamedWindow{
-												&ast.NamedWindow{
+												{
 													WindowName: token.New(1, 34, 33, 8, token.Literal, "myWindow"),
 													As:         token.New(1, 43, 42, 2, token.KeywordAs, "AS"),
 													WindowDefn: &ast.WindowDefn{
@@ -2614,7 +2614,7 @@ func TestSingleStatementParse(t *testing.T) {
 														Partition: token.New(1, 47, 46, 9, token.KeywordPartition, "PARTITION"),
 														By1:       token.New(1, 57, 56, 2, token.KeywordBy, "BY"),
 														Expr: []*ast.Expr{
-															&ast.Expr{
+															{
 																LiteralValue: token.New(1, 60, 59, 6, token.Literal, "myExpr"),
 															},
 														},
@@ -2645,7 +2645,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -2653,16 +2653,16 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
 											Window: token.New(1, 27, 26, 6, token.KeywordWindow, "WINDOW"),
 											NamedWindow: []*ast.NamedWindow{
-												&ast.NamedWindow{
+												{
 													WindowName: token.New(1, 34, 33, 8, token.Literal, "myWindow"),
 													As:         token.New(1, 43, 42, 2, token.KeywordAs, "AS"),
 													WindowDefn: &ast.WindowDefn{
@@ -2670,10 +2670,10 @@ func TestSingleStatementParse(t *testing.T) {
 														Partition: token.New(1, 47, 46, 9, token.KeywordPartition, "PARTITION"),
 														By1:       token.New(1, 57, 56, 2, token.KeywordBy, "BY"),
 														Expr: []*ast.Expr{
-															&ast.Expr{
+															{
 																LiteralValue: token.New(1, 60, 59, 7, token.Literal, "myExpr1"),
 															},
-															&ast.Expr{
+															{
 																LiteralValue: token.New(1, 68, 67, 7, token.Literal, "myExpr2"),
 															},
 														},
@@ -2704,7 +2704,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -2712,16 +2712,16 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
 											Window: token.New(1, 27, 26, 6, token.KeywordWindow, "WINDOW"),
 											NamedWindow: []*ast.NamedWindow{
-												&ast.NamedWindow{
+												{
 													WindowName: token.New(1, 34, 33, 8, token.Literal, "myWindow"),
 													As:         token.New(1, 43, 42, 2, token.KeywordAs, "AS"),
 													WindowDefn: &ast.WindowDefn{
@@ -2729,7 +2729,7 @@ func TestSingleStatementParse(t *testing.T) {
 														Order:     token.New(1, 47, 46, 5, token.KeywordOrder, "ORDER"),
 														By2:       token.New(1, 53, 52, 2, token.KeywordBy, "BY"),
 														OrderingTerm: []*ast.OrderingTerm{
-															&ast.OrderingTerm{
+															{
 																Expr: &ast.Expr{
 																	LiteralValue: token.New(1, 56, 55, 6, token.Literal, "myExpr"),
 																},
@@ -2762,7 +2762,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -2770,16 +2770,16 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
 											Window: token.New(1, 27, 26, 6, token.KeywordWindow, "WINDOW"),
 											NamedWindow: []*ast.NamedWindow{
-												&ast.NamedWindow{
+												{
 													WindowName: token.New(1, 34, 33, 8, token.Literal, "myWindow"),
 													As:         token.New(1, 43, 42, 2, token.KeywordAs, "AS"),
 													WindowDefn: &ast.WindowDefn{
@@ -2787,12 +2787,12 @@ func TestSingleStatementParse(t *testing.T) {
 														Order:     token.New(1, 47, 46, 5, token.KeywordOrder, "ORDER"),
 														By2:       token.New(1, 53, 52, 2, token.KeywordBy, "BY"),
 														OrderingTerm: []*ast.OrderingTerm{
-															&ast.OrderingTerm{
+															{
 																Expr: &ast.Expr{
 																	LiteralValue: token.New(1, 56, 55, 7, token.Literal, "myExpr1"),
 																},
 															},
-															&ast.OrderingTerm{
+															{
 																Expr: &ast.Expr{
 																	LiteralValue: token.New(1, 64, 63, 7, token.Literal, "myExpr2"),
 																},
@@ -2887,7 +2887,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -2895,16 +2895,16 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
 											Window: token.New(1, 27, 26, 6, token.KeywordWindow, "WINDOW"),
 											NamedWindow: []*ast.NamedWindow{
-												&ast.NamedWindow{
+												{
 													WindowName: token.New(1, 34, 33, 8, token.Literal, "myWindow"),
 													As:         token.New(1, 43, 42, 2, token.KeywordAs, "AS"),
 													WindowDefn: &ast.WindowDefn{
@@ -2912,7 +2912,7 @@ func TestSingleStatementParse(t *testing.T) {
 														Order:     token.New(1, 47, 46, 5, token.KeywordOrder, "ORDER"),
 														By2:       token.New(1, 53, 52, 2, token.KeywordBy, "BY"),
 														OrderingTerm: []*ast.OrderingTerm{
-															&ast.OrderingTerm{
+															{
 																Expr: &ast.Expr{
 																	LiteralValue: token.New(1, 56, 55, 7, token.Literal, "myExpr1"),
 																},
@@ -2946,7 +2946,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -2954,16 +2954,16 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
 											Window: token.New(1, 27, 26, 6, token.KeywordWindow, "WINDOW"),
 											NamedWindow: []*ast.NamedWindow{
-												&ast.NamedWindow{
+												{
 													WindowName: token.New(1, 34, 33, 8, token.Literal, "myWindow"),
 													As:         token.New(1, 43, 42, 2, token.KeywordAs, "AS"),
 													WindowDefn: &ast.WindowDefn{
@@ -2971,7 +2971,7 @@ func TestSingleStatementParse(t *testing.T) {
 														Order:     token.New(1, 47, 46, 5, token.KeywordOrder, "ORDER"),
 														By2:       token.New(1, 53, 52, 2, token.KeywordBy, "BY"),
 														OrderingTerm: []*ast.OrderingTerm{
-															&ast.OrderingTerm{
+															{
 																Expr: &ast.Expr{
 																	LiteralValue: token.New(1, 56, 55, 7, token.Literal, "myExpr1"),
 																},
@@ -3005,7 +3005,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -3013,16 +3013,16 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
 											Window: token.New(1, 27, 26, 6, token.KeywordWindow, "WINDOW"),
 											NamedWindow: []*ast.NamedWindow{
-												&ast.NamedWindow{
+												{
 													WindowName: token.New(1, 34, 33, 8, token.Literal, "myWindow"),
 													As:         token.New(1, 43, 42, 2, token.KeywordAs, "AS"),
 													WindowDefn: &ast.WindowDefn{
@@ -3030,7 +3030,7 @@ func TestSingleStatementParse(t *testing.T) {
 														Order:     token.New(1, 47, 46, 5, token.KeywordOrder, "ORDER"),
 														By2:       token.New(1, 53, 52, 2, token.KeywordBy, "BY"),
 														OrderingTerm: []*ast.OrderingTerm{
-															&ast.OrderingTerm{
+															{
 																Expr: &ast.Expr{
 																	LiteralValue: token.New(1, 56, 55, 7, token.Literal, "myExpr1"),
 																},
@@ -3065,7 +3065,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -3073,16 +3073,16 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
 											Window: token.New(1, 27, 26, 6, token.KeywordWindow, "WINDOW"),
 											NamedWindow: []*ast.NamedWindow{
-												&ast.NamedWindow{
+												{
 													WindowName: token.New(1, 34, 33, 8, token.Literal, "myWindow"),
 													As:         token.New(1, 43, 42, 2, token.KeywordAs, "AS"),
 													WindowDefn: &ast.WindowDefn{
@@ -3090,7 +3090,7 @@ func TestSingleStatementParse(t *testing.T) {
 														Order:     token.New(1, 47, 46, 5, token.KeywordOrder, "ORDER"),
 														By2:       token.New(1, 53, 52, 2, token.KeywordBy, "BY"),
 														OrderingTerm: []*ast.OrderingTerm{
-															&ast.OrderingTerm{
+															{
 																Expr: &ast.Expr{
 																	LiteralValue: token.New(1, 56, 55, 7, token.Literal, "myExpr1"),
 																},
@@ -3125,7 +3125,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -3133,16 +3133,16 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
 											Window: token.New(1, 27, 26, 6, token.KeywordWindow, "WINDOW"),
 											NamedWindow: []*ast.NamedWindow{
-												&ast.NamedWindow{
+												{
 													WindowName: token.New(1, 34, 33, 8, token.Literal, "myWindow"),
 													As:         token.New(1, 43, 42, 2, token.KeywordAs, "AS"),
 													WindowDefn: &ast.WindowDefn{
@@ -3179,7 +3179,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -3187,16 +3187,16 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
 											Window: token.New(1, 27, 26, 6, token.KeywordWindow, "WINDOW"),
 											NamedWindow: []*ast.NamedWindow{
-												&ast.NamedWindow{
+												{
 													WindowName: token.New(1, 34, 33, 8, token.Literal, "myWindow"),
 													As:         token.New(1, 43, 42, 2, token.KeywordAs, "AS"),
 													WindowDefn: &ast.WindowDefn{
@@ -3233,7 +3233,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -3241,16 +3241,16 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
 											Window: token.New(1, 27, 26, 6, token.KeywordWindow, "WINDOW"),
 											NamedWindow: []*ast.NamedWindow{
-												&ast.NamedWindow{
+												{
 													WindowName: token.New(1, 34, 33, 8, token.Literal, "myWindow"),
 													As:         token.New(1, 43, 42, 2, token.KeywordAs, "AS"),
 													WindowDefn: &ast.WindowDefn{
@@ -3287,7 +3287,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -3295,16 +3295,16 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
 											Window: token.New(1, 27, 26, 6, token.KeywordWindow, "WINDOW"),
 											NamedWindow: []*ast.NamedWindow{
-												&ast.NamedWindow{
+												{
 													WindowName: token.New(1, 34, 33, 8, token.Literal, "myWindow"),
 													As:         token.New(1, 43, 42, 2, token.KeywordAs, "AS"),
 													WindowDefn: &ast.WindowDefn{
@@ -3343,7 +3343,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -3351,16 +3351,16 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
 											Window: token.New(1, 27, 26, 6, token.KeywordWindow, "WINDOW"),
 											NamedWindow: []*ast.NamedWindow{
-												&ast.NamedWindow{
+												{
 													WindowName: token.New(1, 34, 33, 8, token.Literal, "myWindow"),
 													As:         token.New(1, 43, 42, 2, token.KeywordAs, "AS"),
 													WindowDefn: &ast.WindowDefn{
@@ -3397,7 +3397,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -3405,16 +3405,16 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
 											Window: token.New(1, 27, 26, 6, token.KeywordWindow, "WINDOW"),
 											NamedWindow: []*ast.NamedWindow{
-												&ast.NamedWindow{
+												{
 													WindowName: token.New(1, 34, 33, 8, token.Literal, "myWindow"),
 													As:         token.New(1, 43, 42, 2, token.KeywordAs, "AS"),
 													WindowDefn: &ast.WindowDefn{
@@ -3457,7 +3457,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -3465,16 +3465,16 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
 											Window: token.New(1, 27, 26, 6, token.KeywordWindow, "WINDOW"),
 											NamedWindow: []*ast.NamedWindow{
-												&ast.NamedWindow{
+												{
 													WindowName: token.New(1, 34, 33, 8, token.Literal, "myWindow"),
 													As:         token.New(1, 43, 42, 2, token.KeywordAs, "AS"),
 													WindowDefn: &ast.WindowDefn{
@@ -3519,7 +3519,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -3527,16 +3527,16 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
 											Window: token.New(1, 27, 26, 6, token.KeywordWindow, "WINDOW"),
 											NamedWindow: []*ast.NamedWindow{
-												&ast.NamedWindow{
+												{
 													WindowName: token.New(1, 34, 33, 8, token.Literal, "myWindow"),
 													As:         token.New(1, 43, 42, 2, token.KeywordAs, "AS"),
 													WindowDefn: &ast.WindowDefn{
@@ -3577,7 +3577,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -3585,16 +3585,16 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
 											Window: token.New(1, 27, 26, 6, token.KeywordWindow, "WINDOW"),
 											NamedWindow: []*ast.NamedWindow{
-												&ast.NamedWindow{
+												{
 													WindowName: token.New(1, 34, 33, 8, token.Literal, "myWindow"),
 													As:         token.New(1, 43, 42, 2, token.KeywordAs, "AS"),
 													WindowDefn: &ast.WindowDefn{
@@ -3637,7 +3637,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -3645,16 +3645,16 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
 											Window: token.New(1, 27, 26, 6, token.KeywordWindow, "WINDOW"),
 											NamedWindow: []*ast.NamedWindow{
-												&ast.NamedWindow{
+												{
 													WindowName: token.New(1, 34, 33, 8, token.Literal, "myWindow"),
 													As:         token.New(1, 43, 42, 2, token.KeywordAs, "AS"),
 													WindowDefn: &ast.WindowDefn{
@@ -3694,7 +3694,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -3702,16 +3702,16 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
 											Window: token.New(1, 27, 26, 6, token.KeywordWindow, "WINDOW"),
 											NamedWindow: []*ast.NamedWindow{
-												&ast.NamedWindow{
+												{
 													WindowName: token.New(1, 34, 33, 8, token.Literal, "myWindow"),
 													As:         token.New(1, 43, 42, 2, token.KeywordAs, "AS"),
 													WindowDefn: &ast.WindowDefn{
@@ -3751,7 +3751,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -3759,16 +3759,16 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
 											Window: token.New(1, 27, 26, 6, token.KeywordWindow, "WINDOW"),
 											NamedWindow: []*ast.NamedWindow{
-												&ast.NamedWindow{
+												{
 													WindowName: token.New(1, 34, 33, 8, token.Literal, "myWindow"),
 													As:         token.New(1, 43, 42, 2, token.KeywordAs, "AS"),
 													WindowDefn: &ast.WindowDefn{
@@ -3807,7 +3807,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -3815,16 +3815,16 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
 											Window: token.New(1, 27, 26, 6, token.KeywordWindow, "WINDOW"),
 											NamedWindow: []*ast.NamedWindow{
-												&ast.NamedWindow{
+												{
 													WindowName: token.New(1, 34, 33, 8, token.Literal, "myWindow"),
 													As:         token.New(1, 43, 42, 2, token.KeywordAs, "AS"),
 													WindowDefn: &ast.WindowDefn{
@@ -3863,7 +3863,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -3871,16 +3871,16 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
 											Window: token.New(1, 27, 26, 6, token.KeywordWindow, "WINDOW"),
 											NamedWindow: []*ast.NamedWindow{
-												&ast.NamedWindow{
+												{
 													WindowName: token.New(1, 34, 33, 8, token.Literal, "myWindow"),
 													As:         token.New(1, 43, 42, 2, token.KeywordAs, "AS"),
 													WindowDefn: &ast.WindowDefn{
@@ -3888,14 +3888,14 @@ func TestSingleStatementParse(t *testing.T) {
 														Partition: token.New(1, 47, 46, 9, token.KeywordPartition, "PARTITION"),
 														By1:       token.New(1, 57, 56, 2, token.KeywordBy, "BY"),
 														Expr: []*ast.Expr{
-															&ast.Expr{
+															{
 																LiteralValue: token.New(1, 60, 59, 7, token.Literal, "myExpr1"),
 															},
 														},
 														Order: token.New(1, 68, 67, 5, token.KeywordOrder, "ORDER"),
 														By2:   token.New(1, 74, 73, 2, token.KeywordBy, "BY"),
 														OrderingTerm: []*ast.OrderingTerm{
-															&ast.OrderingTerm{
+															{
 																Expr: &ast.Expr{
 																	LiteralValue: token.New(1, 77, 76, 7, token.Literal, "myExpr2"),
 																},
@@ -3933,7 +3933,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -3941,13 +3941,13 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Values: token.New(1, 18, 17, 6, token.KeywordValues, "VALUES"),
 											ParenthesizedExpressions: []*ast.ParenthesizedExpressions{
-												&ast.ParenthesizedExpressions{
+												{
 													LeftParen: token.New(1, 25, 24, 1, token.Delimiter, "("),
 													Exprs: []*ast.Expr{
-														&ast.Expr{
+														{
 															LiteralValue: token.New(1, 26, 25, 6, token.Literal, "myExpr"),
 														},
 													},
@@ -3977,7 +3977,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -3985,16 +3985,16 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Values: token.New(1, 18, 17, 6, token.KeywordValues, "VALUES"),
 											ParenthesizedExpressions: []*ast.ParenthesizedExpressions{
-												&ast.ParenthesizedExpressions{
+												{
 													LeftParen: token.New(1, 25, 24, 1, token.Delimiter, "("),
 													Exprs: []*ast.Expr{
-														&ast.Expr{
+														{
 															LiteralValue: token.New(1, 26, 25, 7, token.Literal, "myExpr1"),
 														},
-														&ast.Expr{
+														{
 															LiteralValue: token.New(1, 34, 33, 7, token.Literal, "myExpr2"),
 														},
 													},
@@ -4024,7 +4024,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -4032,28 +4032,28 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Values: token.New(1, 18, 17, 6, token.KeywordValues, "VALUES"),
 											ParenthesizedExpressions: []*ast.ParenthesizedExpressions{
-												&ast.ParenthesizedExpressions{
+												{
 													LeftParen: token.New(1, 25, 24, 1, token.Delimiter, "("),
 													Exprs: []*ast.Expr{
-														&ast.Expr{
+														{
 															LiteralValue: token.New(1, 26, 25, 7, token.Literal, "myExpr1"),
 														},
-														&ast.Expr{
+														{
 															LiteralValue: token.New(1, 34, 33, 7, token.Literal, "myExpr2"),
 														},
 													},
 													RightParen: token.New(1, 41, 40, 1, token.Delimiter, ")"),
 												},
-												&ast.ParenthesizedExpressions{
+												{
 													LeftParen: token.New(1, 43, 42, 1, token.Delimiter, "("),
 													Exprs: []*ast.Expr{
-														&ast.Expr{
+														{
 															LiteralValue: token.New(1, 44, 43, 7, token.Literal, "myExpr1"),
 														},
-														&ast.Expr{
+														{
 															LiteralValue: token.New(1, 52, 51, 7, token.Literal, "myExpr2"),
 														},
 													},
@@ -4083,7 +4083,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -4091,10 +4091,10 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
@@ -4102,14 +4102,14 @@ func TestSingleStatementParse(t *testing.T) {
 												Union: token.New(1, 27, 26, 5, token.KeywordUnion, "UNION"),
 											},
 										},
-										&ast.SelectCore{
+										{
 
 											Values: token.New(1, 33, 32, 6, token.KeywordValues, "VALUES"),
 											ParenthesizedExpressions: []*ast.ParenthesizedExpressions{
-												&ast.ParenthesizedExpressions{
+												{
 													LeftParen: token.New(1, 40, 39, 1, token.Delimiter, "("),
 													Exprs: []*ast.Expr{
-														&ast.Expr{
+														{
 															LiteralValue: token.New(1, 41, 40, 7, token.Literal, "myExpr1"),
 														},
 													},
@@ -4139,7 +4139,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -4147,10 +4147,10 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
@@ -4159,14 +4159,14 @@ func TestSingleStatementParse(t *testing.T) {
 												All:   token.New(1, 33, 32, 3, token.KeywordAll, "ALL"),
 											},
 										},
-										&ast.SelectCore{
+										{
 
 											Values: token.New(1, 37, 36, 6, token.KeywordValues, "VALUES"),
 											ParenthesizedExpressions: []*ast.ParenthesizedExpressions{
-												&ast.ParenthesizedExpressions{
+												{
 													LeftParen: token.New(1, 44, 43, 1, token.Delimiter, "("),
 													Exprs: []*ast.Expr{
-														&ast.Expr{
+														{
 															LiteralValue: token.New(1, 45, 44, 7, token.Literal, "myExpr1"),
 														},
 													},
@@ -4196,7 +4196,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -4204,10 +4204,10 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
@@ -4215,14 +4215,14 @@ func TestSingleStatementParse(t *testing.T) {
 												Intersect: token.New(1, 27, 26, 9, token.KeywordIntersect, "INTERSECT"),
 											},
 										},
-										&ast.SelectCore{
+										{
 
 											Values: token.New(1, 37, 36, 6, token.KeywordValues, "VALUES"),
 											ParenthesizedExpressions: []*ast.ParenthesizedExpressions{
-												&ast.ParenthesizedExpressions{
+												{
 													LeftParen: token.New(1, 44, 43, 1, token.Delimiter, "("),
 													Exprs: []*ast.Expr{
-														&ast.Expr{
+														{
 															LiteralValue: token.New(1, 45, 44, 7, token.Literal, "myExpr1"),
 														},
 													},
@@ -4252,7 +4252,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -4260,10 +4260,10 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
@@ -4271,14 +4271,14 @@ func TestSingleStatementParse(t *testing.T) {
 												Except: token.New(1, 27, 26, 6, token.KeywordExcept, "EXCEPT"),
 											},
 										},
-										&ast.SelectCore{
+										{
 
 											Values: token.New(1, 34, 33, 6, token.KeywordValues, "VALUES"),
 											ParenthesizedExpressions: []*ast.ParenthesizedExpressions{
-												&ast.ParenthesizedExpressions{
+												{
 													LeftParen: token.New(1, 41, 40, 1, token.Delimiter, "("),
 													Exprs: []*ast.Expr{
-														&ast.Expr{
+														{
 															LiteralValue: token.New(1, 42, 41, 7, token.Literal, "myExpr1"),
 														},
 													},
@@ -4308,7 +4308,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -4316,10 +4316,10 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
@@ -4328,7 +4328,7 @@ func TestSingleStatementParse(t *testing.T) {
 									Order: token.New(1, 27, 26, 5, token.KeywordOrder, "ORDER"),
 									By:    token.New(1, 33, 32, 2, token.KeywordBy, "BY"),
 									OrderingTerm: []*ast.OrderingTerm{
-										&ast.OrderingTerm{
+										{
 											Expr: &ast.Expr{
 												LiteralValue: token.New(1, 36, 35, 9, token.Literal, "myLiteral"),
 											},
@@ -4355,7 +4355,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -4363,10 +4363,10 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
@@ -4397,7 +4397,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -4405,10 +4405,10 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
@@ -4443,7 +4443,7 @@ func TestSingleStatementParse(t *testing.T) {
 					WithClause: &ast.WithClause{
 						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
 						RecursiveCte: []*ast.RecursiveCte{
-							&ast.RecursiveCte{
+							{
 								CteTableName: &ast.CteTableName{
 									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
 								},
@@ -4451,10 +4451,10 @@ func TestSingleStatementParse(t *testing.T) {
 								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
 								SelectStmt: &ast.SelectStmt{
 									SelectCore: []*ast.SelectCore{
-										&ast.SelectCore{
+										{
 											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
 											ResultColumn: []*ast.ResultColumn{
-												&ast.ResultColumn{
+												{
 													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
 												},
 											},
@@ -4492,10 +4492,10 @@ func TestSingleStatementParse(t *testing.T) {
 					As:        token.New(1, 22, 21, 2, token.KeywordAs, "AS"),
 					SelectStmt: &ast.SelectStmt{
 						SelectCore: []*ast.SelectCore{
-							&ast.SelectCore{
+							{
 								Select: token.New(1, 25, 24, 6, token.KeywordSelect, "SELECT"),
 								ResultColumn: []*ast.ResultColumn{
-									&ast.ResultColumn{
+									{
 										Asterisk: token.New(1, 32, 31, 1, token.BinaryOperator, "*"),
 									},
 								},
@@ -4517,10 +4517,10 @@ func TestSingleStatementParse(t *testing.T) {
 					As:        token.New(1, 27, 26, 2, token.KeywordAs, "AS"),
 					SelectStmt: &ast.SelectStmt{
 						SelectCore: []*ast.SelectCore{
-							&ast.SelectCore{
+							{
 								Select: token.New(1, 30, 29, 6, token.KeywordSelect, "SELECT"),
 								ResultColumn: []*ast.ResultColumn{
-									&ast.ResultColumn{
+									{
 										Asterisk: token.New(1, 37, 36, 1, token.BinaryOperator, "*"),
 									},
 								},
@@ -4542,10 +4542,10 @@ func TestSingleStatementParse(t *testing.T) {
 					As:        token.New(1, 32, 31, 2, token.KeywordAs, "AS"),
 					SelectStmt: &ast.SelectStmt{
 						SelectCore: []*ast.SelectCore{
-							&ast.SelectCore{
+							{
 								Select: token.New(1, 35, 34, 6, token.KeywordSelect, "SELECT"),
 								ResultColumn: []*ast.ResultColumn{
-									&ast.ResultColumn{
+									{
 										Asterisk: token.New(1, 42, 41, 1, token.BinaryOperator, "*"),
 									},
 								},

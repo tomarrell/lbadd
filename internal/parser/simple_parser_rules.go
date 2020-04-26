@@ -929,8 +929,10 @@ func (p *simpleParser) parseConflictClause(r reporter) (clause *ast.ConflictClau
 	return
 }
 
-// parseExpression is not implemented yet and will always result in an
-// unsupported construct error.
+// parseExpression parses expr as defined in:
+// https://sqlite.org/syntax/expr.html
+// parseExprX or parseExprXSubY are the helper functions that parse line X
+// and sub line Y in the spec.
 func (p *simpleParser) parseExpression(r reporter) (expr *ast.Expr) {
 	expr = &ast.Expr{}
 	// The following rules being Left Recursive, have been converted to remove it.
@@ -1100,6 +1102,9 @@ func (p *simpleParser) parseExpression(r reporter) (expr *ast.Expr) {
 		p.consumeToken()
 	}
 	next, ok = p.lookahead(r)
+	if !ok {
+		return
+	}
 	if next.Type() == token.KeywordExists {
 		expr.Exists = next
 		p.consumeToken()
@@ -1154,6 +1159,9 @@ func (p *simpleParser) parseExpression(r reporter) (expr *ast.Expr) {
 
 		for {
 			next, ok = p.lookahead(r)
+			if !ok {
+				return
+			}
 			if next.Type() == token.KeywordEnd || next.Type() == token.KeywordElse {
 				break
 			}
@@ -1434,6 +1442,7 @@ func (p *simpleParser) parseExpr5(functionName token.Token, r reporter) (expr *a
 	return
 }
 
+// parseExprSequence parses a sequence of exprs separated by ","
 func (p *simpleParser) parseExprSequence(r reporter) (exprs []*ast.Expr) {
 	exprs = []*ast.Expr{}
 	for {
