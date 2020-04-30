@@ -1,0 +1,1 @@
+WITH mT AS (SELECT G_D.m G.m S.m M M.d Y.m d doc r o.m o.m b.p l b.g WINDOW y AS (PARTITION BY m,m)) DELETE FROM m
