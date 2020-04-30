@@ -885,7 +885,7 @@ func (p *simpleParser) parseConflictClause(r reporter) (clause *ast.ConflictClau
 		p.consumeToken()
 	} else {
 		// if there's no 'ON' token, the empty production is assumed, which is
-		// why no error is reported here
+		// why no error is reported here.
 		return
 	}
 
@@ -931,16 +931,18 @@ func (p *simpleParser) parseConflictClause(r reporter) (clause *ast.ConflictClau
 
 // parseExpression parses expr as defined in:
 // https://sqlite.org/syntax/expr.html
-// parseExprX or parseExprXSubY are the helper functions that parse line X
-// and sub line Y in the spec.
+// parseExprX or parseExprXSubY are the helper functions that parse line X and sub line Y in the spec.
+// (bind-parameter is removed and neglected while counting line numbers)
+// parseExprXHelper functions are helper functions for parseExprX, mainly to
+// avoid code duplication and suffice alternate paths possible.
 func (p *simpleParser) parseExpression(r reporter) (expr *ast.Expr) {
 	expr = &ast.Expr{}
 	// The following rules being Left Recursive, have been converted to remove it.
 	// Details of the conversion follow above the implementations.
 	// S - is the starting production rule for expr.
-	// S -> SX | Y is converted to S -> YS' and S' -> XS'
+	// S -> SX | Y is converted to S -> YS' and S' -> XS'.
 
-	// S -> (literal) S' and S -> (schema.table.column) S'
+	// S -> (literal) S' and S -> (schema.table.column) S'.
 	literal, ok := p.lookahead(r)
 	if !ok {
 		return
@@ -965,7 +967,7 @@ func (p *simpleParser) parseExpression(r reporter) (expr *ast.Expr) {
 		}
 	}
 
-	// S -> (unary op) S'
+	// S -> (unary op) S'.
 	next, ok := p.lookahead(r)
 	if !ok {
 		return
@@ -986,7 +988,7 @@ func (p *simpleParser) parseExpression(r reporter) (expr *ast.Expr) {
 		return
 	}
 
-	// S -> (parenth. expr) S'
+	// S -> (parenth. expr) S'.
 	next, ok = p.lookahead(r)
 	if !ok {
 		return
@@ -1039,7 +1041,7 @@ func (p *simpleParser) parseExpression(r reporter) (expr *ast.Expr) {
 		}
 	}
 
-	// S -> (CAST) S'
+	// S -> (CAST) S'.
 	next, ok = p.lookahead(r)
 	if !ok {
 		return
@@ -1092,7 +1094,7 @@ func (p *simpleParser) parseExpression(r reporter) (expr *ast.Expr) {
 		return
 	}
 
-	// S -> (NOT EXISTS) S'
+	// S -> (NOT EXISTS) S'.
 	next, ok = p.lookahead(r)
 	if !ok {
 		return
@@ -1147,7 +1149,7 @@ func (p *simpleParser) parseExpression(r reporter) (expr *ast.Expr) {
 		}
 	}
 
-	// S -> (CASE) S'
+	// S -> (CASE) S'.
 	next, ok = p.lookahead(r)
 	if !ok {
 		return
@@ -1200,7 +1202,7 @@ func (p *simpleParser) parseExpression(r reporter) (expr *ast.Expr) {
 		return
 	}
 
-	// S -> (raise-function) S'
+	// S -> (raise-function) S'.
 	next, ok = p.lookahead(r)
 	if !ok {
 		return
@@ -1226,7 +1228,7 @@ func (p *simpleParser) parseExpression(r reporter) (expr *ast.Expr) {
 	return
 }
 
-// parseExprRecursive will get the smaller expr and will be asked to return a bigger expr
+// parseExprRecursive will get the smaller expr and will be asked to return a bigger expr,
 // IF it exists.
 func (p *simpleParser) parseExprRecursive(expr *ast.Expr, r reporter) *ast.Expr {
 	next, ok := p.optionalLookahead(r)
@@ -1283,6 +1285,7 @@ func (p *simpleParser) parseExprRecursive(expr *ast.Expr, r reporter) *ast.Expr 
 	return nil
 }
 
+// parseExpr2 parses S' -> (schema.table.column clause) S'.
 func (p *simpleParser) parseExpr2(schemaOrTableName, period, tableOrColName token.Token, r reporter) (expr *ast.Expr) {
 	expr = &ast.Expr{}
 	if period == nil && tableOrColName == nil {
@@ -1318,6 +1321,7 @@ func (p *simpleParser) parseExpr2(schemaOrTableName, period, tableOrColName toke
 	return
 }
 
+// parseExpr2Helper parses the line 2 of expr based on alternate paths encountered while parsing.
 func (p *simpleParser) parseExpr2Helper(schemaOrTableName, period, tableOrColName token.Token, r reporter) (expr *ast.Expr) {
 	expr = &ast.Expr{}
 	next, ok := p.optionalLookahead(r)
@@ -1351,7 +1355,7 @@ func (p *simpleParser) parseExpr2Helper(schemaOrTableName, period, tableOrColNam
 	return
 }
 
-// Implements S' -> (binary-op) S'
+// parseExpr4 parses S' -> (binary-op) S'.
 func (p *simpleParser) parseExpr4(expr *ast.Expr, r reporter) *ast.Expr {
 	exprParent := &ast.Expr{}
 	exprParent.Expr1 = expr
@@ -1376,6 +1380,7 @@ func (p *simpleParser) parseExpr4(expr *ast.Expr, r reporter) *ast.Expr {
 	return exprParent
 }
 
+// parseExpr5 parses S' -> (function-name) S'.
 func (p *simpleParser) parseExpr5(functionName token.Token, r reporter) (expr *ast.Expr) {
 	expr = &ast.Expr{}
 	expr.FunctionName = functionName
@@ -1442,7 +1447,7 @@ func (p *simpleParser) parseExpr5(functionName token.Token, r reporter) (expr *a
 	return
 }
 
-// parseExprSequence parses a sequence of exprs separated by ","
+// parseExprSequence parses a sequence of exprs separated by ",".
 func (p *simpleParser) parseExprSequence(r reporter) (exprs []*ast.Expr) {
 	exprs = []*ast.Expr{}
 	for {
@@ -1466,6 +1471,7 @@ func (p *simpleParser) parseExprSequence(r reporter) (exprs []*ast.Expr) {
 	return
 }
 
+// parseExpr8 parses S' -> (COLLATE) S' | epsilon.
 func (p *simpleParser) parseExpr8(expr *ast.Expr, r reporter) *ast.Expr {
 	exprParent := &ast.Expr{}
 	exprParent.Expr1 = expr
@@ -1500,6 +1506,7 @@ func (p *simpleParser) parseExpr8(expr *ast.Expr, r reporter) *ast.Expr {
 	return exprParent
 }
 
+// parseExpr9 parses S' -> (NOT-LIKE,GLOB,REGEXP,MATCH) S' | epsilon.
 func (p *simpleParser) parseExpr9(expr *ast.Expr, tokenNot token.Token, r reporter) *ast.Expr {
 	exprParent := &ast.Expr{}
 	exprParent.Expr1 = expr
@@ -1547,6 +1554,7 @@ func (p *simpleParser) parseExpr9(expr *ast.Expr, tokenNot token.Token, r report
 	return exprParent
 }
 
+// parseExpr10 parses S' -> (ISNULL,NOTNULL,NOT NULL) S' | epsilon.
 func (p *simpleParser) parseExpr10(expr *ast.Expr, tokenNot token.Token, r reporter) *ast.Expr {
 	exprParent := &ast.Expr{}
 	exprParent.Expr1 = expr
@@ -1579,6 +1587,7 @@ func (p *simpleParser) parseExpr10(expr *ast.Expr, tokenNot token.Token, r repor
 	return exprParent
 }
 
+// parseExpr11 parses S' -> (IS NOT) S' | epsilon.
 func (p *simpleParser) parseExpr11(expr *ast.Expr, r reporter) *ast.Expr {
 	exprParent := &ast.Expr{}
 	exprParent.Expr1 = expr
@@ -1616,6 +1625,7 @@ func (p *simpleParser) parseExpr11(expr *ast.Expr, r reporter) *ast.Expr {
 	return exprParent
 }
 
+// parseExpr12 parses S' -> (NOT BETWEEN) S' | epsilon.
 func (p *simpleParser) parseExpr12(expr *ast.Expr, tokenNot token.Token, r reporter) *ast.Expr {
 	exprParent := &ast.Expr{}
 	exprParent.Expr1 = expr
@@ -1658,6 +1668,7 @@ func (p *simpleParser) parseExpr12(expr *ast.Expr, tokenNot token.Token, r repor
 	return exprParent
 }
 
+// parseExpr13 parses S' -> (NOT IN) S' | epsilon.
 func (p *simpleParser) parseExpr13(expr *ast.Expr, tokenNot token.Token, r reporter) *ast.Expr {
 	exprParent := &ast.Expr{}
 	exprParent.Expr1 = expr
@@ -1755,12 +1766,14 @@ func (p *simpleParser) parseExpr13(expr *ast.Expr, tokenNot token.Token, r repor
 	return exprParent
 }
 
+// parseExpr13Sub2 parses the sub-line 2 of line 13 in expr.
 func (p *simpleParser) parseExpr13Sub2(exprParent *ast.Expr, schemaName, period, tableName token.Token, r reporter) {
 	exprParent.SchemaName = schemaName
 	exprParent.Period1 = period
 	exprParent.TableName = tableName
 }
 
+// parseExpr13Sub3 parses the sub-line 3 of line 13 in expr.
 func (p *simpleParser) parseExpr13Sub3(exprParent *ast.Expr, schemaName, period, tableFunctionName token.Token, r reporter) {
 	exprParent.SchemaName = schemaName
 	exprParent.Period1 = period
@@ -1796,6 +1809,7 @@ func (p *simpleParser) parseExpr13Sub3(exprParent *ast.Expr, schemaName, period,
 	}
 }
 
+// parseWhenThenClause parses the when-then clause as defined in statement.go
 func (p *simpleParser) parseWhenThenClause(r reporter) (stmt *ast.WhenThenClause) {
 	stmt = &ast.WhenThenClause{}
 	next, ok := p.lookahead(r)
@@ -5011,6 +5025,7 @@ func (p *simpleParser) parseUpsertClause(r reporter) (clause *ast.UpsertClause) 
 	return
 }
 
+// parseUpdateSetter parses the update-setter clause as defined in statement.go
 func (p *simpleParser) parseUpdateSetter(r reporter) (stmt *ast.UpdateSetter) {
 	stmt = &ast.UpdateSetter{}
 	next, ok := p.lookahead(r)
@@ -5075,6 +5090,8 @@ func (p *simpleParser) parseColumnNameList(r reporter) (stmt *ast.ColumnNameList
 	return
 }
 
+// parseUpdateStmtHelper parses the entire update statement.
+// This function is separated in order to avoid code duplication.
 func (p *simpleParser) parseUpdateStmtHelper(withClause *ast.WithClause, r reporter) (updateStmt *ast.UpdateStmt) {
 	updateStmt = &ast.UpdateStmt{}
 
@@ -5173,6 +5190,8 @@ func (p *simpleParser) parseUpdateStmtHelper(withClause *ast.WithClause, r repor
 	return
 }
 
+// parseUpdateStmts parses all different variants of the Update stmt.
+// This includes with or without the WithClause, and the "Limited" version of the stmt.
 func (p *simpleParser) parseUpdateStmts(sqlStmt *ast.SQLStmt, withClause *ast.WithClause, r reporter) {
 	updateStmt := p.parseUpdateStmtHelper(withClause, r)
 
@@ -5911,6 +5930,8 @@ func (p *simpleParser) parseRaiseFunction(r reporter) (stmt *ast.RaiseFunction) 
 	return
 }
 
+// parseWithClauseBeginnerStmts parses all different statements that begin with a WithClause.
+// This includes Delete, Insert, Update and Select stmts.
 func (p *simpleParser) parseWithClauseBeginnerStmts(stmt *ast.SQLStmt, r reporter) {
 	withClause := &ast.WithClause{}
 	next, ok := p.lookahead(r)
