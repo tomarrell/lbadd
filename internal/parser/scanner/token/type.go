@@ -133,7 +133,7 @@ const (
 	KeywordRecursive
 	KeywordReferences
 	KeywordRegexp
-	KeywordReindex
+	KeywordReIndex
 	KeywordRelease
 	KeywordRename
 	KeywordReplace
