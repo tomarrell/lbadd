@@ -1,0 +1,1 @@
+WITH myTable AS (SELECT * FROM myTable1,myTable2 ON myExpr) DELETE FROM myTable

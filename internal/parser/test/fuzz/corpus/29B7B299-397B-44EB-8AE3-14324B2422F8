@@ -1,1 +1,0 @@
-WITH myTable AS (SELECT CODING_GUIDELINES.md CONTRIBUTING.md LICENSE.md Makefile README.md SECURITY.md cmd doc driver go.mod go.sum gopheydb.png internal lbadd.log WINDOW myWindow AS (ORDER BY myExpr1,myExpr2)) DELETE FROM myTable

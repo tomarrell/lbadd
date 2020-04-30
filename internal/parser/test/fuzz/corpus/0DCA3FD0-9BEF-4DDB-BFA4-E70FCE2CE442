@@ -1,0 +1,1 @@
+WITH myTable AS (SELECT * UNION VALUES (myExpr1)) DELETE FROM myTable

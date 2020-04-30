@@ -1,0 +1,1 @@
+WITH myTable AS (SELECT * FROM myTable) DELETE FROM myTable

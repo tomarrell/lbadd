@@ -1,0 +1,1 @@
+CREATE TRIGGER myTrigger UPDATE OF myCol1,myCol2 ON myTable BEGIN SELECT *; END

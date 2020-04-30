@@ -1,1 +1,0 @@
-CREATE TABLE y (y AS (y) VIRTUAL)

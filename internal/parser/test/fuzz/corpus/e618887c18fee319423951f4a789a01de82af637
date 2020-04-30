@@ -1,1 +1,0 @@
-WITH mT AS (SELECT m ml) DELETE FROM mT

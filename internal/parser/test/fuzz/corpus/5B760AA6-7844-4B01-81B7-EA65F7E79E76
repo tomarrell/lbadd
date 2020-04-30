@@ -1,0 +1,1 @@
+WITH myTable AS (SELECT * FROM myTable1 JOIN myTable2) DELETE FROM myTable

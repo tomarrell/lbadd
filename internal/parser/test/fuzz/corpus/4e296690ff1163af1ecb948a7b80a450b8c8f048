@@ -1,1 +1,0 @@
-CREATE TABLE myTable(myColumn CONSTRAINT myConstraint NOT NULL)

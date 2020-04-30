@@ -1,0 +1,1 @@
+CREATE VIEW myView (myCol1,myCol2) AS SELECT *

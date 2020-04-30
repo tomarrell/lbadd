@@ -1,0 +1,1 @@
+UPDATE OR ABORT myTable SET myCol = myNewCol

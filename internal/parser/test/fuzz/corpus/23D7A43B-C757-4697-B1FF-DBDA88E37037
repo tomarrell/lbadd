@@ -1,0 +1,1 @@
+INSERT INTO myTable VALUES (myExpr) ON CONFLICT (myCol) WHERE myExpr DO NOTHING

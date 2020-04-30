@@ -1,0 +1,1 @@
+INSERT INTO myTable WITH myNewTable1 AS (SELECT *) SELECT *
