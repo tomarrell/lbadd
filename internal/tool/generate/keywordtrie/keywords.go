@@ -117,7 +117,7 @@ var (
 		"RECURSIVE":         token.KeywordRecursive,
 		"REFERENCES":        token.KeywordReferences,
 		"REGEXP":            token.KeywordRegexp,
-		"REINDEX":           token.KeywordReindex,
+		"REINDEX":           token.KeywordReIndex,
 		"RELEASE":           token.KeywordRelease,
 		"RENAME":            token.KeywordRename,
 		"REPLACE":           token.KeywordReplace,

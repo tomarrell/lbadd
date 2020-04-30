@@ -826,11 +826,11 @@ func generateKeywordRegexp(offset int) token.Token {
 		value:  caseShuffle("Regexp"),
 	}
 }
-func generateKeywordReindex(offset int) token.Token {
+func generateKeywordReIndex(offset int) token.Token {
 	return genTok{
 		offset: offset,
-		typ:    token.KeywordReindex,
-		value:  caseShuffle("Reindex"),
+		typ:    token.KeywordReIndex,
+		value:  caseShuffle("ReIndex"),
 	}
 }
 func generateKeywordRelease(offset int) token.Token {
@@ -1348,8 +1348,8 @@ func generateTokenForType(offset int, typ token.Type) token.Token {
 		return generateKeywordReferences(offset)
 	case token.KeywordRegexp:
 		return generateKeywordRegexp(offset)
-	case token.KeywordReindex:
-		return generateKeywordReindex(offset)
+	case token.KeywordReIndex:
+		return generateKeywordReIndex(offset)
 	case token.KeywordRelease:
 		return generateKeywordRelease(offset)
 	case token.KeywordRename:

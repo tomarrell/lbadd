@@ -123,7 +123,7 @@ func _() {
 	_ = x[KeywordRecursive-112]
 	_ = x[KeywordReferences-113]
 	_ = x[KeywordRegexp-114]
-	_ = x[KeywordReindex-115]
+	_ = x[KeywordReIndex-115]
 	_ = x[KeywordRelease-116]
 	_ = x[KeywordRename-117]
 	_ = x[KeywordReplace-118]

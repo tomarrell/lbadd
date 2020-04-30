@@ -30,7 +30,7 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 	}
 
 	// according to the grammar, these are the tokens that initiate a statement
-	p.searchNext(r, token.StatementSeparator, token.EOF, token.KeywordAlter, token.KeywordAnalyze, token.KeywordAttach, token.KeywordBegin, token.KeywordCommit, token.KeywordCreate, token.KeywordDelete, token.KeywordDetach, token.KeywordDrop, token.KeywordEnd, token.KeywordInsert, token.KeywordPragma, token.KeywordReindex, token.KeywordRelease, token.KeywordReplace, token.KeywordRollback, token.KeywordSavepoint, token.KeywordSelect, token.KeywordUpdate, token.KeywordVacuum, token.KeywordValues, token.KeywordWith)
+	p.searchNext(r, token.StatementSeparator, token.EOF, token.KeywordAlter, token.KeywordAnalyze, token.KeywordAttach, token.KeywordBegin, token.KeywordCommit, token.KeywordCreate, token.KeywordDelete, token.KeywordDetach, token.KeywordDrop, token.KeywordEnd, token.KeywordInsert, token.KeywordPragma, token.KeywordReIndex, token.KeywordRelease, token.KeywordReplace, token.KeywordRollback, token.KeywordSavepoint, token.KeywordSelect, token.KeywordUpdate, token.KeywordVacuum, token.KeywordValues, token.KeywordWith)
 
 	next, ok := p.unsafeLowLevelLookahead()
 	if !ok {
@@ -62,7 +62,7 @@ func (p *simpleParser) parseSQLStatement(r reporter) (stmt *ast.SQLStmt) {
 		stmt.CommitStmt = p.parseCommitStmt(r)
 	case token.KeywordInsert:
 		stmt.InsertStmt = p.parseInsertStmt(nil, r)
-	case token.KeywordReindex:
+	case token.KeywordReIndex:
 		stmt.ReIndexStmt = p.parseReIndexStmt(r)
 	case token.KeywordRelease:
 		stmt.ReleaseStmt = p.parseReleaseStmt(r)
@@ -1937,7 +1937,7 @@ func (p *simpleParser) parseVacuumStmt(r reporter) (stmt *ast.VacuumStmt) {
 	// the fact that there can be no tokens after the first keyword.
 	// Same logic is applied for the next INTO keyword check too.
 	next, ok = p.optionalLookahead(r)
-	if !ok {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	if next.Type() == token.Literal {
@@ -1946,7 +1946,7 @@ func (p *simpleParser) parseVacuumStmt(r reporter) (stmt *ast.VacuumStmt) {
 	}
 
 	next, ok = p.optionalLookahead(r)
-	if !ok {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	if next.Type() == token.KeywordInto {
@@ -1993,7 +1993,7 @@ func (p *simpleParser) parseAnalyzeStmt(r reporter) (stmt *ast.AnalyzeStmt) {
 	}
 
 	period, ok := p.optionalLookahead(r)
-	if !ok || period.Type() == token.EOF {
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return
 	}
 	// Since if there is a period, it means there is definitely an
@@ -5350,7 +5350,7 @@ func (p *simpleParser) parseReIndexStmt(r reporter) (stmt *ast.ReIndexStmt) {
 	if !ok {
 		return
 	}
-	if next.Type() == token.KeywordReindex {
+	if next.Type() == token.KeywordReIndex {
 		stmt.ReIndex = next
 		p.consumeToken()
 	}

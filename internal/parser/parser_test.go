@@ -7108,7 +7108,7 @@ func TestSingleStatementParse(t *testing.T) {
 			"REINDEX",
 			&ast.SQLStmt{
 				ReIndexStmt: &ast.ReIndexStmt{
-					ReIndex: token.New(1, 1, 0, 7, token.KeywordReindex, "REINDEX"),
+					ReIndex: token.New(1, 1, 0, 7, token.KeywordReIndex, "REINDEX"),
 				},
 			},
 		},
@@ -7117,7 +7117,7 @@ func TestSingleStatementParse(t *testing.T) {
 			"REINDEX myCollation",
 			&ast.SQLStmt{
 				ReIndexStmt: &ast.ReIndexStmt{
-					ReIndex:       token.New(1, 1, 0, 7, token.KeywordReindex, "REINDEX"),
+					ReIndex:       token.New(1, 1, 0, 7, token.KeywordReIndex, "REINDEX"),
 					CollationName: token.New(1, 9, 8, 11, token.Literal, "myCollation"),
 				},
 			},
@@ -7127,7 +7127,7 @@ func TestSingleStatementParse(t *testing.T) {
 			"REINDEX mySchema.myTableOrIndex",
 			&ast.SQLStmt{
 				ReIndexStmt: &ast.ReIndexStmt{
-					ReIndex:          token.New(1, 1, 0, 7, token.KeywordReindex, "REINDEX"),
+					ReIndex:          token.New(1, 1, 0, 7, token.KeywordReIndex, "REINDEX"),
 					SchemaName:       token.New(1, 9, 8, 8, token.Literal, "mySchema"),
 					Period:           token.New(1, 17, 16, 1, token.Literal, "."),
 					TableOrIndexName: token.New(1, 18, 17, 14, token.Literal, "myTableOrIndex"),
