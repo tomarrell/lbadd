@@ -1,0 +1,1 @@
+WITH myTable AS (WITH myTable (myCol) AS (SELECT *) SELECT *) DELETE FROM myTable

@@ -1,0 +1,1 @@
+WITH myTable AS (SELECT * INTERSECT VALUES (myExpr1)) DELETE FROM myTable

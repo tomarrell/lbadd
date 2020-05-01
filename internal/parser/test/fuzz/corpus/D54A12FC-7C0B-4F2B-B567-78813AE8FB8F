@@ -1,0 +1,1 @@
+WITH myTable AS (SELECT * WINDOW myWindow AS ()) DELETE FROM myTable

@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	github.com/awnumar/memguard v0.22.1
+	github.com/dvyukov/go-fuzz v0.0.0-20200318091601-be3528f3a813 // indirect
 	github.com/google/go-cmp v0.4.0
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/rs/zerolog v1.18.0

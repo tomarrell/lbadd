@@ -1,0 +1,1 @@
+UPDATE OR ROLLBACK myTable SET myCol = myNewCol
