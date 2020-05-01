@@ -2135,7 +2135,8 @@ func (p *simpleParser) parseRollbackStmt(r reporter) (stmt *ast.RollbackStmt) {
 	return
 }
 
-// parseCreateStmt looks ahead for the tokens and decides which function gets to parse the statement
+// parseCreateStmts parses the multiple variations of CREATE stmts.
+// The variations are CREATE INDEX,TABLE,TRIGGER and VIEW.
 func (p *simpleParser) parseCreateStmts(stmt *ast.SQLStmt, r reporter) {
 	p.searchNext(r, token.KeywordCreate)
 	createToken, ok := p.lookahead(r)
@@ -5958,6 +5959,8 @@ func (p *simpleParser) parseWithClauseBeginnerStmts(stmt *ast.SQLStmt, r reporte
 	}
 }
 
+// parseDropStmts parses the multiple variations of DROP stmt.
+// The variations are DROP INDEX,TABLE,TRIGGER and VIEW.
 func (p *simpleParser) parseDropStmts(stmt *ast.SQLStmt, r reporter) {
 	dropToken, ok := p.lookahead(r)
 	if !ok {
