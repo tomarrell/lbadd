@@ -48,7 +48,13 @@ A detailed description of all the modules follow:
 * Successful log: When all logs have been applied successfully to all follower machines, the leader applies the entry to its state machine and returns the result to the client.
 * Repeating `AppendEntries`: `AppendEntriesRPC` are repeated indefinitely until all followers eventually store all log entries.
 * Log entry storage: Log entries are a queue of state machine commands which are applied to that particular state machine. Log entries are associated with a term number to indicate the term of application of that log along with an integer index to identify a particular logs position.
-* Committed entry: A log entry is called committed once its replicated on the majority of the servers in the cluster. Once an entry is committed, it commits all the previous entries in the leaders log, including the entries created by the previous leaders. Once a follower learns that 
+* Committed entry: A log entry is called committed once its replicated on the majority of the servers in the cluster. Once an entry is committed, it commits all the previous entries in the leaders log, including the entries created by the previous leaders.
+* The  leader keeps track of the highest known index that it knows is committed and it is included in all the future `AppendEntriesRPC` (including heartbeats) to inform other servers.
+* Theres some issue about log committing - paragraph says its committed when its applied everywhere and also says its applied everywhere once its committed. 
+* Log matching property: 
+  * If two entries in different logs have the same index and term, then they store the same com-mand.
+  * If two entries in different logs have the same index and term, then the logs are identical in allpreceding entries.
+ * 
 * Add more from section 3.6
 
 #### Implementation
