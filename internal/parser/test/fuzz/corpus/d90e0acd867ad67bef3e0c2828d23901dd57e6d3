@@ -1,0 +1,1 @@
+INSERT INTO mT(m)ON CONFLICT DO UPDATE SET (myCol) = myNewCol, myNewCol1 = myNewerCol
