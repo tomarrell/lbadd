@@ -21,7 +21,7 @@ lint: ## Runs the linters (including internal ones)
 
 .PHONY: build
 build: ## Build an lbadd binary that is ready for prod
-	go build -o lbadd -ldflags="-w -X 'main.Version=$(shell date +%Y%m%d)'" ./cmd/lbadd
+	go build -o lbadd -ldflags="-s -w -X 'main.Version=$(shell date +%Y%m%d)'" ./cmd/lbadd
 
 .PHONY: fuzzy-parser
 fuzzy-parser: ## Starts fuzzing the parser
