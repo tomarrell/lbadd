@@ -49,6 +49,13 @@ func (s *tcpServer) Open(addr string) error {
 	return nil
 }
 
+func (s *tcpServer) Addr() net.Addr {
+	if s.lis == nil {
+		return nil
+	}
+	return s.lis.Addr()
+}
+
 func (s *tcpServer) OnConnect(h ConnHandler) {
 	s.onConnect = h
 }

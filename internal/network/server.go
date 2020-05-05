@@ -3,6 +3,7 @@ package network
 import (
 	"fmt"
 	"io"
+	"net"
 )
 
 // ConnHandler is a handler function for handling new connections. It will be
@@ -18,7 +19,14 @@ type ConnHandler func(Conn)
 type Server interface {
 	io.Closer
 
+	// Open opens the server on the given address. To choose the server a random
+	// free port for you, specify a port ":0".
 	Open(string) error
+	// Addr returns the address that this server is listening to.
+	Addr() net.Addr
+
+	// OnConnect sets a callback that will be executed whenever a new connection
+	// connects to this server.
 	OnConnect(ConnHandler)
 }
 
@@ -30,8 +38,15 @@ type Server interface {
 type Conn interface {
 	io.Closer
 
+	// ID returns the ID of this connection. It can be used to uniquely identify
+	// this connection globally.
 	ID() ID
+	// Send sends the given payload to the remote part of this connection. The
+	// message will not be chunked, and can be read with a single call to
+	// Conn.Receive.
 	Send([]byte) error
+	// Receive reads a whole message and returns it in a byte slice. A message
+	// is a byte slice that was sent with a single call to Conn.Send.
 	Receive() ([]byte, error)
 }
 
