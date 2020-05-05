@@ -12,8 +12,7 @@ import (
 	"github.com/rs/zerolog/diode"
 	"github.com/spf13/cobra"
 	"github.com/tomarrell/lbadd/internal/executor"
-	"github.com/tomarrell/lbadd/internal/master"
-	"github.com/tomarrell/lbadd/internal/worker"
+	"github.com/tomarrell/lbadd/internal/node"
 )
 
 // intended to be set in build process
@@ -60,19 +59,8 @@ const (
 	versionCmdShortDoc = "Print version information about this executable"
 	versionCmdLongDoc  = ""
 
-	startCmdShortDoc = "Start either a master or a worker node"
+	startCmdShortDoc = "Start a database node"
 	startCmdLongDoc  = ""
-
-	startMasterCmdShortDoc = "Start a master node"
-	startMasterCmdLongDoc  = `Start a master node on the address that is specified in the addr flag.
-This will start an lbadd master node on the specified address,
-waiting for incoming connections from lbadd worker nodes.`
-
-	startWorkerCmdShortDoc = "Start a worker node"
-	startWorkerCmdLongDoc  = `Start a worker node and connect it to the address that is specified
-in the addr flag. This will start an lbadd worker node, that
-connects to a already running master node on the given address.
-The used database file will be "db.lbadd".`
 )
 
 var (
@@ -95,37 +83,18 @@ var (
 		Use:   "start",
 		Short: startCmdShortDoc,
 		Long:  startCmdLongDoc,
-		Args:  cobra.NoArgs,
-	}
-
-	startMasterCmd = &cobra.Command{
-		Use:   "master [database file]",
-		Short: startMasterCmdShortDoc,
-		Long:  startMasterCmdLongDoc,
-		Run:   startMaster,
+		Run:   startNode,
 		Args:  cobra.ExactArgs(1),
-	}
-
-	startWorkerCmd = &cobra.Command{
-		Use:   "worker",
-		Short: startWorkerCmdShortDoc,
-		Long:  startWorkerCmdLongDoc,
-		Run:   startWorker,
-		Args:  cobra.NoArgs,
 	}
 )
 
 func init() {
 	rootCmd.AddCommand(startCmd, versionCmd)
-	startCmd.AddCommand(startMasterCmd, startWorkerCmd)
 
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "print more logs")
 
 	startCmd.PersistentFlags().StringVar(&logfile, "logfile", "lbadd.log", "define a log file to write logs to")
-
-	startMasterCmd.PersistentFlags().StringVar(&addr, "addr", ":34213", "serve the database on this address")
-
-	startWorkerCmd.PersistentFlags().StringVar(&addr, "addr", ":34213", "connect to a master node on this address")
+	startCmd.PersistentFlags().StringVar(&addr, "addr", ":34213", "start the node on this address")
 }
 
 func main() {
@@ -178,44 +147,23 @@ func printVersion(cmd *cobra.Command, args []string) {
 	_, _ = fmt.Fprintf(stdout, "%s version %s\n", ApplicationName, Version)
 }
 
-func startMaster(cmd *cobra.Command, args []string) {
+func startNode(cmd *cobra.Command, args []string) {
 	log := cmd.Context().Value(ctxKeyLog).(zerolog.Logger)
 
 	databaseFile := args[0]
 
-	masterLog := log.With().
+	nodeLog := log.With().
 		Str("component", "master").
 		Str("dbfile", databaseFile).
 		Logger()
 
 	exec := createExecutor(log, databaseFile)
 
-	masterNode := master.New(masterLog, exec)
-	if err := masterNode.ListenAndServe(cmd.Context(), addr); err != nil {
+	node := node.New(nodeLog, exec)
+	if err := node.ListenAndServe(cmd.Context(), addr); err != nil {
 		log.Error().
 			Err(err).
 			Msg("listen and serve")
-		os.Exit(ExitAbnormal)
-	}
-}
-
-func startWorker(cmd *cobra.Command, args []string) {
-	log := cmd.Context().Value(ctxKeyLog).(zerolog.Logger)
-
-	databaseFile := "db.lbadd"
-
-	workerLog := log.With().
-		Str("component", "worker").
-		Str("dbfile", databaseFile).
-		Logger()
-
-	exec := createExecutor(log, databaseFile)
-
-	workerNode := worker.New(workerLog, exec)
-	if err := workerNode.Connect(cmd.Context(), addr); err != nil {
-		log.Error().
-			Err(err).
-			Msg("connect")
 		os.Exit(ExitAbnormal)
 	}
 }
