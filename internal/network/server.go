@@ -54,4 +54,5 @@ type Conn interface {
 // unique application-wide. IDs must not be re-used.
 type ID interface {
 	fmt.Stringer
+	Bytes() []byte
 }

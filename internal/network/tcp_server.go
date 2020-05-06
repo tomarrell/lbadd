@@ -89,6 +89,7 @@ func (s *tcpServer) handleIncomingConnections() {
 		}
 
 		tcpConn := newTCPConn(conn)
+		tcpConn.Send(tcpConn.id.Bytes())
 
 		if s.onConnect != nil {
 			go s.onConnect(tcpConn)
