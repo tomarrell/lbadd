@@ -3,6 +3,7 @@ package network
 import (
 	"fmt"
 	"net"
+	"time"
 
 	"github.com/rs/zerolog"
 	"golang.org/x/net/context"
@@ -89,18 +90,27 @@ func (s *tcpServer) handleIncomingConnections() {
 			continue
 		}
 
-		tcpConn := newTCPConn(conn)
-		err = tcpConn.Send(tcpConn.id.Bytes())
-		if err != nil {
-			s.log.Error().
-				Err(err).
-				Msg("send ID")
-			_ = tcpConn.Close()
-			continue
-		}
+		go s.handleIncomingNetConn(conn)
+	}
+}
 
-		if s.onConnect != nil {
-			go s.onConnect(tcpConn)
-		}
+func (s *tcpServer) handleIncomingNetConn(conn net.Conn) {
+	tcpConn := newTCPConn(conn)
+
+	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	err := tcpConn.Send(ctx, tcpConn.id.Bytes())
+	if err != nil {
+		s.log.Error().
+			Err(err).
+			Msg("send ID")
+		_ = tcpConn.Close()
+		return
+	}
+
+	if s.onConnect != nil {
+		s.onConnect(tcpConn)
 	}
 }

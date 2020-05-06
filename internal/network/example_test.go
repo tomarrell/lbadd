@@ -1,6 +1,7 @@
 package network_test
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
@@ -12,9 +13,11 @@ import (
 func ExampleServer() {
 	// When using, please don't ignore all the errors as we do here.
 
+	ctx := context.Background()
+
 	srv := network.NewTCPServer(zerolog.Nop()) // or whatever server is available
 	srv.OnConnect(func(conn network.Conn) {
-		_ = conn.Send([]byte("Hello, World!"))
+		_ = conn.Send(ctx, []byte("Hello, World!"))
 	})
 	go func() {
 		if err := srv.Open(":59513"); err != nil {
@@ -23,11 +26,11 @@ func ExampleServer() {
 	}()
 
 	time.Sleep(10 * time.Millisecond)
-	client, _ := network.DialTCP(":59513")
+	client, _ := network.DialTCP(ctx, ":59513")
 	defer func() {
 		_ = client.Close()
 	}()
-	received, _ := client.Receive()
+	received, _ := client.Receive(ctx)
 	fmt.Println(string(received))
 	// Output: Hello, World!
 }
