@@ -1,0 +1,1 @@
+WITH myTable AS (SELECT * LIMIT myExpr1) DELETE FROM myTable

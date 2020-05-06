@@ -1,0 +1,1 @@
+WITH myTable AS (SELECT * GROUP BY myExpr1,myExpr2 HAVING myExpr3) DELETE FROM myTable

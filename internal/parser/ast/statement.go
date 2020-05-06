@@ -4,7 +4,6 @@ import (
 	"github.com/tomarrell/lbadd/internal/parser/scanner/token"
 )
 
-// All AST nodes.
 type (
 	// SQLStmt as in the SQLite grammar.
 	SQLStmt struct {
@@ -30,7 +29,7 @@ type (
 		DropTriggerStmt        *DropTriggerStmt
 		DropViewStmt           *DropViewStmt
 		InsertStmt             *InsertStmt
-		ReindexStmt            *ReindexStmt
+		ReIndexStmt            *ReIndexStmt
 		ReleaseStmt            *ReleaseStmt
 		RollbackStmt           *RollbackStmt
 		SavepointStmt          *SavepointStmt
@@ -222,10 +221,10 @@ type (
 		By           token.Token
 		OrderingTerm []*OrderingTerm
 		Limit        token.Token
-		Expr2        *Expr
+		Expr1        *Expr
 		Offset       token.Token
 		Comma        token.Token
-		Expr3        *Expr
+		Expr2        *Expr
 	}
 
 	// DetachStmt as in the SQLite grammar.
@@ -308,13 +307,13 @@ type (
 		TableName                token.Token
 		As                       token.Token
 		Alias                    token.Token
-		LeftParen1               token.Token
+		LeftParen                token.Token
 		ColumnName               []token.Token
-		RightParen2              token.Token
-		Default                  token.Token
+		RightParen               token.Token
 		Values                   token.Token
 		SelectStmt               *SelectStmt
-		ParenthesizedExpressions *[]ParenthesizedExpressions
+		Default                  token.Token
+		ParenthesizedExpressions []*ParenthesizedExpressions
 		UpsertClause             *UpsertClause
 	}
 
@@ -325,9 +324,9 @@ type (
 		RightParen token.Token
 	}
 
-	// ReindexStmt as in the SQLite grammar.
-	ReindexStmt struct {
-		Reindex          token.Token
+	// ReIndexStmt as in the SQLite grammar.
+	ReIndexStmt struct {
+		ReIndex          token.Token
 		CollationName    token.Token
 		SchemaName       token.Token
 		Period           token.Token
@@ -358,18 +357,16 @@ type (
 
 	// SelectStmt as in the SQLite grammar.
 	SelectStmt struct {
-		With                  token.Token
-		Recursive             token.Token
-		CommonTableExpression []*CommonTableExpression
-		SelectCore            []*SelectCore
-		Order                 token.Token
-		By                    token.Token
-		OrderingTerm          []*OrderingTerm
-		Limit                 token.Token
-		Expr1                 *Expr
-		Offset                token.Token
-		Comma                 token.Token
-		Expr2                 *Expr
+		WithClause   *WithClause
+		SelectCore   []*SelectCore
+		Order        token.Token
+		By           token.Token
+		OrderingTerm []*OrderingTerm
+		Limit        token.Token
+		Expr1        *Expr
+		Offset       token.Token
+		Comma        token.Token
+		Expr2        *Expr
 	}
 
 	// SelectCore as in the SQLite grammar.
@@ -425,7 +422,7 @@ type (
 		*UpdateStmt
 		Order        token.Token
 		By           token.Token
-		OrderingTerm []token.Token
+		OrderingTerm []*OrderingTerm
 		Limit        token.Token
 		Expr1        *Expr
 		Offset       token.Token
@@ -486,7 +483,6 @@ type (
 	// Expr as in the SQLite grammar.
 	Expr struct {
 		LiteralValue   token.Token
-		BindParameter  token.Token
 		SchemaName     token.Token
 		Period1        token.Token
 		TableName      token.Token
@@ -506,6 +502,7 @@ type (
 		OverClause     *OverClause
 		Cast           token.Token
 		As             token.Token
+		TypeName       *TypeName
 		Collate        token.Token
 		CollationName  token.Token
 		Not            token.Token
@@ -520,17 +517,24 @@ type (
 		Null           token.Token
 		Is             token.Token
 		Between        token.Token
+		And            token.Token
 		In             token.Token
 		SelectStmt     *SelectStmt
 		TableFunction  token.Token
 		Exists         token.Token
 		Case           token.Token
-		When           token.Token
-		Then           token.Token
+		WhenThenClause []*WhenThenClause
 		Else           token.Token
-		Expr4          *Expr
 		End            token.Token
 		RaiseFunction  *RaiseFunction
+	}
+
+	// WhenThenClause as in the SQLite grammar
+	WhenThenClause struct {
+		When  token.Token
+		Expr1 *Expr
+		Then  token.Token
+		Expr2 *Expr
 	}
 
 	// FilterClause as in the SQLite grammar.

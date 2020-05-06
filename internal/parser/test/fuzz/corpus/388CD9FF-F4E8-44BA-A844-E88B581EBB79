@@ -1,0 +1,1 @@
+DELETE FROM myTable WHERE myFunc () NOT MATCH myExpr3

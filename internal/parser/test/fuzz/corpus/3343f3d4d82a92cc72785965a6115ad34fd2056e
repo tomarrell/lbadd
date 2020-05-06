@@ -1,0 +1,1 @@
+DELETE FROMble WHERE~myExpr NOT NOT IN myTableFunction(expr1,expr2)

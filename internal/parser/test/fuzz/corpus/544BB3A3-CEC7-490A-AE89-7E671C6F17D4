@@ -1,0 +1,1 @@
+WITH myTable AS (SELECT * ORDER BY myLiteral) DELETE FROM myTable

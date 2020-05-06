@@ -1,0 +1,1 @@
+DELETE FROM mySchema.myTable AS newSchemaTable INDEXED BY myIndex

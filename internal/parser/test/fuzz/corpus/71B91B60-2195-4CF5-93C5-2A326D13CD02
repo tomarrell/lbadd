@@ -1,0 +1,1 @@
+WITH myTable AS (SELECT * WINDOW myWindow AS (ORDER BY myExpr1,myExpr2)) DELETE FROM myTable

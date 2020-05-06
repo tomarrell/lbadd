@@ -1,0 +1,1 @@
+WITH myTable AS (SELECT * WINDOW myWindow AS (PARTITION BY myExpr)) DELETE FROM myTable
