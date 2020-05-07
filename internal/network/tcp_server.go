@@ -86,9 +86,18 @@ func (s *tcpServer) handleIncomingConnections() {
 			s.log.Error().
 				Err(err).
 				Msg("accept")
+			continue
 		}
 
 		tcpConn := newTCPConn(conn)
+		err = tcpConn.Send(tcpConn.id.Bytes())
+		if err != nil {
+			s.log.Error().
+				Err(err).
+				Msg("send ID")
+			_ = tcpConn.Close()
+			continue
+		}
 
 		if s.onConnect != nil {
 			go s.onConnect(tcpConn)

@@ -24,7 +24,7 @@ func createID() ID {
 	lock.Lock()
 	defer lock.Unlock()
 
-	id, err := ulid.New(ulid.Now(), entropy)
+	genID, err := ulid.New(ulid.Now(), entropy)
 	if err != nil {
 		// For this to happen, the random module would have to fail. Since we
 		// use Go's pseudo RNG, which just jumps around a few numbers, instead
@@ -34,9 +34,21 @@ func createID() ID {
 		// 2121-04-11 11:53:25.01172576 UTC.
 		log.Fatal(fmt.Errorf("new ulid: %w", err))
 	}
-	return ID(id)
+	return id(genID)
+}
+
+func parseID(idBytes []byte) (ID, error) {
+	parsed, err := ulid.Parse(string(idBytes))
+	if err != nil {
+		return nil, fmt.Errorf("parse: %w", err)
+	}
+	return id(parsed), nil
 }
 
 func (id id) String() string {
 	return ulid.ULID(id).String()
+}
+
+func (id id) Bytes() []byte {
+	return []byte(id.String())
 }

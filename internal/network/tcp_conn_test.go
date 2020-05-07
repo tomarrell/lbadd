@@ -39,11 +39,14 @@ func TestDialTCP(t *testing.T) {
 	lis, err := net.Listen("tcp", ":0")
 	assert.NoError(err)
 
+	var srvConnID string
 	go func() {
 		conn, err := lis.Accept()
 		assert.NoError(err)
 
 		tcpConn := newTCPConn(conn)
+		srvConnID = tcpConn.ID().String()
+		assert.NoError(tcpConn.Send(tcpConn.ID().Bytes()))
 		assert.NoError(tcpConn.Send(payload))
 	}()
 
@@ -52,6 +55,7 @@ func TestDialTCP(t *testing.T) {
 	conn, err := DialTCP(":" + strconv.Itoa(port))
 	assert.NoError(err)
 	defer func() { assert.NoError(conn.Close()) }()
+	assert.Equal(srvConnID, conn.ID().String())
 
 	recv, err := conn.Receive()
 	assert.NoError(err)

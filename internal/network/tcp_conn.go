@@ -32,7 +32,19 @@ func DialTCP(addr string) (Conn, error) {
 	if err != nil {
 		return nil, fmt.Errorf("dial tcp: %w", err)
 	}
-	return newTCPConn(conn), nil
+	tcpConn := newTCPConn(conn)
+	myID, err := tcpConn.Receive()
+	if err != nil {
+		_ = tcpConn.Close()
+		return nil, fmt.Errorf("receive ID: %w", err)
+	}
+	parsedID, err := parseID(myID)
+	if err != nil {
+		_ = tcpConn.Close()
+		return nil, fmt.Errorf("parse ID: %w", err)
+	}
+	tcpConn.id = parsedID
+	return tcpConn, nil
 }
 
 func newTCPConn(underlying net.Conn) *tcpConn {
