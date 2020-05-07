@@ -44,8 +44,7 @@ func checkFunction(fn *ast.FuncType, pass *analysis.Pass) {
 			if namedType.String() == "context.Context" { // we found a context.Context argument
 				n := len(arg.Names)
 				if n < 1 {
-					pass.Reportf(arg.Pos(), "unused context.Context argument")
-					return
+					continue
 				}
 				if n > 1 || foundContext {
 					pass.Reportf(arg.Pos(), "more than one context.Context argument")
@@ -61,7 +60,10 @@ func checkFunction(fn *ast.FuncType, pass *analysis.Pass) {
 
 				// there is a single context.Context argument in the first
 				// position, now check if it's named 'ctx'
-				if arg.Names[0].String() != "ctx" {
+				if arg.Names[0].String() == "_" {
+					pass.Reportf(arg.Pos(), "unused context.Context argument")
+					return
+				} else if arg.Names[0].String() != "ctx" {
 					pass.Reportf(arg.Names[0].Pos(), "context.Context argument should be named 'ctx'")
 					return
 				}
