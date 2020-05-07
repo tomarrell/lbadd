@@ -8,6 +8,7 @@ import (
 	"golang.org/x/tools/go/analysis/passes/bools"
 	"golang.org/x/tools/go/analysis/passes/copylock"
 	"golang.org/x/tools/go/analysis/passes/errorsas"
+	"golang.org/x/tools/go/analysis/passes/loopclosure"
 	"golang.org/x/tools/go/analysis/passes/lostcancel"
 	"golang.org/x/tools/go/analysis/passes/nilfunc"
 	"golang.org/x/tools/go/analysis/passes/nilness"
@@ -30,6 +31,7 @@ func main() {
 		copylock.Analyzer,
 		errorsas.Analyzer,
 		lostcancel.Analyzer,
+		loopclosure.Analyzer,
 		nilfunc.Analyzer,
 		nilness.Analyzer,
 		printf.Analyzer,

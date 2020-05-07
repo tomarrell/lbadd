@@ -80,7 +80,7 @@ var (
 	}
 
 	startCmd = &cobra.Command{
-		Use:   "start",
+		Use:   "start [database file]",
 		Short: startCmdShortDoc,
 		Long:  startCmdLongDoc,
 		Run:   startNode,
