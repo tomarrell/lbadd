@@ -3,10 +3,10 @@ This document describes coding guidelines.
 
 ## panic
 No `panic` must be used.
-It endangeres the stability of the whole application.
+It endangers the stability of the whole application.
 
 ## Comments
-If couse we want comments.
+Of course we want comments.
 However, make sure that they are wrapped neatly, and don't cause crazy long lines.
 
 ## Committing changes
