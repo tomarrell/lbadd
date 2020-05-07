@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/tomarrell/lbadd/internal/tool/analysis/ctxfunc"
 	"github.com/tomarrell/lbadd/internal/tool/analysis/nopanic"
 	"golang.org/x/tools/go/analysis/multichecker"
 	"golang.org/x/tools/go/analysis/passes/atomic"
@@ -23,6 +24,7 @@ func main() {
 	// argument in multichecker.Main(...).
 	multichecker.Main(
 		nopanic.Analyzer,
+		ctxfunc.Analyzer,
 		atomic.Analyzer,
 		bools.Analyzer,
 		copylock.Analyzer,
