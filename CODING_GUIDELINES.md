@@ -3,7 +3,7 @@ This document describes coding guidelines.
 
 ## panic
 No `panic` must be used.
-It endangeres the stability of the whole application.
+It endangers the stability of the whole application.
 
 ## Comments
 Of course we want comments.
