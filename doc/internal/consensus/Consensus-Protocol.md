@@ -13,7 +13,7 @@ Maintaining consensus is one of the major parts of a distributed system. To know
 
 The raft protocol will be implemented in `internal/raft` and will implement APIs that each node can call.
 
-Raft is an algorithm to handle replicated log, and we maintain the "log" of the SQL stmts applied on a DB and have a completely replicated cluster.
+Raft is an algorithm to handle replicated log, and we maintain the "log" of the SQL statements applied on a DB and have a completely replicated cluster.
 
 #### General Implementation rules:
 * All RPC calls are done parallely to obtain the best performance.
