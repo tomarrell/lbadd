@@ -2,6 +2,7 @@ package raft
 
 import (
 	"github.com/rs/zerolog"
+	"github.com/tomarrell/lbadd/internal/id"
 	"github.com/tomarrell/lbadd/internal/network"
 )
 
@@ -36,7 +37,7 @@ type PersistentState struct {
 	VotedFor    int
 	Log         []LogData
 
-	SelfID  int
+	SelfID  id.ID
 	SelfIP  network.Conn
 	PeerIPs []network.Conn
 }

@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package message;
+
+message RequestVoteRequest {
+    int32 term = 1;
+    bytes candidateId = 2;
+    int32 lastLogIndex = 3;
+    int32 lastLogTerm = 4;
+}
+
+message RequestVoteResponse {
+    int32 term = 1;
+    bool voteGranted = 2;
+}

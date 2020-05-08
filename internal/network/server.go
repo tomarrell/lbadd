@@ -2,9 +2,10 @@ package network
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"net"
+
+	"github.com/tomarrell/lbadd/internal/id"
 )
 
 // ConnHandler is a handler function for handling new connections. It will be
@@ -44,7 +45,7 @@ type Conn interface {
 
 	// ID returns the ID of this connection. It can be used to uniquely identify
 	// this connection globally.
-	ID() ID
+	ID() id.ID
 	// Send sends the given payload to the remote part of this connection. The
 	// message will not be chunked, and can be read with a single call to
 	// Conn.Receive.
@@ -52,11 +53,4 @@ type Conn interface {
 	// Receive reads a whole message and returns it in a byte slice. A message
 	// is a byte slice that was sent with a single call to Conn.Send.
 	Receive(context.Context) ([]byte, error)
-}
-
-// ID describes an identifier that is used for connections. An ID has to be
-// unique application-wide. IDs must not be re-used.
-type ID interface {
-	fmt.Stringer
-	Bytes() []byte
 }

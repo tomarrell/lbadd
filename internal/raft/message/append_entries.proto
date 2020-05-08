@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package message;
+
+message AppendEntriesRequest {
+    int32 term = 1;
+    bytes leaderId = 2;
+    int32 prevLogIndex = 3;
+    int32 prevLogTerm = 4;
+    repeated LogData Entries = 5;
+    int32 LeaderCommit = 6;
+}
+
+message LogData {
+    int32 term = 1;
+    string data = 2;
+    reserved 3; // will be used for intermediate representation when switching from SQL to AST
+}
+
+message AppendEntriesResponse {
+    int32 term = 1;
+    bool success = 2;
+}

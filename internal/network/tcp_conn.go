@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/tomarrell/lbadd/internal/id"
 	"golang.org/x/net/context"
 	"golang.org/x/sync/errgroup"
 )
@@ -22,7 +23,7 @@ var (
 var _ Conn = (*tcpConn)(nil)
 
 type tcpConn struct {
-	id     ID
+	id     id.ID
 	closed bool
 
 	readLock   sync.Mutex
@@ -49,7 +50,7 @@ func DialTCP(ctx context.Context, addr string) (Conn, error) {
 		_ = tcpConn.Close()
 		return nil, fmt.Errorf("receive ID: %w", err)
 	}
-	parsedID, err := parseID(myID)
+	parsedID, err := id.Parse(myID)
 	if err != nil {
 		_ = tcpConn.Close()
 		return nil, fmt.Errorf("parse ID: %w", err)
@@ -61,7 +62,7 @@ func DialTCP(ctx context.Context, addr string) (Conn, error) {
 }
 
 func newTCPConn(underlying net.Conn) *tcpConn {
-	id := createID()
+	id := id.Create()
 	conn := &tcpConn{
 		id:         id,
 		underlying: underlying,
@@ -69,7 +70,7 @@ func newTCPConn(underlying net.Conn) *tcpConn {
 	return conn
 }
 
-func (c *tcpConn) ID() ID {
+func (c *tcpConn) ID() id.ID {
 	return c.id
 }
 
