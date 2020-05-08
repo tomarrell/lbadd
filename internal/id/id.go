@@ -27,6 +27,8 @@ var (
 	entropy    = ulid.Monotonic(randSource, 0)
 )
 
+// Create creates a globally unique ID. This function is safe for concurrent
+// use.
 func Create() ID {
 	lock.Lock()
 	defer lock.Unlock()
@@ -44,6 +46,7 @@ func Create() ID {
 	return id(genID)
 }
 
+// Parse parses an ID from a byte slice.
 func Parse(idBytes []byte) (ID, error) {
 	parsed, err := ulid.Parse(string(idBytes))
 	if err != nil {

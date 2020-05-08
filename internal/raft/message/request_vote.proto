@@ -1,6 +1,9 @@
 syntax = "proto3";
 
+//lint:file-ignore SA1019 Generated deprecated import
+
 package message;
+option go_package = ".;message";
 
 message RequestVoteRequest {
     int32 term = 1;
