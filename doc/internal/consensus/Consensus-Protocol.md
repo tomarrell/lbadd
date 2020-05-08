@@ -49,7 +49,7 @@ A detailed description of all the modules and their implementation follow:
 
 #### Implementation
 
-* The implementation of leader election will span over `raft/leaderElection.go`, request votes over `raft/requestVotes.go` and append entries over `appendEntries.go`.
+* The implementation of leader election will span over `raft/leader_election.go`, request votes over `raft/request_votes.go` and append entries over `append_entries.go`.
 * The raft module will provide a `StartElection` function that enables a node to begin election. This function just begins the election and doesnt return any result of the election. The decision of the election will be handled by the votes and each server independently. 
 * The Leader node is the only one to know its the leader in the beginning. It realises it has obtained the majority votes, and starts behaving like the leader node. During this period, other nodes wait for a possible leader and begin to proceed in the candidate state by advancing to the next term unless the leader contacts them.
 
