@@ -7,10 +7,10 @@ func StartElection(Server State) {
 
 	var votes int
 
-	for i := range Server.PersistentState.PeerIDs {
+	for i := range Server.PersistentState.PeerIPs {
 		// parallely request votes from all the other peers.
 		go func(i int) {
-			if Server.PersistentState.PeerIDs[i] != Server.PersistentState.SelfID {
+			if Server.PersistentState.PeerIPs[i] != Server.PersistentState.SelfIP {
 				// send a requestVotesRPC
 				req := &RequestVoteRPCReq{
 					Term:         Server.PersistentState.CurrentTerm,
