@@ -130,7 +130,7 @@ Accepting failures exist and handling them gracefully enables creation of more r
 
 ## Appendix
 
-* The difference between _commit_, _replicate_ and _apply_ with respect raft: What I have understood till now is, applying means letting the log run through the node's state machine. This is the end process, happens after a commit. A commit is once replication happens on a majority of the nodes. While replication is simply appending of a log on _one_ node. 
-* Some gotchas I thought about: 
+* The difference between _commit_, _replicate_ and _apply_ with respect to raft: Applying implies letting the log run through the node's state machine. This is the end process, happens after a commit. A commit is once replication happens on a majority of the nodes. While replication is simply appending of a log on _one_ node. 
+* Some gotchas: 
   * Client connects to the leader and leader crashes -> reject the connection. Let the client connect when the new leader is established.
   * Some sort of idempotency must be maintained w.r.t. the client-cluster communication. Multiple requests submitted by the client should not cause problems due to network errors.
