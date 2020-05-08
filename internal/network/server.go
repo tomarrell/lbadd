@@ -1,6 +1,7 @@
 package network
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net"
@@ -47,10 +48,10 @@ type Conn interface {
 	// Send sends the given payload to the remote part of this connection. The
 	// message will not be chunked, and can be read with a single call to
 	// Conn.Receive.
-	Send([]byte) error
+	Send(context.Context, []byte) error
 	// Receive reads a whole message and returns it in a byte slice. A message
 	// is a byte slice that was sent with a single call to Conn.Send.
-	Receive() ([]byte, error)
+	Receive(context.Context) ([]byte, error)
 }
 
 // ID describes an identifier that is used for connections. An ID has to be
