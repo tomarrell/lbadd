@@ -2,9 +2,9 @@
 
 Before talking about consensus, we need to discuss some logistics based on how the systems can co-exist.
 
-* Communication: Distributed systems need a method to communicate between each other. Remote Procedure Calls is the mechanism using which a standalone server can talk to another. The existing `network` layer of the database will handle all the communication between servers. 
+* Communication: Distributed systems need a method to communicate between each other. Remote Procedure Calls is the mechanism using which a standalone server can talk to another. The existing `network` layer of the database will handle all the communication between servers. However, the messages to be passed are decided by the raft layer.
 * Security: Access control mechanisms need to be in place to decide on access to functions in the servers based on their state (leader, follower, candidate)
-* Routing to leader: One of the issues with a varying leader is for the clients to know which IP address to contact for the service. We can solve this problem by advertising any/all IPs of the cluster and simply forward this request to the current leader; OR have a proxy that can forward the request to the current leader wheneve the requests come in. (Section client interaction of post has another approach which works too)
+* Routing to leader: One of the issues with a varying leader is for the clients to know which IP address to contact for the service. We can solve this problem by advertising any/all IPs of the cluster and the client returns the IP of the leader if its not the leader.
 * The servers will be implemented in the `interal/node` folders which will import the raft API and perform their functions.
 
 Maintaining consensus is one of the major parts of a distributed system. To know to have achieved a stable system, we need the following two parts of implementation.
@@ -32,16 +32,16 @@ A detailed description of all the modules follow:
 #### Spec
 * Startup: All servers start in the follower state and begin by requesting votes to be elected as a leader.
 * Pre-election: The server increments its `currentTerm` by one, changes to `candidate` state and sends out `RequestVotes` RPC parallely to all the peers. 
-* Vote condition: FCFS basis. If there was no request to the server, it votes for itself (read 3.6 and clear out when to vote for itself)
+* Vote condition: FCFS basis. If there was no request to the server, it votes for itself.
 * Election timeout: A preset time for which the server waits to see if a peer requested a vote. It is randomly chosen between 150-300ms.
 * Election is repeated after an election timeout until:
   1. The server wins the election
   2. A peer establishes itself as leader.
   3. Election timer times out or a split vote occurs (leading to no leader) and the process will be repeated.
  * Election win: Majority votes in the term. (More details in safety) The state of the winner is now `Leader` and the others are `Followers`.
- * The term problem: Current terms are exchanged when-ever servers communicate; if one server’s current term is smaller than the other’s, then it updates its current term to the larger value. If a candidate or leader discovers that its term is out of date,it immediately reverts to follower state. If a server receives a request with a stale term number, itrejects the request.
+ * The term problem: Current terms are exchanged when-ever servers communicate; if one server’s current term is smaller than the other’s, then it updates its current term to the larger value. If a candidate or leader discovers that its term is out of date,it immediately reverts to follower state. If a server receives a request with a stale term number, itrejects the request. All terms which are not the current terms are considered _out of date_.
  * Maintaining leaders reign: The leader sends `heartbeats` to all servers to establish its reign. This also checks whether other servers are alive based on the response and informs other servers that the leader still is alive too. If the servers do not get timely heartbeat messages, they transform from the `follower` state to `candidate` state.
- * Transition from working state to Election happens when a leader fails.
+ * Transition from leader's normal working state to Election happens when a leader fails.
  * Maintaining sanity: While waiting for votes, if a `AppendEntriesRPC` is received by the server, and the term of the leader is greater than of equal to the waiting node's term, the leader is considered to be legitimate and the waiter becomes a follower of the leader. If the term of the leader is lesser, it is rejected.
  * The split vote problem: Though not that common, split votes can occur. To make sure this doesn't continue indefinitely, election timeouts are randomised, making the split votes less probable.
  
