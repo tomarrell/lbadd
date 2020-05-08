@@ -20,9 +20,12 @@ type ConnHandler func(Conn)
 type Server interface {
 	io.Closer
 
-	// Open opens the server on the given address. To choose the server a random
-	// free port for you, specify a port ":0".
+	// Open opens the server on the given address. To make the server choose a
+	// random free port for you, specify a port ":0".
 	Open(string) error
+	// Listening can be used to get a signal when the server has allocated a
+	// port and is now actively listening for incoming connections.
+	Listening() <-chan struct{}
 	// Addr returns the address that this server is listening to.
 	Addr() net.Addr
 

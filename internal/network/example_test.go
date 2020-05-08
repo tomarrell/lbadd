@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/rs/zerolog"
 	"github.com/tomarrell/lbadd/internal/network"
@@ -25,8 +24,9 @@ func ExampleServer() {
 		}
 	}()
 
-	time.Sleep(10 * time.Millisecond)
-	client, _ := network.DialTCP(ctx, ":59513")
+	<-srv.Listening() // wait for the server to come up
+
+	client, _ := network.DialTCP(":59513")
 	defer func() {
 		_ = client.Close()
 	}()
