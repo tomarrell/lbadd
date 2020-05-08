@@ -15,17 +15,18 @@ The raft protocol will be implemented in `internal/raft` and will implement APIs
 
 Raft is an algorithm to handle replicated log, and we maintain the "log" of the SQL statements applied on a DB and have a completely replicated cluster.
 
-#### General Implementation rules:
+#### General Implementation basics:
 * All RPC calls are done parallely to obtain the best performance.
 * Request retries are done in case of network failures.
 * Raft does not assume network preserves ordering of the packets.
+* The `raft/raft.go` file has all the state parameters and general functions that raft uses.
 
 A raft server may be in any of the 3 states; leader, follower or candidate. All requests are serviced through the leader and it then decides how and if the logs must be replicated in the follower machines. The raft protocol has 3 almost independent modules:
 1. Leader Election
 2. Log Replication
 3. Safety
 
-A detailed description of all the modules follow:
+A detailed description of all the modules and their implementation follow:
 
 ### Leader Election
 
@@ -48,6 +49,7 @@ A detailed description of all the modules follow:
 
 #### Implementation
 
+* The implementation of leader election will span over `raft/leaderElection.go`, request votes over `raft/requestVotes.go` and append entries over `appendEntries.go`.
 * The raft module will provide a `StartElection` function that enables a node to begin election. This function just begins the election and doesnt return any result of the election. The decision of the election will be handled by the votes and each server independently. 
 * The Leader node is the only one to know its the leader in the beginning. It realises it has obtained the majority votes, and starts behaving like the leader node. During this period, other nodes wait for a possible leader and begin to proceed in the candidate state by advancing to the next term unless the leader contacts them.
 
@@ -72,6 +74,8 @@ A detailed description of all the modules follow:
 
 #### Implementation
 
+* Log replication implementation will span over the `raft/logReplication.go` file.
+
 ### Safety
 
 This module ensures that the above protocol runs as expected, eliminating the corner cases.
@@ -86,7 +90,7 @@ This module ensures that the above protocol runs as expected, eliminating the co
 
 #### Implementation
 
-#### Client interaction:
+### Client interaction:
 * Idempotency is maintained by having a unique client ID and the request ID. The same request by the same client cannot be requested twice, we assume here that the client didn't receive the responses due to network errors etc. Each server maintains a _session_ for each client. The session tracks the latest serial number processed for the client, along with the associated response. If a server receives a command whose serial number has already been executed, it responds immediately without re-executing the request.
 *  With each request, the client includes the lowest sequencenumber for which it has not yet received a response, and the state machine then discards all responsesfor lower sequence numbers. Quite similar to TCP.
 * The session for a client are _open on all nodes_. Session expiry happens on all nodes at once and in a deterministic way. LRU or an upper bound for sessions can be used. Some sort of timely probing is done to remove stale sessions.
@@ -98,7 +102,12 @@ This module ensures that the above protocol runs as expected, eliminating the co
   * The leader waits for its state machine to advance at least as far as the readIndex; this is current enough to satisfy linearizability
   * Finally, the leader issues the query against its state machine and replies to the client with the results.
 
+### How the modules interact
 
+* Leader election is called by every node at init.
+* All nodes send a `RequestVotesRPC` parallely to all other nodes.
+* If a leader is elected, the leader begins to send `AppendEntriesRPC` to other nodes (followers) to establish its leadership.
+* Log replication occurs when the `AppendEntriesRPC` is received by the follower. 
 ## A strict testing mechanism
 
 The testing mechanism to be implemented will enable us in figuring out the problems existing in the implementation leading to a more resilient system.
