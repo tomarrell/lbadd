@@ -1,16 +1,21 @@
 package network
 
 import (
+	"context"
 	"net"
 	"strconv"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestTCPConnSendReceive(t *testing.T) {
 	assert := assert.New(t)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
 	conn1, conn2 := net.Pipe()
 	tcpConn1, tcpConn2 := newTCPConn(conn1), newTCPConn(conn2)
 
@@ -20,12 +25,12 @@ func TestTCPConnSendReceive(t *testing.T) {
 	wg.Add(1)
 	go func() {
 		var err error
-		recv, err = tcpConn2.Receive()
+		recv, err = tcpConn2.Receive(ctx)
 		assert.NoError(err)
 		wg.Done()
 	}()
 
-	err := tcpConn1.Send(payload)
+	err := tcpConn1.Send(ctx, payload)
 	assert.NoError(err)
 
 	wg.Wait()
@@ -34,6 +39,9 @@ func TestTCPConnSendReceive(t *testing.T) {
 
 func TestDialTCP(t *testing.T) {
 	assert := assert.New(t)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
 	payload := []byte("Hello, World!")
 
 	lis, err := net.Listen("tcp", ":0")
@@ -46,18 +54,43 @@ func TestDialTCP(t *testing.T) {
 
 		tcpConn := newTCPConn(conn)
 		srvConnID = tcpConn.ID().String()
-		assert.NoError(tcpConn.Send(tcpConn.ID().Bytes()))
-		assert.NoError(tcpConn.Send(payload))
+		assert.NoError(tcpConn.Send(ctx, tcpConn.ID().Bytes()))
+		assert.NoError(tcpConn.Send(ctx, payload))
 	}()
 
 	port := lis.Addr().(*net.TCPAddr).Port
 
-	conn, err := DialTCP(":" + strconv.Itoa(port))
+	conn, err := DialTCP(ctx, ":"+strconv.Itoa(port))
 	assert.NoError(err)
 	defer func() { assert.NoError(conn.Close()) }()
 	assert.Equal(srvConnID, conn.ID().String())
 
-	recv, err := conn.Receive()
+	recv, err := conn.Receive(ctx)
 	assert.NoError(err)
 	assert.Equal(payload, recv)
+}
+
+func TestTCPConnWriteContext(t *testing.T) {
+	assert := assert.New(t)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
+	defer cancel()
+
+	conn1, conn2 := net.Pipe()
+	tcpConn1, _ := newTCPConn(conn1), newTCPConn(conn2)
+
+	err := tcpConn1.Send(ctx, []byte("Hello")) // will not be able to write within 10ms, because noone is reading
+	assert.Equal(ErrTimeout, err)
+}
+
+func TestTCPConnReadContext(t *testing.T) {
+	assert := assert.New(t)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
+	defer cancel()
+
+	conn1, conn2 := net.Pipe()
+	tcpConn1, _ := newTCPConn(conn1), newTCPConn(conn2)
+
+	data, err := tcpConn1.Receive(ctx) // will not be able to receive within 10ms, because noone is writing
+	assert.Equal(ErrTimeout, err)
+	assert.Nil(data)
 }

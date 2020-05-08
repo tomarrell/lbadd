@@ -12,4 +12,7 @@ const (
 	// ErrClosed indicates, that the component is already closed, and it cannot
 	// be used anymore.
 	ErrClosed Error = "already closed"
+	// ErrTimeout indicates, that a the operation took longer than allowed.
+	// Maybe there was a deadline from a context.
+	ErrTimeout Error = "timeout"
 )
