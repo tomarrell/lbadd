@@ -4,6 +4,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/tomarrell/lbadd/internal/id"
 	"github.com/tomarrell/lbadd/internal/network"
+	"github.com/tomarrell/lbadd/internal/raft/cluster"
 )
 
 var (
@@ -55,7 +56,7 @@ type VolatileStateLeader struct {
 }
 
 // NewRaftCluster initialises a raft cluster with the given configuration.
-func NewRaftCluster(cluster Cluster) []*Node {
+func NewRaftCluster(cluster cluster.Cluster) []*Node {
 	var ClusterNodes []*Node
 	sampleState := &Node{
 		PersistentState:     &PersistentState{},
