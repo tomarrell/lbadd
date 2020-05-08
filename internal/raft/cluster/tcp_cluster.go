@@ -148,10 +148,10 @@ func (c *tcpCluster) AddConnection(conn network.Conn) {
 	go c.receiveMessages(conn)
 }
 
-// removeConnection will attempt to remove the given connection from the list of
+// RemoveConnection will attempt to remove the given connection from the list of
 // connections in this cluster. If the connection was found, it will be removed
 // AND CLOSED. If the connection was NOT found, it will NOT be closed.
-func (c *tcpCluster) removeConnection(conn network.Conn) {
+func (c *tcpCluster) RemoveConnection(conn network.Conn) {
 	c.connLock.Lock()
 	defer c.connLock.Unlock()
 
@@ -194,7 +194,7 @@ func (c *tcpCluster) start() {
 // times out, it tries again indefinitely. If an error occurs during the read,
 // and the server is already closed, nothing happens, but this method returns.
 // If an error occurs during the read, and the server is NOT closed, the
-// connection will be removed with (*tcpCluster).removeConnection, and the error
+// connection will be removed with (*tcpCluster).RemoveConnection, and the error
 // will be logged with error level. After that, this method will return.
 func (c *tcpCluster) receiveMessages(conn network.Conn) {
 	<-c.started // wait for the server to be started
@@ -213,7 +213,7 @@ func (c *tcpCluster) receiveMessages(conn network.Conn) {
 				// terminate this goroutine
 				return
 			}
-			c.removeConnection(conn) // also closes the connection
+			c.RemoveConnection(conn) // also closes the connection
 			c.log.Error().
 				Err(err).
 				Str("fromID", conn.ID().String()).

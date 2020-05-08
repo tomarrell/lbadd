@@ -31,6 +31,8 @@ type Cluster interface {
 	// AddConnection adds the connection to the cluster. It is considered
 	// another node in the cluster.
 	AddConnection(network.Conn)
+	// RemoveConnection closes the connection and removes it from the cluster.
+	RemoveConnection(network.Conn)
 
 	io.Closer
 }
