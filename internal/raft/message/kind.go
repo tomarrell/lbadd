@@ -14,6 +14,12 @@ const (
 	KindAppendEntriesRequest
 	KindAppendEntriesResponse
 
+	KindFollowerLocationListRequest
+	KindFollowerLocationListResponse
+
+	KindLeaderLocationRequest
+	KindLeaderLocationResponse
+
 	KindRequestVoteRequest
 	KindRequestVoteResponse
 )
