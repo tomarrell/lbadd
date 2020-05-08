@@ -14,8 +14,9 @@ var _ Server = (*tcpServer)(nil)
 type tcpServer struct {
 	log zerolog.Logger
 
-	open bool
-	lis  net.Listener
+	open      bool
+	listening chan struct{}
+	lis       net.Listener
 
 	onConnect ConnHandler
 }
@@ -24,7 +25,8 @@ type tcpServer struct {
 // logger.
 func NewTCPServer(log zerolog.Logger) Server {
 	return &tcpServer{
-		log: log,
+		log:       log,
+		listening: make(chan struct{}),
 	}
 }
 
@@ -49,6 +51,10 @@ func (s *tcpServer) Open(addr string) error {
 	return nil
 }
 
+func (s *tcpServer) Listening() <-chan struct{} {
+	return s.listening
+}
+
 func (s *tcpServer) Addr() net.Addr {
 	if s.lis == nil {
 		return nil
@@ -71,6 +77,7 @@ func (s *tcpServer) Close() error {
 }
 
 func (s *tcpServer) handleIncomingConnections() {
+	close(s.listening)
 	for {
 		conn, err := s.lis.Accept()
 		if err != nil {
