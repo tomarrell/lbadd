@@ -1,6 +1,7 @@
 package network
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net"
@@ -19,9 +20,12 @@ type ConnHandler func(Conn)
 type Server interface {
 	io.Closer
 
-	// Open opens the server on the given address. To choose the server a random
-	// free port for you, specify a port ":0".
+	// Open opens the server on the given address. To make the server choose a
+	// random free port for you, specify a port ":0".
 	Open(string) error
+	// Listening can be used to get a signal when the server has allocated a
+	// port and is now actively listening for incoming connections.
+	Listening() <-chan struct{}
 	// Addr returns the address that this server is listening to.
 	Addr() net.Addr
 
@@ -44,10 +48,10 @@ type Conn interface {
 	// Send sends the given payload to the remote part of this connection. The
 	// message will not be chunked, and can be read with a single call to
 	// Conn.Receive.
-	Send([]byte) error
+	Send(context.Context, []byte) error
 	// Receive reads a whole message and returns it in a byte slice. A message
 	// is a byte slice that was sent with a single call to Conn.Send.
-	Receive() ([]byte, error)
+	Receive(context.Context) ([]byte, error)
 }
 
 // ID describes an identifier that is used for connections. An ID has to be
