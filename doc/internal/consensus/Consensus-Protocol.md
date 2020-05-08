@@ -74,7 +74,7 @@ A detailed description of all the modules and their implementation follow:
 
 #### Implementation
 
-* Log replication implementation will span over the `raft/logReplication.go` file.
+* Log replication implementation will span over the `raft/log_replication.go` file.
 
 ### Safety
 
