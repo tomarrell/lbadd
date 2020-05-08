@@ -1,8 +1,8 @@
 package raft
 
 // StartElection enables a node in the cluster to start the election.
-func StartElection(Server State) {
-	Server.Name = CandidateState
+func StartElection(Server Node) {
+	Server.State = CandidateState
 	Server.PersistentState.CurrentTerm++
 
 	var votes int

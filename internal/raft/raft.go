@@ -17,9 +17,11 @@ type LogData struct {
 	Data string
 }
 
-// State describes the current state of a raft node.
-type State struct {
-	Name string
+// Node describes the current state of a raft node.
+// The raft paper describes this as a "State" but node
+// seemed more intuitive.
+type Node struct {
+	State string
 
 	PersistentState     *PersistentState
 	VolatileState       *VolatileState
@@ -52,26 +54,26 @@ type VolatileStateLeader struct {
 }
 
 // NewRaftCluster initialises a raft cluster with the given configuration.
-func NewRaftCluster(cluster Cluster) []*State {
-	var ClusterStates []*State
-	sampleState := &State{
+func NewRaftCluster(cluster Cluster) []*Node {
+	var ClusterNodes []*Node
+	sampleState := &Node{
 		PersistentState:     &PersistentState{},
 		VolatileState:       &VolatileState{},
 		VolatileStateLeader: &VolatileStateLeader{},
 	}
 
 	for i := range cluster.Nodes() {
-		var state *State
-		state = sampleState
-		state.PersistentState.CurrentTerm = 0
-		state.PersistentState.VotedFor = -1
-		state.PersistentState.SelfIP = cluster.Nodes()[i]
-		state.PersistentState.PeerIPs = cluster.Nodes()
+		var node *Node
+		node = sampleState
+		node.PersistentState.CurrentTerm = 0
+		node.PersistentState.VotedFor = -1
+		node.PersistentState.SelfIP = cluster.Nodes()[i]
+		node.PersistentState.PeerIPs = cluster.Nodes()
 
-		state.VolatileState.CommitIndex = -1
-		state.VolatileState.LastApplied = -1
+		node.VolatileState.CommitIndex = -1
+		node.VolatileState.LastApplied = -1
 
-		ClusterStates = append(ClusterStates, state)
+		ClusterNodes = append(ClusterNodes, node)
 	}
-	return ClusterStates
+	return ClusterNodes
 }
