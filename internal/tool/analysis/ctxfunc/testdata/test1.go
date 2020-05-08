@@ -20,16 +20,16 @@ func main() {
 // functions without body
 
 func testFn0(ctx context.Context, s string, i int)                // valid
-func testFn1(context.Context)                                     // want `unused context.Context argument`
-func testFn2(ctx, ctx2 context.Context)                           // want `more than one context.Context argument`
-func testFn3(ctx context.Context, ctx2 context.Context)           // want `more than one context.Context argument`
-func testFn4(ctx1 context.Context, ctx2 context.Context)          // want `context.Context argument should be named 'ctx'`
-func testFn5(ctx1 context.Context)                                // want `context.Context argument should be named 'ctx'`
-func testFn6(s string, ctx context.Context)                       // want `context.Context should be the first parameter of a function`
-func testFn7(s string, ctx1 context.Context)                      // want `context.Context should be the first parameter of a function`
-func testFn8(ctx context.Context, s string, ctx2 context.Context) // want `more than one context.Context argument`
+func testFn1(ctx, ctx2 context.Context)                           // want `more than one context.Context argument`
+func testFn2(ctx context.Context, ctx2 context.Context)           // want `more than one context.Context argument`
+func testFn3(ctx1 context.Context, ctx2 context.Context)          // want `context.Context argument should be named 'ctx'`
+func testFn4(ctx1 context.Context)                                // want `context.Context argument should be named 'ctx'`
+func testFn5(s string, ctx context.Context)                       // want `context.Context should be the first parameter of a function`
+func testFn6(s string, ctx1 context.Context)                      // want `context.Context should be the first parameter of a function`
+func testFn7(ctx context.Context, s string, ctx2 context.Context) // want `more than one context.Context argument`
+func testFn8(_ context.Context, s string)                         // want `unused context.Context argument`
 
 // functions with body
 
 func testFnB0(ctx context.Context, s string, i int) {} // valid
-func testFnB1(context.Context)                      {} // want `unused context.Context argument`
+func testFnB1(_ context.Context)                    {} // want `unused context.Context argument`
