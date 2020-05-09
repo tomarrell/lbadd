@@ -7,11 +7,11 @@ option go_package = ".;message";
 
 message AppendEntriesRequest {
     int32 term = 1;
-    bytes leaderId = 2;
+    bytes leaderID = 2;
     int32 prevLogIndex = 3;
     int32 prevLogTerm = 4;
     repeated LogData Entries = 5;
-    int32 LeaderCommit = 6;
+    int32 leaderCommit = 6;
 }
 
 message LogData {

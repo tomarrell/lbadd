@@ -7,7 +7,7 @@ option go_package = ".;message";
 
 message RequestVoteRequest {
     int32 term = 1;
-    bytes candidateId = 2;
+    bytes candidateID = 2;
     int32 lastLogIndex = 3;
     int32 lastLogTerm = 4;
 }
