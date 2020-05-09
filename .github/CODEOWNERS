@@ -1,5 +1,8 @@
 # global code owners
-*   @TimSatke @tomarrell
+*                                       @TimSatke @tomarrell
 
-internal/database/storage/btree @tomarrell
-internal/parser @TimSatke @SUMUKHA-PK
+internal/database/storage/btree         @tomarrell
+internal/parser                         @TimSatke @SUMUKHA-PK
+internal/raft                           @SUMUKHA-PK
+internal/raft/cluster                   @TimSatke
+internal/raft/message                   @TimSatke

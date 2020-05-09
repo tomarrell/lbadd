@@ -3,6 +3,7 @@ package id_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/tomarrell/lbadd/internal/id"
 )
 
@@ -14,4 +15,15 @@ func TestIDThreadSafe(t *testing.T) {
 			_ = id.Create()
 		}()
 	}
+}
+
+func TestIDEquality(t *testing.T) {
+	assert := assert.New(t)
+
+	id1 := id.Create()
+	id2, err := id.Parse(id1.Bytes())
+	assert.NoError(err)
+
+	assert.Equal(id1, id2)
+	assert.True(id1 == id2)
 }

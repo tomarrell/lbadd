@@ -73,7 +73,12 @@ func (s *tcpServer) Close() error {
 	// release all resources
 	ctx := context.Background()
 	errs, _ := errgroup.WithContext(ctx)
-	errs.Go(s.lis.Close)
+	errs.Go(func() error {
+		if s.lis == nil {
+			return nil
+		}
+		return s.lis.Close()
+	})
 	return errs.Wait()
 }
 
