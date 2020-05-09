@@ -9,19 +9,20 @@ func _() {
 	// Re-run the stringer command to generate them again.
 	var x [1]struct{}
 	_ = x[KindUnknown-0]
-	_ = x[KindAppendEntriesRequest-1]
-	_ = x[KindAppendEntriesResponse-2]
-	_ = x[KindFollowerLocationListRequest-3]
-	_ = x[KindFollowerLocationListResponse-4]
-	_ = x[KindLeaderLocationRequest-5]
-	_ = x[KindLeaderLocationResponse-6]
-	_ = x[KindRequestVoteRequest-7]
-	_ = x[KindRequestVoteResponse-8]
+	_ = x[KindTestMessage-1]
+	_ = x[KindAppendEntriesRequest-2]
+	_ = x[KindAppendEntriesResponse-3]
+	_ = x[KindFollowerLocationListRequest-4]
+	_ = x[KindFollowerLocationListResponse-5]
+	_ = x[KindLeaderLocationRequest-6]
+	_ = x[KindLeaderLocationResponse-7]
+	_ = x[KindRequestVoteRequest-8]
+	_ = x[KindRequestVoteResponse-9]
 }
 
-const _Kind_name = "KindUnknownKindAppendEntriesRequestKindAppendEntriesResponseKindFollowerLocationListRequestKindFollowerLocationListResponseKindLeaderLocationRequestKindLeaderLocationResponseKindRequestVoteRequestKindRequestVoteResponse"
+const _Kind_name = "KindUnknownKindTestMessageKindAppendEntriesRequestKindAppendEntriesResponseKindFollowerLocationListRequestKindFollowerLocationListResponseKindLeaderLocationRequestKindLeaderLocationResponseKindRequestVoteRequestKindRequestVoteResponse"
 
-var _Kind_index = [...]uint8{0, 11, 35, 60, 91, 123, 148, 174, 196, 219}
+var _Kind_index = [...]uint8{0, 11, 26, 50, 75, 106, 138, 163, 189, 211, 234}
 
 func (i Kind) String() string {
 	if i >= Kind(len(_Kind_index)-1) {

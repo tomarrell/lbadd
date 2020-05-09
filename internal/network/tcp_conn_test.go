@@ -17,7 +17,7 @@ func TestTCPConnSendReceive(t *testing.T) {
 	defer cancel()
 
 	conn1, conn2 := net.Pipe()
-	tcpConn1, tcpConn2 := newTCPConn(conn1), newTCPConn(conn2)
+	tcpConn1, tcpConn2 := NewTCPConn(conn1), NewTCPConn(conn2)
 
 	payload := []byte("Hello, World!")
 	recv := make([]byte, len(payload))
@@ -52,7 +52,7 @@ func TestDialTCP(t *testing.T) {
 		conn, err := lis.Accept()
 		assert.NoError(err)
 
-		tcpConn := newTCPConn(conn)
+		tcpConn := NewTCPConn(conn)
 		srvConnID = tcpConn.ID().String()
 		assert.NoError(tcpConn.Send(ctx, tcpConn.ID().Bytes()))
 		assert.NoError(tcpConn.Send(ctx, payload))
@@ -76,7 +76,7 @@ func TestTCPConnWriteContext(t *testing.T) {
 	defer cancel()
 
 	conn1, conn2 := net.Pipe()
-	tcpConn1, _ := newTCPConn(conn1), newTCPConn(conn2)
+	tcpConn1, _ := NewTCPConn(conn1), NewTCPConn(conn2)
 
 	err := tcpConn1.Send(ctx, []byte("Hello")) // will not be able to write within 10ms, because noone is reading
 	assert.Equal(ErrTimeout, err)
@@ -88,7 +88,7 @@ func TestTCPConnReadContext(t *testing.T) {
 	defer cancel()
 
 	conn1, conn2 := net.Pipe()
-	tcpConn1, _ := newTCPConn(conn1), newTCPConn(conn2)
+	tcpConn1, _ := NewTCPConn(conn1), NewTCPConn(conn2)
 
 	data, err := tcpConn1.Receive(ctx) // will not be able to receive within 10ms, because noone is writing
 	assert.Equal(ErrTimeout, err)

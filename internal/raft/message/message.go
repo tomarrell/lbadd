@@ -46,10 +46,24 @@ func Unmarshal(data []byte) (Message, error) {
 	kind := Kind(binary.BigEndian.Uint32(kindBytes))
 	var msg Message
 	switch kind {
+	case KindAppendEntriesRequest:
+		msg = &AppendEntriesRequest{}
+	case KindAppendEntriesResponse:
+		msg = &AppendEntriesResponse{}
+	case KindFollowerLocationListRequest:
+		msg = &FollowerLocationListRequest{}
+	case KindFollowerLocationListResponse:
+		msg = &FollowerLocationListResponse{}
+	case KindLeaderLocationRequest:
+		msg = &LeaderLocationRequest{}
+	case KindLeaderLocationResponse:
+		msg = &LeaderLocationResponse{}
 	case KindRequestVoteRequest:
 		msg = &RequestVoteRequest{}
 	case KindRequestVoteResponse:
 		msg = &RequestVoteResponse{}
+	case KindTestMessage:
+		msg = &TestMessage{}
 	default:
 		return nil, ErrUnknownKind
 	}

@@ -101,7 +101,7 @@ func (c *tcpCluster) Receive(ctx context.Context) (network.Conn, message.Message
 }
 
 func (c *tcpCluster) Broadcast(ctx context.Context, msg message.Message) error {
-	var errs errgroup.Group
+	errs, _ := errgroup.WithContext(ctx)
 	for _, conn := range c.conns {
 		errs.Go(func() error {
 			if err := c.sendMessage(ctx, conn, msg); err != nil {

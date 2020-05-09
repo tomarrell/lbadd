@@ -10,6 +10,8 @@ const (
 	// KindUnknown must not be used. It is the default value for Kind. If this
 	// value occurs, something was not initialized properly.
 	KindUnknown Kind = iota
+	// KindTestMessage must not be used. It is used for tests only.
+	KindTestMessage
 
 	KindAppendEntriesRequest
 	KindAppendEntriesResponse

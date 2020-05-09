@@ -61,6 +61,11 @@ func DialTCP(ctx context.Context, addr string) (Conn, error) {
 	return tcpConn, nil
 }
 
+// NewTCPConn wraps the underlying connection into a tcpConn.
+func NewTCPConn(underlying net.Conn) Conn {
+	return newTCPConn(underlying)
+}
+
 func newTCPConn(underlying net.Conn) *tcpConn {
 	id := id.Create()
 	conn := &tcpConn{
