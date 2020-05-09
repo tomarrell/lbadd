@@ -9,10 +9,17 @@ import (
 	"github.com/tomarrell/lbadd/internal/raft/cluster"
 )
 
+// Server representsa a raft server.
+type Server interface {
+	LeaderElection()
+	RequestVotes()
+	AppendEnttries()
+}
+
 var (
-	LeaderState    = "leader"
-	CandidateState = "candidate"
-	FollowerState  = "follower"
+	leaderState    = "leader"
+	candidateState = "candidate"
+	followerState  = "follower"
 )
 
 // LogData is a single log entry

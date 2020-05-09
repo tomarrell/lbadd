@@ -3,26 +3,33 @@ package raft
 import "github.com/tomarrell/lbadd/internal/raft/message"
 
 // StartElection enables a node in the cluster to start the election.
-func StartElection(Server Node) {
-	Server.State = CandidateState
-	Server.PersistentState.CurrentTerm++
+func StartElection(server Node) {
+	server.State = candidateState
+	server.PersistentState.CurrentTerm++
 
 	var votes int
 
-	for i := range Server.PersistentState.PeerIPs {
+	for i := range server.PersistentState.PeerIPs {
 		// parallely request votes from all the other peers.
 		go func(i int) {
-			if Server.PersistentState.PeerIPs[i] != Server.PersistentState.SelfIP {
+			if server.PersistentState.PeerIPs[i] != server.PersistentState.SelfIP {
 				// send a requestVotesRPC
 				req := message.NewRequestVoteRequest(
-					int32(Server.PersistentState.CurrentTerm),
-					Server.PersistentState.SelfID,
-					int32(len(Server.PersistentState.Log)),
-					int32(Server.PersistentState.Log[len(Server.PersistentState.Log)-1].Term),
+					int32(server.PersistentState.CurrentTerm),
+					server.PersistentState.SelfID,
+					int32(len(server.PersistentState.Log)),
+					int32(server.PersistentState.Log[len(server.PersistentState.Log)-1].Term),
 				)
-				res := RequestVote(req)
-				if res.VoteGranted {
-					votes++
+				res, err := RequestVote(req)
+				// If they are (un)/marshalling errors, we probably should retry.
+				// Because it doesnt mean that the server denied the vote.
+				// Opposing view - failure is a failure, network or software,
+				// we can assume the error is an error for whatever reasona and
+				// proceed without having this vote.
+				if err != nil {
+					if res.VoteGranted {
+						votes++
+					}
 				}
 			}
 		}(i)
