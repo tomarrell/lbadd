@@ -9,8 +9,8 @@ func defaultKeywordsRule(s RuneScanner) (token.Type, bool) {
 	if !ok {
 		return token.Unknown, false
 	}
-	peek, noEof := s.Lookahead()
-	if noEof && defaultLiteral.Matches(peek) { // keywords must be terminated with a whitespace
+	peek, noEOF := s.Lookahead()
+	if noEOF && defaultLiteral.Matches(peek) { // keywords must be terminated with a whitespace
 		return token.Unknown, false
 	}
 	return tok, ok
@@ -22,95 +22,72 @@ func scanKeyword(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordA(s)
-	
 	case 'B', 'b':
 		s.ConsumeRune()
 		return scanKeywordB(s)
-	
 	case 'C', 'c':
 		s.ConsumeRune()
 		return scanKeywordC(s)
-	
 	case 'D', 'd':
 		s.ConsumeRune()
 		return scanKeywordD(s)
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordE(s)
-	
 	case 'F', 'f':
 		s.ConsumeRune()
 		return scanKeywordF(s)
-	
 	case 'G', 'g':
 		s.ConsumeRune()
 		return scanKeywordG(s)
-	
 	case 'H', 'h':
 		s.ConsumeRune()
 		return scanKeywordH(s)
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordI(s)
-	
 	case 'J', 'j':
 		s.ConsumeRune()
 		return scanKeywordJ(s)
-	
 	case 'K', 'k':
 		s.ConsumeRune()
 		return scanKeywordK(s)
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordL(s)
-	
 	case 'M', 'm':
 		s.ConsumeRune()
 		return scanKeywordM(s)
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordN(s)
-	
 	case 'O', 'o':
 		s.ConsumeRune()
 		return scanKeywordO(s)
-	
 	case 'P', 'p':
 		s.ConsumeRune()
 		return scanKeywordP(s)
-	
 	case 'Q', 'q':
 		s.ConsumeRune()
 		return scanKeywordQ(s)
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordR(s)
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordS(s)
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordT(s)
-	
 	case 'U', 'u':
 		s.ConsumeRune()
 		return scanKeywordU(s)
-	
 	case 'V', 'v':
 		s.ConsumeRune()
 		return scanKeywordV(s)
-	
 	case 'W', 'w':
 		s.ConsumeRune()
 		return scanKeywordW(s)
@@ -124,39 +101,30 @@ func scanKeywordA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'B', 'b':
 		s.ConsumeRune()
 		return scanKeywordAB(s)
-	
 	case 'C', 'c':
 		s.ConsumeRune()
 		return scanKeywordAC(s)
-	
 	case 'D', 'd':
 		s.ConsumeRune()
 		return scanKeywordAD(s)
-	
 	case 'F', 'f':
 		s.ConsumeRune()
 		return scanKeywordAF(s)
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordAL(s)
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordAN(s)
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordAS(s)
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordAT(s)
-	
 	case 'U', 'u':
 		s.ConsumeRune()
 		return scanKeywordAU(s)
@@ -170,7 +138,6 @@ func scanKeywordAB(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'O', 'o':
 		s.ConsumeRune()
 		return scanKeywordABO(s)
@@ -184,7 +151,6 @@ func scanKeywordABO(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordABOR(s)
@@ -198,7 +164,6 @@ func scanKeywordABOR(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordABORT(s)
@@ -216,7 +181,6 @@ func scanKeywordAC(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordACT(s)
@@ -230,7 +194,6 @@ func scanKeywordACT(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordACTI(s)
@@ -244,7 +207,6 @@ func scanKeywordACTI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'O', 'o':
 		s.ConsumeRune()
 		return scanKeywordACTIO(s)
@@ -258,7 +220,6 @@ func scanKeywordACTIO(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordACTION(s)
@@ -276,7 +237,6 @@ func scanKeywordAD(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'D', 'd':
 		s.ConsumeRune()
 		return scanKeywordADD(s)
@@ -294,7 +254,6 @@ func scanKeywordAF(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordAFT(s)
@@ -308,7 +267,6 @@ func scanKeywordAFT(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordAFTE(s)
@@ -322,7 +280,6 @@ func scanKeywordAFTE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordAFTER(s)
@@ -340,15 +297,12 @@ func scanKeywordAL(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordALL(s)
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordALT(s)
-	
 	case 'W', 'w':
 		s.ConsumeRune()
 		return scanKeywordALW(s)
@@ -366,7 +320,6 @@ func scanKeywordALT(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordALTE(s)
@@ -380,7 +333,6 @@ func scanKeywordALTE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordALTER(s)
@@ -398,7 +350,6 @@ func scanKeywordALW(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordALWA(s)
@@ -412,7 +363,6 @@ func scanKeywordALWA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'Y', 'y':
 		s.ConsumeRune()
 		return scanKeywordALWAY(s)
@@ -426,7 +376,6 @@ func scanKeywordALWAY(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordALWAYS(s)
@@ -444,11 +393,9 @@ func scanKeywordAN(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordANA(s)
-	
 	case 'D', 'd':
 		s.ConsumeRune()
 		return scanKeywordAND(s)
@@ -462,7 +409,6 @@ func scanKeywordANA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordANAL(s)
@@ -476,7 +422,6 @@ func scanKeywordANAL(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'Y', 'y':
 		s.ConsumeRune()
 		return scanKeywordANALY(s)
@@ -490,7 +435,6 @@ func scanKeywordANALY(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'Z', 'z':
 		s.ConsumeRune()
 		return scanKeywordANALYZ(s)
@@ -504,7 +448,6 @@ func scanKeywordANALYZ(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordANALYZE(s)
@@ -526,7 +469,6 @@ func scanKeywordAS(s RuneScanner) (token.Type, bool) {
 		return token.KeywordAs, true
 	}
 	switch next {
-	
 	case 'C', 'c':
 		s.ConsumeRune()
 		return scanKeywordASC(s)
@@ -544,7 +486,6 @@ func scanKeywordAT(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordATT(s)
@@ -558,7 +499,6 @@ func scanKeywordATT(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordATTA(s)
@@ -572,7 +512,6 @@ func scanKeywordATTA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'C', 'c':
 		s.ConsumeRune()
 		return scanKeywordATTAC(s)
@@ -586,7 +525,6 @@ func scanKeywordATTAC(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'H', 'h':
 		s.ConsumeRune()
 		return scanKeywordATTACH(s)
@@ -604,7 +542,6 @@ func scanKeywordAU(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordAUT(s)
@@ -618,7 +555,6 @@ func scanKeywordAUT(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'O', 'o':
 		s.ConsumeRune()
 		return scanKeywordAUTO(s)
@@ -632,7 +568,6 @@ func scanKeywordAUTO(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordAUTOI(s)
@@ -646,7 +581,6 @@ func scanKeywordAUTOI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordAUTOIN(s)
@@ -660,7 +594,6 @@ func scanKeywordAUTOIN(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'C', 'c':
 		s.ConsumeRune()
 		return scanKeywordAUTOINC(s)
@@ -674,7 +607,6 @@ func scanKeywordAUTOINC(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordAUTOINCR(s)
@@ -688,7 +620,6 @@ func scanKeywordAUTOINCR(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordAUTOINCRE(s)
@@ -702,7 +633,6 @@ func scanKeywordAUTOINCRE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'M', 'm':
 		s.ConsumeRune()
 		return scanKeywordAUTOINCREM(s)
@@ -716,7 +646,6 @@ func scanKeywordAUTOINCREM(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordAUTOINCREME(s)
@@ -730,7 +659,6 @@ func scanKeywordAUTOINCREME(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordAUTOINCREMEN(s)
@@ -744,7 +672,6 @@ func scanKeywordAUTOINCREMEN(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordAUTOINCREMENT(s)
@@ -762,11 +689,9 @@ func scanKeywordB(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordBE(s)
-	
 	case 'Y', 'y':
 		s.ConsumeRune()
 		return scanKeywordBY(s)
@@ -780,15 +705,12 @@ func scanKeywordBE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'F', 'f':
 		s.ConsumeRune()
 		return scanKeywordBEF(s)
-	
 	case 'G', 'g':
 		s.ConsumeRune()
 		return scanKeywordBEG(s)
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordBET(s)
@@ -802,7 +724,6 @@ func scanKeywordBEF(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'O', 'o':
 		s.ConsumeRune()
 		return scanKeywordBEFO(s)
@@ -816,7 +737,6 @@ func scanKeywordBEFO(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordBEFOR(s)
@@ -830,7 +750,6 @@ func scanKeywordBEFOR(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordBEFORE(s)
@@ -848,7 +767,6 @@ func scanKeywordBEG(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordBEGI(s)
@@ -862,7 +780,6 @@ func scanKeywordBEGI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordBEGIN(s)
@@ -880,7 +797,6 @@ func scanKeywordBET(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'W', 'w':
 		s.ConsumeRune()
 		return scanKeywordBETW(s)
@@ -894,7 +810,6 @@ func scanKeywordBETW(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordBETWE(s)
@@ -908,7 +823,6 @@ func scanKeywordBETWE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordBETWEE(s)
@@ -922,7 +836,6 @@ func scanKeywordBETWEE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordBETWEEN(s)
@@ -944,23 +857,18 @@ func scanKeywordC(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordCA(s)
-	
 	case 'H', 'h':
 		s.ConsumeRune()
 		return scanKeywordCH(s)
-	
 	case 'O', 'o':
 		s.ConsumeRune()
 		return scanKeywordCO(s)
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordCR(s)
-	
 	case 'U', 'u':
 		s.ConsumeRune()
 		return scanKeywordCU(s)
@@ -974,7 +882,6 @@ func scanKeywordCA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordCAS(s)
@@ -988,15 +895,12 @@ func scanKeywordCAS(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'C', 'c':
 		s.ConsumeRune()
 		return scanKeywordCASC(s)
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordCASE(s)
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordCAST(s)
@@ -1010,7 +914,6 @@ func scanKeywordCASC(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordCASCA(s)
@@ -1024,7 +927,6 @@ func scanKeywordCASCA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'D', 'd':
 		s.ConsumeRune()
 		return scanKeywordCASCAD(s)
@@ -1038,7 +940,6 @@ func scanKeywordCASCAD(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordCASCADE(s)
@@ -1064,7 +965,6 @@ func scanKeywordCH(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordCHE(s)
@@ -1078,7 +978,6 @@ func scanKeywordCHE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'C', 'c':
 		s.ConsumeRune()
 		return scanKeywordCHEC(s)
@@ -1092,7 +991,6 @@ func scanKeywordCHEC(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'K', 'k':
 		s.ConsumeRune()
 		return scanKeywordCHECK(s)
@@ -1110,15 +1008,12 @@ func scanKeywordCO(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordCOL(s)
-	
 	case 'M', 'm':
 		s.ConsumeRune()
 		return scanKeywordCOM(s)
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordCON(s)
@@ -1132,11 +1027,9 @@ func scanKeywordCOL(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordCOLL(s)
-	
 	case 'U', 'u':
 		s.ConsumeRune()
 		return scanKeywordCOLU(s)
@@ -1150,7 +1043,6 @@ func scanKeywordCOLL(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordCOLLA(s)
@@ -1164,7 +1056,6 @@ func scanKeywordCOLLA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordCOLLAT(s)
@@ -1178,7 +1069,6 @@ func scanKeywordCOLLAT(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordCOLLATE(s)
@@ -1196,7 +1086,6 @@ func scanKeywordCOLU(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'M', 'm':
 		s.ConsumeRune()
 		return scanKeywordCOLUM(s)
@@ -1210,7 +1099,6 @@ func scanKeywordCOLUM(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordCOLUMN(s)
@@ -1228,7 +1116,6 @@ func scanKeywordCOM(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'M', 'm':
 		s.ConsumeRune()
 		return scanKeywordCOMM(s)
@@ -1242,7 +1129,6 @@ func scanKeywordCOMM(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordCOMMI(s)
@@ -1256,7 +1142,6 @@ func scanKeywordCOMMI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordCOMMIT(s)
@@ -1274,11 +1159,9 @@ func scanKeywordCON(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'F', 'f':
 		s.ConsumeRune()
 		return scanKeywordCONF(s)
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordCONS(s)
@@ -1292,7 +1175,6 @@ func scanKeywordCONF(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordCONFL(s)
@@ -1306,7 +1188,6 @@ func scanKeywordCONFL(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordCONFLI(s)
@@ -1320,7 +1201,6 @@ func scanKeywordCONFLI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'C', 'c':
 		s.ConsumeRune()
 		return scanKeywordCONFLIC(s)
@@ -1334,7 +1214,6 @@ func scanKeywordCONFLIC(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordCONFLICT(s)
@@ -1352,7 +1231,6 @@ func scanKeywordCONS(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordCONST(s)
@@ -1366,7 +1244,6 @@ func scanKeywordCONST(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordCONSTR(s)
@@ -1380,7 +1257,6 @@ func scanKeywordCONSTR(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordCONSTRA(s)
@@ -1394,7 +1270,6 @@ func scanKeywordCONSTRA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordCONSTRAI(s)
@@ -1408,7 +1283,6 @@ func scanKeywordCONSTRAI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordCONSTRAIN(s)
@@ -1422,7 +1296,6 @@ func scanKeywordCONSTRAIN(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordCONSTRAINT(s)
@@ -1440,11 +1313,9 @@ func scanKeywordCR(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordCRE(s)
-	
 	case 'O', 'o':
 		s.ConsumeRune()
 		return scanKeywordCRO(s)
@@ -1458,7 +1329,6 @@ func scanKeywordCRE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordCREA(s)
@@ -1472,7 +1342,6 @@ func scanKeywordCREA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordCREAT(s)
@@ -1486,7 +1355,6 @@ func scanKeywordCREAT(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordCREATE(s)
@@ -1504,7 +1372,6 @@ func scanKeywordCRO(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordCROS(s)
@@ -1518,7 +1385,6 @@ func scanKeywordCROS(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordCROSS(s)
@@ -1536,7 +1402,6 @@ func scanKeywordCU(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordCUR(s)
@@ -1550,7 +1415,6 @@ func scanKeywordCUR(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordCURR(s)
@@ -1564,7 +1428,6 @@ func scanKeywordCURR(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordCURRE(s)
@@ -1578,7 +1441,6 @@ func scanKeywordCURRE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordCURREN(s)
@@ -1592,7 +1454,6 @@ func scanKeywordCURREN(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordCURRENT(s)
@@ -1606,7 +1467,6 @@ func scanKeywordCURRENT(s RuneScanner) (token.Type, bool) {
 		return token.KeywordCurrent, true
 	}
 	switch next {
-	
 	case '_':
 		s.ConsumeRune()
 		return scanKeywordCURRENTx(s)
@@ -1620,11 +1480,9 @@ func scanKeywordCURRENTx(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'D', 'd':
 		s.ConsumeRune()
 		return scanKeywordCURRENTxD(s)
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordCURRENTxT(s)
@@ -1638,7 +1496,6 @@ func scanKeywordCURRENTxD(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordCURRENTxDA(s)
@@ -1652,7 +1509,6 @@ func scanKeywordCURRENTxDA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordCURRENTxDAT(s)
@@ -1666,7 +1522,6 @@ func scanKeywordCURRENTxDAT(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordCURRENTxDATE(s)
@@ -1684,7 +1539,6 @@ func scanKeywordCURRENTxT(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordCURRENTxTI(s)
@@ -1698,7 +1552,6 @@ func scanKeywordCURRENTxTI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'M', 'm':
 		s.ConsumeRune()
 		return scanKeywordCURRENTxTIM(s)
@@ -1712,7 +1565,6 @@ func scanKeywordCURRENTxTIM(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordCURRENTxTIME(s)
@@ -1726,7 +1578,6 @@ func scanKeywordCURRENTxTIME(s RuneScanner) (token.Type, bool) {
 		return token.KeywordCurrentTime, true
 	}
 	switch next {
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordCURRENTxTIMES(s)
@@ -1740,7 +1591,6 @@ func scanKeywordCURRENTxTIMES(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordCURRENTxTIMEST(s)
@@ -1754,7 +1604,6 @@ func scanKeywordCURRENTxTIMEST(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordCURRENTxTIMESTA(s)
@@ -1768,7 +1617,6 @@ func scanKeywordCURRENTxTIMESTA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'M', 'm':
 		s.ConsumeRune()
 		return scanKeywordCURRENTxTIMESTAM(s)
@@ -1782,7 +1630,6 @@ func scanKeywordCURRENTxTIMESTAM(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'P', 'p':
 		s.ConsumeRune()
 		return scanKeywordCURRENTxTIMESTAMP(s)
@@ -1800,23 +1647,18 @@ func scanKeywordD(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordDA(s)
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordDE(s)
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordDI(s)
-	
 	case 'O', 'o':
 		s.ConsumeRune()
 		return scanKeywordDO(s)
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordDR(s)
@@ -1830,7 +1672,6 @@ func scanKeywordDA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordDAT(s)
@@ -1844,7 +1685,6 @@ func scanKeywordDAT(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordDATA(s)
@@ -1858,7 +1698,6 @@ func scanKeywordDATA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'B', 'b':
 		s.ConsumeRune()
 		return scanKeywordDATAB(s)
@@ -1872,7 +1711,6 @@ func scanKeywordDATAB(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordDATABA(s)
@@ -1886,7 +1724,6 @@ func scanKeywordDATABA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordDATABAS(s)
@@ -1900,7 +1737,6 @@ func scanKeywordDATABAS(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordDATABASE(s)
@@ -1918,19 +1754,15 @@ func scanKeywordDE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'F', 'f':
 		s.ConsumeRune()
 		return scanKeywordDEF(s)
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordDEL(s)
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordDES(s)
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordDET(s)
@@ -1944,11 +1776,9 @@ func scanKeywordDEF(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordDEFA(s)
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordDEFE(s)
@@ -1962,7 +1792,6 @@ func scanKeywordDEFA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'U', 'u':
 		s.ConsumeRune()
 		return scanKeywordDEFAU(s)
@@ -1976,7 +1805,6 @@ func scanKeywordDEFAU(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordDEFAUL(s)
@@ -1990,7 +1818,6 @@ func scanKeywordDEFAUL(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordDEFAULT(s)
@@ -2008,7 +1835,6 @@ func scanKeywordDEFE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordDEFER(s)
@@ -2022,7 +1848,6 @@ func scanKeywordDEFER(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordDEFERR(s)
@@ -2036,11 +1861,9 @@ func scanKeywordDEFERR(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordDEFERRA(s)
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordDEFERRE(s)
@@ -2054,7 +1877,6 @@ func scanKeywordDEFERRA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'B', 'b':
 		s.ConsumeRune()
 		return scanKeywordDEFERRAB(s)
@@ -2068,7 +1890,6 @@ func scanKeywordDEFERRAB(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordDEFERRABL(s)
@@ -2082,7 +1903,6 @@ func scanKeywordDEFERRABL(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordDEFERRABLE(s)
@@ -2100,7 +1920,6 @@ func scanKeywordDEFERRE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'D', 'd':
 		s.ConsumeRune()
 		return scanKeywordDEFERRED(s)
@@ -2118,7 +1937,6 @@ func scanKeywordDEL(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordDELE(s)
@@ -2132,7 +1950,6 @@ func scanKeywordDELE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordDELET(s)
@@ -2146,7 +1963,6 @@ func scanKeywordDELET(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordDELETE(s)
@@ -2164,7 +1980,6 @@ func scanKeywordDES(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'C', 'c':
 		s.ConsumeRune()
 		return scanKeywordDESC(s)
@@ -2182,7 +1997,6 @@ func scanKeywordDET(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordDETA(s)
@@ -2196,7 +2010,6 @@ func scanKeywordDETA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'C', 'c':
 		s.ConsumeRune()
 		return scanKeywordDETAC(s)
@@ -2210,7 +2023,6 @@ func scanKeywordDETAC(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'H', 'h':
 		s.ConsumeRune()
 		return scanKeywordDETACH(s)
@@ -2228,7 +2040,6 @@ func scanKeywordDI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordDIS(s)
@@ -2242,7 +2053,6 @@ func scanKeywordDIS(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordDIST(s)
@@ -2256,7 +2066,6 @@ func scanKeywordDIST(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordDISTI(s)
@@ -2270,7 +2079,6 @@ func scanKeywordDISTI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordDISTIN(s)
@@ -2284,7 +2092,6 @@ func scanKeywordDISTIN(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'C', 'c':
 		s.ConsumeRune()
 		return scanKeywordDISTINC(s)
@@ -2298,7 +2105,6 @@ func scanKeywordDISTINC(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordDISTINCT(s)
@@ -2320,7 +2126,6 @@ func scanKeywordDR(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'O', 'o':
 		s.ConsumeRune()
 		return scanKeywordDRO(s)
@@ -2334,7 +2139,6 @@ func scanKeywordDRO(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'P', 'p':
 		s.ConsumeRune()
 		return scanKeywordDROP(s)
@@ -2352,23 +2156,18 @@ func scanKeywordE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordEA(s)
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordEL(s)
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordEN(s)
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordES(s)
-	
 	case 'X', 'x':
 		s.ConsumeRune()
 		return scanKeywordEX(s)
@@ -2382,7 +2181,6 @@ func scanKeywordEA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'C', 'c':
 		s.ConsumeRune()
 		return scanKeywordEAC(s)
@@ -2396,7 +2194,6 @@ func scanKeywordEAC(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'H', 'h':
 		s.ConsumeRune()
 		return scanKeywordEACH(s)
@@ -2414,7 +2211,6 @@ func scanKeywordEL(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordELS(s)
@@ -2428,7 +2224,6 @@ func scanKeywordELS(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordELSE(s)
@@ -2446,7 +2241,6 @@ func scanKeywordEN(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'D', 'd':
 		s.ConsumeRune()
 		return scanKeywordEND(s)
@@ -2464,7 +2258,6 @@ func scanKeywordES(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'C', 'c':
 		s.ConsumeRune()
 		return scanKeywordESC(s)
@@ -2478,7 +2271,6 @@ func scanKeywordESC(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordESCA(s)
@@ -2492,7 +2284,6 @@ func scanKeywordESCA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'P', 'p':
 		s.ConsumeRune()
 		return scanKeywordESCAP(s)
@@ -2506,7 +2297,6 @@ func scanKeywordESCAP(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordESCAPE(s)
@@ -2524,15 +2314,12 @@ func scanKeywordEX(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'C', 'c':
 		s.ConsumeRune()
 		return scanKeywordEXC(s)
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordEXI(s)
-	
 	case 'P', 'p':
 		s.ConsumeRune()
 		return scanKeywordEXP(s)
@@ -2546,11 +2333,9 @@ func scanKeywordEXC(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordEXCE(s)
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordEXCL(s)
@@ -2564,7 +2349,6 @@ func scanKeywordEXCE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'P', 'p':
 		s.ConsumeRune()
 		return scanKeywordEXCEP(s)
@@ -2578,7 +2362,6 @@ func scanKeywordEXCEP(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordEXCEPT(s)
@@ -2596,7 +2379,6 @@ func scanKeywordEXCL(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'U', 'u':
 		s.ConsumeRune()
 		return scanKeywordEXCLU(s)
@@ -2610,11 +2392,9 @@ func scanKeywordEXCLU(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'D', 'd':
 		s.ConsumeRune()
 		return scanKeywordEXCLUD(s)
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordEXCLUS(s)
@@ -2628,7 +2408,6 @@ func scanKeywordEXCLUD(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordEXCLUDE(s)
@@ -2646,7 +2425,6 @@ func scanKeywordEXCLUS(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordEXCLUSI(s)
@@ -2660,7 +2438,6 @@ func scanKeywordEXCLUSI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'V', 'v':
 		s.ConsumeRune()
 		return scanKeywordEXCLUSIV(s)
@@ -2674,7 +2451,6 @@ func scanKeywordEXCLUSIV(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordEXCLUSIVE(s)
@@ -2692,7 +2468,6 @@ func scanKeywordEXI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordEXIS(s)
@@ -2706,7 +2481,6 @@ func scanKeywordEXIS(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordEXIST(s)
@@ -2720,7 +2494,6 @@ func scanKeywordEXIST(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordEXISTS(s)
@@ -2738,7 +2511,6 @@ func scanKeywordEXP(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordEXPL(s)
@@ -2752,7 +2524,6 @@ func scanKeywordEXPL(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordEXPLA(s)
@@ -2766,7 +2537,6 @@ func scanKeywordEXPLA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordEXPLAI(s)
@@ -2780,7 +2550,6 @@ func scanKeywordEXPLAI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordEXPLAIN(s)
@@ -2798,23 +2567,18 @@ func scanKeywordF(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordFA(s)
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordFI(s)
-	
 	case 'O', 'o':
 		s.ConsumeRune()
 		return scanKeywordFO(s)
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordFR(s)
-	
 	case 'U', 'u':
 		s.ConsumeRune()
 		return scanKeywordFU(s)
@@ -2828,7 +2592,6 @@ func scanKeywordFA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordFAI(s)
@@ -2842,7 +2605,6 @@ func scanKeywordFAI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordFAIL(s)
@@ -2860,11 +2622,9 @@ func scanKeywordFI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordFIL(s)
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordFIR(s)
@@ -2878,7 +2638,6 @@ func scanKeywordFIL(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordFILT(s)
@@ -2892,7 +2651,6 @@ func scanKeywordFILT(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordFILTE(s)
@@ -2906,7 +2664,6 @@ func scanKeywordFILTE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordFILTER(s)
@@ -2924,7 +2681,6 @@ func scanKeywordFIR(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordFIRS(s)
@@ -2938,7 +2694,6 @@ func scanKeywordFIRS(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordFIRST(s)
@@ -2956,11 +2711,9 @@ func scanKeywordFO(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordFOL(s)
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordFOR(s)
@@ -2974,7 +2727,6 @@ func scanKeywordFOL(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordFOLL(s)
@@ -2988,7 +2740,6 @@ func scanKeywordFOLL(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'O', 'o':
 		s.ConsumeRune()
 		return scanKeywordFOLLO(s)
@@ -3002,7 +2753,6 @@ func scanKeywordFOLLO(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'W', 'w':
 		s.ConsumeRune()
 		return scanKeywordFOLLOW(s)
@@ -3016,7 +2766,6 @@ func scanKeywordFOLLOW(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordFOLLOWI(s)
@@ -3030,7 +2779,6 @@ func scanKeywordFOLLOWI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordFOLLOWIN(s)
@@ -3044,7 +2792,6 @@ func scanKeywordFOLLOWIN(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'G', 'g':
 		s.ConsumeRune()
 		return scanKeywordFOLLOWING(s)
@@ -3062,7 +2809,6 @@ func scanKeywordFOR(s RuneScanner) (token.Type, bool) {
 		return token.KeywordFor, true
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordFORE(s)
@@ -3076,7 +2822,6 @@ func scanKeywordFORE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordFOREI(s)
@@ -3090,7 +2835,6 @@ func scanKeywordFOREI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'G', 'g':
 		s.ConsumeRune()
 		return scanKeywordFOREIG(s)
@@ -3104,7 +2848,6 @@ func scanKeywordFOREIG(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordFOREIGN(s)
@@ -3122,7 +2865,6 @@ func scanKeywordFR(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'O', 'o':
 		s.ConsumeRune()
 		return scanKeywordFRO(s)
@@ -3136,7 +2878,6 @@ func scanKeywordFRO(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'M', 'm':
 		s.ConsumeRune()
 		return scanKeywordFROM(s)
@@ -3154,7 +2895,6 @@ func scanKeywordFU(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordFUL(s)
@@ -3168,7 +2908,6 @@ func scanKeywordFUL(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordFULL(s)
@@ -3186,15 +2925,12 @@ func scanKeywordG(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordGE(s)
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordGL(s)
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordGR(s)
@@ -3208,7 +2944,6 @@ func scanKeywordGE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordGEN(s)
@@ -3222,7 +2957,6 @@ func scanKeywordGEN(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordGENE(s)
@@ -3236,7 +2970,6 @@ func scanKeywordGENE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordGENER(s)
@@ -3250,7 +2983,6 @@ func scanKeywordGENER(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordGENERA(s)
@@ -3264,7 +2996,6 @@ func scanKeywordGENERA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordGENERAT(s)
@@ -3278,7 +3009,6 @@ func scanKeywordGENERAT(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordGENERATE(s)
@@ -3292,7 +3022,6 @@ func scanKeywordGENERATE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'D', 'd':
 		s.ConsumeRune()
 		return scanKeywordGENERATED(s)
@@ -3310,7 +3039,6 @@ func scanKeywordGL(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'O', 'o':
 		s.ConsumeRune()
 		return scanKeywordGLO(s)
@@ -3324,7 +3052,6 @@ func scanKeywordGLO(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'B', 'b':
 		s.ConsumeRune()
 		return scanKeywordGLOB(s)
@@ -3342,7 +3069,6 @@ func scanKeywordGR(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'O', 'o':
 		s.ConsumeRune()
 		return scanKeywordGRO(s)
@@ -3356,7 +3082,6 @@ func scanKeywordGRO(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'U', 'u':
 		s.ConsumeRune()
 		return scanKeywordGROU(s)
@@ -3370,7 +3095,6 @@ func scanKeywordGROU(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'P', 'p':
 		s.ConsumeRune()
 		return scanKeywordGROUP(s)
@@ -3384,7 +3108,6 @@ func scanKeywordGROUP(s RuneScanner) (token.Type, bool) {
 		return token.KeywordGroup, true
 	}
 	switch next {
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordGROUPS(s)
@@ -3402,7 +3125,6 @@ func scanKeywordH(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordHA(s)
@@ -3416,7 +3138,6 @@ func scanKeywordHA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'V', 'v':
 		s.ConsumeRune()
 		return scanKeywordHAV(s)
@@ -3430,7 +3151,6 @@ func scanKeywordHAV(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordHAVI(s)
@@ -3444,7 +3164,6 @@ func scanKeywordHAVI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordHAVIN(s)
@@ -3458,7 +3177,6 @@ func scanKeywordHAVIN(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'G', 'g':
 		s.ConsumeRune()
 		return scanKeywordHAVING(s)
@@ -3476,23 +3194,18 @@ func scanKeywordI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'F', 'f':
 		s.ConsumeRune()
 		return scanKeywordIF(s)
-	
 	case 'G', 'g':
 		s.ConsumeRune()
 		return scanKeywordIG(s)
-	
 	case 'M', 'm':
 		s.ConsumeRune()
 		return scanKeywordIM(s)
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordIN(s)
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordIS(s)
@@ -3510,7 +3223,6 @@ func scanKeywordIG(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordIGN(s)
@@ -3524,7 +3236,6 @@ func scanKeywordIGN(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'O', 'o':
 		s.ConsumeRune()
 		return scanKeywordIGNO(s)
@@ -3538,7 +3249,6 @@ func scanKeywordIGNO(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordIGNOR(s)
@@ -3552,7 +3262,6 @@ func scanKeywordIGNOR(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordIGNORE(s)
@@ -3570,7 +3279,6 @@ func scanKeywordIM(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'M', 'm':
 		s.ConsumeRune()
 		return scanKeywordIMM(s)
@@ -3584,7 +3292,6 @@ func scanKeywordIMM(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordIMME(s)
@@ -3598,7 +3305,6 @@ func scanKeywordIMME(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'D', 'd':
 		s.ConsumeRune()
 		return scanKeywordIMMED(s)
@@ -3612,7 +3318,6 @@ func scanKeywordIMMED(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordIMMEDI(s)
@@ -3626,7 +3331,6 @@ func scanKeywordIMMEDI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordIMMEDIA(s)
@@ -3640,7 +3344,6 @@ func scanKeywordIMMEDIA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordIMMEDIAT(s)
@@ -3654,7 +3357,6 @@ func scanKeywordIMMEDIAT(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordIMMEDIATE(s)
@@ -3672,23 +3374,18 @@ func scanKeywordIN(s RuneScanner) (token.Type, bool) {
 		return token.KeywordIn, true
 	}
 	switch next {
-	
 	case 'D', 'd':
 		s.ConsumeRune()
 		return scanKeywordIND(s)
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordINI(s)
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordINN(s)
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordINS(s)
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordINT(s)
@@ -3702,7 +3399,6 @@ func scanKeywordIND(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordINDE(s)
@@ -3716,7 +3412,6 @@ func scanKeywordINDE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'X', 'x':
 		s.ConsumeRune()
 		return scanKeywordINDEX(s)
@@ -3730,7 +3425,6 @@ func scanKeywordINDEX(s RuneScanner) (token.Type, bool) {
 		return token.KeywordIndex, true
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordINDEXE(s)
@@ -3744,7 +3438,6 @@ func scanKeywordINDEXE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'D', 'd':
 		s.ConsumeRune()
 		return scanKeywordINDEXED(s)
@@ -3762,7 +3455,6 @@ func scanKeywordINI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordINIT(s)
@@ -3776,7 +3468,6 @@ func scanKeywordINIT(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordINITI(s)
@@ -3790,7 +3481,6 @@ func scanKeywordINITI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordINITIA(s)
@@ -3804,7 +3494,6 @@ func scanKeywordINITIA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordINITIAL(s)
@@ -3818,7 +3507,6 @@ func scanKeywordINITIAL(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordINITIALL(s)
@@ -3832,7 +3520,6 @@ func scanKeywordINITIALL(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'Y', 'y':
 		s.ConsumeRune()
 		return scanKeywordINITIALLY(s)
@@ -3850,7 +3537,6 @@ func scanKeywordINN(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordINNE(s)
@@ -3864,7 +3550,6 @@ func scanKeywordINNE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordINNER(s)
@@ -3882,11 +3567,9 @@ func scanKeywordINS(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordINSE(s)
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordINST(s)
@@ -3900,7 +3583,6 @@ func scanKeywordINSE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordINSER(s)
@@ -3914,7 +3596,6 @@ func scanKeywordINSER(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordINSERT(s)
@@ -3932,7 +3613,6 @@ func scanKeywordINST(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordINSTE(s)
@@ -3946,7 +3626,6 @@ func scanKeywordINSTE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordINSTEA(s)
@@ -3960,7 +3639,6 @@ func scanKeywordINSTEA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'D', 'd':
 		s.ConsumeRune()
 		return scanKeywordINSTEAD(s)
@@ -3978,11 +3656,9 @@ func scanKeywordINT(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordINTE(s)
-	
 	case 'O', 'o':
 		s.ConsumeRune()
 		return scanKeywordINTO(s)
@@ -3996,7 +3672,6 @@ func scanKeywordINTE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordINTER(s)
@@ -4010,7 +3685,6 @@ func scanKeywordINTER(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordINTERS(s)
@@ -4024,7 +3698,6 @@ func scanKeywordINTERS(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordINTERSE(s)
@@ -4038,7 +3711,6 @@ func scanKeywordINTERSE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'C', 'c':
 		s.ConsumeRune()
 		return scanKeywordINTERSEC(s)
@@ -4052,7 +3724,6 @@ func scanKeywordINTERSEC(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordINTERSECT(s)
@@ -4074,7 +3745,6 @@ func scanKeywordIS(s RuneScanner) (token.Type, bool) {
 		return token.KeywordIs, true
 	}
 	switch next {
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordISN(s)
@@ -4088,7 +3758,6 @@ func scanKeywordISN(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'U', 'u':
 		s.ConsumeRune()
 		return scanKeywordISNU(s)
@@ -4102,7 +3771,6 @@ func scanKeywordISNU(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordISNUL(s)
@@ -4116,7 +3784,6 @@ func scanKeywordISNUL(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordISNULL(s)
@@ -4134,7 +3801,6 @@ func scanKeywordJ(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'O', 'o':
 		s.ConsumeRune()
 		return scanKeywordJO(s)
@@ -4148,7 +3814,6 @@ func scanKeywordJO(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordJOI(s)
@@ -4162,7 +3827,6 @@ func scanKeywordJOI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordJOIN(s)
@@ -4180,7 +3844,6 @@ func scanKeywordK(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordKE(s)
@@ -4194,7 +3857,6 @@ func scanKeywordKE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'Y', 'y':
 		s.ConsumeRune()
 		return scanKeywordKEY(s)
@@ -4212,15 +3874,12 @@ func scanKeywordL(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordLA(s)
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordLE(s)
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordLI(s)
@@ -4234,7 +3893,6 @@ func scanKeywordLA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordLAS(s)
@@ -4248,7 +3906,6 @@ func scanKeywordLAS(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordLAST(s)
@@ -4266,7 +3923,6 @@ func scanKeywordLE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'F', 'f':
 		s.ConsumeRune()
 		return scanKeywordLEF(s)
@@ -4280,7 +3936,6 @@ func scanKeywordLEF(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordLEFT(s)
@@ -4298,11 +3953,9 @@ func scanKeywordLI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'K', 'k':
 		s.ConsumeRune()
 		return scanKeywordLIK(s)
-	
 	case 'M', 'm':
 		s.ConsumeRune()
 		return scanKeywordLIM(s)
@@ -4316,7 +3969,6 @@ func scanKeywordLIK(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordLIKE(s)
@@ -4334,7 +3986,6 @@ func scanKeywordLIM(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordLIMI(s)
@@ -4348,7 +3999,6 @@ func scanKeywordLIMI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordLIMIT(s)
@@ -4366,7 +4016,6 @@ func scanKeywordM(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordMA(s)
@@ -4380,7 +4029,6 @@ func scanKeywordMA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordMAT(s)
@@ -4394,7 +4042,6 @@ func scanKeywordMAT(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'C', 'c':
 		s.ConsumeRune()
 		return scanKeywordMATC(s)
@@ -4408,7 +4055,6 @@ func scanKeywordMATC(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'H', 'h':
 		s.ConsumeRune()
 		return scanKeywordMATCH(s)
@@ -4426,15 +4072,12 @@ func scanKeywordN(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordNA(s)
-	
 	case 'O', 'o':
 		s.ConsumeRune()
 		return scanKeywordNO(s)
-	
 	case 'U', 'u':
 		s.ConsumeRune()
 		return scanKeywordNU(s)
@@ -4448,7 +4091,6 @@ func scanKeywordNA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordNAT(s)
@@ -4462,7 +4104,6 @@ func scanKeywordNAT(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'U', 'u':
 		s.ConsumeRune()
 		return scanKeywordNATU(s)
@@ -4476,7 +4117,6 @@ func scanKeywordNATU(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordNATUR(s)
@@ -4490,7 +4130,6 @@ func scanKeywordNATUR(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordNATURA(s)
@@ -4504,7 +4143,6 @@ func scanKeywordNATURA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordNATURAL(s)
@@ -4522,7 +4160,6 @@ func scanKeywordNO(s RuneScanner) (token.Type, bool) {
 		return token.KeywordNo, true
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordNOT(s)
@@ -4536,11 +4173,9 @@ func scanKeywordNOT(s RuneScanner) (token.Type, bool) {
 		return token.KeywordNot, true
 	}
 	switch next {
-	
 	case 'H', 'h':
 		s.ConsumeRune()
 		return scanKeywordNOTH(s)
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordNOTN(s)
@@ -4554,7 +4189,6 @@ func scanKeywordNOTH(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordNOTHI(s)
@@ -4568,7 +4202,6 @@ func scanKeywordNOTHI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordNOTHIN(s)
@@ -4582,7 +4215,6 @@ func scanKeywordNOTHIN(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'G', 'g':
 		s.ConsumeRune()
 		return scanKeywordNOTHING(s)
@@ -4600,7 +4232,6 @@ func scanKeywordNOTN(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'U', 'u':
 		s.ConsumeRune()
 		return scanKeywordNOTNU(s)
@@ -4614,7 +4245,6 @@ func scanKeywordNOTNU(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordNOTNUL(s)
@@ -4628,7 +4258,6 @@ func scanKeywordNOTNUL(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordNOTNULL(s)
@@ -4646,7 +4275,6 @@ func scanKeywordNU(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordNUL(s)
@@ -4660,7 +4288,6 @@ func scanKeywordNUL(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordNULL(s)
@@ -4674,7 +4301,6 @@ func scanKeywordNULL(s RuneScanner) (token.Type, bool) {
 		return token.KeywordNull, true
 	}
 	switch next {
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordNULLS(s)
@@ -4692,27 +4318,21 @@ func scanKeywordO(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'F', 'f':
 		s.ConsumeRune()
 		return scanKeywordOF(s)
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordON(s)
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordOR(s)
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordOT(s)
-	
 	case 'U', 'u':
 		s.ConsumeRune()
 		return scanKeywordOU(s)
-	
 	case 'V', 'v':
 		s.ConsumeRune()
 		return scanKeywordOV(s)
@@ -4726,7 +4346,6 @@ func scanKeywordOF(s RuneScanner) (token.Type, bool) {
 		return token.KeywordOf, true
 	}
 	switch next {
-	
 	case 'F', 'f':
 		s.ConsumeRune()
 		return scanKeywordOFF(s)
@@ -4740,7 +4359,6 @@ func scanKeywordOFF(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordOFFS(s)
@@ -4754,7 +4372,6 @@ func scanKeywordOFFS(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordOFFSE(s)
@@ -4768,7 +4385,6 @@ func scanKeywordOFFSE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordOFFSET(s)
@@ -4790,7 +4406,6 @@ func scanKeywordOR(s RuneScanner) (token.Type, bool) {
 		return token.KeywordOr, true
 	}
 	switch next {
-	
 	case 'D', 'd':
 		s.ConsumeRune()
 		return scanKeywordORD(s)
@@ -4804,7 +4419,6 @@ func scanKeywordORD(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordORDE(s)
@@ -4818,7 +4432,6 @@ func scanKeywordORDE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordORDER(s)
@@ -4836,7 +4449,6 @@ func scanKeywordOT(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'H', 'h':
 		s.ConsumeRune()
 		return scanKeywordOTH(s)
@@ -4850,7 +4462,6 @@ func scanKeywordOTH(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordOTHE(s)
@@ -4864,7 +4475,6 @@ func scanKeywordOTHE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordOTHER(s)
@@ -4878,7 +4488,6 @@ func scanKeywordOTHER(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordOTHERS(s)
@@ -4896,7 +4505,6 @@ func scanKeywordOU(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordOUT(s)
@@ -4910,7 +4518,6 @@ func scanKeywordOUT(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordOUTE(s)
@@ -4924,7 +4531,6 @@ func scanKeywordOUTE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordOUTER(s)
@@ -4942,7 +4548,6 @@ func scanKeywordOV(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordOVE(s)
@@ -4956,7 +4561,6 @@ func scanKeywordOVE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordOVER(s)
@@ -4974,15 +4578,12 @@ func scanKeywordP(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordPA(s)
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordPL(s)
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordPR(s)
@@ -4996,7 +4597,6 @@ func scanKeywordPA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordPAR(s)
@@ -5010,7 +4610,6 @@ func scanKeywordPAR(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordPART(s)
@@ -5024,7 +4623,6 @@ func scanKeywordPART(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordPARTI(s)
@@ -5038,7 +4636,6 @@ func scanKeywordPARTI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordPARTIT(s)
@@ -5052,7 +4649,6 @@ func scanKeywordPARTIT(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordPARTITI(s)
@@ -5066,7 +4662,6 @@ func scanKeywordPARTITI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'O', 'o':
 		s.ConsumeRune()
 		return scanKeywordPARTITIO(s)
@@ -5080,7 +4675,6 @@ func scanKeywordPARTITIO(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordPARTITION(s)
@@ -5098,7 +4692,6 @@ func scanKeywordPL(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordPLA(s)
@@ -5112,7 +4705,6 @@ func scanKeywordPLA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordPLAN(s)
@@ -5130,15 +4722,12 @@ func scanKeywordPR(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordPRA(s)
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordPRE(s)
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordPRI(s)
@@ -5152,7 +4741,6 @@ func scanKeywordPRA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'G', 'g':
 		s.ConsumeRune()
 		return scanKeywordPRAG(s)
@@ -5166,7 +4754,6 @@ func scanKeywordPRAG(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'M', 'm':
 		s.ConsumeRune()
 		return scanKeywordPRAGM(s)
@@ -5180,7 +4767,6 @@ func scanKeywordPRAGM(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordPRAGMA(s)
@@ -5198,7 +4784,6 @@ func scanKeywordPRE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'C', 'c':
 		s.ConsumeRune()
 		return scanKeywordPREC(s)
@@ -5212,7 +4797,6 @@ func scanKeywordPREC(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordPRECE(s)
@@ -5226,7 +4810,6 @@ func scanKeywordPRECE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'D', 'd':
 		s.ConsumeRune()
 		return scanKeywordPRECED(s)
@@ -5240,7 +4823,6 @@ func scanKeywordPRECED(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordPRECEDI(s)
@@ -5254,7 +4836,6 @@ func scanKeywordPRECEDI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordPRECEDIN(s)
@@ -5268,7 +4849,6 @@ func scanKeywordPRECEDIN(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'G', 'g':
 		s.ConsumeRune()
 		return scanKeywordPRECEDING(s)
@@ -5286,7 +4866,6 @@ func scanKeywordPRI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'M', 'm':
 		s.ConsumeRune()
 		return scanKeywordPRIM(s)
@@ -5300,7 +4879,6 @@ func scanKeywordPRIM(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordPRIMA(s)
@@ -5314,7 +4892,6 @@ func scanKeywordPRIMA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordPRIMAR(s)
@@ -5328,7 +4905,6 @@ func scanKeywordPRIMAR(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'Y', 'y':
 		s.ConsumeRune()
 		return scanKeywordPRIMARY(s)
@@ -5346,7 +4922,6 @@ func scanKeywordQ(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'U', 'u':
 		s.ConsumeRune()
 		return scanKeywordQU(s)
@@ -5360,7 +4935,6 @@ func scanKeywordQU(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordQUE(s)
@@ -5374,7 +4948,6 @@ func scanKeywordQUE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordQUER(s)
@@ -5388,7 +4961,6 @@ func scanKeywordQUER(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'Y', 'y':
 		s.ConsumeRune()
 		return scanKeywordQUERY(s)
@@ -5406,19 +4978,15 @@ func scanKeywordR(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordRA(s)
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordRE(s)
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordRI(s)
-	
 	case 'O', 'o':
 		s.ConsumeRune()
 		return scanKeywordRO(s)
@@ -5432,11 +5000,9 @@ func scanKeywordRA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordRAI(s)
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordRAN(s)
@@ -5450,7 +5016,6 @@ func scanKeywordRAI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordRAIS(s)
@@ -5464,7 +5029,6 @@ func scanKeywordRAIS(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordRAISE(s)
@@ -5482,7 +5046,6 @@ func scanKeywordRAN(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'G', 'g':
 		s.ConsumeRune()
 		return scanKeywordRANG(s)
@@ -5496,7 +5059,6 @@ func scanKeywordRANG(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordRANGE(s)
@@ -5514,35 +5076,27 @@ func scanKeywordRE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'C', 'c':
 		s.ConsumeRune()
 		return scanKeywordREC(s)
-	
 	case 'F', 'f':
 		s.ConsumeRune()
 		return scanKeywordREF(s)
-	
 	case 'G', 'g':
 		s.ConsumeRune()
 		return scanKeywordREG(s)
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordREI(s)
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordREL(s)
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordREN(s)
-	
 	case 'P', 'p':
 		s.ConsumeRune()
 		return scanKeywordREP(s)
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordRES(s)
@@ -5556,7 +5110,6 @@ func scanKeywordREC(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'U', 'u':
 		s.ConsumeRune()
 		return scanKeywordRECU(s)
@@ -5570,7 +5123,6 @@ func scanKeywordRECU(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordRECUR(s)
@@ -5584,7 +5136,6 @@ func scanKeywordRECUR(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordRECURS(s)
@@ -5598,7 +5149,6 @@ func scanKeywordRECURS(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordRECURSI(s)
@@ -5612,7 +5162,6 @@ func scanKeywordRECURSI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'V', 'v':
 		s.ConsumeRune()
 		return scanKeywordRECURSIV(s)
@@ -5626,7 +5175,6 @@ func scanKeywordRECURSIV(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordRECURSIVE(s)
@@ -5644,7 +5192,6 @@ func scanKeywordREF(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordREFE(s)
@@ -5658,7 +5205,6 @@ func scanKeywordREFE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordREFER(s)
@@ -5672,7 +5218,6 @@ func scanKeywordREFER(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordREFERE(s)
@@ -5686,7 +5231,6 @@ func scanKeywordREFERE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordREFEREN(s)
@@ -5700,7 +5244,6 @@ func scanKeywordREFEREN(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'C', 'c':
 		s.ConsumeRune()
 		return scanKeywordREFERENC(s)
@@ -5714,7 +5257,6 @@ func scanKeywordREFERENC(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordREFERENCE(s)
@@ -5728,7 +5270,6 @@ func scanKeywordREFERENCE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordREFERENCES(s)
@@ -5746,7 +5287,6 @@ func scanKeywordREG(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordREGE(s)
@@ -5760,7 +5300,6 @@ func scanKeywordREGE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'X', 'x':
 		s.ConsumeRune()
 		return scanKeywordREGEX(s)
@@ -5774,7 +5313,6 @@ func scanKeywordREGEX(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'P', 'p':
 		s.ConsumeRune()
 		return scanKeywordREGEXP(s)
@@ -5792,7 +5330,6 @@ func scanKeywordREI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordREIN(s)
@@ -5806,7 +5343,6 @@ func scanKeywordREIN(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'D', 'd':
 		s.ConsumeRune()
 		return scanKeywordREIND(s)
@@ -5820,7 +5356,6 @@ func scanKeywordREIND(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordREINDE(s)
@@ -5834,7 +5369,6 @@ func scanKeywordREINDE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'X', 'x':
 		s.ConsumeRune()
 		return scanKeywordREINDEX(s)
@@ -5852,7 +5386,6 @@ func scanKeywordREL(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordRELE(s)
@@ -5866,7 +5399,6 @@ func scanKeywordRELE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordRELEA(s)
@@ -5880,7 +5412,6 @@ func scanKeywordRELEA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordRELEAS(s)
@@ -5894,7 +5425,6 @@ func scanKeywordRELEAS(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordRELEASE(s)
@@ -5912,7 +5442,6 @@ func scanKeywordREN(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordRENA(s)
@@ -5926,7 +5455,6 @@ func scanKeywordRENA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'M', 'm':
 		s.ConsumeRune()
 		return scanKeywordRENAM(s)
@@ -5940,7 +5468,6 @@ func scanKeywordRENAM(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordRENAME(s)
@@ -5958,7 +5485,6 @@ func scanKeywordREP(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordREPL(s)
@@ -5972,7 +5498,6 @@ func scanKeywordREPL(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordREPLA(s)
@@ -5986,7 +5511,6 @@ func scanKeywordREPLA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'C', 'c':
 		s.ConsumeRune()
 		return scanKeywordREPLAC(s)
@@ -6000,7 +5524,6 @@ func scanKeywordREPLAC(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordREPLACE(s)
@@ -6018,7 +5541,6 @@ func scanKeywordRES(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordREST(s)
@@ -6032,7 +5554,6 @@ func scanKeywordREST(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordRESTR(s)
@@ -6046,7 +5567,6 @@ func scanKeywordRESTR(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordRESTRI(s)
@@ -6060,7 +5580,6 @@ func scanKeywordRESTRI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'C', 'c':
 		s.ConsumeRune()
 		return scanKeywordRESTRIC(s)
@@ -6074,7 +5593,6 @@ func scanKeywordRESTRIC(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordRESTRICT(s)
@@ -6092,7 +5610,6 @@ func scanKeywordRI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'G', 'g':
 		s.ConsumeRune()
 		return scanKeywordRIG(s)
@@ -6106,7 +5623,6 @@ func scanKeywordRIG(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'H', 'h':
 		s.ConsumeRune()
 		return scanKeywordRIGH(s)
@@ -6120,7 +5636,6 @@ func scanKeywordRIGH(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordRIGHT(s)
@@ -6138,11 +5653,9 @@ func scanKeywordRO(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordROL(s)
-	
 	case 'W', 'w':
 		s.ConsumeRune()
 		return scanKeywordROW(s)
@@ -6156,7 +5669,6 @@ func scanKeywordROL(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordROLL(s)
@@ -6170,7 +5682,6 @@ func scanKeywordROLL(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'B', 'b':
 		s.ConsumeRune()
 		return scanKeywordROLLB(s)
@@ -6184,7 +5695,6 @@ func scanKeywordROLLB(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordROLLBA(s)
@@ -6198,7 +5708,6 @@ func scanKeywordROLLBA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'C', 'c':
 		s.ConsumeRune()
 		return scanKeywordROLLBAC(s)
@@ -6212,7 +5721,6 @@ func scanKeywordROLLBAC(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'K', 'k':
 		s.ConsumeRune()
 		return scanKeywordROLLBACK(s)
@@ -6230,7 +5738,6 @@ func scanKeywordROW(s RuneScanner) (token.Type, bool) {
 		return token.KeywordRow, true
 	}
 	switch next {
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordROWS(s)
@@ -6248,15 +5755,12 @@ func scanKeywordS(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordSA(s)
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordSE(s)
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordST(s)
@@ -6270,7 +5774,6 @@ func scanKeywordSA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'V', 'v':
 		s.ConsumeRune()
 		return scanKeywordSAV(s)
@@ -6284,7 +5787,6 @@ func scanKeywordSAV(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordSAVE(s)
@@ -6298,7 +5800,6 @@ func scanKeywordSAVE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'P', 'p':
 		s.ConsumeRune()
 		return scanKeywordSAVEP(s)
@@ -6312,7 +5813,6 @@ func scanKeywordSAVEP(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'O', 'o':
 		s.ConsumeRune()
 		return scanKeywordSAVEPO(s)
@@ -6326,7 +5826,6 @@ func scanKeywordSAVEPO(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordSAVEPOI(s)
@@ -6340,7 +5839,6 @@ func scanKeywordSAVEPOI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordSAVEPOIN(s)
@@ -6354,7 +5852,6 @@ func scanKeywordSAVEPOIN(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordSAVEPOINT(s)
@@ -6372,11 +5869,9 @@ func scanKeywordSE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordSEL(s)
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordSET(s)
@@ -6390,7 +5885,6 @@ func scanKeywordSEL(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordSELE(s)
@@ -6404,7 +5898,6 @@ func scanKeywordSELE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'C', 'c':
 		s.ConsumeRune()
 		return scanKeywordSELEC(s)
@@ -6418,7 +5911,6 @@ func scanKeywordSELEC(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordSELECT(s)
@@ -6440,7 +5932,6 @@ func scanKeywordST(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'O', 'o':
 		s.ConsumeRune()
 		return scanKeywordSTO(s)
@@ -6454,7 +5945,6 @@ func scanKeywordSTO(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordSTOR(s)
@@ -6468,7 +5958,6 @@ func scanKeywordSTOR(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordSTORE(s)
@@ -6482,7 +5971,6 @@ func scanKeywordSTORE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'D', 'd':
 		s.ConsumeRune()
 		return scanKeywordSTORED(s)
@@ -6500,27 +5988,21 @@ func scanKeywordT(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordTA(s)
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordTE(s)
-	
 	case 'H', 'h':
 		s.ConsumeRune()
 		return scanKeywordTH(s)
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordTI(s)
-	
 	case 'O', 'o':
 		s.ConsumeRune()
 		return scanKeywordTO(s)
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordTR(s)
@@ -6534,7 +6016,6 @@ func scanKeywordTA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'B', 'b':
 		s.ConsumeRune()
 		return scanKeywordTAB(s)
@@ -6548,7 +6029,6 @@ func scanKeywordTAB(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordTABL(s)
@@ -6562,7 +6042,6 @@ func scanKeywordTABL(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordTABLE(s)
@@ -6580,7 +6059,6 @@ func scanKeywordTE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'M', 'm':
 		s.ConsumeRune()
 		return scanKeywordTEM(s)
@@ -6594,7 +6072,6 @@ func scanKeywordTEM(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'P', 'p':
 		s.ConsumeRune()
 		return scanKeywordTEMP(s)
@@ -6608,7 +6085,6 @@ func scanKeywordTEMP(s RuneScanner) (token.Type, bool) {
 		return token.KeywordTemp, true
 	}
 	switch next {
-	
 	case 'O', 'o':
 		s.ConsumeRune()
 		return scanKeywordTEMPO(s)
@@ -6622,7 +6098,6 @@ func scanKeywordTEMPO(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordTEMPOR(s)
@@ -6636,7 +6111,6 @@ func scanKeywordTEMPOR(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordTEMPORA(s)
@@ -6650,7 +6124,6 @@ func scanKeywordTEMPORA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordTEMPORAR(s)
@@ -6664,7 +6137,6 @@ func scanKeywordTEMPORAR(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'Y', 'y':
 		s.ConsumeRune()
 		return scanKeywordTEMPORARY(s)
@@ -6682,7 +6154,6 @@ func scanKeywordTH(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordTHE(s)
@@ -6696,7 +6167,6 @@ func scanKeywordTHE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordTHEN(s)
@@ -6714,7 +6184,6 @@ func scanKeywordTI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordTIE(s)
@@ -6728,7 +6197,6 @@ func scanKeywordTIE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordTIES(s)
@@ -6750,11 +6218,9 @@ func scanKeywordTR(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordTRA(s)
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordTRI(s)
@@ -6768,7 +6234,6 @@ func scanKeywordTRA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordTRAN(s)
@@ -6782,7 +6247,6 @@ func scanKeywordTRAN(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordTRANS(s)
@@ -6796,7 +6260,6 @@ func scanKeywordTRANS(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordTRANSA(s)
@@ -6810,7 +6273,6 @@ func scanKeywordTRANSA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'C', 'c':
 		s.ConsumeRune()
 		return scanKeywordTRANSAC(s)
@@ -6824,7 +6286,6 @@ func scanKeywordTRANSAC(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordTRANSACT(s)
@@ -6838,7 +6299,6 @@ func scanKeywordTRANSACT(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordTRANSACTI(s)
@@ -6852,7 +6312,6 @@ func scanKeywordTRANSACTI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'O', 'o':
 		s.ConsumeRune()
 		return scanKeywordTRANSACTIO(s)
@@ -6866,7 +6325,6 @@ func scanKeywordTRANSACTIO(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordTRANSACTION(s)
@@ -6884,7 +6342,6 @@ func scanKeywordTRI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'G', 'g':
 		s.ConsumeRune()
 		return scanKeywordTRIG(s)
@@ -6898,7 +6355,6 @@ func scanKeywordTRIG(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'G', 'g':
 		s.ConsumeRune()
 		return scanKeywordTRIGG(s)
@@ -6912,7 +6368,6 @@ func scanKeywordTRIGG(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordTRIGGE(s)
@@ -6926,7 +6381,6 @@ func scanKeywordTRIGGE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordTRIGGER(s)
@@ -6944,15 +6398,12 @@ func scanKeywordU(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordUN(s)
-	
 	case 'P', 'p':
 		s.ConsumeRune()
 		return scanKeywordUP(s)
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordUS(s)
@@ -6966,11 +6417,9 @@ func scanKeywordUN(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'B', 'b':
 		s.ConsumeRune()
 		return scanKeywordUNB(s)
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordUNI(s)
@@ -6984,7 +6433,6 @@ func scanKeywordUNB(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'O', 'o':
 		s.ConsumeRune()
 		return scanKeywordUNBO(s)
@@ -6998,7 +6446,6 @@ func scanKeywordUNBO(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'U', 'u':
 		s.ConsumeRune()
 		return scanKeywordUNBOU(s)
@@ -7012,7 +6459,6 @@ func scanKeywordUNBOU(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordUNBOUN(s)
@@ -7026,7 +6472,6 @@ func scanKeywordUNBOUN(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'D', 'd':
 		s.ConsumeRune()
 		return scanKeywordUNBOUND(s)
@@ -7040,7 +6485,6 @@ func scanKeywordUNBOUND(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordUNBOUNDE(s)
@@ -7054,7 +6498,6 @@ func scanKeywordUNBOUNDE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'D', 'd':
 		s.ConsumeRune()
 		return scanKeywordUNBOUNDED(s)
@@ -7072,11 +6515,9 @@ func scanKeywordUNI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'O', 'o':
 		s.ConsumeRune()
 		return scanKeywordUNIO(s)
-	
 	case 'Q', 'q':
 		s.ConsumeRune()
 		return scanKeywordUNIQ(s)
@@ -7090,7 +6531,6 @@ func scanKeywordUNIO(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordUNION(s)
@@ -7108,7 +6548,6 @@ func scanKeywordUNIQ(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'U', 'u':
 		s.ConsumeRune()
 		return scanKeywordUNIQU(s)
@@ -7122,7 +6561,6 @@ func scanKeywordUNIQU(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordUNIQUE(s)
@@ -7140,7 +6578,6 @@ func scanKeywordUP(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'D', 'd':
 		s.ConsumeRune()
 		return scanKeywordUPD(s)
@@ -7154,7 +6591,6 @@ func scanKeywordUPD(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordUPDA(s)
@@ -7168,7 +6604,6 @@ func scanKeywordUPDA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordUPDAT(s)
@@ -7182,7 +6617,6 @@ func scanKeywordUPDAT(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordUPDATE(s)
@@ -7200,7 +6634,6 @@ func scanKeywordUS(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordUSI(s)
@@ -7214,7 +6647,6 @@ func scanKeywordUSI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordUSIN(s)
@@ -7228,7 +6660,6 @@ func scanKeywordUSIN(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'G', 'g':
 		s.ConsumeRune()
 		return scanKeywordUSING(s)
@@ -7246,11 +6677,9 @@ func scanKeywordV(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordVA(s)
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordVI(s)
@@ -7264,11 +6693,9 @@ func scanKeywordVA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'C', 'c':
 		s.ConsumeRune()
 		return scanKeywordVAC(s)
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordVAL(s)
@@ -7282,7 +6709,6 @@ func scanKeywordVAC(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'U', 'u':
 		s.ConsumeRune()
 		return scanKeywordVACU(s)
@@ -7296,7 +6722,6 @@ func scanKeywordVACU(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'U', 'u':
 		s.ConsumeRune()
 		return scanKeywordVACUU(s)
@@ -7310,7 +6735,6 @@ func scanKeywordVACUU(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'M', 'm':
 		s.ConsumeRune()
 		return scanKeywordVACUUM(s)
@@ -7328,7 +6752,6 @@ func scanKeywordVAL(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'U', 'u':
 		s.ConsumeRune()
 		return scanKeywordVALU(s)
@@ -7342,7 +6765,6 @@ func scanKeywordVALU(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordVALUE(s)
@@ -7356,7 +6778,6 @@ func scanKeywordVALUE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'S', 's':
 		s.ConsumeRune()
 		return scanKeywordVALUES(s)
@@ -7374,11 +6795,9 @@ func scanKeywordVI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordVIE(s)
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordVIR(s)
@@ -7392,7 +6811,6 @@ func scanKeywordVIE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'W', 'w':
 		s.ConsumeRune()
 		return scanKeywordVIEW(s)
@@ -7410,7 +6828,6 @@ func scanKeywordVIR(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordVIRT(s)
@@ -7424,7 +6841,6 @@ func scanKeywordVIRT(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'U', 'u':
 		s.ConsumeRune()
 		return scanKeywordVIRTU(s)
@@ -7438,7 +6854,6 @@ func scanKeywordVIRTU(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'A', 'a':
 		s.ConsumeRune()
 		return scanKeywordVIRTUA(s)
@@ -7452,7 +6867,6 @@ func scanKeywordVIRTUA(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'L', 'l':
 		s.ConsumeRune()
 		return scanKeywordVIRTUAL(s)
@@ -7470,11 +6884,9 @@ func scanKeywordW(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'H', 'h':
 		s.ConsumeRune()
 		return scanKeywordWH(s)
-	
 	case 'I', 'i':
 		s.ConsumeRune()
 		return scanKeywordWI(s)
@@ -7488,7 +6900,6 @@ func scanKeywordWH(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordWHE(s)
@@ -7502,11 +6913,9 @@ func scanKeywordWHE(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordWHEN(s)
-	
 	case 'R', 'r':
 		s.ConsumeRune()
 		return scanKeywordWHER(s)
@@ -7524,7 +6933,6 @@ func scanKeywordWHER(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'E', 'e':
 		s.ConsumeRune()
 		return scanKeywordWHERE(s)
@@ -7542,11 +6950,9 @@ func scanKeywordWI(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'N', 'n':
 		s.ConsumeRune()
 		return scanKeywordWIN(s)
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordWIT(s)
@@ -7560,7 +6966,6 @@ func scanKeywordWIN(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'D', 'd':
 		s.ConsumeRune()
 		return scanKeywordWIND(s)
@@ -7574,7 +6979,6 @@ func scanKeywordWIND(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'O', 'o':
 		s.ConsumeRune()
 		return scanKeywordWINDO(s)
@@ -7588,7 +6992,6 @@ func scanKeywordWINDO(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'W', 'w':
 		s.ConsumeRune()
 		return scanKeywordWINDOW(s)
@@ -7606,7 +7009,6 @@ func scanKeywordWIT(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'H', 'h':
 		s.ConsumeRune()
 		return scanKeywordWITH(s)
@@ -7620,7 +7022,6 @@ func scanKeywordWITH(s RuneScanner) (token.Type, bool) {
 		return token.KeywordWith, true
 	}
 	switch next {
-	
 	case 'O', 'o':
 		s.ConsumeRune()
 		return scanKeywordWITHO(s)
@@ -7634,7 +7035,6 @@ func scanKeywordWITHO(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'U', 'u':
 		s.ConsumeRune()
 		return scanKeywordWITHOU(s)
@@ -7648,7 +7048,6 @@ func scanKeywordWITHOU(s RuneScanner) (token.Type, bool) {
 		return token.Unknown, false
 	}
 	switch next {
-	
 	case 'T', 't':
 		s.ConsumeRune()
 		return scanKeywordWITHOUT(s)
