@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/tomarrell/lbadd/internal/id"
@@ -24,7 +25,7 @@ var _ Conn = (*tcpConn)(nil)
 
 type tcpConn struct {
 	id     id.ID
-	closed bool
+	closed int32
 
 	readLock   sync.Mutex
 	writeLock  sync.Mutex
@@ -80,7 +81,7 @@ func (c *tcpConn) ID() id.ID {
 }
 
 func (c *tcpConn) Send(ctx context.Context, payload []byte) error {
-	if c.closed {
+	if atomic.LoadInt32(&c.closed) == 1 {
 		return ErrClosed
 	}
 
@@ -143,7 +144,7 @@ func (c *tcpConn) sendAsync(payload []byte) chan error {
 }
 
 func (c *tcpConn) Receive(ctx context.Context) ([]byte, error) {
-	if c.closed {
+	if atomic.LoadInt32(&c.closed) == 1 {
 		return nil, ErrClosed
 	}
 
@@ -208,7 +209,7 @@ func (c *tcpConn) receiveAsync() chan interface{} {
 }
 
 func (c *tcpConn) Close() error {
-	c.closed = true
+	atomic.StoreInt32(&c.closed, 1)
 
 	// release all resources
 	ctx := context.Background()
