@@ -22,6 +22,10 @@ func RequestVote(req *message.RequestVoteRequest) (*message.RequestVoteResponse,
 	}
 
 	payload, err := proto.Marshal(req)
+	if err != nil {
+		return nil, err
+	}
+
 	err = conn.Send(ctx, payload)
 	if err != nil {
 		return nil, err
