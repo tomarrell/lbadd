@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sync"
+	"sync/atomic"
 
 	"github.com/rs/zerolog"
 	"github.com/tomarrell/lbadd/internal/network"
@@ -26,7 +27,7 @@ type tcpCluster struct {
 	server   network.Server
 	messages chan incomingPayload
 	started  chan struct{}
-	closed   bool
+	closed   int32
 }
 
 type incomingPayload struct {
@@ -122,7 +123,7 @@ func (c *tcpCluster) Broadcast(ctx context.Context, msg message.Message) error {
 //
 // After Close is called on this cluster, it is no longer usable.
 func (c *tcpCluster) Close() error {
-	c.closed = true
+	atomic.StoreInt32(&c.closed, 1)
 
 	// close all connections
 	var errs errgroup.Group
@@ -199,7 +200,7 @@ func (c *tcpCluster) start() {
 func (c *tcpCluster) receiveMessages(conn network.Conn) {
 	<-c.started // wait for the server to be started
 
-	for !c.closed {
+	for atomic.LoadInt32(&c.closed) == 0 {
 		// receive data from the connection
 		data, err := conn.Receive(context.TODO())
 		if err != nil {
@@ -207,7 +208,7 @@ func (c *tcpCluster) receiveMessages(conn network.Conn) {
 				// didn't receive a message within the timeout, try again
 				continue
 			}
-			if c.closed {
+			if atomic.LoadInt32(&c.closed) == 1 {
 				// server is closed, no reason to log errors from connections
 				// that we failed to read from, but break the read loop and
 				// terminate this goroutine
