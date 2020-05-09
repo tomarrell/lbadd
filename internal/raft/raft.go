@@ -3,7 +3,6 @@ package raft
 import (
 	"sync"
 
-	"github.com/rs/zerolog"
 	"github.com/tomarrell/lbadd/internal/id"
 	"github.com/tomarrell/lbadd/internal/network"
 	"github.com/tomarrell/lbadd/internal/raft/cluster"
@@ -16,10 +15,11 @@ type Server interface {
 	AppendEnttries()
 }
 
-var (
-	leaderState    = "leader"
-	candidateState = "candidate"
-	followerState  = "follower"
+// Available states
+const (
+	LeaderState    = "leader"
+	CandidateState = "candidate"
+	FollowerState  = "follower"
 )
 
 // LogData is a single log entry
@@ -38,7 +38,7 @@ type Node struct {
 	VolatileState       *VolatileState
 	VolatileStateLeader *VolatileStateLeader
 
-	log zerolog.Logger
+	// log zerolog.Logger
 }
 
 // PersistentState describes the persistent state data on a raft node.
@@ -67,25 +67,24 @@ type VolatileStateLeader struct {
 
 // NewRaftCluster initialises a raft cluster with the given configuration.
 func NewRaftCluster(cluster cluster.Cluster) []*Node {
-	var ClusterNodes []*Node
-	sampleState := &Node{
-		PersistentState:     &PersistentState{},
-		VolatileState:       &VolatileState{},
-		VolatileStateLeader: &VolatileStateLeader{},
-	}
+	var clusterNodes []*Node
 
 	for i := range cluster.Nodes() {
-		var node *Node
-		node = sampleState
-		node.PersistentState.CurrentTerm = 0
-		node.PersistentState.VotedFor = nil
-		node.PersistentState.SelfIP = cluster.Nodes()[i]
-		node.PersistentState.PeerIPs = cluster.Nodes()
+		node := &Node{
+			PersistentState: &PersistentState{
+				CurrentTerm: 0,
+				VotedFor:    nil,
+				SelfIP:      cluster.Nodes()[i],
+				PeerIPs:     cluster.Nodes(),
+			},
+			VolatileState: &VolatileState{
+				CommitIndex: -1,
+				LastApplied: -1,
+			},
+			VolatileStateLeader: &VolatileStateLeader{},
+		}
 
-		node.VolatileState.CommitIndex = -1
-		node.VolatileState.LastApplied = -1
-
-		ClusterNodes = append(ClusterNodes, node)
+		clusterNodes = append(clusterNodes, node)
 	}
-	return ClusterNodes
+	return clusterNodes
 }

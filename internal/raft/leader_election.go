@@ -4,7 +4,7 @@ import "github.com/tomarrell/lbadd/internal/raft/message"
 
 // StartElection enables a node in the cluster to start the election.
 func StartElection(server Node) {
-	server.State = candidateState
+	server.State = CandidateState
 	server.PersistentState.CurrentTerm++
 
 	var votes int
