@@ -1,6 +1,8 @@
 package raft
 
 import (
+	"sync"
+
 	"github.com/rs/zerolog"
 	"github.com/tomarrell/lbadd/internal/id"
 	"github.com/tomarrell/lbadd/internal/network"
@@ -33,13 +35,14 @@ type Node struct {
 
 // PersistentState describes the persistent state data on a raft node.
 type PersistentState struct {
-	CurrentTerm int
-	VotedFor    int
+	CurrentTerm int32
+	VotedFor    []byte
 	Log         []LogData
 
 	SelfID  id.ID
 	SelfIP  network.Conn
 	PeerIPs []network.Conn
+	mu      sync.Mutex
 }
 
 // VolatileState describes the volatile state data on a raft node.
@@ -67,7 +70,7 @@ func NewRaftCluster(cluster Cluster) []*Node {
 		var node *Node
 		node = sampleState
 		node.PersistentState.CurrentTerm = 0
-		node.PersistentState.VotedFor = -1
+		node.PersistentState.VotedFor = nil
 		node.PersistentState.SelfIP = cluster.Nodes()[i]
 		node.PersistentState.PeerIPs = cluster.Nodes()
 

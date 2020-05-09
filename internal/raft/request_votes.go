@@ -6,6 +6,7 @@ import (
 
 	"github.com/tomarrell/lbadd/internal/network"
 	"github.com/tomarrell/lbadd/internal/raft/message"
+	"google.golang.org/protobuf/proto"
 )
 
 // RequestVote enables a node to send out the RequestVotes RPC.
@@ -19,7 +20,7 @@ func RequestVote(req *message.RequestVoteRequest) *message.RequestVoteResponse {
 	if err != nil {
 
 	}
-	payload := []byte("protobuf serialised version of req")
+	payload, err := proto.Marshal(req)
 	err = conn.Send(ctx, payload)
 	if err != nil {
 
@@ -29,7 +30,32 @@ func RequestVote(req *message.RequestVoteRequest) *message.RequestVoteResponse {
 	if err != nil {
 
 	}
-	_ = res
 
-	return nil
+	var message *message.RequestVoteResponse
+	err = proto.Unmarshal(res, message)
+	if err != nil {
+
+	}
+
+	return message
+}
+
+// RequestVoteResponse is the response that a node generates for a vote request.
+func RequestVoteResponse(selfState Node, req *message.RequestVoteRequest) *message.RequestVoteResponse {
+	selfState.PersistentState.mu.Lock()
+
+	if selfState.PersistentState.VotedFor == nil {
+		selfState.PersistentState.VotedFor = req.CandidateId
+		return &message.RequestVoteResponse{
+			Term:        selfState.PersistentState.CurrentTerm,
+			VoteGranted: true,
+		}
+	}
+
+	selfState.PersistentState.mu.Unlock()
+
+	return &message.RequestVoteResponse{
+		Term:        selfState.PersistentState.CurrentTerm,
+		VoteGranted: false,
+	}
 }
