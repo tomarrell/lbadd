@@ -35,7 +35,7 @@ func RequestVote(req *message.RequestVoteRequest) (*message.RequestVoteResponse,
 	var message *message.RequestVoteResponse
 	err = proto.Unmarshal(res, message)
 	if err != nil {
-
+		return nil, err
 	}
 
 	return message, nil
