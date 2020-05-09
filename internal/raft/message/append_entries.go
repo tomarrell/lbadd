@@ -13,7 +13,7 @@ var _ Message = (*AppendEntriesRequest)(nil)
 func NewAppendEntriesRequest(term int32, leaderID id.ID, prevLogIndex int32, prevLogTerm int32, entries []*LogData, leaderCommit int32) *AppendEntriesRequest {
 	return &AppendEntriesRequest{
 		Term:         term,
-		LeaderId:     leaderID.Bytes(),
+		LeaderID:     leaderID.Bytes(),
 		PrevLogIndex: prevLogIndex,
 		PrevLogTerm:  prevLogTerm,
 		Entries:      entries,

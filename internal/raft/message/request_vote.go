@@ -14,7 +14,7 @@ var _ Message = (*RequestVoteResponse)(nil)
 func NewRequestVoteRequest(term int32, candidateID id.ID, lastLogIndex int32, lastLogTerm int32) *RequestVoteRequest {
 	return &RequestVoteRequest{
 		Term:         term,
-		CandidateId:  candidateID.Bytes(),
+		CandidateID:  candidateID.Bytes(),
 		LastLogIndex: lastLogIndex,
 		LastLogTerm:  lastLogTerm,
 	}
