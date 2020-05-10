@@ -1,37 +1,56 @@
 package raft
 
-import "github.com/tomarrell/lbadd/internal/raft/message"
+import (
+	"sync/atomic"
+
+	"github.com/tomarrell/lbadd/internal/raft/message"
+)
 
 // StartElection enables a node in the cluster to start the election.
-func StartElection(server Node) {
-	server.State = CandidateState
-	server.PersistentState.CurrentTerm++
+func StartElection(node Node) {
+	node.State = CandidateState
+	node.PersistentState.CurrentTerm++
 
-	var votes int
+	var votes int32
 
-	for i := range server.PersistentState.PeerIPs {
+	for i := range node.PersistentState.PeerIPs {
 		// parallely request votes from all the other peers.
 		go func(i int) {
-			if server.PersistentState.PeerIPs[i] != server.PersistentState.SelfIP {
+			if node.PersistentState.PeerIPs[i] != node.PersistentState.SelfIP {
 				// send a requestVotesRPC
 				req := message.NewRequestVoteRequest(
-					int32(server.PersistentState.CurrentTerm),
-					server.PersistentState.SelfID,
-					int32(len(server.PersistentState.Log)),
-					int32(server.PersistentState.Log[len(server.PersistentState.Log)-1].Term),
+					int32(node.PersistentState.CurrentTerm),
+					node.PersistentState.SelfID,
+					int32(len(node.PersistentState.Log)),
+					int32(node.PersistentState.Log[len(node.PersistentState.Log)-1].Term),
 				)
 				res, err := RequestVote(req)
 				// If they are (un)/marshalling errors, we probably should retry.
-				// Because it doesnt mean that the server denied the vote.
+				// Because it doesnt mean that the node denied the vote.
 				// Opposing view - failure is a failure, network or software,
 				// we can assume the error is an error for whatever reasona and
 				// proceed without having this vote.
 				if err != nil {
 					if res.VoteGranted {
-						votes++
+						votesRecieved := atomic.AddInt32(&votes, 1)
+						// Check whether this node has already voted.
+						// Else it can vote for itself.
+						node.PersistentState.mu.Lock()
+						if node.PersistentState.VotedFor == nil {
+							node.PersistentState.VotedFor = node.PersistentState.SelfID
+							votesRecieved++
+						}
+						node.PersistentState.mu.Unlock()
+
+						if votesRecieved > int32(len(node.PersistentState.PeerIPs)/2) {
+							// This node has won the election.
+							node.State = LeaderState
+							startLeader(node)
+						}
 					}
 				}
 			}
 		}(i)
 	}
+
 }

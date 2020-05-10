@@ -45,22 +45,22 @@ func RequestVote(req *message.RequestVoteRequest) (*message.RequestVoteResponse,
 	return message, nil
 }
 
-// RequestVoteResponse is the response that a node generates for a vote request.
-func RequestVoteResponse(selfState Node, req *message.RequestVoteRequest) *message.RequestVoteResponse {
-	selfState.PersistentState.mu.Lock()
+// RequestVoteResponse provides the response that a node must generate for a vote request.
+func RequestVoteResponse(node Node, req *message.RequestVoteRequest) *message.RequestVoteResponse {
+	node.PersistentState.mu.Lock()
 
-	if selfState.PersistentState.VotedFor == nil {
-		selfState.PersistentState.VotedFor = req.CandidateID
+	if node.PersistentState.VotedFor == nil {
+		node.PersistentState.VotedFor = req.CandidateID
 		return &message.RequestVoteResponse{
-			Term:        selfState.PersistentState.CurrentTerm,
+			Term:        node.PersistentState.CurrentTerm,
 			VoteGranted: true,
 		}
 	}
 
-	selfState.PersistentState.mu.Unlock()
+	node.PersistentState.mu.Unlock()
 
 	return &message.RequestVoteResponse{
-		Term:        selfState.PersistentState.CurrentTerm,
+		Term:        node.PersistentState.CurrentTerm,
 		VoteGranted: false,
 	}
 }

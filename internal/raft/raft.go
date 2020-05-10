@@ -3,7 +3,6 @@ package raft
 import (
 	"sync"
 
-	"github.com/tomarrell/lbadd/internal/id"
 	"github.com/tomarrell/lbadd/internal/network"
 	"github.com/tomarrell/lbadd/internal/raft/cluster"
 	"github.com/tomarrell/lbadd/internal/raft/message"
@@ -34,12 +33,6 @@ const (
 	FollowerState  = "follower"
 )
 
-// LogData is a single log entry
-type LogData struct {
-	Term int // Term  where this log was appended
-	Data string
-}
-
 // Node describes the current state of a raft node.
 // The raft paper describes this as a "State" but node
 // seemed more intuitive.
@@ -57,9 +50,9 @@ type Node struct {
 type PersistentState struct {
 	CurrentTerm int32
 	VotedFor    []byte
-	Log         []LogData
+	Log         []message.LogData
 
-	SelfID  id.ID
+	SelfID  []byte
 	SelfIP  network.Conn
 	PeerIPs []network.Conn
 	mu      sync.Mutex

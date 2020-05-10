@@ -11,7 +11,7 @@ message AppendEntriesRequest {
     int32 prevLogIndex = 3;
     int32 prevLogTerm = 4;
     repeated LogData Entries = 5;
-    int32 leaderCommit = 6;
+    int32 leaderCommit = 6; // Leader's commit index.
 }
 
 message LogData {
@@ -21,6 +21,6 @@ message LogData {
 }
 
 message AppendEntriesResponse {
-    int32 term = 1;
-    bool success = 2;
+    int32 term = 1; // The responder node's current term.
+    bool success = 2;  // Returns true if the log matching property holds good.
 }

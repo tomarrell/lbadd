@@ -1,17 +1,9 @@
 package raft
 
-// AppendEntriesRPCReq describes the data in an AppendEntries request.
-type AppendEntriesRPCReq struct {
-	Term         int
-	LeaderID     int
-	PrevLogIndex int
-	PrevLogTerm  int
-	Entries      []LogData // The log entries.
-	LeaderCommit int       // Leader's commit index.
-}
+import "github.com/tomarrell/lbadd/internal/raft/message"
 
-// AppendEntriesRPCRes describes the data in an AppendEntries response.
-type AppendEntriesRPCRes struct {
-	Term    int  // The node's current term
-	Success bool // Returns true if log matching property holds good, else false.
+// AppendEntriesResponse provides the response that a node must generate for an append entries request.
+func AppendEntriesResponse(node Node, req *message.AppendEntriesRequest) *message.AppendEntriesResponse {
+
+	return nil
 }
