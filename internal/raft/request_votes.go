@@ -2,6 +2,7 @@ package raft
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/tomarrell/lbadd/internal/id"
@@ -55,6 +56,7 @@ func RequestVoteResponse(node Node, req *message.RequestVoteRequest) *message.Re
 		cID, err := id.Parse(req.CandidateID)
 		if err != nil {
 			// no point in handling this because I really need that to parse into ID.
+			fmt.Println(err)
 		}
 		node.PersistentState.VotedFor = cID
 		return &message.RequestVoteResponse{

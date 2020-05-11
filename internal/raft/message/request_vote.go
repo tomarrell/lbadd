@@ -1,5 +1,7 @@
 package message
 
+import "github.com/tomarrell/lbadd/internal/id"
+
 //go:generate protoc --go_out=. request_vote.proto
 
 var _ Message = (*RequestVoteRequest)(nil)
@@ -7,10 +9,10 @@ var _ Message = (*RequestVoteResponse)(nil)
 
 // NewRequestVoteRequest creates a new request-vote-request message with the
 // given parameters.
-func NewRequestVoteRequest(term int32, candidateID []byte, lastLogIndex int32, lastLogTerm int32) *RequestVoteRequest {
+func NewRequestVoteRequest(term int32, candidateID id.ID, lastLogIndex int32, lastLogTerm int32) *RequestVoteRequest {
 	return &RequestVoteRequest{
 		Term:         term,
-		CandidateID:  candidateID,
+		CandidateID:  candidateID.Bytes(),
 		LastLogIndex: lastLogIndex,
 		LastLogTerm:  lastLogTerm,
 	}

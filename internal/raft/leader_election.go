@@ -24,7 +24,7 @@ func StartElection(node Node) {
 				// send a requestVotesRPC
 				req := message.NewRequestVoteRequest(
 					int32(node.PersistentState.CurrentTerm),
-					node.PersistentState.SelfID.Bytes(),
+					node.PersistentState.SelfID,
 					int32(len(node.PersistentState.Log)),
 					int32(node.PersistentState.Log[len(node.PersistentState.Log)-1].Term),
 				)
