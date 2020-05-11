@@ -10,9 +10,6 @@ import (
 	"github.com/tomarrell/lbadd/internal/raft/message"
 )
 
-// NewServer enables starting a raft server/cluster.
-func NewServer(Cluster) Server
-
 // Server is a description of a raft server.
 type Server interface {
 	Start() error
@@ -74,6 +71,21 @@ type VolatileStateLeader struct {
 	MatchIndex []int // Holds the matchIndex value for each of the followers in the cluster.
 }
 
+// NewServer enables starting a raft server/cluster.
+func NewServer(Cluster) Server {
+	return &server{
+		start: nil,
+		input: InputD,
+	}
+}
+
+var _ Server = (*server)(nil)
+
+type server struct {
+	start StartServer
+	input InputD
+}
+
 // NewRaftCluster initialises a raft cluster with the given configuration.
 func NewRaftCluster(cluster cluster.Cluster) []*Node {
 	var clusterNodes []*Node
@@ -96,4 +108,15 @@ func NewRaftCluster(cluster cluster.Cluster) []*Node {
 		clusterNodes = append(clusterNodes, node)
 	}
 	return clusterNodes
+}
+
+// // Start starts the raft servers.
+func (s *server) StartServer() {
+
+}
+
+func (s *server) OnReplication()
+
+func (s *server) InputD(string) {
+
 }
