@@ -24,6 +24,8 @@ type tcpCluster struct {
 	connLock sync.Mutex
 	conns    []network.Conn
 
+	onConnect ConnHandler
+
 	server   network.Server
 	messages chan incomingPayload
 	started  chan struct{}
@@ -38,15 +40,17 @@ type incomingPayload struct {
 // NewTCPCluster creates a new cluster that uses TCP connections to communicate
 // with other nodes.
 func NewTCPCluster(log zerolog.Logger) Cluster {
-	serverLog := log.With().
-		Str("component", "network-server").
-		Logger()
 	return &tcpCluster{
-		log:      log,
-		server:   network.NewTCPServer(serverLog),
-		messages: make(chan incomingPayload, tcpClusterMessageQueueBufferSize),
-		started:  make(chan struct{}),
+		log:       log.With().Str("cluster", "tcp").Logger(),
+		onConnect: func(c Cluster, conn network.Conn) { c.AddConnection(conn) },
+		server:    network.NewTCPServer(log),
+		messages:  make(chan incomingPayload, tcpClusterMessageQueueBufferSize),
+		started:   make(chan struct{}),
 	}
+}
+
+func (c *tcpCluster) OnConnect(handler ConnHandler) {
+	c.onConnect = handler
 }
 
 func (c *tcpCluster) Join(ctx context.Context, addr string) error {
@@ -186,9 +190,12 @@ func (c *tcpCluster) sendMessage(ctx context.Context, conn network.Conn, msg mes
 }
 
 func (c *tcpCluster) start() {
-	// On connect, remember the connection. This also starts a read goroutine
-	// for the connection.
-	c.server.OnConnect(c.AddConnection)
+	// On connect, execute the on-connect hook.
+	c.server.OnConnect(func(conn network.Conn) {
+		if c.onConnect != nil {
+			c.onConnect(c, conn)
+		}
+	})
 
 	// signal all waiting receive message goroutines that the server is now
 	// started and they can start pushing messages onto the queue
