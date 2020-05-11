@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/tomarrell/lbadd/internal/id"
 	"github.com/tomarrell/lbadd/internal/network"
 	"github.com/tomarrell/lbadd/internal/raft/message"
 	"google.golang.org/protobuf/proto"
@@ -45,12 +46,17 @@ func RequestVote(req *message.RequestVoteRequest) (*message.RequestVoteResponse,
 	return message, nil
 }
 
-// RequestVoteResponse provides the response that a node must generate for a vote request.
+// RequestVoteResponse function is called on a request from a candidate for a vote. This function
+// generates the response for the responder node to send back to the candidate node.
 func RequestVoteResponse(node Node, req *message.RequestVoteRequest) *message.RequestVoteResponse {
 	node.PersistentState.mu.Lock()
 
 	if node.PersistentState.VotedFor == nil {
-		node.PersistentState.VotedFor = req.CandidateID
+		cID, err := id.Parse(req.CandidateID)
+		if err != nil {
+			// no point in handling this because I really need that to parse into ID.
+		}
+		node.PersistentState.VotedFor = cID
 		return &message.RequestVoteResponse{
 			Term:        node.PersistentState.CurrentTerm,
 			VoteGranted: true,

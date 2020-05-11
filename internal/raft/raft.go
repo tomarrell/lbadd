@@ -1,29 +1,33 @@
 package raft
 
 import (
+	"context"
 	"sync"
 
+	"github.com/tomarrell/lbadd/internal/id"
 	"github.com/tomarrell/lbadd/internal/network"
 	"github.com/tomarrell/lbadd/internal/raft/cluster"
 	"github.com/tomarrell/lbadd/internal/raft/message"
 )
 
-// Server represents a raft server.
+// NewServer enables starting a raft server/cluster.
+func NewServer(Cluster) Server
+
+// Server is a description of a raft server.
 type Server interface {
-	//NewServer returns a node variable initialised with all raft parameters.
-	NewServer(conn network.Conn) (nodes *Node)
-	// LeaderElection function starts a leader election from a single node in the cluster.
-	// It returns an error based on what happened if it cannot start the election.
-	// The function caller doesn't need to wait for a voting response from this function,
-	// the function triggers the necessary functions responsible to continue the raft cluster
-	// into it's working stage if the node won the election.
-	LeaderElection(node *Node) error
-	// RequestVoteResponse function is called on a request from a candidate for a vote. This function
-	// generates the response for the responder node to send back to the candidate node.
-	RequestVoteResponse(node *Node, req *message.RequestVoteRequest) *message.RequestVoteResponse
-	// AppendEntriesResponse function is called on a request from the leader to append log data
-	// to the follower node. This function generates the response to be sent to the leader node.
-	AppendEntriesResponse(node *Node, req *message.AppendEntriesRequest) *message.AppendEntriesResponse
+	Start() error
+	OnReplication(ReplicationHandler)
+	Input(string)
+}
+
+// ReplicationHandler is a handler setter.
+type ReplicationHandler func(string)
+
+// Cluster is a description of a cluster of servers.
+type Cluster interface {
+	Nodes() []network.Conn
+	Receive(context.Context) (network.Conn, message.Message, error)
+	Broadcast(context.Context, message.Message) error
 }
 
 // Available states
@@ -49,10 +53,10 @@ type Node struct {
 // PersistentState describes the persistent state data on a raft node.
 type PersistentState struct {
 	CurrentTerm int32
-	VotedFor    []byte
+	VotedFor    id.ID
 	Log         []message.LogData
 
-	SelfID  []byte
+	SelfID  id.ID
 	SelfIP  network.Conn
 	PeerIPs []network.Conn
 	mu      sync.Mutex

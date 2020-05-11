@@ -7,6 +7,10 @@ import (
 )
 
 // StartElection enables a node in the cluster to start the election.
+// It returns an error based on what happened if it cannot start the election.(?)
+// The function caller doesn't need to wait for a voting response from this function,
+// the function triggers the necessary functions responsible to continue the raft cluster
+// into it's working stage if the node won the election.
 func StartElection(node Node) {
 	node.State = CandidateState
 	node.PersistentState.CurrentTerm++
@@ -20,7 +24,7 @@ func StartElection(node Node) {
 				// send a requestVotesRPC
 				req := message.NewRequestVoteRequest(
 					int32(node.PersistentState.CurrentTerm),
-					node.PersistentState.SelfID,
+					node.PersistentState.SelfID.Bytes(),
 					int32(len(node.PersistentState.Log)),
 					int32(node.PersistentState.Log[len(node.PersistentState.Log)-1].Term),
 				)
