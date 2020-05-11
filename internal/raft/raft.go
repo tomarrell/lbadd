@@ -45,8 +45,6 @@ type Node struct {
 	PersistentState     *PersistentState
 	VolatileState       *VolatileState
 	VolatileStateLeader *VolatileStateLeader
-
-	// log zerolog.Logger
 }
 
 // PersistentState describes the persistent state data on a raft node.
