@@ -2,6 +2,7 @@ package raft
 
 import (
 	"context"
+	"io"
 	"sync"
 
 	"github.com/tomarrell/lbadd/internal/id"
@@ -11,13 +12,14 @@ import (
 )
 
 // NewServer enables starting a raft server/cluster.
-func NewServer(Cluster) Server
+func NewServer(Cluster) Server { return nil }
 
 // Server is a description of a raft server.
 type Server interface {
 	Start() error
 	OnReplication(ReplicationHandler)
 	Input(string)
+	io.Closer
 }
 
 // ReplicationHandler is a handler setter.
