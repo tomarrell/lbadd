@@ -16,7 +16,7 @@ type simpleExecutor struct {
 
 // NewSimpleExecutor creates a new ready to use executor, that operates on the
 // given database file.
-func NewSimpleExecutor(log zerolog.Logger, databaseFile string) *simpleExecutor {
+func NewSimpleExecutor(log zerolog.Logger, databaseFile string) Executor {
 	return &simpleExecutor{
 		log:          log,
 		databaseFile: databaseFile,

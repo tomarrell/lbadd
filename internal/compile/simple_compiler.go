@@ -6,6 +6,7 @@ var _ Compiler = (*simpleCompiler)(nil)
 
 type simpleCompiler struct{}
 
+// NewSimpleCompiler creates a new, ready to use compiler.
 func NewSimpleCompiler() Compiler {
 	return &simpleCompiler{}
 }

@@ -32,6 +32,9 @@ func New(log zerolog.Logger, exec executor.Executor) *Node {
 	}
 }
 
+// Open opens a new cluster, making this node the only node in the cluster.
+// Other clusters can connect to the given address and perform the implemented
+// handshake, in order to become nodes in the cluster.
 func (n *Node) Open(ctx context.Context, addr string) error {
 	n.log.Info().
 		Str("addr", addr).
@@ -44,6 +47,8 @@ func (n *Node) Open(ctx context.Context, addr string) error {
 	return n.startNode()
 }
 
+// Close closes the node, starting with the underlying raft server, then the
+// cluster, then the executor.
 func (n *Node) Close() error {
 	ctx := context.TODO()
 	errs, _ := errgroup.WithContext(ctx)
@@ -79,7 +84,7 @@ func (n *Node) performLogonHandshake(cluster cluster.Cluster, conn network.Conn)
 }
 
 func (n *Node) startNode() error {
-	n.raft = raft.NewServer(n.cluster)
+	n.raft = raft.NewServer(n.log, n.cluster)
 	n.raft.OnReplication(n.replicate)
 
 	return n.raft.Start()
