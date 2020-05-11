@@ -26,7 +26,7 @@ type tcpServer struct {
 // logger.
 func NewTCPServer(log zerolog.Logger) Server {
 	return &tcpServer{
-		log:       log,
+		log:       log.With().Str("server", "tcp").Logger(),
 		listening: make(chan struct{}),
 	}
 }

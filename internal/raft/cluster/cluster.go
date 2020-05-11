@@ -8,6 +8,12 @@ import (
 	"github.com/tomarrell/lbadd/internal/raft/message"
 )
 
+// ConnHandler is a function that handles a connection and performs a
+// handshake. If an error occurs, considering closing the connection. If you
+// want the connection to be remembered by the cluster as node, you must add it
+// with (cluster.Cluster).AddConnection(network.Conn).
+type ConnHandler func(Cluster, network.Conn)
+
 // Cluster describes a raft cluster. It sometimes has a leader and consists of
 // nodes.
 type Cluster interface {
@@ -33,6 +39,12 @@ type Cluster interface {
 	AddConnection(network.Conn)
 	// RemoveConnection closes the connection and removes it from the cluster.
 	RemoveConnection(network.Conn)
+	// OnConnect allows to set a connection hook. This is useful when
+	// implementing a custom handshake for connecting to the cluster. By default
+	// on connect will just remember the connection as cluster node. When this
+	// is set explicitely, (cluster.Cluster).AddConnection(network.Conn) must be
+	// called, otherwise the connection will not be added to the cluster.
+	OnConnect(ConnHandler)
 
 	io.Closer
 }

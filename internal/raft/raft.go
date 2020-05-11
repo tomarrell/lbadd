@@ -2,11 +2,12 @@ package raft
 
 import (
 	"context"
+	"io"
 	"sync"
 
+	"github.com/rs/zerolog"
 	"github.com/tomarrell/lbadd/internal/id"
 	"github.com/tomarrell/lbadd/internal/network"
-	"github.com/tomarrell/lbadd/internal/raft/cluster"
 	"github.com/tomarrell/lbadd/internal/raft/message"
 )
 
@@ -15,6 +16,7 @@ type Server interface {
 	Start() error
 	OnReplication(ReplicationHandler)
 	Input(string)
+	io.Closer
 }
 
 // ReplicationHandler is a handler setter.
@@ -71,23 +73,49 @@ type VolatileStateLeader struct {
 	MatchIndex []int // Holds the matchIndex value for each of the followers in the cluster.
 }
 
+var _ Server = (*simpleServer)(nil)
+
+type simpleServer struct {
+	cluster       Cluster
+	onReplication ReplicationHandler
+	log           zerolog.Logger
+}
+
 // NewServer enables starting a raft server/cluster.
-func NewServer(Cluster) Server {
-	return &server{
-		start: nil,
-		input: InputD,
+func NewServer(log zerolog.Logger, cluster Cluster) Server {
+	return &simpleServer{
+		cluster: cluster,
+		log:     log,
 	}
 }
 
-var _ Server = (*server)(nil)
+// Start starts the raft servers.
+// It creates a new cluster and returns an error,
+// if there was one in the process.
+// This function starts the leader election and keeps a check on whether
+// regular heartbeats exist. It restarts leader election on failure to do so.
+// This function also continuously listens on all the connections to the nodes
+// and routes the requests to appropriate functions.
+func (s *simpleServer) Start() error {
+	nodes := NewRaftCluster(s.cluster)
+	_ = nodes
+	return nil
+}
 
-type server struct {
-	start StartServer
-	input InputD
+func (s *simpleServer) OnReplication(ReplicationHandler) {
+
+}
+
+func (s *simpleServer) Input(string) {
+
+}
+
+func (s *simpleServer) Close() error {
+	return nil
 }
 
 // NewRaftCluster initialises a raft cluster with the given configuration.
-func NewRaftCluster(cluster cluster.Cluster) []*Node {
+func NewRaftCluster(cluster Cluster) []*Node {
 	var clusterNodes []*Node
 
 	for i := range cluster.Nodes() {
@@ -108,15 +136,4 @@ func NewRaftCluster(cluster cluster.Cluster) []*Node {
 		clusterNodes = append(clusterNodes, node)
 	}
 	return clusterNodes
-}
-
-// // Start starts the raft servers.
-func (s *server) StartServer() {
-
-}
-
-func (s *server) OnReplication()
-
-func (s *server) InputD(string) {
-
 }
