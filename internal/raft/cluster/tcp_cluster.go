@@ -127,9 +127,12 @@ func (c *tcpCluster) Close() error {
 
 	// close all connections
 	var errs errgroup.Group
+	c.connLock.Lock()
 	for _, conn := range c.conns {
 		errs.Go(conn.Close)
 	}
+	c.connLock.Unlock()
+
 	errs.Go(c.server.Close)
 
 	// close the message queue
@@ -156,6 +159,8 @@ func (c *tcpCluster) RemoveConnection(conn network.Conn) {
 	c.connLock.Lock()
 	defer c.connLock.Unlock()
 
+	c.connLock.Lock()
+	defer c.connLock.Unlock()
 	for i, node := range c.conns {
 		if node.ID() == conn.ID() {
 			c.conns[i] = c.conns[len(c.conns)-1]
