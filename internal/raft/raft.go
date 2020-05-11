@@ -84,8 +84,8 @@ type simpleServer struct {
 // NewServer enables starting a raft server/cluster.
 func NewServer(log zerolog.Logger, cluster Cluster) Server {
 	return &simpleServer{
+		log:     log.With().Str("component", "raft").Logger(),
 		cluster: cluster,
-		log:     log,
 	}
 }
 
