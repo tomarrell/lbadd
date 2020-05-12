@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/tomarrell/lbadd/internal/id"
 )
 
 func TestTCPConnSendReceive(t *testing.T) {
@@ -47,23 +48,30 @@ func TestDialTCP(t *testing.T) {
 	lis, err := net.Listen("tcp", ":0")
 	assert.NoError(err)
 
-	var srvConnID string
+	clientID := id.Create()
+	srvID := id.Create()
 	go func() {
 		conn, err := lis.Accept()
 		assert.NoError(err)
 
+		// default handshake
 		tcpConn := NewTCPConn(conn)
-		srvConnID = tcpConn.ID().String()
-		assert.NoError(tcpConn.Send(ctx, tcpConn.ID().Bytes()))
+		assert.NoError(tcpConn.Send(ctx, srvID.Bytes()))   // send server ID
+		recvID, err := tcpConn.Receive(ctx)                // receive client ID
+		assert.NoError(err)                                //
+		parsedID, err := id.Parse(recvID)                  // parse client ID
+		assert.NoError(err)                                //
+		assert.Equal(clientID.String(), parsedID.String()) // parsed ID must be equal to actual client ID
+
 		assert.NoError(tcpConn.Send(ctx, payload))
 	}()
 
 	port := lis.Addr().(*net.TCPAddr).Port
 
-	conn, err := DialTCP(ctx, ":"+strconv.Itoa(port))
+	conn, err := DialTCP(ctx, clientID, ":"+strconv.Itoa(port))
 	assert.NoError(err)
 	defer func() { assert.NoError(conn.Close()) }()
-	assert.Equal(srvConnID, conn.ID().String())
+	assert.Equal(srvID.String(), conn.RemoteID().String())
 
 	recv, err := conn.Receive(ctx)
 	assert.NoError(err)

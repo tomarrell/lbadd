@@ -86,7 +86,7 @@ func _TestTCPClusterReceive(ctx context.Context, cluster cluster.Cluster, intern
 		// not connect to a network.Server with network.DialTCP, and thus had no
 		// chance of exchanging the ID. When connecting to the cluster with
 		// cluster.Join or network.DialTCP however, this ID will be the same.
-		assert.Equal(internalConn.ID(), conn.ID())
+		assert.Equal(internalConn.RemoteID(), conn.RemoteID())
 		assert.Equal(message.KindTestMessage, msg.Kind())
 		assert.IsType(&message.TestMessage{}, msg)
 		assert.Equal("Hello, World!", msg.(*message.TestMessage).GetData())

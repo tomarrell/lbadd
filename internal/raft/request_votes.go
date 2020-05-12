@@ -18,7 +18,7 @@ func RequestVote(req *message.RequestVoteRequest) (*message.RequestVoteResponse,
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	conn, err := network.DialTCP(ctx, "x")
+	conn, err := network.DialTCP(ctx, nil, "x")
 	if err != nil {
 		return nil, err
 	}

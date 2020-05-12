@@ -7,6 +7,7 @@ import (
 	"sync/atomic"
 
 	"github.com/rs/zerolog"
+	"github.com/tomarrell/lbadd/internal/id"
 	"github.com/tomarrell/lbadd/internal/network"
 	"github.com/tomarrell/lbadd/internal/raft/message"
 	"golang.org/x/sync/errgroup"
@@ -55,7 +56,7 @@ func (c *tcpCluster) OnConnect(handler ConnHandler) {
 
 func (c *tcpCluster) Join(ctx context.Context, addr string) error {
 	// connect to the given address
-	conn, err := network.DialTCP(ctx, addr)
+	conn, err := network.DialTCP(ctx, c.server.OwnID(), addr)
 	if err != nil {
 		return fmt.Errorf("dial tcp: %w", err)
 	}
@@ -91,6 +92,10 @@ func (c *tcpCluster) Nodes() []network.Conn {
 	nodes := make([]network.Conn, len(c.conns))
 	copy(nodes, c.conns)
 	return nodes
+}
+
+func (c *tcpCluster) OwnID() id.ID {
+	return c.server.OwnID()
 }
 
 func (c *tcpCluster) Receive(ctx context.Context) (network.Conn, message.Message, error) {
@@ -167,7 +172,7 @@ func (c *tcpCluster) RemoveConnection(conn network.Conn) {
 	defer c.connLock.Unlock()
 
 	for i, node := range c.conns {
-		if node.ID() == conn.ID() {
+		if node.RemoteID() == conn.RemoteID() {
 			c.conns[i] = c.conns[len(c.conns)-1]
 			c.conns[len(c.conns)-1] = nil
 			c.conns = c.conns[:len(c.conns)-1]
@@ -230,7 +235,7 @@ func (c *tcpCluster) receiveMessages(conn network.Conn) {
 			c.RemoveConnection(conn) // also closes the connection
 			c.log.Error().
 				Err(err).
-				Str("fromID", conn.ID().String()).
+				Str("fromID", conn.RemoteID().String()).
 				Msg("receive failed, removing connection")
 			return // abort this goroutine
 		}

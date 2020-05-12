@@ -30,6 +30,9 @@ type Server interface {
 	// Addr returns the address that this server is listening to.
 	Addr() net.Addr
 
+	// OwnID returns the ID of this server. The remote ID of any connection is
+	// the own ID of another server.
+	OwnID() id.ID
 	// OnConnect sets a callback that will be executed whenever a new connection
 	// connects to this server.
 	OnConnect(ConnHandler)
@@ -43,9 +46,8 @@ type Server interface {
 type Conn interface {
 	io.Closer
 
-	// ID returns the ID of this connection. It can be used to uniquely identify
-	// this connection globally.
-	ID() id.ID
+	// RemoteID returns the own ID of the server that this connection points to.
+	RemoteID() id.ID
 	// Send sends the given payload to the remote part of this connection. The
 	// message will not be chunked, and can be read with a single call to
 	// Conn.Receive.

@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 
+	"github.com/tomarrell/lbadd/internal/id"
 	"github.com/tomarrell/lbadd/internal/network"
 	"github.com/tomarrell/lbadd/internal/raft/message"
 )
@@ -28,6 +29,8 @@ type Cluster interface {
 	// with respect to the given context.
 	Broadcast(context.Context, message.Message) error
 
+	// OwnID returns the global ID of this node.
+	OwnID() id.ID
 	// Join joins the cluster at the given address. The given address may be the
 	// address and port of any of the nodes in the existing cluster.
 	Join(context.Context, string) error

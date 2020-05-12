@@ -24,8 +24,8 @@ var (
 var _ Conn = (*tcpConn)(nil)
 
 type tcpConn struct {
-	id     id.ID
-	closed int32
+	remoteID id.ID
+	closed   int32
 
 	readLock   sync.Mutex
 	writeLock  sync.Mutex
@@ -34,7 +34,7 @@ type tcpConn struct {
 
 // DialTCP dials to the given address, assuming a TCP network. The returned Conn
 // is ready to use.
-func DialTCP(ctx context.Context, addr string) (Conn, error) {
+func DialTCP(ctx context.Context, ownID id.ID, addr string) (Conn, error) {
 	// dial the remote endpoint
 	var d net.Dialer
 	conn, err := d.DialContext(ctx, "tcp", addr)
@@ -45,18 +45,25 @@ func DialTCP(ctx context.Context, addr string) (Conn, error) {
 	// create a new connection object
 	tcpConn := newTCPConn(conn)
 
-	// receive the connection ID from the remote endpoint and apply it
-	myID, err := tcpConn.Receive(ctx)
+	// receive the remote ID from the remote endpoint and apply it
+	remoteID, err := tcpConn.Receive(ctx)
 	if err != nil {
 		_ = tcpConn.Close()
-		return nil, fmt.Errorf("receive ID: %w", err)
+		return nil, fmt.Errorf("receive remote ID: %w", err)
 	}
-	parsedID, err := id.Parse(myID)
+	parsedID, err := id.Parse(remoteID)
 	if err != nil {
 		_ = tcpConn.Close()
-		return nil, fmt.Errorf("parse ID: %w", err)
+		return nil, fmt.Errorf("parse remote ID: %w", err)
 	}
-	tcpConn.id = parsedID
+	tcpConn.remoteID = parsedID
+
+	// send own ID to remote endpoint
+	err = tcpConn.Send(ctx, ownID.Bytes())
+	if err != nil {
+		_ = tcpConn.Close()
+		return nil, fmt.Errorf("send own ID: %w", err)
+	}
 
 	// return the connection object
 	return tcpConn, nil
@@ -70,14 +77,14 @@ func NewTCPConn(underlying net.Conn) Conn {
 func newTCPConn(underlying net.Conn) *tcpConn {
 	id := id.Create()
 	conn := &tcpConn{
-		id:         id,
+		remoteID:   id,
 		underlying: underlying,
 	}
 	return conn
 }
 
-func (c *tcpConn) ID() id.ID {
-	return c.id
+func (c *tcpConn) RemoteID() id.ID {
+	return c.remoteID
 }
 
 func (c *tcpConn) Send(ctx context.Context, payload []byte) error {

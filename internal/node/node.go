@@ -73,11 +73,11 @@ func (n *Node) openCluster(ctx context.Context, addr string) error {
 
 func (n *Node) performLogonHandshake(cluster cluster.Cluster, conn network.Conn) {
 	n.log.Debug().
-		Str("conn-id", conn.ID().String()).
+		Str("conn-id", conn.RemoteID().String()).
 		Msg("perform handshake")
 
 	n.log.Info().
-		Str("conn-id", conn.ID().String()).
+		Str("conn-id", conn.RemoteID().String()).
 		Msg("connected")
 
 	cluster.AddConnection(conn)
