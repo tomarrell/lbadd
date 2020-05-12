@@ -25,7 +25,7 @@ func TestTCPServerHandshake(t *testing.T) {
 
 	// create the server
 	server := network.NewTCPServer(zerolog.Nop())
-	defer server.Close()
+	defer func() { _ = server.Close() }()
 
 	serverID := server.OwnID()
 	assert.NotNil(serverID)
