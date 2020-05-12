@@ -49,7 +49,7 @@ func RequestVote(req *message.RequestVoteRequest) (*message.RequestVoteResponse,
 
 // RequestVoteResponse function is called on a request from a candidate for a vote. This function
 // generates the response for the responder node to send back to the candidate node.
-func RequestVoteResponse(node Node, req *message.RequestVoteRequest) *message.RequestVoteResponse {
+func RequestVoteResponse(node *Node, req *message.RequestVoteRequest) *message.RequestVoteResponse {
 	node.PersistentState.mu.Lock()
 
 	if node.PersistentState.VotedFor == nil {
