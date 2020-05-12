@@ -106,6 +106,9 @@ func (c *tcpCluster) Receive(ctx context.Context) (network.Conn, message.Message
 }
 
 func (c *tcpCluster) Broadcast(ctx context.Context, msg message.Message) error {
+	c.connLock.Lock()
+	defer c.connLock.Unlock()
+
 	errs, _ := errgroup.WithContext(ctx)
 	for _, conn := range c.conns {
 		errs.Go(func() error {
@@ -163,8 +166,6 @@ func (c *tcpCluster) RemoveConnection(conn network.Conn) {
 	c.connLock.Lock()
 	defer c.connLock.Unlock()
 
-	c.connLock.Lock()
-	defer c.connLock.Unlock()
 	for i, node := range c.conns {
 		if node.ID() == conn.ID() {
 			c.conns[i] = c.conns[len(c.conns)-1]

@@ -139,8 +139,8 @@ func (s *simpleServer) Start() (err error) {
 	return nil
 }
 
-func (s *simpleServer) OnReplication(ReplicationHandler) {
-
+func (s *simpleServer) OnReplication(handler ReplicationHandler) {
+	s.onReplication = handler
 }
 
 func (s *simpleServer) Input(string) {
