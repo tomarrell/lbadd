@@ -1,11 +1,10 @@
-func main() {
+package main
+
+func testFn01() {
 	defer func() {
 		if err := recover(); err != nil {
-			if myErr, ok := err.(*MyErr); ok {
-				fmt.Println(myErr)
-			}
-			panic(err) // not allowed
+			panic(err) // want `panic is disallowed inside main Package`
 		}
 	}()
-	panic("") // allowed
+	panic("") // want `panic is disallowed inside main Package`
 }

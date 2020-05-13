@@ -36,6 +36,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 		countNumberofPanic = checkCountOfPanic(file, pass)
 	})
 
+	// If no Panic inside the given package, don't run other panic analyzer
 	if countNumberofPanic == 0 {
 		return nil, nil
 	}
@@ -48,6 +49,11 @@ func checkCountOfPanic(file *ast.File, pass *analysis.Pass) int {
 	unresolvedIdents := file.Unresolved
 	panicsInPackage := make([]token.Pos, 0, 10)
 	recoversInPackage := make([]token.Pos, 0, 10)
+	pkgName := file.Name.Name
+	isPkgMain := false
+	if pkgName == "main" {
+		isPkgMain = true
+	}
 	for _, v := range unresolvedIdents {
 		if v.Name == "panic" {
 			panicsInPackage = append(panicsInPackage, v.Pos())
@@ -57,6 +63,12 @@ func checkCountOfPanic(file *ast.File, pass *analysis.Pass) int {
 		}
 	}
 
+	if isPkgMain {
+		for _, pos := range panicsInPackage {
+			fmt.Printf("%+v \n", pos)
+			pass.Reportf(pos, "panic is disallowed inside main Package")
+		}
+	}
 	if len(panicsInPackage) > 0 && len(recoversInPackage) == 0 {
 		for _, pos := range panicsInPackage {
 			fmt.Printf("%+v \n", pos)
