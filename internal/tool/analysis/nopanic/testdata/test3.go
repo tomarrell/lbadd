@@ -1,12 +1,10 @@
 package main
 
-func testFn0() {
-	testFn1()
-}
+import "fmt"
 
-func testFn1() int {
-	m := 1
-	panic("foo: fail") // want `panic is disallowed without recover` `panic is disallowed inside main Package`
-	m = 2
-	return m
+func testFn3() {
+	if err := recover(); err != nil { // want `recover is disallowed without defer`
+		fmt.Printf("panic recovered")
+	}
+	panic("throw error") // want `panic is disallowed inside main Package`
 }

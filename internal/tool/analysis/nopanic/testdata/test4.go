@@ -2,15 +2,23 @@ package main
 
 import "fmt"
 
-func main() {
+func testFn4() {
+	f()
+}
+
+func f() {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("Recovered in f")
 			panic("throwing another error") // want `panic is disallowed inside main Package` `panic is not allowed inside recover`
 		}
 	}()
-	panic("error new changes") // want `panic is disallowed inside main Package`
-	testFn1()
-	testFn3()
-	testFn4()
+	g(0)
+}
+
+func g(i int) {
+	if i > 3 {
+		panic("error panic") // want `panic is disallowed inside main Package`
+	}
+	g(i + 1)
 }

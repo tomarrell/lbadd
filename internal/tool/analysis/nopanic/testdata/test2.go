@@ -1,10 +1,9 @@
 package main
 
-func testFn01() {
-	defer func() {
-		if err := recover(); err != nil {
-			panic(err) // want `panic is disallowed inside main Package`
-		}
-	}()
-	panic("") // want `panic is disallowed inside main Package`
+func testFn1() {
+	testFn2()
+}
+
+func testFn2() {
+	panic("panic called") // want `panic is disallowed without recover` `panic is disallowed inside main Package`
 }
