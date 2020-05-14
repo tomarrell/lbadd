@@ -35,11 +35,11 @@ func run(pass *analysis.Pass) (interface{}, error) {
 		checkPanicInMainPkg(file, pass)
 	})
 
-	// If no Panic inside the given package, don't run other panic analyzer
-	if countNumberofPanic == 0 {
-		return nil, nil
-	}
-
+	inspect.Preorder([]ast.Node{
+		(*ast.FuncDecl)(nil),
+	}, func(n ast.Node) {
+		fun := n.(*ast.FuncDecl)
+		checkPanicInRecoverAndRecoverWithoutDefer(fun.Body, pass)
 	})
 	return nil, nil
 }
@@ -74,11 +74,67 @@ func checkPanicInMainPkg(file *ast.File, pass *analysis.Pass) {
 	}
 }
 
+func checkPanicInRecoverAndRecoverWithoutDefer(block *ast.BlockStmt, pass *analysis.Pass) {
+	list := block.List
+	for _, v := range list {
+		switch v.(type) {
+		case *ast.IfStmt:
+			if cnd, ok := v.(*ast.IfStmt); ok {
+				if cnd.Init != nil {
+					initStmt := cnd.Init.(*ast.AssignStmt)
+					rhsExp := initStmt.Rhs
+					if callExpr, ok := rhsExp[0].(*ast.CallExpr); ok {
+						if exp, ok := callExpr.Fun.(*ast.Ident); ok {
+							if exp.Name == "recover" {
+								pass.Reportf(initStmt.TokPos, "recover is disallowed without defer")
+							}
+						}
+					}
+				}
+			}
+		case *ast.DeferStmt:
+			dfrStmt := v.(*ast.DeferStmt)
+			callExpr := dfrStmt.Call
+			internalfun := callExpr.Fun
+			blkStmt, ok := internalfun.(*ast.FuncLit)
+			if !ok {
+				continue
+			}
+			deferBlkList := blkStmt.Body.List
 
-func callExprIsPanic(call *ast.CallExpr) bool {
-	ident, ok := call.Fun.(*ast.Ident)
-	if !ok {
-		return false
+			for _, k := range deferBlkList {
+				switch k.(type) {
+				case *ast.IfStmt:
+					if cnd, ok := k.(*ast.IfStmt); ok {
+						if cnd.Init != nil {
+							initStmt := cnd.Init.(*ast.AssignStmt)
+							rhsExp := initStmt.Rhs
+							callExpr := rhsExp[0].(*ast.CallExpr)
+							exp, ok := callExpr.Fun.(*ast.Ident)
+							if !ok {
+								continue
+							}
+							if exp.Name == "recover" {
+								ifBodyList := cnd.Body.List
+								for _, b := range ifBodyList {
+									switch b.(type) {
+									case *ast.ExprStmt:
+										if exprStmt, ok := b.(*ast.ExprStmt); ok {
+											callExpr := exprStmt.X.(*ast.CallExpr)
+											if exp, ok := callExpr.Fun.(*ast.Ident); ok {
+												if exp.Name == "panic" {
+													fmt.Printf("\n typ2 inside defer report")
+													pass.Reportf(exp.NamePos, "panic is not allowed inside recover")
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 	}
-	return ident.Name == "panic"
 }
