@@ -5,5 +5,5 @@ func testFn1() {
 }
 
 func testFn2() {
-	panic("panic called") // want `panic is disallowed without recover` `panic is disallowed inside main Package`
+	panic(nil) // want `panic is disallowed without recover` `panic is disallowed inside main Package` `panic is not allowed without error`
 }
