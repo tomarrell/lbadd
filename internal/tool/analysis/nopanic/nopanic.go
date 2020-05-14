@@ -3,7 +3,6 @@
 package nopanic
 
 import (
-	"fmt"
 	"go/ast"
 	"go/token"
 
@@ -41,6 +40,14 @@ func run(pass *analysis.Pass) (interface{}, error) {
 		fun := n.(*ast.FuncDecl)
 		checkPanicInRecoverAndRecoverWithoutDefer(fun.Body, pass)
 	})
+
+	inspect.Preorder([]ast.Node{
+		(*ast.ExprStmt)(nil),
+	}, func(n ast.Node) {
+		expr := n.(*ast.ExprStmt)
+		checkNilArgPanic(expr, pass)
+	})
+
 	return nil, nil
 }
 
@@ -123,7 +130,6 @@ func checkPanicInRecoverAndRecoverWithoutDefer(block *ast.BlockStmt, pass *analy
 											callExpr := exprStmt.X.(*ast.CallExpr)
 											if exp, ok := callExpr.Fun.(*ast.Ident); ok {
 												if exp.Name == "panic" {
-													fmt.Printf("\n typ2 inside defer report")
 													pass.Reportf(exp.NamePos, "panic is not allowed inside recover")
 												}
 											}
@@ -131,6 +137,26 @@ func checkPanicInRecoverAndRecoverWithoutDefer(block *ast.BlockStmt, pass *analy
 									}
 								}
 							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+func checkNilArgPanic(expr *ast.ExprStmt, pass *analysis.Pass) {
+	if callExpr, ok := expr.X.(*ast.CallExpr); ok {
+		if exp, ok := callExpr.Fun.(*ast.Ident); ok {
+			if exp.Name == "panic" {
+				args := callExpr.Args
+				if len(args) == 0 {
+					pass.Reportf(exp.NamePos, "panic is not allowed without error")
+				}
+				if len(args) == 1 {
+					if arg, ok := args[0].(*ast.Ident); ok {
+						if arg.Name == "nil" {
+							pass.Reportf(exp.NamePos, "panic is not allowed without error")
 						}
 					}
 				}
