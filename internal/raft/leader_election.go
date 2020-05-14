@@ -27,7 +27,7 @@ func StartElection(node *Node) {
 				int32(len(node.PersistentState.Log)),
 				int32(node.PersistentState.Log[len(node.PersistentState.Log)-1].Term),
 			)
-			res, err := RequestVote(req)
+			res, err := RequestVote(node.PersistentState.PeerIPs[i], req)
 			// If they are (un)/marshalling errors, we probably should retry.
 			// Because it doesnt mean that the node denied the vote.
 			// Opposing view - failure is a failure, network or software,

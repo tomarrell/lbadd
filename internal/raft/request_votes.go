@@ -14,26 +14,21 @@ import (
 // RequestVote enables a node to send out the RequestVotes RPC.
 // This function requests a vote from one node and returns that node's response.
 // It opens a connection to the intended node using the network layer and waits for a response.
-func RequestVote(req *message.RequestVoteRequest) (*message.RequestVoteResponse, error) {
+func RequestVote(nodeConn network.Conn, req *message.RequestVoteRequest) (*message.RequestVoteResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-
-	conn, err := network.DialTCP(ctx, nil, "x")
-	if err != nil {
-		return nil, err
-	}
 
 	payload, err := proto.Marshal(req)
 	if err != nil {
 		return nil, err
 	}
 
-	err = conn.Send(ctx, payload)
+	err = nodeConn.Send(ctx, payload)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := conn.Receive(ctx)
+	res, err := nodeConn.Receive(ctx)
 	if err != nil {
 		return nil, err
 	}
