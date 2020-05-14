@@ -28,12 +28,11 @@ const Doc = "check if there is any panic in the code"
 
 func run(pass *analysis.Pass) (interface{}, error) {
 	inspect := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
-	var countNumberofPanic int
 	inspect.Preorder([]ast.Node{
 		(*ast.File)(nil),
 	}, func(n ast.Node) {
 		file := n.(*ast.File)
-		countNumberofPanic = checkCountOfPanic(file, pass)
+		checkPanicInMainPkg(file, pass)
 	})
 
 	// If no Panic inside the given package, don't run other panic analyzer
@@ -45,7 +44,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 	return nil, nil
 }
 
-func checkCountOfPanic(file *ast.File, pass *analysis.Pass) int {
+func checkPanicInMainPkg(file *ast.File, pass *analysis.Pass) {
 	unresolvedIdents := file.Unresolved
 	panicsInPackage := make([]token.Pos, 0, 10)
 	recoversInPackage := make([]token.Pos, 0, 10)
@@ -65,18 +64,16 @@ func checkCountOfPanic(file *ast.File, pass *analysis.Pass) int {
 
 	if isPkgMain {
 		for _, pos := range panicsInPackage {
-			fmt.Printf("%+v \n", pos)
 			pass.Reportf(pos, "panic is disallowed inside main Package")
 		}
 	}
 	if len(panicsInPackage) > 0 && len(recoversInPackage) == 0 {
 		for _, pos := range panicsInPackage {
-			fmt.Printf("%+v \n", pos)
 			pass.Reportf(pos, "panic is disallowed without recover")
 		}
 	}
-	return len(panicsInPackage)
 }
+
 
 func callExprIsPanic(call *ast.CallExpr) bool {
 	ident, ok := call.Fun.(*ast.Ident)
