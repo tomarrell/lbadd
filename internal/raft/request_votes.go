@@ -8,7 +8,6 @@ import (
 	"github.com/tomarrell/lbadd/internal/id"
 	"github.com/tomarrell/lbadd/internal/network"
 	"github.com/tomarrell/lbadd/internal/raft/message"
-	"google.golang.org/protobuf/proto"
 )
 
 // RequestVote enables a node to send out the RequestVotes RPC.
@@ -18,7 +17,11 @@ func RequestVote(nodeConn network.Conn, req *message.RequestVoteRequest) (*messa
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	payload, err := proto.Marshal(req)
+	// fmt.Println("DD")
+	// fmt.Println(req)
+	// fmt.Println("DD")
+
+	payload, err := message.Marshal(req)
 	if err != nil {
 		return nil, err
 	}
@@ -32,14 +35,16 @@ func RequestVote(nodeConn network.Conn, req *message.RequestVoteRequest) (*messa
 	if err != nil {
 		return nil, err
 	}
-
-	var message *message.RequestVoteResponse
-	err = proto.Unmarshal(res, message)
+	// fmt.Println("CC")
+	// fmt.Println(string(res))
+	// fmt.Println("CC")
+	msg, err := message.Unmarshal(res)
 	if err != nil {
+		fmt.Printf("There is an err: %v\n", err)
 		return nil, err
 	}
 
-	return message, nil
+	return msg.(*message.RequestVoteResponse), nil
 }
 
 // RequestVoteResponse function is called on a request from a candidate for a vote. This function
