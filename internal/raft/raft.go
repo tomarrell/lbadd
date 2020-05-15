@@ -13,13 +13,6 @@ import (
 	"github.com/tomarrell/lbadd/internal/raft/message"
 )
 
-// Available states
-const (
-	LeaderState    = "leader"
-	CandidateState = "candidate"
-	FollowerState  = "follower"
-)
-
 // Server is a description of a raft server.
 type Server interface {
 	Start() error
@@ -79,6 +72,7 @@ var _ Server = (*simpleServer)(nil)
 
 // simpleServer implements a server in a cluster.
 type simpleServer struct {
+	node          *Node
 	cluster       Cluster
 	onReplication ReplicationHandler
 	log           zerolog.Logger
@@ -88,7 +82,6 @@ type simpleServer struct {
 type incomingData struct {
 	conn network.Conn
 	msg  message.Message
-	err  error
 }
 
 // NewServer enables starting a raft server/cluster.
@@ -105,59 +98,74 @@ func NewServer(log zerolog.Logger, cluster Cluster) Server {
 // This function also continuously listens on all the connections to the nodes
 // and routes the requests to appropriate functions.
 func (s *simpleServer) Start() (err error) {
+	// Making the function idempotent, returns whether the server is already open.
+	if s.node != nil {
+		return network.ErrOpen
+	}
+
 	// Initialise all raft variables in this node.
-	node := NewRaftCluster(s.cluster)
+	node := NewRaftNode(s.cluster)
+	s.node = node
+
 	ctx := context.Background()
+	// liveChan is a channel that passes the incomingData once received.
 	liveChan := make(chan *incomingData)
 	// Listen forever on all node connections. This block of code checks what kind of
 	// request has to be serviced and calls the necessary function to complete it.
 	go func() {
 		for {
 			// Parallely start waiting for incoming data.
-			go func() {
-				conn, msg, err := s.cluster.Receive(ctx)
-				liveChan <- &incomingData{
-					conn,
-					msg,
-					err,
-				}
-			}()
-
-			// If any sort of request (heartbeat,appendEntries,requestVote)
-			// isn't received by the server(node) it restarts leader election.
-			select {
-			case <-randomTicker().C:
-				StartElection(node)
-			case data := <-liveChan:
-				err := processIncomingData(data, node)
-				if err != nil {
-					return
-				}
+			conn, msg, err := s.cluster.Receive(ctx)
+			liveChan <- &incomingData{
+				conn,
+				msg,
+			}
+			if err != nil {
+				return
 			}
 		}
 	}()
 
-	// TODO: Just to maintain a blocking function.
-	<-time.NewTicker(10000000 * time.Second).C
-	return nil
+	for {
+		// If any sort of request (heartbeat,appendEntries,requestVote)
+		// isn't received by the server(node) it restarts leader election.
+		select {
+		case <-randomTimer().C:
+			StartElection(node)
+		case data := <-liveChan:
+			err = processIncomingData(data, node)
+			if err != nil {
+				return
+			}
+		}
+	}
 }
 
 func (s *simpleServer) OnReplication(handler ReplicationHandler) {
 	s.onReplication = handler
 }
 
-func (s *simpleServer) Input(string) {
-
+// Input pushes the input data in the for of log data into the LogChannel.
+// AppendEntries, whenever it occurs will be sent by obtaining data out of this channel.
+func (s *simpleServer) Input(input string) {
+	logData := message.NewLogData(s.node.PersistentState.CurrentTerm, input)
+	s.node.LogChannel <- *logData
 }
 
+// Close closes the node and returns an error on failure.
 func (s *simpleServer) Close() error {
+	// Maintaining idempotency of the close function.
+	if s.node == nil {
+		return network.ErrClosed
+	}
+	// TODO: must close all operations gracefully.
 	return nil
 }
 
-// NewRaftCluster initialises a raft cluster with the given configuration.
-func NewRaftCluster(cluster Cluster) *Node {
+// NewRaftNode initialises a raft cluster with the given configuration.
+func NewRaftNode(cluster Cluster) *Node {
 	node := &Node{
-		State:      CandidateState,
+		State:      StateCandidate.String(),
 		LogChannel: make(chan message.LogData),
 		PersistentState: &PersistentState{
 			CurrentTerm: 0,
@@ -174,44 +182,42 @@ func NewRaftCluster(cluster Cluster) *Node {
 	return node
 }
 
-// randomTicker returns tickers ranging from 150ms to 300ms.
-func randomTicker() *time.Ticker {
+// randomTimer returns tickers ranging from 150ms to 300ms.
+func randomTimer() *time.Timer {
 	randomInt := rand.Intn(150) + 150
-	ticker := time.NewTicker(time.Duration(randomInt) * time.Millisecond)
+	ticker := time.NewTimer(time.Duration(randomInt) * time.Millisecond)
 	return ticker
 }
 
 // processIncomingData is responsible for parsing the incoming data and calling
 // appropriate functions based on the request type.
-func processIncomingData(data *incomingData, node *Node) (err error) {
+func processIncomingData(data *incomingData, node *Node) error {
 
-	ctx := context.Background()
+	ctx := context.TODO()
 
 	switch data.msg.Kind() {
 	case message.KindRequestVoteRequest:
 		requestVoteRequest := data.msg.(*message.RequestVoteRequest)
 		requestVoteResponse := RequestVoteResponse(node, requestVoteRequest)
-		var payload []byte
-		payload, err = message.Marshal(requestVoteResponse)
+		payload, err := message.Marshal(requestVoteResponse)
 		if err != nil {
-			return
+			return err
 		}
 		err = data.conn.Send(ctx, payload)
 		if err != nil {
-			return
+			return err
 		}
 	case message.KindAppendEntriesRequest:
 		appendEntriesRequest := data.msg.(*message.AppendEntriesRequest)
 		appendEntriesResponse := AppendEntriesResponse(node, appendEntriesRequest)
-		var payload []byte
-		payload, err = message.Marshal(appendEntriesResponse)
+		payload, err := message.Marshal(appendEntriesResponse)
 		if err != nil {
-			return
+			return err
 		}
 		err = data.conn.Send(ctx, payload)
 		if err != nil {
-			return
+			return err
 		}
 	}
-	return
+	return nil
 }

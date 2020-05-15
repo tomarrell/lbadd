@@ -12,7 +12,7 @@ import (
 // the function triggers the necessary functions responsible to continue the raft cluster
 // into it's working stage if the node won the election.
 func StartElection(node *Node) {
-	node.State = CandidateState
+	node.State = StateCandidate.String()
 	node.PersistentState.CurrentTerm++
 
 	var votes int32
@@ -47,7 +47,7 @@ func StartElection(node *Node) {
 
 					if votesRecieved > int32(len(node.PersistentState.PeerIPs)/2) {
 						// This node has won the election.
-						node.State = LeaderState
+						node.State = StateLeader.String()
 						startLeader(node)
 					}
 				}
