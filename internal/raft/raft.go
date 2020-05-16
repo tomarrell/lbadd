@@ -28,8 +28,9 @@ type ReplicationHandler func(string)
 // The raft paper describes this as a "State" but node
 // seemed more intuitive.
 type Node struct {
-	State      string
-	LogChannel chan (message.LogData) // LogChannel is used to store the incoming logs from clients.
+	State string
+	// LogChannel is used to store the incoming logs from clients.
+	LogChannel chan *message.LogData
 
 	PersistentState     *PersistentState
 	VolatileState       *VolatileState
@@ -141,7 +142,7 @@ func (s *simpleServer) OnReplication(handler ReplicationHandler) {
 // AppendEntries, whenever it occurs will be sent by obtaining data out of this channel.
 func (s *simpleServer) Input(input string) {
 	logData := message.NewLogData(s.node.PersistentState.CurrentTerm, input)
-	s.node.LogChannel <- *logData
+	s.node.LogChannel <- logData
 }
 
 // Close closes the node and returns an error on failure.
@@ -158,7 +159,7 @@ func (s *simpleServer) Close() error {
 func NewRaftNode(cluster Cluster) *Node {
 	node := &Node{
 		State:      StateCandidate.String(),
-		LogChannel: make(chan message.LogData),
+		LogChannel: make(chan *message.LogData),
 		PersistentState: &PersistentState{
 			CurrentTerm: 0,
 			VotedFor:    nil,

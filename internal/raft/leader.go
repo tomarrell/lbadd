@@ -34,7 +34,7 @@ func startLeader(node *Node) (err error) {
 		// If there is an input from the channel, grab it and add it to the outgoing request.
 		select {
 		case singleLog := <-node.LogChannel:
-			logs = append(logs, &singleLog)
+			logs = append(logs, singleLog)
 			appendEntriesRequest = message.NewAppendEntriesRequest(
 				node.PersistentState.CurrentTerm,
 				node.PersistentState.SelfID,
