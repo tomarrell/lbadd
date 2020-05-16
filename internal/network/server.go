@@ -38,6 +38,8 @@ type Server interface {
 	OnConnect(ConnHandler)
 }
 
+//go:generate mockery -case=snake -name=Conn
+
 // Conn describes a network connection. One can send a message with Conn.Send,
 // and receive one with Conn.Receive. Unlike an io.Writer, the data that is
 // passed into Send is guaranteed to be returned in a single Receive call on the
