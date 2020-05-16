@@ -124,7 +124,7 @@ func (s *simpleServer) Start() (err error) {
 		// isn't received by the server(node) it restarts leader election.
 		select {
 		case <-randomTimer().C:
-			StartElection(node)
+			_ = StartElection(node)
 		case data := <-liveChan:
 			err = processIncomingData(data, node)
 			if err != nil {

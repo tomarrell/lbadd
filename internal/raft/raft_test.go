@@ -20,6 +20,7 @@ func Test_NewServer(t *testing.T) {
 		log,
 		cluster,
 	)
+	assert.NoError(err)
 	err = server.Start()
 	assert.NoError(err)
 }

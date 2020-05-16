@@ -48,7 +48,7 @@ func StartElection(node *Node) (err error) {
 				if votesRecieved > int32(len(node.PersistentState.PeerIPs)/2) {
 					// This node has won the election.
 					node.State = StateLeader.String()
-					startLeader(node)
+					_ = startLeader(node)
 				}
 			}
 		}(i)
