@@ -44,6 +44,7 @@ func Test_LeaderElection(t *testing.T) {
 		assert.Nil(err)
 
 		msg, err := message.Unmarshal(res)
+		assert.Nil(err)
 		_ = msg
 		_ = res
 		resP := message.NewRequestVoteResponse(1, true)
@@ -62,6 +63,7 @@ func Test_LeaderElection(t *testing.T) {
 		assert.Nil(err)
 
 		msg, err := message.Unmarshal(res)
+		assert.Nil(err)
 		_ = msg
 		_ = res
 		resP := message.NewRequestVoteResponse(1, true)
