@@ -20,6 +20,80 @@ Raft is an algorithm to handle replicated log, and we maintain the "log" of the 
 * Request retries are done in case of network failures.
 * Raft does not assume network preserves ordering of the packets.
 * The `raft/raft.go` file has all the state parameters and general functions that raft uses.
+* A raft server is implemented as:
+```
+type simpleServer struct {
+	node          *Node
+	cluster       Cluster
+	onReplication ReplicationHandler
+	log           zerolog.Logger
+}
+
+type Node struct {
+	State string
+
+	PersistentState     *PersistentState
+	VolatileState       *VolatileState
+	VolatileStateLeader *VolatileStateLeader
+}
+
+// PersistentState describes the persistent state data on a raft node.
+type PersistentState struct {
+	CurrentTerm int32
+	VotedFor    id.ID // VotedFor is nil at init, and id.ID of the node after voting is complete.
+	Log         []*message.LogData
+
+	SelfID   id.ID
+	LeaderID id.ID          // LeaderID is nil at init, and the id.ID of the node after the leader is elected.
+	PeerIPs  []network.Conn // PeerIPs has the connection variables of all the other nodes in the cluster.
+	mu       sync.Mutex
+}
+
+// VolatileState describes the volatile state data on a raft node.
+type VolatileState struct {
+	CommitIndex int
+	LastApplied int
+}
+
+// VolatileStateLeader describes the volatile state data that exists on a raft leader.
+type VolatileStateLeader struct {
+	NextIndex  []int // Holds the nextIndex value for each of the followers in the cluster.
+	MatchIndex []int // Holds the matchIndex value for each of the followers in the cluster.
+}
+```
+* A raft node must always be listening to incoming requests; in absence of any, it starts a leader election after a timeout. This is implemented as:
+```
+go func() {
+		for {
+			// Parallely start waiting for incoming data.
+			conn, msg, err := s.cluster.Receive(ctx)
+			liveChan <- &incomingData{
+				conn,
+				msg,
+			}
+			if err != nil {
+				return
+			}
+		}
+	}()
+
+	for {
+		// If any sort of request (heartbeat,appendEntries,requestVote)
+		// isn't received by the server(node) it restarts leader election.
+		select {
+		case <-randomTimer().C:
+			err = StartElection(node)
+			if err != nil {
+				return
+			}
+		case data := <-liveChan:
+			err = processIncomingData(data, node)
+			if err != nil {
+				return
+			}
+		}
+	}
+```
 
 A raft server may be in any of the 3 states; leader, follower or candidate. All requests are serviced through the leader and it then decides how and if the logs must be replicated in the follower machines. The raft protocol has 3 almost independent modules:
 1. Leader Election
