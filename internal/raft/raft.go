@@ -40,11 +40,11 @@ type Node struct {
 // PersistentState describes the persistent state data on a raft node.
 type PersistentState struct {
 	CurrentTerm int32
-	VotedFor    id.ID // VotedFor is nil at init, -1 if the node voted for itself and any number in the slice Nodes() to point at its voter.
+	VotedFor    id.ID // VotedFor is nil at init, and id.ID of the node after voting is complete.
 	Log         []message.LogData
 
 	SelfID   id.ID
-	LeaderID id.ID          // LeaderID is nil at init, -1 if its the leader and any number in the slice Nodes() to point at the leader.
+	LeaderID id.ID          // LeaderID is nil at init, and the id.ID of the node after the leader is elected.
 	PeerIPs  []network.Conn // PeerIPs has the connection variables of all the other nodes in the cluster.
 	mu       sync.Mutex
 }
