@@ -129,6 +129,13 @@ type (
 		// Input is the input list of datasets.
 		Input List
 	}
+
+	// Empty instructs the executor to consider an empty list of datasets.
+	Empty struct {
+		// Cols are the columns in this empty list. This may be empty to
+		// indicate a completely empty list.
+		Cols []Column
+	}
 )
 
 func (Scan) _list()    {}
@@ -178,4 +185,12 @@ func (j Join) String() string {
 
 func (l Limit) String() string {
 	return fmt.Sprintf("Limit[limit=%d](%v)", l.Limit, l.Input)
+}
+
+func (e Empty) String() string {
+	colStrs := make([]string, len(e.Cols))
+	for i, col := range e.Cols {
+		colStrs[i] = col.String()
+	}
+	return fmt.Sprintf("Empty[cols=%v]()", strings.Join(colStrs, ","))
 }
