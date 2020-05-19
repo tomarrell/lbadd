@@ -9,6 +9,7 @@ import (
 	"github.com/tomarrell/lbadd/internal/raft/cluster"
 )
 
+// Raft integration tests go here.
 func Test_NewServer(t *testing.T) {
 	assert := assert.New(t)
 

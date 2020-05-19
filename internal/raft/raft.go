@@ -2,6 +2,7 @@ package raft
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"math/rand"
 	"sync"
@@ -29,8 +30,7 @@ type ReplicationHandler func(string)
 // seemed more intuitive.
 type Node struct {
 	State string
-	// LogChannel is used to store the incoming logs from clients.
-	LogChannel chan *message.LogData
+	// IDConnMap map[id.ID]network.Conn
 
 	PersistentState     *PersistentState
 	VolatileState       *VolatileState
@@ -41,7 +41,7 @@ type Node struct {
 type PersistentState struct {
 	CurrentTerm int32
 	VotedFor    id.ID // VotedFor is nil at init, and id.ID of the node after voting is complete.
-	Log         []message.LogData
+	Log         []*message.LogData
 
 	SelfID   id.ID
 	LeaderID id.ID          // LeaderID is nil at init, and the id.ID of the node after the leader is elected.
@@ -51,8 +51,8 @@ type PersistentState struct {
 
 // VolatileState describes the volatile state data on a raft node.
 type VolatileState struct {
-	CommitIndex int
-	LastApplied int
+	CommitIndex int32
+	LastApplied int32
 }
 
 // VolatileStateLeader describes the volatile state data that exists on a raft leader.
@@ -103,8 +103,7 @@ func (s *simpleServer) Start() (err error) {
 	ctx := context.Background()
 	// liveChan is a channel that passes the incomingData once received.
 	liveChan := make(chan *incomingData)
-	// Listen forever on all node connections. This block of code checks what kind of
-	// request has to be serviced and calls the necessary function to complete it.
+	// Listen forever on all node connections.
 	go func() {
 		for {
 			// Parallely start waiting for incoming data.
@@ -118,13 +117,14 @@ func (s *simpleServer) Start() (err error) {
 			}
 		}
 	}()
-
+	// This block of code checks what kind of request has to be serviced
+	// and calls the necessary function to complete it.
 	for {
 		// If any sort of request (heartbeat,appendEntries,requestVote)
 		// isn't received by the server(node) it restarts leader election.
 		select {
 		case <-randomTimer().C:
-			_ = StartElection(node)
+			StartElection(node)
 		case data := <-liveChan:
 			err = processIncomingData(data, node)
 			if err != nil {
@@ -138,11 +138,19 @@ func (s *simpleServer) OnReplication(handler ReplicationHandler) {
 	s.onReplication = handler
 }
 
-// Input pushes the input data in the for of log data into the LogChannel.
-// AppendEntries, whenever it occurs will be sent by obtaining data out of this channel.
+// Input appends the input log into the leaders log, only if the current node is the leader.
+// If this was not a leader, the leaders data is communicated to the client.
 func (s *simpleServer) Input(input string) {
-	logData := message.NewLogData(s.node.PersistentState.CurrentTerm, input)
-	s.node.LogChannel <- logData
+	s.node.PersistentState.mu.Lock()
+	defer s.node.PersistentState.mu.Unlock()
+
+	if s.node.State == StateLeader.String() {
+		logData := message.NewLogData(s.node.PersistentState.CurrentTerm, input)
+		s.node.PersistentState.Log = append(s.node.PersistentState.Log, logData)
+	} else {
+		// Communicate the leader's data back.
+		fmt.Println("TODO")
+	}
 }
 
 // Close closes the node and returns an error on failure.
@@ -157,9 +165,13 @@ func (s *simpleServer) Close() error {
 
 // NewRaftNode initialises a raft cluster with the given configuration.
 func NewRaftNode(cluster Cluster) *Node {
+	var nextIndex, matchIndex []int
+	for range cluster.Nodes() {
+		nextIndex = append(nextIndex, -1)
+		matchIndex = append(matchIndex, -1)
+	}
 	node := &Node{
-		State:      StateCandidate.String(),
-		LogChannel: make(chan *message.LogData),
+		State: StateCandidate.String(),
 		PersistentState: &PersistentState{
 			CurrentTerm: 0,
 			VotedFor:    nil,
@@ -170,7 +182,10 @@ func NewRaftNode(cluster Cluster) *Node {
 			CommitIndex: -1,
 			LastApplied: -1,
 		},
-		VolatileStateLeader: &VolatileStateLeader{},
+		VolatileStateLeader: &VolatileStateLeader{
+			NextIndex:  nextIndex,
+			MatchIndex: matchIndex,
+		},
 	}
 	return node
 }

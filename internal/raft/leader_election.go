@@ -11,13 +11,13 @@ import (
 // The function caller doesn't need to wait for a voting response from this function,
 // the function triggers the necessary functions responsible to continue the raft cluster
 // into it's working stage if the node won the election.
-func StartElection(node *Node) (err error) {
+// TODO: Logging.
+func StartElection(node *Node) {
 	node.State = StateCandidate.String()
 	node.PersistentState.CurrentTerm++
 
 	var votes int32
 
-	// fmt.Println(len(node.PersistentState.PeerIPs))
 	for i := range node.PersistentState.PeerIPs {
 		// Parallely request votes from the peers.
 		go func(i int) {
@@ -31,10 +31,11 @@ func StartElection(node *Node) (err error) {
 			)
 			// s.log.Printf("%v sent RequestVoteRPC to %v", node.PersistentState.SelfID, node.PersistentState.PeerIPs[i])
 			res, err := RequestVote(node.PersistentState.PeerIPs[i], req)
-			if err != nil {
-				return
-			}
-			if res.VoteGranted {
+			// If there's an error, the vote is considered to be not casted by the node.
+			// Worst case, there will be a re-election; the errors might be from network or
+			// data consistency errors, which will be sorted by a re-election.
+			// This decision was taken because, StartElection returning an error is not feasible.
+			if res.VoteGranted && err == nil {
 				votesRecieved := atomic.AddInt32(&votes, 1)
 				// Check whether this node has already voted.
 				// Else it can vote for itself.
@@ -49,11 +50,10 @@ func StartElection(node *Node) (err error) {
 					// This node has won the election.
 					node.State = StateLeader.String()
 					node.PersistentState.LeaderID = node.PersistentState.SelfID
-					_ = startLeader(node)
+					startLeader(node)
 				}
 			}
 		}(i)
 	}
-
-	return nil
+	return
 }
