@@ -37,8 +37,8 @@ type (
 		_list()
 	}
 
-	// Scan instructs the executor to use the contents of the nested table. If
-	// it up to the executor whether he performs a full table scan or applies
+	// Scan instructs the executor to use the contents of the nested table. It
+	// is up to the executor whether he performs a full table scan or applies
 	// possible optimizations, like a search through indices.
 	Scan struct {
 		// Table is the table whose contents will be used.
