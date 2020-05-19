@@ -7,7 +7,7 @@ LBADD uses it's own intermediary representation in order to decouple the SQL AST
 
 We also have the benefit of being able to build a REPL to be able to interact with the IR.
 
-## Format
+## Format (outdated / probably not accurate)
 The IR is made up of a limited set of commands. These commands can be found in [command.go](../command.go).
 
 The column names must include valid *ASCII* characters, and the column types must exist in [column.go](../column.go).
