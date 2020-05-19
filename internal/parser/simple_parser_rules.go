@@ -4438,7 +4438,7 @@ func (p *simpleParser) parseJoinClause(r reporter) (stmt *ast.JoinClause) {
 			next.Type() == token.KeywordLeft ||
 			next.Type() == token.KeywordInner ||
 			next.Type() == token.KeywordCross {
-			stmt.JoinClausePart = p.parseJoinClausePart(r)
+			stmt.JoinClausePart = append(stmt.JoinClausePart, p.parseJoinClausePart(r))
 		} else {
 			break
 		}
