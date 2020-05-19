@@ -8,7 +8,12 @@ import (
 	"strings"
 )
 
+var _ Command = (*Explain)(nil)
 var _ Command = (*Scan)(nil)
+var _ Command = (*Select)(nil)
+var _ Command = (*Project)(nil)
+var _ Command = (*Join)(nil)
+var _ Command = (*Limit)(nil)
 
 // Command describes a structure that can be executed by the database executor.
 // Instead of using bytecode, we use a hierarchical structure for the executor.
