@@ -125,8 +125,20 @@ type (
 	Limit struct {
 		// Limit is the amount of datasets that are respected from the input
 		// list (top to bottom).
-		Limit uint64
+		Limit Expr
 		// Input is the input list of datasets.
+		Input List
+	}
+
+	// Offset instructs to executor to skip the first Offset datasets from the
+	// input list and return that truncated list. When used together with Limit,
+	// please notice that the function composition (Limit ∘ Offset)(x) is not
+	// commutative.
+	Offset struct {
+		// Offset is the amount of datasets that should be skipped from the
+		// input list.
+		Offset Expr
+		// Input is the input list to truncate.
 		Input List
 	}
 
@@ -184,7 +196,7 @@ func (j Join) String() string {
 }
 
 func (l Limit) String() string {
-	return fmt.Sprintf("Limit[limit=%d](%v)", l.Limit, l.Input)
+	return fmt.Sprintf("Limit[limit=%v](%v)", l.Limit, l.Input)
 }
 
 func (e Empty) String() string {

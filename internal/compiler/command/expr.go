@@ -1,6 +1,9 @@
 package command
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+)
 
 type (
 	// Expr is a marker interface for anything that is an expression. Different
@@ -16,6 +19,14 @@ type (
 	LiteralExpr struct {
 		// Value is the simple string value of this expression.
 		Value string
+	}
+
+	// NumericExpr is a simple expression that represents a numerical
+	// value of type int64. If a value does not fit into an int64, another
+	// expression has to be used.
+	NumericExpr struct {
+		// Value is the simple int64 value of this expression.
+		Value int64
 	}
 
 	// EqualityExpr is an expression with a left and right side expression, and
@@ -49,11 +60,16 @@ type (
 )
 
 func (LiteralExpr) _expr()  {}
+func (NumericExpr) _expr()  {}
 func (EqualityExpr) _expr() {}
 func (RangeExpr) _expr()    {}
 
 func (l LiteralExpr) String() string {
 	return l.Value
+}
+
+func (n NumericExpr) String() string {
+	return strconv.FormatInt(n.Value, 10)
 }
 
 func (e EqualityExpr) String() string {
