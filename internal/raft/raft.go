@@ -31,6 +31,7 @@ type ReplicationHandler func(string)
 type Node struct {
 	State string
 	// IDConnMap map[id.ID]network.Conn
+	log zerolog.Logger
 
 	PersistentState     *PersistentState
 	VolatileState       *VolatileState
@@ -93,11 +94,14 @@ func NewServer(log zerolog.Logger, cluster Cluster) Server {
 func (s *simpleServer) Start() (err error) {
 	// Making the function idempotent, returns whether the server is already open.
 	if s.node != nil {
+		s.log.Debug().
+			Str(s.node.PersistentState.SelfID.String(), "already open")
 		return network.ErrOpen
 	}
 
 	// Initialise all raft variables in this node.
 	node := NewRaftNode(s.cluster)
+	node.log = s.log
 	s.node = node
 
 	ctx := context.Background()
@@ -108,6 +112,10 @@ func (s *simpleServer) Start() (err error) {
 		for {
 			// Parallely start waiting for incoming data.
 			conn, msg, err := s.cluster.Receive(ctx)
+			node.log.
+				Debug().
+				Str(node.PersistentState.SelfID.String(), "received request").
+				Str("received", msg.Kind().String())
 			liveChan <- &incomingData{
 				conn,
 				msg,
@@ -124,6 +132,10 @@ func (s *simpleServer) Start() (err error) {
 		// isn't received by the server(node) it restarts leader election.
 		select {
 		case <-randomTimer().C:
+			node.log.
+				Debug().
+				Str(node.PersistentState.SelfID.String(), "starting election").
+				Int32("term", node.PersistentState.CurrentTerm+1)
 			StartElection(node)
 		case data := <-liveChan:
 			err = processIncomingData(data, node)
@@ -148,7 +160,7 @@ func (s *simpleServer) Input(input string) {
 		logData := message.NewLogData(s.node.PersistentState.CurrentTerm, input)
 		s.node.PersistentState.Log = append(s.node.PersistentState.Log, logData)
 	} else {
-		// Communicate the leader's data back.
+		// Relay data to leader.
 		fmt.Println("TODO")
 	}
 }

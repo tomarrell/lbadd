@@ -15,10 +15,11 @@ import (
 // Empty append entries request are also called heartbeats.
 // The data that goes in the append entries request is determined by
 // existance of data in the LogChannel channel.
-
-// TODO: Log errors.
 func startLeader(node *Node) {
 
+	node.log.
+		Debug().
+		Str(node.PersistentState.SelfID.String(), "started leader election proceedings")
 	go func() {
 		// The loop that the leader stays in until it's functioning properly.
 		// The goal of this loop is to maintain raft in it's working phase;
@@ -38,7 +39,6 @@ func startLeader(node *Node) {
 			node.PersistentState.mu.Unlock()
 		}
 	}()
-	return
 }
 
 func sendHeartBeats(node *Node) {
@@ -53,6 +53,10 @@ func sendHeartBeats(node *Node) {
 	// Parallely send AppendEntriesRPC to all followers.
 	for i := range node.PersistentState.PeerIPs {
 		go func(i int) {
+
+			node.log.
+				Debug().
+				Str(node.PersistentState.SelfID.String(), "sending heartbeats")
 			node.PersistentState.mu.Lock()
 			nextIndex := node.VolatileStateLeader.NextIndex[i]
 			prevLogIndex := nextIndex
@@ -77,31 +81,44 @@ func sendHeartBeats(node *Node) {
 
 			payload, err := message.Marshal(appendEntriesRequest)
 			if err != nil {
+				node.log.
+					Err(err).
+					Str("Node", node.PersistentState.SelfID.String())
 				return
 			}
 			err = node.PersistentState.PeerIPs[i].Send(ctx, payload)
 			if err != nil {
+				node.log.
+					Err(err).
+					Str("Node", node.PersistentState.SelfID.String())
 				return
 			}
 
 			res, err := node.PersistentState.PeerIPs[i].Receive(ctx)
 			if err != nil {
+				node.log.
+					Err(err).
+					Str("Node", node.PersistentState.SelfID.String())
 				return
 			}
 
 			resP, err := message.Unmarshal(res)
 			if err != nil {
+				node.log.
+					Err(err).
+					Str("Node", node.PersistentState.SelfID.String())
 				return
 			}
 
 			appendEntriesResponse := resP.(*message.AppendEntriesResponse)
-			// TODO: Based on the response, retries etc must be conducted.
 
 			// If the term in the other node is greater than this node's term,
 			// it means that this node is not up to date and has to step down
 			// from being a leader.
 			if appendEntriesResponse.Term > savedCurrentTerm {
-				// Log about the problem.
+				node.log.Debug().
+					Str(node.PersistentState.SelfID.String(), "stale term").
+					Str("following newer node", "add its ID") // TODO
 				becomeFollower(node)
 				return
 			}

@@ -55,5 +55,4 @@ func StartElection(node *Node) {
 			}
 		}(i)
 	}
-	return
 }
