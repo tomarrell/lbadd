@@ -29,9 +29,9 @@ type ReplicationHandler func(string)
 // The raft paper describes this as a "State" but node
 // seemed more intuitive.
 type Node struct {
-	State string
-	// IDConnMap map[id.ID]network.Conn
-	log zerolog.Logger
+	State     string
+	IDConnMap map[id.ID]network.Conn
+	log       zerolog.Logger
 
 	PersistentState     *PersistentState
 	VolatileState       *VolatileState
@@ -95,7 +95,8 @@ func (s *simpleServer) Start() (err error) {
 	// Making the function idempotent, returns whether the server is already open.
 	if s.node != nil {
 		s.log.Debug().
-			Str(s.node.PersistentState.SelfID.String(), "already open")
+			Str("self-id", s.node.PersistentState.SelfID.String()).
+			Msg("already open")
 		return network.ErrOpen
 	}
 
@@ -114,8 +115,9 @@ func (s *simpleServer) Start() (err error) {
 			conn, msg, err := s.cluster.Receive(ctx)
 			node.log.
 				Debug().
-				Str(node.PersistentState.SelfID.String(), "received request").
-				Str("received", msg.Kind().String())
+				Str("self-id", s.node.PersistentState.SelfID.String()).
+				Str("received", msg.Kind().String()).
+				Msg("received request")
 			liveChan <- &incomingData{
 				conn,
 				msg,
@@ -134,8 +136,9 @@ func (s *simpleServer) Start() (err error) {
 		case <-randomTimer().C:
 			node.log.
 				Debug().
-				Str(node.PersistentState.SelfID.String(), "starting election").
-				Int32("term", node.PersistentState.CurrentTerm+1)
+				Str("self-id", s.node.PersistentState.SelfID.String()).
+				Int32("term", node.PersistentState.CurrentTerm+1).
+				Msg("starting election")
 			StartElection(node)
 		case data := <-liveChan:
 			err = processIncomingData(data, node)

@@ -19,7 +19,8 @@ func startLeader(node *Node) {
 
 	node.log.
 		Debug().
-		Str(node.PersistentState.SelfID.String(), "started leader election proceedings")
+		Str("self-id", node.PersistentState.SelfID.String()).
+		Msg("starting leader election proceedings")
 	go func() {
 		// The loop that the leader stays in until it's functioning properly.
 		// The goal of this loop is to maintain raft in it's working phase;
@@ -52,11 +53,11 @@ func sendHeartBeats(node *Node) {
 
 	// Parallely send AppendEntriesRPC to all followers.
 	for i := range node.PersistentState.PeerIPs {
+		node.log.
+			Debug().
+			Str("self-id", node.PersistentState.SelfID.String()).
+			Msg("sending heartbeats")
 		go func(i int) {
-
-			node.log.
-				Debug().
-				Str(node.PersistentState.SelfID.String(), "sending heartbeats")
 			node.PersistentState.mu.Lock()
 			nextIndex := node.VolatileStateLeader.NextIndex[i]
 			prevLogIndex := nextIndex
@@ -83,22 +84,31 @@ func sendHeartBeats(node *Node) {
 			if err != nil {
 				node.log.
 					Err(err).
-					Str("Node", node.PersistentState.SelfID.String())
+					Str("Node", node.PersistentState.SelfID.String()).
+					Msg("error")
 				return
 			}
 			err = node.PersistentState.PeerIPs[i].Send(ctx, payload)
 			if err != nil {
 				node.log.
 					Err(err).
-					Str("Node", node.PersistentState.SelfID.String())
+					Str("Node", node.PersistentState.SelfID.String()).
+					Msg("error")
 				return
 			}
+
+			node.log.
+				Debug().
+				Str("self-id", node.PersistentState.SelfID.String()).
+				Str("sent to", node.PersistentState.PeerIPs[i].RemoteID().String()).
+				Msg("sent heartbeat to peer")
 
 			res, err := node.PersistentState.PeerIPs[i].Receive(ctx)
 			if err != nil {
 				node.log.
 					Err(err).
-					Str("Node", node.PersistentState.SelfID.String())
+					Str("Node", node.PersistentState.SelfID.String()).
+					Msg("error")
 				return
 			}
 
@@ -106,7 +116,8 @@ func sendHeartBeats(node *Node) {
 			if err != nil {
 				node.log.
 					Err(err).
-					Str("Node", node.PersistentState.SelfID.String())
+					Str("Node", node.PersistentState.SelfID.String()).
+					Msg("error")
 				return
 			}
 

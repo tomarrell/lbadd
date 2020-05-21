@@ -63,6 +63,11 @@ func RequestVoteResponse(node *Node, req *message.RequestVoteRequest) *message.R
 			fmt.Println(err)
 		}
 		node.PersistentState.VotedFor = cID
+		node.log.
+			Debug().
+			Str("self-id", node.PersistentState.SelfID.String()).
+			Str("vote granted to", cID.String()).
+			Msg("voting a peer")
 		return &message.RequestVoteResponse{
 			Term:        node.PersistentState.CurrentTerm,
 			VoteGranted: true,

@@ -29,19 +29,31 @@ func StartElection(node *Node) {
 				int32(len(node.PersistentState.Log)),
 				int32(lastLogTerm), //int32(node.PersistentState.Log[len(node.PersistentState.Log)].Term),
 			)
-			// s.log.Printf("%v sent RequestVoteRPC to %v", node.PersistentState.SelfID, node.PersistentState.PeerIPs[i])
+			node.log.
+				Debug().
+				Str("self-id", node.PersistentState.SelfID.String()).
+				Str("request-vote sent to", node.PersistentState.PeerIPs[i].RemoteID().String()).
+				Msg("request vote")
 			res, err := RequestVote(node.PersistentState.PeerIPs[i], req)
 			// If there's an error, the vote is considered to be not casted by the node.
 			// Worst case, there will be a re-election; the errors might be from network or
 			// data consistency errors, which will be sorted by a re-election.
 			// This decision was taken because, StartElection returning an error is not feasible.
 			if res.VoteGranted && err == nil {
+				node.log.
+					Debug().
+					Str("received vote from", node.PersistentState.PeerIPs[i].RemoteID().String()).
+					Msg("voting from peer")
 				votesRecieved := atomic.AddInt32(&votes, 1)
 				// Check whether this node has already voted.
 				// Else it can vote for itself.
 				node.PersistentState.mu.Lock()
 				if node.PersistentState.VotedFor == nil {
 					node.PersistentState.VotedFor = node.PersistentState.SelfID
+					node.log.
+						Debug().
+						Str("self-id", node.PersistentState.SelfID.String()).
+						Msg("node voting for itself")
 					votesRecieved++
 				}
 				node.PersistentState.mu.Unlock()
@@ -50,6 +62,10 @@ func StartElection(node *Node) {
 					// This node has won the election.
 					node.State = StateLeader.String()
 					node.PersistentState.LeaderID = node.PersistentState.SelfID
+					node.log.
+						Debug().
+						Str("self-id", node.PersistentState.SelfID.String()).
+						Msg("node elected leader")
 					startLeader(node)
 				}
 			}
