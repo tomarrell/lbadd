@@ -10,9 +10,9 @@ func AppendEntriesResponse(node *Node, req *message.AppendEntriesRequest) *messa
 	leaderTerm := req.GetTerm()
 	nodePersistentState := node.PersistentState
 	nodeTerm := nodePersistentState.CurrentTerm
-	if nodeTerm > leaderTerm {
+	if nodeTerm > leaderTerm { // Reply false if term < currentTerm
 		success = false
-	} else if req.GetPrevLogIndex() > int32(node.VolatileState.CommitIndex) {
+	} else if req.GetPrevLogIndex() > node.VolatileState.CommitIndex {
 		success = false
 	} else if nodePersistentState.Log[req.PrevLogIndex].Term != req.GetPrevLogTerm() {
 		success = false
@@ -28,7 +28,7 @@ func AppendEntriesResponse(node *Node, req *message.AppendEntriesRequest) *messa
 	entries := req.GetEntries()
 	if len(entries) > 0 { // if heartbeat, skip adding entries
 		nodePersistentState.mu.Lock()
-		if req.GetPrevLogIndex() < int32(node.VolatileState.CommitIndex) {
+		if req.GetPrevLogIndex() < node.VolatileState.CommitIndex {
 			node.PersistentState.Log = node.PersistentState.Log[:req.GetPrevLogIndex()]
 		}
 		for _, entry := range entries {
@@ -37,8 +37,8 @@ func AppendEntriesResponse(node *Node, req *message.AppendEntriesRequest) *messa
 		node.PersistentState.mu.Unlock()
 	}
 
-	if req.GetLeaderCommit() > int32(node.VolatileState.CommitIndex) {
-		nodeCommitIndex := int(req.GetLeaderCommit())
+	if req.GetLeaderCommit() > node.VolatileState.CommitIndex {
+		nodeCommitIndex := req.GetLeaderCommit()
 		if int(req.GetLeaderCommit()) > len(node.PersistentState.Log) {
 			nodeCommitIndex = len(node.PersistentState.Log)
 		}
