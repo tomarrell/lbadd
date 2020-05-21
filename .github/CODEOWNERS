@@ -6,3 +6,7 @@ internal/parser                         @TimSatke @SUMUKHA-PK
 internal/raft                           @SUMUKHA-PK
 internal/raft/cluster                   @TimSatke
 internal/raft/message                   @TimSatke
+internal/compiler @TimSatke
+internal/database/storage/btree @tomarrell
+internal/network @TimSatke
+internal/parser @TimSatke @SUMUKHA-PK
