@@ -2,7 +2,7 @@ package executor
 
 import (
 	"github.com/rs/zerolog"
-	"github.com/tomarrell/lbadd/internal/compiler/command"
+	"github.com/tomarrell/lbadd/internal/executor/command"
 )
 
 // Executor describes a component that can execute a command. A command is the
