@@ -17,10 +17,6 @@ func RequestVote(nodeConn network.Conn, req *message.RequestVoteRequest) (*messa
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	// fmt.Println("DD")
-	// fmt.Println(req)
-	// fmt.Println("DD")
-
 	payload, err := message.Marshal(req)
 	if err != nil {
 		return nil, err
@@ -35,12 +31,9 @@ func RequestVote(nodeConn network.Conn, req *message.RequestVoteRequest) (*messa
 	if err != nil {
 		return nil, err
 	}
-	// fmt.Println("CC")
-	// fmt.Println(string(res))
-	// fmt.Println("CC")
+
 	msg, err := message.Unmarshal(res)
 	if err != nil {
-		fmt.Printf("There is an err: %v\n", err)
 		return nil, err
 	}
 
@@ -51,7 +44,18 @@ func RequestVote(nodeConn network.Conn, req *message.RequestVoteRequest) (*messa
 // generates the response for the responder node to send back to the candidate node.
 func RequestVoteResponse(node *Node, req *message.RequestVoteRequest) *message.RequestVoteResponse {
 	node.PersistentState.mu.Lock()
+	defer node.PersistentState.mu.Unlock()
 
+	// If the candidate is not up to date with the term, reject the vote.
+	if req.Term < node.PersistentState.CurrentTerm {
+		return &message.RequestVoteResponse{
+			Term:        node.PersistentState.CurrentTerm,
+			VoteGranted: false,
+		}
+	}
+
+	// If this node hasn't voted for any other node, vote only then.
+	// TODO: Check whether candidate's log is atleast as up to date as mine only then grant vote.
 	if node.PersistentState.VotedFor == nil {
 		cID, err := id.Parse(req.CandidateID)
 		if err != nil {
@@ -59,13 +63,16 @@ func RequestVoteResponse(node *Node, req *message.RequestVoteRequest) *message.R
 			fmt.Println(err)
 		}
 		node.PersistentState.VotedFor = cID
+		node.log.
+			Debug().
+			Str("self-id", node.PersistentState.SelfID.String()).
+			Str("vote granted to", cID.String()).
+			Msg("voting a peer")
 		return &message.RequestVoteResponse{
 			Term:        node.PersistentState.CurrentTerm,
 			VoteGranted: true,
 		}
 	}
-
-	node.PersistentState.mu.Unlock()
 
 	return &message.RequestVoteResponse{
 		Term:        node.PersistentState.CurrentTerm,

@@ -75,10 +75,9 @@ func Test_LeaderElection(t *testing.T) {
 		wg.Done()
 	}()
 
-	err := StartElection(node)
+	StartElection(node)
 
 	wg.Wait()
 
 	assert.True(cmp.Equal(node.PersistentState.SelfID, node.PersistentState.LeaderID))
-	assert.NoError(err)
 }
