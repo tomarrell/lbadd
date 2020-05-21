@@ -22,6 +22,16 @@ type Command interface {
 	fmt.Stringer
 }
 
+type JoinType uint8
+
+const (
+	JoinUnknown JoinType = iota
+	JoinLeft
+	JoinLeftOuter
+	JoinInner
+	JoinCross
+)
+
 type (
 	// Explain instructs the executor to explain the nested command instead of
 	// executing it.
@@ -111,6 +121,10 @@ type (
 	// Join instructs the executor to produce a list from the left and right
 	// input list. Lists are merged with respect to the given filter.
 	Join struct {
+		// Natural indicates whether this join is a natural one.
+		Natural bool
+		// Type is the type of join that this join is.
+		Type JoinType
 		// Filter defines the condition that has to apply to two datasets from
 		// the left and right list in order to be merged.
 		Filter Expr
@@ -148,13 +162,21 @@ type (
 		// indicate a completely empty list.
 		Cols []Column
 	}
+
+	// Distinct skips datasets from the list that already have been encountered
+	// and returns a list with only distinct entries.
+	Distinct struct {
+		// Input is the input list that is filtered.
+		Input List
+	}
 )
 
-func (Scan) _list()    {}
-func (Select) _list()  {}
-func (Project) _list() {}
-func (Join) _list()    {}
-func (Limit) _list()   {}
+func (Scan) _list()     {}
+func (Select) _list()   {}
+func (Project) _list()  {}
+func (Join) _list()     {}
+func (Limit) _list()    {}
+func (Distinct) _list() {}
 
 func (SimpleTable) _table() {}
 
@@ -189,10 +211,21 @@ func (c Column) String() string {
 }
 
 func (j Join) String() string {
-	if j.Filter == nil {
-		return fmt.Sprintf("Join[](%v,%v)", j.Left, j.Right)
+	var buf strings.Builder
+	// configuration
+	var cfg []string
+	if j.Filter != nil {
+		cfg = append(cfg, fmt.Sprintf("filter=%v", j.Filter))
 	}
-	return fmt.Sprintf("Join[filter=%v](%v,%v)", j.Filter, j.Left, j.Right)
+	if j.Natural {
+		cfg = append(cfg, fmt.Sprintf("natural=%v", j.Natural))
+	}
+	if j.Type != JoinUnknown {
+		cfg = append(cfg, fmt.Sprintf("type=%v", j.Type))
+	}
+	// compose
+	buf.WriteString(fmt.Sprintf("Join[%s](%v,%v)", strings.Join(cfg, ","), j.Left, j.Right))
+	return buf.String()
 }
 
 func (l Limit) String() string {
@@ -205,4 +238,20 @@ func (e Empty) String() string {
 		colStrs[i] = col.String()
 	}
 	return fmt.Sprintf("Empty[cols=%v]()", strings.Join(colStrs, ","))
+}
+
+func (d Distinct) String() string {
+	return fmt.Sprintf("Distinct[](%v)", d.Input.String())
+}
+
+func (t SimpleTable) String() string {
+	var buf strings.Builder
+	if t.Schema != "" {
+		buf.WriteString(t.Schema + ".")
+	}
+	buf.WriteString(t.Table)
+	if t.Alias != "" {
+		buf.WriteString(" AS " + t.Alias)
+	}
+	return buf.String()
 }

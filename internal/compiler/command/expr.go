@@ -21,12 +21,18 @@ type (
 		Value string
 	}
 
-	// NumericExpr is a simple expression that represents a numerical
-	// value of type int64. If a value does not fit into an int64, another
-	// expression has to be used.
+	// NumericExpr is a simple expression that represents a numerical value of
+	// type int64. If a value does not fit into an int64, another expression has
+	// to be used.
 	NumericExpr struct {
 		// Value is the simple int64 value of this expression.
 		Value int64
+	}
+
+	// BooleanExpr is a simple expression that represents a boolean value.
+	BooleanExpr struct {
+		// Value is the simple bool value of this expression.
+		Value bool
 	}
 
 	// EqualityExpr is an expression with a left and right side expression, and

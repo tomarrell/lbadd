@@ -21,25 +21,125 @@ func Test_simpleCompiler_Compile_NoOptimizations(t *testing.T) {
 			command.Project{
 				Cols: []command.Column{
 					{
-						Table:  "",
 						Column: command.LiteralExpr{Value: "*"},
-						Alias:  "",
+					},
+				},
+				Input: command.Select{
+					Filter: command.LiteralExpr{Value: "true"},
+					Input: command.Scan{
+						Table: command.SimpleTable{
+							Table: "myTable",
+						},
+					},
+				},
+			},
+			false,
+		},
+		{
+			"select distinct",
+			"SELECT DISTINCT * FROM myTable WHERE true",
+			command.Distinct{
+				Input: command.Project{
+					Cols: []command.Column{
+						{
+							Column: command.LiteralExpr{Value: "*"},
+						},
+					},
+					Input: command.Select{
+						Filter: command.LiteralExpr{Value: "true"},
+						Input: command.Scan{
+							Table: command.SimpleTable{
+								Table: "myTable",
+							},
+						},
+					},
+				},
+			},
+			false,
+		},
+		{
+			"select with implicit join",
+			"SELECT * FROM a, b WHERE true",
+			command.Project{
+				Cols: []command.Column{
+					{
+						Column: command.LiteralExpr{Value: "*"},
 					},
 				},
 				Input: command.Select{
 					Filter: command.LiteralExpr{Value: "true"},
 					Input: command.Join{
-						Filter: nil,
 						Left: command.Scan{
 							Table: command.SimpleTable{
-								Schema:  "",
-								Table:   "myTable",
-								Alias:   "",
-								Indexed: true,
-								Index:   "",
+								Table: "a",
 							},
 						},
-						Right: nil,
+						Right: command.Scan{
+							Table: command.SimpleTable{
+								Table: "b",
+							},
+						},
+					},
+				},
+			},
+			false,
+		},
+		{
+			"select with explicit join",
+			"SELECT * FROM a JOIN b WHERE true",
+			command.Project{
+				Cols: []command.Column{
+					{
+						Column: command.LiteralExpr{Value: "*"},
+					},
+				},
+				Input: command.Select{
+					Filter: command.LiteralExpr{Value: "true"},
+					Input: command.Join{
+						Left: command.Scan{
+							Table: command.SimpleTable{
+								Table: "a",
+							},
+						},
+						Right: command.Scan{
+							Table: command.SimpleTable{
+								Table: "b",
+							},
+						},
+					},
+				},
+			},
+			false,
+		},
+		{
+			"select with implicit and explicit join",
+			"SELECT * FROM a, b JOIN c WHERE true",
+			command.Project{
+				Cols: []command.Column{
+					{
+						Column: command.LiteralExpr{Value: "*"},
+					},
+				},
+				Input: command.Select{
+					Filter: command.LiteralExpr{Value: "true"},
+					Input: command.Join{
+						Left: command.Join{
+							Left: command.Scan{
+								Table: command.SimpleTable{
+									Table: "a",
+								},
+							},
+							Right: command.Scan{
+								Table: command.SimpleTable{
+									Table: "b",
+								},
+							},
+						},
+						Right: command.Scan{
+							Table: command.SimpleTable{
+								Table: "c",
+							},
+						},
 					},
 				},
 			},
@@ -58,12 +158,12 @@ func Test_simpleCompiler_Compile_NoOptimizations(t *testing.T) {
 
 			got, gotErr := c.Compile(stmt)
 
-			assert.Equal(tt.want, got)
 			if tt.wantErr {
 				assert.Error(gotErr)
 			} else {
 				assert.NoError(gotErr)
 			}
+			assert.Equal(tt.want, got)
 		})
 	}
 }

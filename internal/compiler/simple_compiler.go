@@ -70,10 +70,6 @@ func (c *simpleCompiler) compileSelect(stmt *ast.SelectStmt) (command.Command, e
 }
 
 func (c *simpleCompiler) compileSelectCore(core *ast.SelectCore) (command.Command, error) {
-	if core.Distinct != nil {
-		return nil, fmt.Errorf("distince: %w", ErrUnsupported)
-	}
-
 	// compile the projection columns
 
 	// cols are the projection columns.
@@ -122,13 +118,21 @@ func (c *simpleCompiler) compileSelectCore(core *ast.SelectCore) (command.Comman
 		filter = compiled
 	}
 
-	return command.Project{
+	var list command.List
+	list = command.Project{
 		Cols: cols,
 		Input: command.Select{
 			Filter: filter,
 			Input:  selectionInput,
 		},
-	}, nil
+	}
+	// wrap list into distinct if needed
+	if core.Distinct != nil {
+		list = command.Distinct{
+			Input: list,
+		}
+	}
+	return list, nil
 }
 
 func (c *simpleCompiler) compileResultColumn(col *ast.ResultColumn) (command.Column, error) {
@@ -167,20 +171,66 @@ func (c *simpleCompiler) compileExpr(expr *ast.Expr) (command.Expr, error) {
 	return command.LiteralExpr{Value: expr.LiteralValue.Value()}, nil
 }
 
-func (c *simpleCompiler) compileJoin(join *ast.JoinClause) (command.Join, error) {
-	if len(join.JoinClausePart) != 0 {
-		return command.Join{}, fmt.Errorf("join part: %w", ErrUnsupported)
-	}
-
+func (c *simpleCompiler) compileJoin(join *ast.JoinClause) (command.List, error) {
 	left, err := c.compileTableOrSubquery(join.TableOrSubquery)
 	if err != nil {
 		return command.Join{}, fmt.Errorf("table or subquery: %w", err)
 	}
-	return command.Join{
-		Left: command.Scan{
-			Table: left,
-		},
-	}, nil
+
+	var prev command.List
+	prev = command.Scan{
+		Table: left,
+	}
+
+	for _, part := range join.JoinClausePart {
+		if part.JoinConstraint != nil && part.JoinConstraint.Using != nil {
+			return command.Join{}, fmt.Errorf("using: %w", ErrUnsupported)
+		}
+
+		op := part.JoinOperator
+		// evaluate join type
+		var typ command.JoinType
+		var natural bool
+		if op.Natural != nil {
+			natural = true
+		}
+		if op.Left != nil {
+			if op.Outer != nil {
+				typ = command.JoinLeftOuter
+			} else {
+				typ = command.JoinLeft
+			}
+		} else if op.Inner != nil {
+			typ = command.JoinInner
+		} else if op.Cross != nil {
+			typ = command.JoinCross
+		}
+
+		var filter command.Expr
+		if part.JoinConstraint != nil && part.JoinConstraint.On != nil {
+			filter, err = c.compileExpr(part.JoinConstraint.Expr)
+			if err != nil {
+				return nil, fmt.Errorf("expressoin: %w", err)
+			}
+		}
+
+		table, err := c.compileTableOrSubquery(part.TableOrSubquery)
+		if err != nil {
+			return command.Join{}, fmt.Errorf("table or subquery: %w", err)
+		}
+
+		prev = command.Join{
+			Natural: natural,
+			Type:    typ,
+			Filter:  filter,
+			Left:    prev,
+			Right: command.Scan{
+				Table: table,
+			},
+		}
+	}
+
+	return prev, nil
 }
 
 func (c *simpleCompiler) compileTableOrSubquery(tos *ast.TableOrSubquery) (command.Table, error) {
@@ -199,7 +249,7 @@ func (c *simpleCompiler) compileTableOrSubquery(tos *ast.TableOrSubquery) (comma
 	return command.SimpleTable{
 		Schema:  schema,
 		Table:   tos.TableName.Value(),
-		Indexed: tos.Not == nil,
+		Indexed: tos.By != nil,
 		Index:   index,
 	}, nil
 }
