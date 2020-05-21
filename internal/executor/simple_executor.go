@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/rs/zerolog"
-	"github.com/tomarrell/lbadd/internal/executor/command"
+	"github.com/tomarrell/lbadd/internal/compiler/command"
 )
 
 var _ Executor = (*simpleExecutor)(nil)
