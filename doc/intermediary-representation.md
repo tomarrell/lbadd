@@ -1,6 +1,6 @@
 # Commands
 
-Given that we parser SQL input into an AST, we somehow have to process that produced AST.
+Given that we parse SQL input into an AST, we somehow have to process that produced AST.
 However, working with an AST for execution has multiple drawbacks.
 1. ASTs carry a lot of information, in our case that would be string values for every token, even keyword tokens, punctuation, comments etc.
    Copying all that information in memory can slow down the process.
@@ -50,7 +50,7 @@ The input list is a list of datasets, but the columns configuration influences, 
 The most basic command is `Scan`.
 It scans a table and returns all datasets in that table.
 Notice the previous sentence actually means: "It tells the executor to consider all datasets in that table".
-Please be aware that `Scan` does not actually loads all datasets from the indicated table, it just tells the executor to consider them all.
+Please be aware that `Scan` does not actually loads all datasets from the indicated table **into memory**, it just tells the executor to consider them all.
 The executor can perform necessary optimizations to not load all datasets.
 
 <details>
@@ -100,8 +100,7 @@ However, <code>1&ne;2</code> is valid, though it is constant and may be optimize
 The third basic command is `Project`.
 The relationally algebraic equivalent also is "project" (&Pi;)
 Simply put, it limits what columns are considered.
-The `Project` command is parameterized with a list of input datasets and returns the datasets in the same orderas it received them, except that it removed all columns that should not be considered.
-For example, the following expression yields nothing.
+The `Project` command is parameterized with a list of input datasets and returns the datasets in the same order as it received them, except that it removed all columns that should not be considered.
 
 `Project` is configured with a list of columns that the input is filtered with.
 This implies, that the expressions must be able to be evaluated to literal values.

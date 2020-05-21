@@ -9,12 +9,9 @@ type MultiError struct {
 	errs []error
 }
 
-// Append appends an error to the multi error.
+// Append appends an error to the multi error. If the error is nil, it
+// will still be added.
 func (e *MultiError) Append(err error) {
-	if err == nil {
-		return
-	}
-
 	e.errs = append(e.errs, err)
 }
 
