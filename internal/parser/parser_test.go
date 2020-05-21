@@ -9621,9 +9621,7 @@ func TestSingleStatementParse(t *testing.T) {
 
 			stmt, errs, ok := p.Next()
 			assert.True(ok, "expected exactly one statement")
-			for _, err := range errs {
-				assert.Nil(err)
-			}
+			assert.Nil(errs)
 
 			opts := []cmp.Option{
 				cmp.Comparer(func(t1, t2 token.Token) bool {
