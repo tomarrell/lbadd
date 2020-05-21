@@ -4,16 +4,17 @@ import (
 	"fmt"
 
 	"github.com/tomarrell/lbadd/internal/compiler/command"
+	"github.com/tomarrell/lbadd/internal/compiler/optimization"
 	"github.com/tomarrell/lbadd/internal/parser/ast"
 )
 
 type simpleCompiler struct {
-	optimizations []Optimization
+	optimizations []optimization.Optimization
 }
 
 // OptionEnableOptimization is used to enable the given optimization in a
 // compiler.
-func OptionEnableOptimization(opt Optimization) Option {
+func OptionEnableOptimization(opt optimization.Optimization) Option {
 	return func(c *simpleCompiler) {
 		c.optimizations = append(c.optimizations, opt)
 	}
