@@ -169,6 +169,12 @@ type (
 		// Input is the input list that is filtered.
 		Input List
 	}
+
+	// Values returns a list of datasets from the evaluated expressions.
+	Values struct {
+		// Values are the values that represent the datasets in this list.
+		Values []Expr
+	}
 )
 
 func (Scan) _list()     {}
@@ -177,6 +183,7 @@ func (Project) _list()  {}
 func (Join) _list()     {}
 func (Limit) _list()    {}
 func (Distinct) _list() {}
+func (Values) _list()   {}
 
 func (SimpleTable) _table() {}
 
@@ -254,4 +261,12 @@ func (t SimpleTable) String() string {
 		buf.WriteString(" AS " + t.Alias)
 	}
 	return buf.String()
+}
+
+func (v Values) String() string {
+	var vals []string
+	for _, val := range v.Values {
+		vals = append(vals, val.String())
+	}
+	return fmt.Sprintf("Values[](%v)", strings.Join(vals, ","))
 }

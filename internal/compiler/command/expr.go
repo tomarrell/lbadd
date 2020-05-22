@@ -3,6 +3,7 @@ package command
 import (
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 type (
@@ -33,6 +34,23 @@ type (
 	BooleanExpr struct {
 		// Value is the simple bool value of this expression.
 		Value bool
+	}
+
+	UnaryExpr struct {
+		Operator string
+		Value    Expr
+	}
+
+	BinaryExpr struct {
+		Operator string
+		Left     Expr
+		Right    Expr
+	}
+
+	FunctionExpr struct {
+		Name     string
+		Distinct bool
+		Args     []Expr
 	}
 
 	// EqualityExpr is an expression with a left and right side expression, and
@@ -69,6 +87,9 @@ func (LiteralExpr) _expr()  {}
 func (NumericExpr) _expr()  {}
 func (EqualityExpr) _expr() {}
 func (RangeExpr) _expr()    {}
+func (UnaryExpr) _expr()    {}
+func (BinaryExpr) _expr()   {}
+func (FunctionExpr) _expr() {}
 
 func (l LiteralExpr) String() string {
 	return l.Value
@@ -90,4 +111,23 @@ func (r RangeExpr) String() string {
 		return fmt.Sprintf("![%v;%v]", r.Lo, r.Hi)
 	}
 	return fmt.Sprintf("[%v;%v]", r.Lo, r.Hi)
+}
+
+func (e UnaryExpr) String() string {
+	return fmt.Sprintf("%v %v", e.Operator, e.Value)
+}
+
+func (e BinaryExpr) String() string {
+	return fmt.Sprintf("%v %v %v", e.Left, e.Operator, e.Right)
+}
+
+func (f FunctionExpr) String() string {
+	var args []string
+	for _, arg := range f.Args {
+		args = append(args, arg.String())
+	}
+	if f.Distinct {
+		return fmt.Sprintf("%s(DISTINCT %s)", f.Name, strings.Join(args, ","))
+	}
+	return fmt.Sprintf("%s(%s)", f.Name, strings.Join(args, ","))
 }

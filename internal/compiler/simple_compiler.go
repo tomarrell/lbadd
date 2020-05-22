@@ -70,6 +70,10 @@ func (c *simpleCompiler) compileSelect(stmt *ast.SelectStmt) (command.Command, e
 }
 
 func (c *simpleCompiler) compileSelectCore(core *ast.SelectCore) (command.Command, error) {
+	if core.CompoundOperator != nil {
+		return nil, fmt.Errorf("compound statements: %w", ErrUnsupported)
+	}
+
 	// compile the projection columns
 
 	// cols are the projection columns.
@@ -164,11 +168,57 @@ func (c *simpleCompiler) compileResultColumn(col *ast.ResultColumn) (command.Col
 }
 
 func (c *simpleCompiler) compileExpr(expr *ast.Expr) (command.Expr, error) {
-	if expr.LiteralValue == nil {
-		return nil, fmt.Errorf("not literal: %w", ErrUnsupported)
+	switch {
+	case expr.LiteralValue != nil:
+		return command.LiteralExpr{Value: expr.LiteralValue.Value()}, nil
+	case expr.UnaryOperator != nil:
+		val, err := c.compileExpr(expr.Expr1)
+		if err != nil {
+			return nil, fmt.Errorf("expr1: %w", err)
+		}
+		return command.UnaryExpr{
+			Operator: expr.UnaryOperator.Value(),
+			Value:    val,
+		}, nil
+	case expr.BinaryOperator != nil:
+		left, err := c.compileExpr(expr.Expr1)
+		if err != nil {
+			return nil, fmt.Errorf("expr1: %w", err)
+		}
+		right, err := c.compileExpr(expr.Expr2)
+		if err != nil {
+			return nil, fmt.Errorf("expr2: %w", err)
+		}
+		return command.BinaryExpr{
+			Operator: expr.UnaryOperator.Value(),
+			Left:     left,
+			Right:    right,
+		}, nil
+	case expr.FunctionName != nil:
+		if !(expr.FilterClause == nil && expr.OverClause == nil) {
+			return nil, fmt.Errorf("filter or over on function: %w", ErrUnsupported)
+		}
+		if expr.Asterisk != nil {
+			return nil, fmt.Errorf("function_name(*): %w", ErrUnsupported)
+		}
+
+		var args []command.Expr
+		for _, arg := range expr.Expr {
+			compiledArg, err := c.compileExpr(arg)
+			if err != nil {
+				return nil, fmt.Errorf("expr: %w", err)
+			}
+			args = append(args, compiledArg)
+		}
+
+		return command.FunctionExpr{
+			Name:     expr.FunctionName.Value(),
+			Distinct: expr.Distinct != nil,
+			Args:     args,
+		}, nil
 	}
 
-	return command.LiteralExpr{Value: expr.LiteralValue.Value()}, nil
+	return nil, ErrUnsupported
 }
 
 func (c *simpleCompiler) compileJoin(join *ast.JoinClause) (command.List, error) {

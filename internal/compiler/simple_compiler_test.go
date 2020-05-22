@@ -153,7 +153,7 @@ func Test_simpleCompiler_Compile_NoOptimizations(t *testing.T) {
 			c := &simpleCompiler{}
 			p := parser.New(tt.input)
 			stmt, errs, ok := p.Next()
-			assert.Nil(errs)
+			assert.Len(errs, 0)
 			assert.True(ok)
 
 			got, gotErr := c.Compile(stmt)
