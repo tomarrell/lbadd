@@ -122,14 +122,23 @@ func (c *simpleCompiler) compileSelectCore(core *ast.SelectCore) (command.Comman
 		filter = compiled
 	}
 
+	// only wrap into select if there is a filter, otherwise there is no need
+	// for the select
+	input := selectionInput
+	if filter != nil {
+		input = command.Select{
+			Filter: filter,
+			Input:  input,
+		}
+	}
+
+	// wrap columns and input into projection
 	var list command.List
 	list = command.Project{
-		Cols: cols,
-		Input: command.Select{
-			Filter: filter,
-			Input:  selectionInput,
-		},
+		Cols:  cols,
+		Input: input,
 	}
+
 	// wrap list into distinct if needed
 	if core.Distinct != nil {
 		list = command.Distinct{
@@ -190,7 +199,7 @@ func (c *simpleCompiler) compileExpr(expr *ast.Expr) (command.Expr, error) {
 			return nil, fmt.Errorf("expr2: %w", err)
 		}
 		return command.BinaryExpr{
-			Operator: expr.UnaryOperator.Value(),
+			Operator: expr.BinaryOperator.Value(),
 			Left:     left,
 			Right:    right,
 		}, nil

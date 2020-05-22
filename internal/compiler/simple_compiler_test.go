@@ -145,6 +145,34 @@ func Test_simpleCompiler_Compile_NoOptimizations(t *testing.T) {
 			},
 			false,
 		},
+		{
+			"select expression",
+			"SELECT name, amount * price AS total_price FROM items JOIN prices",
+			command.Project{
+				Cols: []command.Column{
+					{
+						Column: command.LiteralExpr{Value: "name"},
+					},
+					{
+						Column: command.BinaryExpr{
+							Operator: "*",
+							Left:     command.LiteralExpr{Value: "amount"},
+							Right:    command.LiteralExpr{Value: "price"},
+						},
+						Alias: "total_price",
+					},
+				},
+				Input: command.Join{
+					Left: command.Scan{
+						Table: command.SimpleTable{Table: "items"},
+					},
+					Right: command.Scan{
+						Table: command.SimpleTable{Table: "prices"},
+					},
+				},
+			},
+			false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
