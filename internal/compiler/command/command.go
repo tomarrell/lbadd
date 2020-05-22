@@ -22,8 +22,10 @@ type Command interface {
 	fmt.Stringer
 }
 
+// JoinType is a type of join.
 type JoinType uint8
 
+// Known join types.
 const (
 	JoinUnknown JoinType = iota
 	JoinLeft
