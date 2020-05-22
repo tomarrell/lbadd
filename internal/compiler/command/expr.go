@@ -36,21 +36,34 @@ type (
 		Value bool
 	}
 
+	// UnaryExpr represents a unary expression of the form <Operand><Value>.
 	UnaryExpr struct {
+		// Operator is the unary operator of the expression.
 		Operator string
-		Value    Expr
+		// Value is the value that the unary operator operates on.
+		Value Expr
 	}
 
+	// BinaryExpr represents a binary expression of the form
+	// <Left><Operand><Right>.
 	BinaryExpr struct {
+		// Operator is the binary operator of the expression.
 		Operator string
-		Left     Expr
-		Right    Expr
+		// Left is the left hand side argument of the operator.
+		Left Expr
+		// Right is the right hand side argument of the operator.
+		Right Expr
 	}
 
+	// FunctionExpr represents a function call expression.
 	FunctionExpr struct {
-		Name     string
+		// Name is the name of the function.
+		Name string
+		// Distinct determines, whether only distinct elements in the arguments'
+		// input lists must be considered.
 		Distinct bool
-		Args     []Expr
+		// Args are the function argument expressions.
+		Args []Expr
 	}
 
 	// EqualityExpr is an expression with a left and right side expression, and
