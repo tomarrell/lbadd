@@ -1304,7 +1304,6 @@ func (p *simpleParser) parseExprBeginWithLiteral(literal token.Token, r reporter
 		}
 		return nil
 	}
-	return nil
 }
 
 // parseExpr2 parses S' -> (schema.table.column clause) S'.
