@@ -1298,11 +1298,7 @@ func (p *simpleParser) parseExprBeginWithLiteral(literal token.Token, r reporter
 		return p.parseExpr5(literal, r)
 	} else {
 		returnExpr := p.parseExprRecursive(&ast.Expr{LiteralValue: literal}, r)
-		if returnExpr != nil {
-			expr = returnExpr
-			return
-		}
-		return nil
+		return returnExpr
 	}
 }
 
