@@ -3753,12 +3753,10 @@ func (p *simpleParser) parseResultColumn(r reporter) (stmt *ast.ResultColumn) {
 			}
 		} else {
 			// Conditions for recursive expressions or single expressions.
-			recExpr := p.parseExprRecursive(&ast.Expr{LiteralValue: tableNameOrAsteriskOrExpr}, r)
-			if recExpr != nil {
+			if recExpr := p.parseExprRecursive(&ast.Expr{LiteralValue: tableNameOrAsteriskOrExpr}, r); recExpr != nil {
 				stmt.Expr = recExpr
 			} else {
-				singleExpr := p.parseExprBeginWithLiteral(tableNameOrAsteriskOrExpr, r)
-				if singleExpr != nil {
+				if singleExpr := p.parseExprBeginWithLiteral(tableNameOrAsteriskOrExpr, r); singleExpr != nil {
 					stmt.Expr = singleExpr
 				} else {
 					stmt.Expr = &ast.Expr{LiteralValue: tableNameOrAsteriskOrExpr}

@@ -9646,7 +9646,7 @@ func TestSingleStatementParse(t *testing.T) {
 			},
 		},
 		{
-			"Expr bug",
+			"SELECT stmt with result column with single expr - function name",
 			"SELECT AVG(price) AS average_price FROM items LEFT OUTER JOIN prices",
 			&ast.SQLStmt{
 				SelectStmt: &ast.SelectStmt{
