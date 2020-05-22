@@ -1288,7 +1288,6 @@ func (p *simpleParser) parseExprRecursive(expr *ast.Expr, r reporter) *ast.Expr 
 // parseExprBeginWithLiteral parses possible expressions that begin with a literal.
 // A nil is returned if it turns out not to be an expression.
 func (p *simpleParser) parseExprBeginWithLiteral(literal token.Token, r reporter) (expr *ast.Expr) {
-	expr = &ast.Expr{}
 	next, ok := p.optionalLookahead(r)
 	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 		return nil
@@ -1301,6 +1300,7 @@ func (p *simpleParser) parseExprBeginWithLiteral(literal token.Token, r reporter
 		returnExpr := p.parseExprRecursive(&ast.Expr{LiteralValue: literal}, r)
 		if returnExpr != nil {
 			expr = returnExpr
+			return
 		}
 		return nil
 	}
