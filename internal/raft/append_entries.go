@@ -10,11 +10,14 @@ func AppendEntriesResponse(node *Node, req *message.AppendEntriesRequest) *messa
 	leaderTerm := req.GetTerm()
 	nodePersistentState := node.PersistentState
 	nodeTerm := nodePersistentState.CurrentTerm
-	if nodeTerm > leaderTerm { // return false if term < currentTerm
+	// return false if term < currentTerm
+	if nodeTerm > leaderTerm {
 		success = false
-	} else if req.GetPrevLogIndex() > node.VolatileState.CommitIndex { // return false if LogIndex > node commitIndex
+	} else if req.GetPrevLogIndex() > node.VolatileState.CommitIndex {
+		// return false if msg Log Index is greater than node commit Index
 		success = false
-	} else if nodePersistentState.Log[req.PrevLogIndex].Term != req.GetPrevLogTerm() { // return false if log term != req Log Term
+	} else if nodePersistentState.Log[req.PrevLogIndex].Term != req.GetPrevLogTerm() {
+		// return false if term of msg at PrevLogIndex doesn't match prev Log Term stored by Leader
 		success = false
 	}
 
@@ -26,7 +29,8 @@ func AppendEntriesResponse(node *Node, req *message.AppendEntriesRequest) *messa
 	}
 
 	entries := req.GetEntries()
-	if len(entries) > 0 { // if heartbeat, skip adding entries
+	// if heartbeat, skip adding entries
+	if len(entries) > 0 {
 		nodePersistentState.mu.Lock()
 		if req.GetPrevLogIndex() < node.VolatileState.CommitIndex {
 			node.PersistentState.Log = node.PersistentState.Log[:req.GetPrevLogIndex()]
