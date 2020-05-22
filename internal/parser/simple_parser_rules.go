@@ -3731,7 +3731,12 @@ func (p *simpleParser) parseResultColumn(r reporter) (stmt *ast.ResultColumn) {
 				stmt.Period = period
 			}
 		} else {
-			stmt.Expr = &ast.Expr{LiteralValue: tableNameOrAsteriskOrExpr}
+			recExpr := p.parseExprRecursive(&ast.Expr{LiteralValue: tableNameOrAsteriskOrExpr}, r)
+			if recExpr != nil {
+				stmt.Expr = recExpr
+			} else {
+				stmt.Expr = &ast.Expr{LiteralValue: tableNameOrAsteriskOrExpr}
+			}
 		}
 		next, ok := p.optionalLookahead(r)
 		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
