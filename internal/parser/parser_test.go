@@ -9611,6 +9611,40 @@ func TestSingleStatementParse(t *testing.T) {
 				},
 			},
 		},
+		{
+			`SELECT stms's result column with recursive expr`,
+			"SELECT amount * price AS total_price FROM items",
+			&ast.SQLStmt{
+				SelectStmt: &ast.SelectStmt{
+					SelectCore: []*ast.SelectCore{
+						{
+							Select: token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+							ResultColumn: []*ast.ResultColumn{
+								{
+									Expr: &ast.Expr{
+										Expr1: &ast.Expr{
+											LiteralValue: token.New(1, 8, 7, 6, token.Literal, "amount"),
+										},
+										BinaryOperator: token.New(1, 15, 14, 1, token.BinaryOperator, "*"),
+										Expr2: &ast.Expr{
+											LiteralValue: token.New(1, 17, 16, 5, token.Literal, "price"),
+										},
+									},
+									As:          token.New(1, 23, 22, 2, token.KeywordAs, "AS"),
+									ColumnAlias: token.New(1, 26, 25, 11, token.Literal, "total_price"),
+								},
+							},
+							From: token.New(1, 38, 37, 4, token.KeywordFrom, "FROM"),
+							JoinClause: &ast.JoinClause{
+								TableOrSubquery: &ast.TableOrSubquery{
+									TableName: token.New(1, 43, 42, 5, token.Literal, "items"),
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 
 	for _, input := range inputs {

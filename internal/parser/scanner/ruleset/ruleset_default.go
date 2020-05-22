@@ -33,6 +33,7 @@ var (
 		matcher.New("upper", unicode.Upper),
 		matcher.New("lower", unicode.Lower),
 		matcher.New("title", unicode.Title),
+		matcher.String("-_"),
 		defaultNumber,
 	)
 	defaultNumericLiteral = matcher.Merge(
