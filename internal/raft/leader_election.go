@@ -21,19 +21,26 @@ func StartElection(node *Node) {
 	for i := range node.PersistentState.PeerIPs {
 		// Parallely request votes from the peers.
 		go func(i int) {
-			// send a requestVotesRPC
-			lastLogTerm := 1 // TODO: index issue here
+			var lastLogTerm int32
+			if len(node.PersistentState.Log) == 0 {
+				lastLogTerm = 0
+			} else {
+				lastLogTerm = node.PersistentState.Log[len(node.PersistentState.Log)].Term
+			}
+
 			req := message.NewRequestVoteRequest(
 				int32(node.PersistentState.CurrentTerm),
 				node.PersistentState.SelfID,
 				int32(len(node.PersistentState.Log)),
-				int32(lastLogTerm), //int32(node.PersistentState.Log[len(node.PersistentState.Log)].Term),
+				lastLogTerm,
 			)
 			node.log.
 				Debug().
 				Str("self-id", node.PersistentState.SelfID.String()).
 				Str("request-vote sent to", node.PersistentState.PeerIPs[i].RemoteID().String()).
 				Msg("request vote")
+
+				// send a requestVotesRPC
 			res, err := RequestVote(node.PersistentState.PeerIPs[i], req)
 			// If there's an error, the vote is considered to be not casted by the node.
 			// Worst case, there will be a re-election; the errors might be from network or

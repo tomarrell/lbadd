@@ -129,7 +129,7 @@ func sendHeartBeats(node *Node) {
 			if appendEntriesResponse.Term > savedCurrentTerm {
 				node.log.Debug().
 					Str(node.PersistentState.SelfID.String(), "stale term").
-					Str("following newer node", node.PersistentState.PeerIPs[i].RemoteID()) // TODO
+					Str("following newer node", node.PersistentState.PeerIPs[i].RemoteID().String())
 				becomeFollower(node)
 				return
 			}
@@ -143,10 +143,10 @@ func sendHeartBeats(node *Node) {
 					// If this appendEntries request failed,
 					// proceed and retry in the next cycle.
 					node.log.
-					Debug().
-					Str("self-id",node.PersistentState.SelfID.String()).
-					Str("received failure to append entries from",node.PersistentState.PeerIPs[i].RemoteID()).
-					Msg("failed to append entries")
+						Debug().
+						Str("self-id", node.PersistentState.SelfID.String()).
+						Str("received failure to append entries from", node.PersistentState.PeerIPs[i].RemoteID().String()).
+						Msg("failed to append entries")
 				}
 			}
 		}(i)
