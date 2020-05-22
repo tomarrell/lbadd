@@ -11,6 +11,7 @@ import (
 
 // Raft integration tests go here.
 func Test_NewServer(t *testing.T) {
+	t.SkipNow()
 	assert := assert.New(t)
 
 	log := zerolog.Nop()

@@ -13,27 +13,40 @@ import (
 // into it's working stage if the node won the election.
 // TODO: Logging.
 func StartElection(node *Node) {
+
+	node.PersistentState.mu.Lock()
+
 	node.State = StateCandidate.String()
 	node.PersistentState.CurrentTerm++
+	var lastLogTerm, lastLogIndex int32
+	savedCurrentTerm := node.PersistentState.CurrentTerm
+	if len(node.PersistentState.Log) == 0 {
+		lastLogTerm = 0
+	} else {
+		lastLogTerm = node.PersistentState.Log[len(node.PersistentState.Log)].Term
+	}
+	lastLogIndex = int32(len(node.PersistentState.Log))
+
+	node.PersistentState.mu.Unlock()
 
 	var votes int32
 
 	for i := range node.PersistentState.PeerIPs {
 		// Parallely request votes from the peers.
 		go func(i int) {
-			// send a requestVotesRPC
-			lastLogTerm := 1 // TODO: index issue here
 			req := message.NewRequestVoteRequest(
-				int32(node.PersistentState.CurrentTerm),
+				savedCurrentTerm,
 				node.PersistentState.SelfID,
-				int32(len(node.PersistentState.Log)),
-				int32(lastLogTerm), //int32(node.PersistentState.Log[len(node.PersistentState.Log)].Term),
+				lastLogIndex,
+				lastLogTerm,
 			)
 			node.log.
 				Debug().
 				Str("self-id", node.PersistentState.SelfID.String()).
 				Str("request-vote sent to", node.PersistentState.PeerIPs[i].RemoteID().String()).
 				Msg("request vote")
+
+				// send a requestVotesRPC
 			res, err := RequestVote(node.PersistentState.PeerIPs[i], req)
 			// If there's an error, the vote is considered to be not casted by the node.
 			// Worst case, there will be a re-election; the errors might be from network or
@@ -47,7 +60,9 @@ func StartElection(node *Node) {
 				votesRecieved := atomic.AddInt32(&votes, 1)
 				// Check whether this node has already voted.
 				// Else it can vote for itself.
+
 				node.PersistentState.mu.Lock()
+				defer node.PersistentState.mu.Unlock()
 				if node.PersistentState.VotedFor == nil {
 					node.PersistentState.VotedFor = node.PersistentState.SelfID
 					node.log.
@@ -56,7 +71,6 @@ func StartElection(node *Node) {
 						Msg("node voting for itself")
 					votesRecieved++
 				}
-				node.PersistentState.mu.Unlock()
 
 				if votesRecieved > int32(len(node.PersistentState.PeerIPs)/2) {
 					// This node has won the election.
@@ -66,7 +80,9 @@ func StartElection(node *Node) {
 						Debug().
 						Str("self-id", node.PersistentState.SelfID.String()).
 						Msg("node elected leader")
+					// node.PersistentState.mu.Unlock()
 					startLeader(node)
+					return
 				}
 			}
 		}(i)

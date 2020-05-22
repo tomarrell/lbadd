@@ -79,5 +79,7 @@ func Test_LeaderElection(t *testing.T) {
 
 	wg.Wait()
 
+	node.PersistentState.mu.Lock()
 	assert.True(cmp.Equal(node.PersistentState.SelfID, node.PersistentState.LeaderID))
+	node.PersistentState.mu.Unlock()
 }

@@ -2,6 +2,7 @@ package raft
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/tomarrell/lbadd/internal/raft/message"
@@ -40,6 +41,7 @@ func startLeader(node *Node) {
 			node.PersistentState.mu.Unlock()
 		}
 	}()
+	fmt.Println("GO")
 }
 
 func sendHeartBeats(node *Node) {
@@ -59,26 +61,32 @@ func sendHeartBeats(node *Node) {
 			Msg("sending heartbeats")
 		go func(i int) {
 			node.PersistentState.mu.Lock()
+			defer node.PersistentState.mu.Unlock()
+
 			nextIndex := node.VolatileStateLeader.NextIndex[i]
 			prevLogIndex := nextIndex
 			prevLogTerm := -1
 			if prevLogIndex >= 0 {
 				prevLogTerm = int(node.PersistentState.Log[prevLogIndex].Term)
 			}
+			commitIndex := node.VolatileState.CommitIndex
+			selfID := node.PersistentState.SelfID
 
 			// Logs are included from the nextIndex value to the current appended values
 			// in the leader node. If there are none, no logs will be appended.
-			entries := node.PersistentState.Log[nextIndex:]
+			var entries []*message.LogData
+			if nextIndex >= 0 {
+				entries = node.PersistentState.Log[nextIndex:]
+			}
 
 			appendEntriesRequest = message.NewAppendEntriesRequest(
-				node.PersistentState.CurrentTerm,
-				node.PersistentState.SelfID,
+				savedCurrentTerm,
+				selfID,
 				int32(prevLogIndex),
 				int32(prevLogTerm),
 				entries,
-				node.VolatileState.CommitIndex,
+				commitIndex,
 			)
-			node.PersistentState.mu.Unlock()
 
 			payload, err := message.Marshal(appendEntriesRequest)
 			if err != nil {
@@ -88,18 +96,19 @@ func sendHeartBeats(node *Node) {
 					Msg("error")
 				return
 			}
+
 			err = node.PersistentState.PeerIPs[i].Send(ctx, payload)
 			if err != nil {
 				node.log.
 					Err(err).
-					Str("Node", node.PersistentState.SelfID.String()).
+					Str("Node", selfID.String()).
 					Msg("error")
 				return
 			}
 
 			node.log.
 				Debug().
-				Str("self-id", node.PersistentState.SelfID.String()).
+				Str("self-id", selfID.String()).
 				Str("sent to", node.PersistentState.PeerIPs[i].RemoteID().String()).
 				Msg("sent heartbeat to peer")
 
@@ -107,7 +116,7 @@ func sendHeartBeats(node *Node) {
 			if err != nil {
 				node.log.
 					Err(err).
-					Str("Node", node.PersistentState.SelfID.String()).
+					Str("Node", selfID.String()).
 					Msg("error")
 				return
 			}
@@ -116,7 +125,7 @@ func sendHeartBeats(node *Node) {
 			if err != nil {
 				node.log.
 					Err(err).
-					Str("Node", node.PersistentState.SelfID.String()).
+					Str("Node", selfID.String()).
 					Msg("error")
 				return
 			}
@@ -129,20 +138,27 @@ func sendHeartBeats(node *Node) {
 			if appendEntriesResponse.Term > savedCurrentTerm {
 				node.log.Debug().
 					Str(node.PersistentState.SelfID.String(), "stale term").
-					Str("following newer node", "add its ID") // TODO
+					Str("following newer node", node.PersistentState.PeerIPs[i].RemoteID().String())
 				becomeFollower(node)
 				return
 			}
 
-			node.PersistentState.mu.Lock()
-
 			if node.State == StateLeader.String() && appendEntriesResponse.Term == savedCurrentTerm {
 				if appendEntriesResponse.Success {
-
+					node.VolatileStateLeader.NextIndex[i] = nextIndex + len(entries)
 				} else {
 					// If this appendEntries request failed,
+					// proceed and retry in the next cycle.
+					node.log.
+						Debug().
+						Str("self-id", node.PersistentState.SelfID.String()).
+						Str("received failure to append entries from", node.PersistentState.PeerIPs[i].RemoteID().String()).
+						Msg("failed to append entries")
 				}
+
 			}
+
+			// node.PersistentState.mu.Unlock()
 		}(i)
 	}
 }
