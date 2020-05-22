@@ -22,6 +22,8 @@ type Command interface {
 	fmt.Stringer
 }
 
+//go:generate stringer -type=JoinType
+
 // JoinType is a type of join.
 type JoinType uint8
 

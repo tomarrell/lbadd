@@ -21,6 +21,8 @@ func TestCompileSelect(t *testing.T) {
 			"SELECT * FROM a, b JOIN c WHERE true"},
 		{"select expression",
 			"SELECT name, amount * price AS total_price FROM items JOIN prices"},
+		{"select multiple joins",
+			"SELECT col1 FROM a, b NATURAL JOIN c, d, e LEFT OUTER JOIN f CROSS JOIN g, h, i"},
 	}
 	for _, test := range tests {
 		RunGolden(t, test.input, test.name)
