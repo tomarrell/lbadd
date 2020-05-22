@@ -35,9 +35,7 @@ func AppendEntriesResponse(node *Node, req *message.AppendEntriesRequest) *messa
 		if req.GetPrevLogIndex() < node.VolatileState.CommitIndex {
 			node.PersistentState.Log = node.PersistentState.Log[:req.GetPrevLogIndex()]
 		}
-		for _, entry := range entries {
-			node.PersistentState.Log = append(node.PersistentState.Log, entry)
-		}
+		node.PersistentState.Log = append(node.PersistentState.Log, entries...)
 		node.PersistentState.mu.Unlock()
 	}
 
