@@ -43,7 +43,7 @@ func AppendEntriesResponse(node *Node, req *message.AppendEntriesRequest) *messa
 			nodeCommitIndex = int32(len(node.PersistentState.Log))
 		}
 		node.VolatileState.CommitIndex = nodeCommitIndex
-		// apply the log command & update lastApplied
+		// TODO: apply the log command & update lastApplied
 	}
 
 	return &message.AppendEntriesResponse{
