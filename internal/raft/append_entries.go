@@ -6,25 +6,18 @@ import "github.com/tomarrell/lbadd/internal/raft/message"
 // to the follower node. This function generates the response to be sent to the leader node.
 // This is the response to the contact by the leader to assert it's leadership.
 func AppendEntriesResponse(node *Node, req *message.AppendEntriesRequest) *message.AppendEntriesResponse {
-	success := true
 	leaderTerm := req.GetTerm()
 	nodePersistentState := node.PersistentState
 	nodeTerm := nodePersistentState.CurrentTerm
-	// return false if term < currentTerm
-	if nodeTerm > leaderTerm {
-		success = false
-	} else if req.GetPrevLogIndex() > node.VolatileState.CommitIndex {
-		// return false if msg Log Index is greater than node commit Index
-		success = false
-	} else if nodePersistentState.Log[req.PrevLogIndex].Term != req.GetPrevLogTerm() {
-		// return false if term of msg at PrevLogIndex doesn't match prev Log Term stored by Leader
-		success = false
-	}
-
-	if !success {
+	// return false if term is greater than currentTerm
+	// return false if msg Log Index is greater than node commit Index
+	// return false if term of msg at PrevLogIndex doesn't match prev Log Term stored by Leader
+	if nodeTerm > leaderTerm ||
+		req.GetPrevLogIndex() > node.VolatileState.CommitIndex ||
+		nodePersistentState.Log[req.PrevLogIndex].Term != req.GetPrevLogTerm() {
 		return &message.AppendEntriesResponse{
 			Term:    nodeTerm,
-			Success: success,
+			Success: false,
 		}
 	}
 
@@ -50,7 +43,7 @@ func AppendEntriesResponse(node *Node, req *message.AppendEntriesRequest) *messa
 
 	return &message.AppendEntriesResponse{
 		Term:    nodeTerm,
-		Success: success,
+		Success: true,
 	}
 
 }
