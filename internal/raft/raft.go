@@ -29,9 +29,8 @@ type ReplicationHandler func(string)
 // The raft paper describes this as a "State" but node
 // seemed more intuitive.
 type Node struct {
-	State     string
-	IDConnMap map[id.ID]network.Conn
-	log       zerolog.Logger
+	State string
+	log   zerolog.Logger
 
 	PersistentState     *PersistentState
 	VolatileState       *VolatileState
