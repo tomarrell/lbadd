@@ -11,7 +11,10 @@ import (
 	"github.com/tomarrell/lbadd/internal/raft/message"
 )
 
-// TestAppendEntries
+// TestAppendEntries function checks the correctnes of AppendEntriesResponse
+// function. In this test function, we check how the function will respond to
+// if node Term is less than leader node, node Log Index is less than leader
+// commit Index and checks if logs are appended correctly to node Log
 func TestAppendEntries(t *testing.T) {
 	assert := assert.New(t)
 
