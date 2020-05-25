@@ -176,8 +176,9 @@ type (
 
 	// Values returns a list of datasets from the evaluated expressions.
 	Values struct {
-		// Values are the values that represent the datasets in this list.
-		Values []Expr
+		// Values are the values that represent the datasets in this list. Each
+		// dataset consists of all expressions that are in the dataset.
+		Values [][]Expr
 	}
 )
 
@@ -268,9 +269,13 @@ func (t SimpleTable) String() string {
 }
 
 func (v Values) String() string {
-	var vals []string
+	var values []string
 	for _, val := range v.Values {
-		vals = append(vals, val.String())
+		var exprs []string
+		for _, expr := range val {
+			exprs = append(exprs, expr.String())
+		}
+		values = append(values, "("+strings.Join(exprs, ",")+")")
 	}
-	return fmt.Sprintf("Values[](%v)", strings.Join(vals, ","))
+	return fmt.Sprintf("Values[](%v)", strings.Join(values, ","))
 }

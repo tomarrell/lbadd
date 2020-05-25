@@ -50,14 +50,14 @@ func (c *simpleCompiler) Compile(ast *ast.SQLStmt) (command.Command, error) {
 }
 
 func (c *simpleCompiler) compileInternal(ast *ast.SQLStmt) (command.Command, error) {
-	if ast.SelectStmt == nil {
-		return nil, fmt.Errorf("not select: %w", ErrUnsupported)
+	if ast.SelectStmt != nil {
+		cmd, err := c.compileSelect(ast.SelectStmt)
+		if err != nil {
+			return nil, fmt.Errorf("select: %w", err)
+		}
+		return cmd, nil
 	}
-	cmd, err := c.compileSelect(ast.SelectStmt)
-	if err != nil {
-		return nil, fmt.Errorf("select: %w", err)
-	}
-	return cmd, nil
+	return nil, fmt.Errorf("not select: %w", ErrUnsupported)
 }
 
 func (c *simpleCompiler) compileSelect(stmt *ast.SelectStmt) (command.Command, error) {
@@ -74,6 +74,17 @@ func (c *simpleCompiler) compileSelectCore(core *ast.SelectCore) (command.Comman
 		return nil, fmt.Errorf("compound statements: %w", ErrUnsupported)
 	}
 
+	if core.Values != nil {
+		return c.compileSelectCoreValues(core)
+	}
+	return c.compileSelectCoreSelect(core)
+}
+
+func (c *simpleCompiler) compileSelectCoreValues(core *ast.SelectCore) (command.Command, error) {
+	return nil, fmt.Errorf("values: %w (see issue #155 for more info)", ErrUnsupported)
+}
+
+func (c *simpleCompiler) compileSelectCoreSelect(core *ast.SelectCore) (command.Command, error) {
 	// compile the projection columns
 
 	// cols are the projection columns.
