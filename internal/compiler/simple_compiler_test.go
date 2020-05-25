@@ -173,6 +173,62 @@ func Test_simpleCompiler_Compile_NoOptimizations(t *testing.T) {
 			},
 			false,
 		},
+		{
+			"select function",
+			"SELECT AVG(price) AS avg_price FROM items LEFT JOIN prices",
+			command.Project{
+				Cols: []command.Column{
+					{
+						Column: command.FunctionExpr{
+							Name:     "AVG",
+							Distinct: false,
+							Args: []command.Expr{
+								command.LiteralExpr{Value: "price"},
+							},
+						},
+						Alias: "avg_price",
+					},
+				},
+				Input: command.Join{
+					Type: command.JoinLeft,
+					Left: command.Scan{
+						Table: command.SimpleTable{Table: "items"},
+					},
+					Right: command.Scan{
+						Table: command.SimpleTable{Table: "prices"},
+					},
+				},
+			},
+			false,
+		},
+		{
+			"select function distinct",
+			"SELECT AVG(DISTINCT price) AS avg_price FROM items LEFT JOIN prices",
+			command.Project{
+				Cols: []command.Column{
+					{
+						Column: command.FunctionExpr{
+							Name:     "AVG",
+							Distinct: true,
+							Args: []command.Expr{
+								command.LiteralExpr{Value: "price"},
+							},
+						},
+						Alias: "avg_price",
+					},
+				},
+				Input: command.Join{
+					Type: command.JoinLeft,
+					Left: command.Scan{
+						Table: command.SimpleTable{Table: "items"},
+					},
+					Right: command.Scan{
+						Table: command.SimpleTable{Table: "prices"},
+					},
+				},
+			},
+			false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
