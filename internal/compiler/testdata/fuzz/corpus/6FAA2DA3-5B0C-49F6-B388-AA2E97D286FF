@@ -1,0 +1,1 @@
+SELECT name, amount * price AS total_price FROM items JOIN prices

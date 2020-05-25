@@ -26,7 +26,12 @@ build: ## Build an lbadd binary that is ready for prod
 .PHONY: fuzzy-parser
 fuzzy-parser: ## Starts fuzzing the parser
 	go-fuzz-build -o parser-fuzz.zip ./internal/parser
-	go-fuzz -bin parser-fuzz.zip -workdir internal/parser/test/fuzz
+	go-fuzz -bin parser-fuzz.zip -workdir internal/parser/testdata/fuzz
+
+.PHONY: fuzzy-compiler
+fuzzy-compiler: ## Starts fuzzing the compiler
+	go-fuzz-build -o compiler-fuzz.zip ./internal/compiler
+	go-fuzz -bin compiler-fuzz.zip -workdir internal/compiler/testdata/fuzz
 
 ## Help display.
 ## Pulls comments from beside commands and prints a nicely formatted

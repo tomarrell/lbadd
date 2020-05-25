@@ -1,0 +1,19 @@
+panic: runtime error: invalid memory address or nil pointer dereference
+[signal SIGSEGV: segmentation violation code=0x1 addr=0x0 pc=0x1140682]
+
+goroutine 1 [running]:
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).compileExpr(0xc000178a00, 0x0, 0x11a7700, 0xc000178a40, 0xc00006fdd0, 0x0)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/compiler/simple_compiler.go:241 +0x52
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).compileSelect(0xc000178a00, 0xc0000921e0, 0x0, 0x2, 0xc000094020, 0x0)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/compiler/simple_compiler.go:96 +0x27c
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).compileInternal(0xc000178a00, 0xc000171e00, 0x0, 0x2, 0xc000094020, 0x0)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/compiler/simple_compiler.go:54 +0x7e
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).Compile(0xc000178a00, 0xc000171e00, 0x0, 0x0, 0x0, 0x0)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/compiler/simple_compiler.go:34 +0x54
+github.com/tomarrell/lbadd/internal/compiler.Fuzz(0x8a21000, 0x15, 0x15, 0x3)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/compiler/simple_compiler_fuzzy.go:36 +0x3a2
+go-fuzz-dep.Main(0xc00012df70, 0x1, 0x1)
+	go-fuzz-dep/main.go:36 +0x1ad
+main.main()
+	github.com/tomarrell/lbadd/internal/compiler/go.fuzz.main/main.go:15 +0x52
+exit status 2

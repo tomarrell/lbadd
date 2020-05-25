@@ -1,4 +1,4 @@
 .DS_Store
 *.log
 /lbadd
-/parser-fuzz.zip
+/*-fuzz.zip

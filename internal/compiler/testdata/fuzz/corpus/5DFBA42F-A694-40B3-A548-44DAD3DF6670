@@ -1,0 +1,1 @@
+SELECT AVG(price) AS avg_price FROM items LEFT JOIN prices
