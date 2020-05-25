@@ -8,12 +8,6 @@ import (
 	"github.com/tomarrell/lbadd/internal/parser/ast"
 )
 
-const (
-	// decimalPoint is the rune '.', and it cannot be ',' because of ambiguity
-	// in the grammar (could be interpreted as a token separator).
-	decimalPoint rune = '.'
-)
-
 type simpleCompiler struct {
 	optimizations []optimization.Optimization
 }
@@ -67,12 +61,49 @@ func (c *simpleCompiler) compileInternal(ast *ast.SQLStmt) (command.Command, err
 }
 
 func (c *simpleCompiler) compileSelect(stmt *ast.SelectStmt) (command.Command, error) {
-	// This implementation is incomplete, it is missing everything else about
-	// the select statement except the core.
 	if len(stmt.SelectCore) != 1 {
 		return nil, fmt.Errorf("compound select: %w", ErrUnsupported)
 	}
-	return c.compileSelectCore(stmt.SelectCore[0])
+
+	var cmd command.Command
+	// compile the select core
+	core, err := c.compileSelectCore(stmt.SelectCore[0])
+	if err != nil {
+		return nil, fmt.Errorf("core: %w", err)
+	}
+	cmd = core
+
+	// compile ORDER BY
+	if stmt.Order != nil {
+		return nil, fmt.Errorf("order: %w", ErrUnsupported)
+	}
+
+	// compile LIMIT
+	if stmt.Limit != nil {
+		// if there is an offset specified, wrap the command in an offset
+		if stmt.Expr2 != nil {
+			offset, err := c.compileExpr(stmt.Expr2)
+			if err != nil {
+				return nil, fmt.Errorf("limit offset: %w", err)
+			}
+			cmd = command.Offset{
+				Offset: offset,
+				Input:  cmd.(command.List),
+			}
+		}
+
+		// wrap the command into a limit
+		limit, err := c.compileExpr(stmt.Expr1)
+		if err != nil {
+			return nil, fmt.Errorf("limit from: %w", err)
+		}
+		cmd = command.Limit{
+			Limit: limit,
+			Input: cmd.(command.List),
+		}
+	}
+
+	return cmd, nil
 }
 
 func (c *simpleCompiler) compileSelectCore(core *ast.SelectCore) (command.Command, error) {

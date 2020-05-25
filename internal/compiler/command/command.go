@@ -187,6 +187,7 @@ func (Select) _list()   {}
 func (Project) _list()  {}
 func (Join) _list()     {}
 func (Limit) _list()    {}
+func (Offset) _list()   {}
 func (Distinct) _list() {}
 func (Values) _list()   {}
 
@@ -242,6 +243,10 @@ func (j Join) String() string {
 
 func (l Limit) String() string {
 	return fmt.Sprintf("Limit[limit=%v](%v)", l.Limit, l.Input)
+}
+
+func (o Offset) String() string {
+	return fmt.Sprintf("Offset[offset=%v](%v)", o.Offset, o.Input)
 }
 
 func (e Empty) String() string {

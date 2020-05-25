@@ -41,6 +41,23 @@ func Test_simpleCompiler_Compile_NoOptimizations(t *testing.T) {
 		},
 		{
 			"simple select",
+			"SELECT * FROM myTable",
+			command.Project{
+				Cols: []command.Column{
+					{
+						Column: command.LiteralExpr{Value: "*"},
+					},
+				},
+				Input: command.Scan{
+					Table: command.SimpleTable{
+						Table: "myTable",
+					},
+				},
+			},
+			false,
+		},
+		{
+			"simple select where",
 			"SELECT * FROM myTable WHERE true",
 			command.Project{
 				Cols: []command.Column{
@@ -53,6 +70,72 @@ func Test_simpleCompiler_Compile_NoOptimizations(t *testing.T) {
 					Input: command.Scan{
 						Table: command.SimpleTable{
 							Table: "myTable",
+						},
+					},
+				},
+			},
+			false,
+		},
+		{
+			"simple select limit",
+			"SELECT * FROM myTable LIMIT 5",
+			command.Limit{
+				Limit: command.LiteralExpr{Value: "5"},
+				Input: command.Project{
+					Cols: []command.Column{
+						{
+							Column: command.LiteralExpr{Value: "*"},
+						},
+					},
+					Input: command.Scan{
+						Table: command.SimpleTable{
+							Table: "myTable",
+						},
+					},
+				},
+			},
+			false,
+		},
+		{
+			"simple select limit offset",
+			"SELECT * FROM myTable LIMIT 5, 10",
+			command.Limit{
+				Limit: command.LiteralExpr{Value: "5"},
+				Input: command.Offset{
+					Offset: command.LiteralExpr{Value: "10"},
+					Input: command.Project{
+						Cols: []command.Column{
+							{
+								Column: command.LiteralExpr{Value: "*"},
+							},
+						},
+						Input: command.Scan{
+							Table: command.SimpleTable{
+								Table: "myTable",
+							},
+						},
+					},
+				},
+			},
+			false,
+		},
+		{
+			"simple select limit offset",
+			"SELECT * FROM myTable LIMIT 5 OFFSET 10",
+			command.Limit{
+				Limit: command.LiteralExpr{Value: "5"},
+				Input: command.Offset{
+					Offset: command.LiteralExpr{Value: "10"},
+					Input: command.Project{
+						Cols: []command.Column{
+							{
+								Column: command.LiteralExpr{Value: "*"},
+							},
+						},
+						Input: command.Scan{
+							Table: command.SimpleTable{
+								Table: "myTable",
+							},
 						},
 					},
 				},
