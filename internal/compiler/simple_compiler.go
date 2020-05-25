@@ -8,6 +8,12 @@ import (
 	"github.com/tomarrell/lbadd/internal/parser/ast"
 )
 
+const (
+	// decimalPoint is the rune '.', and it cannot be ',' because of ambiguity
+	// in the grammar (could be interpreted as a token separator).
+	decimalPoint rune = '.'
+)
+
 type simpleCompiler struct {
 	optimizations []optimization.Optimization
 }
@@ -81,7 +87,19 @@ func (c *simpleCompiler) compileSelectCore(core *ast.SelectCore) (command.Comman
 }
 
 func (c *simpleCompiler) compileSelectCoreValues(core *ast.SelectCore) (command.Command, error) {
-	return nil, fmt.Errorf("values: %w (see issue #155 for more info)", ErrUnsupported)
+	var datasets [][]command.Expr
+	for _, parExpr := range core.ParenthesizedExpressions {
+		var values []command.Expr
+		for _, expr := range parExpr.Exprs {
+			compiled, err := c.compileExpr(expr)
+			if err != nil {
+				return nil, fmt.Errorf("expr: %w", err)
+			}
+			values = append(values, compiled)
+		}
+		datasets = append(datasets, values)
+	}
+	return command.Values{Values: datasets}, nil
 }
 
 func (c *simpleCompiler) compileSelectCoreSelect(core *ast.SelectCore) (command.Command, error) {

@@ -16,6 +16,30 @@ func Test_simpleCompiler_Compile_NoOptimizations(t *testing.T) {
 		wantErr bool
 	}{
 		{
+			"simple values",
+			"VALUES (1,2,3),(4,5,6),(7,8,9)",
+			command.Values{
+				Values: [][]command.Expr{
+					{
+						command.LiteralExpr{Value: "1"},
+						command.LiteralExpr{Value: "2"},
+						command.LiteralExpr{Value: "3"},
+					},
+					{
+						command.LiteralExpr{Value: "4"},
+						command.LiteralExpr{Value: "5"},
+						command.LiteralExpr{Value: "6"},
+					},
+					{
+						command.LiteralExpr{Value: "7"},
+						command.LiteralExpr{Value: "8"},
+						command.LiteralExpr{Value: "9"},
+					},
+				},
+			},
+			false,
+		},
+		{
 			"simple select",
 			"SELECT * FROM myTable WHERE true",
 			command.Project{
