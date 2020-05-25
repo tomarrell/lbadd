@@ -14,7 +14,7 @@ import (
 // TestAppendEntries function checks the correctnes of AppendEntriesResponse
 // function. In this test function, we check how the function will respond to
 // if node Term is less than leader node, node Log Index is less than leader
-// commit Index and checks if logs are appended correctly to node Log
+// commitIndex and checks if logs are appended correctly to node Log.
 func TestAppendEntries(t *testing.T) {
 	assert := assert.New(t)
 
@@ -35,7 +35,11 @@ func TestAppendEntries(t *testing.T) {
 	cluster.AddConnection(tcp2int)
 
 	// Created a mock node with default values for PersistentState
-	// and Volatile State
+	// and Volatile State.
+	// For Volatile State, CommitIndex given -1 to show no commit is
+	// applied as Log Index start with 0, so -1 show value before any
+	// log committed and same logic goes with LastApplied as -1 show
+	// no logs with given Index is applied to State Machine.
 	node := &Node{
 		State: StateFollower.String(),
 		PersistentState: &PersistentState{
@@ -50,11 +54,13 @@ func TestAppendEntries(t *testing.T) {
 		},
 	}
 
-	entries := []*message.LogData{message.NewLogData(2,
-		"execute cmd3"), message.NewLogData(2, "execute cmd4")}
+	entries := []*message.LogData{
+		message.NewLogData(2, "execute cmd3"),
+		message.NewLogData(2, "execute cmd4"),
+	}
 	// Creating a mock msg AppendEntriesRequest with default values
 	// Leader commit specifies the Index of Log commited by leader and
-	// entries include msg LogData sent to nodes
+	// entries include msg LogData sent to nodes.
 	msg := &message.AppendEntriesRequest{
 		Term:         1,
 		PrevLogIndex: -1,
