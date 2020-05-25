@@ -41,12 +41,12 @@ type Node struct {
 type PersistentState struct {
 	CurrentTerm int32
 	VotedFor    id.ID // VotedFor is nil at init, and id.ID of the node after voting is complete.
-	mu          sync.Mutex
 	Log         []*message.LogData
 
 	SelfID   id.ID
 	LeaderID id.ID          // LeaderID is nil at init, and the id.ID of the node after the leader is elected.
 	PeerIPs  []network.Conn // PeerIPs has the connection variables of all the other nodes in the cluster.
+	mu       sync.Mutex
 }
 
 // VolatileState describes the volatile state data on a raft node.
