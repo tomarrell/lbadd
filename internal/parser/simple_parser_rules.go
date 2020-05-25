@@ -1285,6 +1285,23 @@ func (p *simpleParser) parseExprRecursive(expr *ast.Expr, r reporter) *ast.Expr 
 	return nil
 }
 
+// parseExprBeginWithLiteral parses possible expressions that begin with a literal.
+// A nil is returned if it turns out not to be an expression.
+func (p *simpleParser) parseExprBeginWithLiteral(literal token.Token, r reporter) (expr *ast.Expr) {
+	next, ok := p.optionalLookahead(r)
+	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+		return nil
+	}
+	if next.Value() == "." {
+		return p.parseExpr2(literal, nil, nil, r)
+	} else if next.Type() == token.Delimiter && next.Value() == "(" {
+		return p.parseExpr5(literal, r)
+	} else {
+		returnExpr := p.parseExprRecursive(&ast.Expr{LiteralValue: literal}, r)
+		return returnExpr
+	}
+}
+
 // parseExpr2 parses S' -> (schema.table.column clause) S'.
 func (p *simpleParser) parseExpr2(schemaOrTableName, period, tableOrColName token.Token, r reporter) (expr *ast.Expr) {
 	expr = &ast.Expr{}
@@ -3731,11 +3748,15 @@ func (p *simpleParser) parseResultColumn(r reporter) (stmt *ast.ResultColumn) {
 				stmt.Period = period
 			}
 		} else {
-			recExpr := p.parseExprRecursive(&ast.Expr{LiteralValue: tableNameOrAsteriskOrExpr}, r)
-			if recExpr != nil {
+			// Conditions for recursive expressions or single expressions.
+			if recExpr := p.parseExprRecursive(&ast.Expr{LiteralValue: tableNameOrAsteriskOrExpr}, r); recExpr != nil {
 				stmt.Expr = recExpr
 			} else {
-				stmt.Expr = &ast.Expr{LiteralValue: tableNameOrAsteriskOrExpr}
+				if singleExpr := p.parseExprBeginWithLiteral(tableNameOrAsteriskOrExpr, r); singleExpr != nil {
+					stmt.Expr = singleExpr
+				} else {
+					stmt.Expr = &ast.Expr{LiteralValue: tableNameOrAsteriskOrExpr}
+				}
 			}
 		}
 		next, ok := p.optionalLookahead(r)
@@ -4545,7 +4566,8 @@ func (p *simpleParser) parseJoinOperator(r reporter) (stmt *ast.JoinOperator) {
 	if !ok {
 		return
 	}
-	if next.Type() == token.KeywordLeft {
+	switch next.Type() {
+	case token.KeywordLeft:
 		stmt.Left = next
 		p.consumeToken()
 		next, ok = p.lookahead(r)
@@ -4556,22 +4578,10 @@ func (p *simpleParser) parseJoinOperator(r reporter) (stmt *ast.JoinOperator) {
 			stmt.Outer = next
 			p.consumeToken()
 		}
-	}
-
-	next, ok = p.lookahead(r)
-	if !ok {
-		return
-	}
-	if next.Type() == token.KeywordInner {
+	case token.KeywordInner:
 		stmt.Inner = next
 		p.consumeToken()
-	}
-
-	next, ok = p.lookahead(r)
-	if !ok {
-		return
-	}
-	if next.Type() == token.KeywordCross {
+	case token.KeywordCross:
 		stmt.Cross = next
 		p.consumeToken()
 	}
