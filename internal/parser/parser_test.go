@@ -9692,6 +9692,16 @@ func TestSingleStatementParse(t *testing.T) {
 				},
 			},
 		},
+		{
+			`SELECT BUG`,
+			"SELECT 0(0*FROM J",
+			&ast.SQLStmt{},
+		},
+		// {
+		// 	`SELECT BUG`,
+		// 	"SELECT 0* FROM y",
+		// 	&ast.SQLStmt{},
+		// },
 	}
 
 	for _, input := range inputs {

@@ -1413,17 +1413,22 @@ func (p *simpleParser) parseExpr5(functionName token.Token, r reporter) (expr *a
 		if !ok {
 			return
 		}
-		if next.Type() == token.KeywordDistinct {
+		switch next.Type() {
+		case token.KeywordDistinct:
 			expr.Distinct = next
 			p.consumeToken()
 			expr.Expr = p.parseExprSequence(r)
-		} else if next.Type() == token.BinaryOperator {
+		case token.BinaryOperator:
 			expr.Asterisk = next
 			p.consumeToken()
-		} else if next.Type() == token.Delimiter && next.Value() == ")" {
-			expr.RightParen = next
-			p.consumeToken()
-		} else {
+		case token.Delimiter:
+			if next.Value() == ")" {
+				expr.RightParen = next
+				p.consumeToken()
+			} else {
+				r.unexpectedSingleRuneToken(')')
+			}
+		default:
 			expr.Expr = p.parseExprSequence(r)
 		}
 
@@ -1431,25 +1436,29 @@ func (p *simpleParser) parseExpr5(functionName token.Token, r reporter) (expr *a
 		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 			return
 		}
-		if next.Type() == token.Delimiter && next.Value() == ")" {
-			expr.RightParen = next
-			p.consumeToken()
-		}
-
-		next, ok = p.optionalLookahead(r)
-		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
-			return
-		}
-		if next.Type() == token.KeywordFilter {
+		// 3 possiblities, Filter or over clause OR a ')'
+		switch next.Type() {
+		case token.KeywordFilter:
 			expr.FilterClause = p.parseFilterClause(r)
-		}
-
-		next, ok = p.optionalLookahead(r)
-		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
-			return
-		}
-		if next.Type() == token.KeywordOver {
+			next, ok = p.optionalLookahead(r)
+			if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+				return
+			}
+			if next.Type() == token.KeywordOver {
+				expr.OverClause = p.parseOverClause(r)
+			}
+		case token.KeywordOver:
 			expr.OverClause = p.parseOverClause(r)
+		default:
+			// Check whether it was already recorded before.
+			if expr.RightParen == nil {
+				if next.Type() == token.Delimiter && next.Value() == ")" {
+					expr.RightParen = next
+					p.consumeToken()
+				} else {
+					r.unexpectedSingleRuneToken(')')
+				}
+			}
 		}
 
 		next, ok := p.optionalLookahead(r)
