@@ -249,6 +249,42 @@ func TestRuleBasedScanner(t *testing.T) {
 				token.New(1, 13, 12, 0, token.EOF, ""),
 			},
 		},
+		{
+			"underscore in single unquoted token",
+			"alpha_beta",
+			ruleset.Default,
+			[]token.Token{
+				token.New(1, 1, 0, 10, token.Literal, "alpha_beta"),
+				token.New(1, 11, 10, 0, token.EOF, ""),
+			},
+		},
+		{
+			"underscore in single quoted token",
+			"\"alpha_beta\"",
+			ruleset.Default,
+			[]token.Token{
+				token.New(1, 1, 0, 12, token.Literal, "\"alpha_beta\""),
+				token.New(1, 13, 12, 0, token.EOF, ""),
+			},
+		},
+		{
+			"dash in single unquoted token",
+			"alpha-beta",
+			ruleset.Default,
+			[]token.Token{
+				token.New(1, 1, 0, 10, token.Literal, "alpha-beta"),
+				token.New(1, 11, 10, 0, token.EOF, ""),
+			},
+		},
+		{
+			"dash in single quoted token",
+			"\"alpha-beta\"",
+			ruleset.Default,
+			[]token.Token{
+				token.New(1, 1, 0, 12, token.Literal, "\"alpha-beta\""),
+				token.New(1, 13, 12, 0, token.EOF, ""),
+			},
+		},
 	}
 	for _, input := range inputs {
 		t.Run("ruleset=default/"+input.name, _TestRuleBasedScannerWithRuleset(input.query, input.ruleset, input.want))
