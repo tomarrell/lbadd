@@ -6,6 +6,45 @@ import "github.com/tomarrell/lbadd/internal/raft/message"
 // to the follower node. This function generates the response to be sent to the leader node.
 // This is the response to the contact by the leader to assert it's leadership.
 func AppendEntriesResponse(node *Node, req *message.AppendEntriesRequest) *message.AppendEntriesResponse {
+	leaderTerm := req.GetTerm()
+	nodePersistentState := node.PersistentState
+	nodeTerm := nodePersistentState.CurrentTerm
+	// return false if term is greater than currentTerm
+	// return false if msg Log Index is greater than node commit Index
+	// return false if term of msg at PrevLogIndex doesn't match prev Log Term stored by Leader
+	if nodeTerm > leaderTerm ||
+		req.GetPrevLogIndex() > node.VolatileState.CommitIndex ||
+		nodePersistentState.Log[req.PrevLogIndex].Term != req.GetPrevLogTerm() {
+		return &message.AppendEntriesResponse{
+			Term:    nodeTerm,
+			Success: false,
+		}
+	}
 
-	return nil
+	entries := req.GetEntries()
+	// if heartbeat, skip adding entries
+	if len(entries) > 0 {
+		nodePersistentState.mu.Lock()
+		if req.GetPrevLogIndex() < node.VolatileState.CommitIndex {
+			node.PersistentState.Log = node.PersistentState.Log[:req.GetPrevLogIndex()]
+		}
+		node.PersistentState.Log = append(node.PersistentState.Log, entries...)
+		node.PersistentState.mu.Unlock()
+	}
+
+	if req.GetLeaderCommit() > node.VolatileState.CommitIndex {
+		nodeCommitIndex := req.GetLeaderCommit()
+		if int(req.GetLeaderCommit()) > len(node.PersistentState.Log) {
+			nodeCommitIndex = int32(len(node.PersistentState.Log))
+		}
+		node.VolatileState.CommitIndex = nodeCommitIndex
+		// TODO: Issue #152 apply the log command & update lastApplied
+	}
+
+	return &message.AppendEntriesResponse{
+		Term:    nodeTerm,
+		Success: true,
+	}
+
 }
+
