@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"fmt"
+
 	"github.com/tomarrell/lbadd/internal/parser/ast"
 	"github.com/tomarrell/lbadd/internal/parser/scanner/token"
 )
@@ -3369,6 +3371,7 @@ func (p *simpleParser) parseSelectStmt(withClause *ast.WithClause, r reporter) (
 			stmt.WithClause = p.parseWithClause(r)
 		}
 	}
+	var selectCore *ast.SelectCore
 
 	// Keep looping and searching for the select core until its exhausted.
 	// We are sure that a select core starts here as its the type of stmt we expect.
@@ -3378,7 +3381,17 @@ func (p *simpleParser) parseSelectStmt(withClause *ast.WithClause, r reporter) (
 			return
 		}
 		if next.Type() == token.KeywordSelect || next.Type() == token.KeywordValues {
-			stmt.SelectCore = append(stmt.SelectCore, p.parseSelectCore(r))
+			if selectCore != nil {
+				// Operated on previous selectCores.
+				// If there's no compounding in this statement;
+				// strict rule, thus breaking flow.
+				if selectCore.CompoundOperator == nil {
+					r.unexpectedToken(token.KeywordUnion, token.KeywordIntersect, token.KeywordExcept)
+					break
+				}
+			}
+			selectCore = p.parseSelectCore(r)
+			stmt.SelectCore = append(stmt.SelectCore, selectCore)
 		} else {
 			break
 		}
@@ -3424,6 +3437,10 @@ func (p *simpleParser) parseSelectStmt(withClause *ast.WithClause, r reporter) (
 		stmt.Limit = next
 		p.consumeToken()
 		stmt.Expr1 = p.parseExpression(r)
+
+		if stmt.Expr1 == nil {
+			fmt.Println("BRO")
+		}
 
 		next, ok = p.optionalLookahead(r)
 		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
@@ -3693,16 +3710,26 @@ func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 		if !ok {
 			return
 		}
-		if next.Value() == "(" {
+		if next.Type() == token.Delimiter && next.Value() == "(" {
 			for {
-				stmt.ParenthesizedExpressions = append(stmt.ParenthesizedExpressions, p.parseParenthesizedExpression(r))
+				parExp := p.parseParenthesizedExpression(r)
+				if parExp != nil {
+					stmt.ParenthesizedExpressions = append(stmt.ParenthesizedExpressions, parExp)
+				}
 				next, ok = p.optionalLookahead(r)
 				if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+					if stmt.ParenthesizedExpressions == nil {
+						r.expectedExpression()
+					}
 					return
 				}
+				fmt.Println("LL")
 				if next.Value() == "," {
 					p.consumeToken()
 				} else {
+					if len(stmt.ParenthesizedExpressions) == 0 {
+						r.expectedExpression()
+					}
 					break
 				}
 			}
@@ -4192,7 +4219,10 @@ func (p *simpleParser) parseParenthesizedExpression(r reporter) (stmt *ast.Paren
 		stmt.LeftParen = next
 		p.consumeToken()
 		for {
-			stmt.Exprs = append(stmt.Exprs, p.parseExpression(r))
+			expr := p.parseExpression(r)
+			if expr != nil {
+				stmt.Exprs = append(stmt.Exprs, expr)
+			}
 			next, ok = p.lookahead(r)
 			if !ok {
 				return
@@ -4206,6 +4236,10 @@ func (p *simpleParser) parseParenthesizedExpression(r reporter) (stmt *ast.Paren
 				p.consumeToken()
 			}
 		}
+	}
+	// Minimum of one expr must exist.
+	if len(stmt.Exprs) == 0 {
+		stmt = nil
 	}
 	return
 }
