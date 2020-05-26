@@ -9611,6 +9611,87 @@ func TestSingleStatementParse(t *testing.T) {
 				},
 			},
 		},
+		{
+			`SELECT stms's result column with recursive expr`,
+			"SELECT amount * price AS total_price FROM items",
+			&ast.SQLStmt{
+				SelectStmt: &ast.SelectStmt{
+					SelectCore: []*ast.SelectCore{
+						{
+							Select: token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+							ResultColumn: []*ast.ResultColumn{
+								{
+									Expr: &ast.Expr{
+										Expr1: &ast.Expr{
+											LiteralValue: token.New(1, 8, 7, 6, token.Literal, "amount"),
+										},
+										BinaryOperator: token.New(1, 15, 14, 1, token.BinaryOperator, "*"),
+										Expr2: &ast.Expr{
+											LiteralValue: token.New(1, 17, 16, 5, token.Literal, "price"),
+										},
+									},
+									As:          token.New(1, 23, 22, 2, token.KeywordAs, "AS"),
+									ColumnAlias: token.New(1, 26, 25, 11, token.Literal, "total_price"),
+								},
+							},
+							From: token.New(1, 38, 37, 4, token.KeywordFrom, "FROM"),
+							JoinClause: &ast.JoinClause{
+								TableOrSubquery: &ast.TableOrSubquery{
+									TableName: token.New(1, 43, 42, 5, token.Literal, "items"),
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			"SELECT stmt with result column with single expr - function name",
+			"SELECT AVG(price) AS average_price FROM items LEFT OUTER JOIN prices",
+			&ast.SQLStmt{
+				SelectStmt: &ast.SelectStmt{
+					SelectCore: []*ast.SelectCore{
+						{
+							Select: token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+							ResultColumn: []*ast.ResultColumn{
+								{
+									Expr: &ast.Expr{
+										FunctionName: token.New(1, 8, 7, 3, token.Literal, "AVG"),
+										LeftParen:    token.New(1, 11, 10, 1, token.Delimiter, "("),
+										Expr: []*ast.Expr{
+											{
+												LiteralValue: token.New(1, 12, 11, 5, token.Literal, "price"),
+											},
+										},
+										RightParen: token.New(1, 17, 16, 1, token.Delimiter, ")"),
+									},
+									As:          token.New(1, 19, 18, 2, token.KeywordAs, "AS"),
+									ColumnAlias: token.New(1, 22, 21, 13, token.Literal, "average_price"),
+								},
+							},
+							From: token.New(1, 36, 35, 4, token.KeywordFrom, "FROM"),
+							JoinClause: &ast.JoinClause{
+								TableOrSubquery: &ast.TableOrSubquery{
+									TableName: token.New(1, 41, 40, 5, token.Literal, "items"),
+								},
+								JoinClausePart: []*ast.JoinClausePart{
+									{
+										JoinOperator: &ast.JoinOperator{
+											Left:  token.New(1, 47, 46, 4, token.KeywordLeft, "LEFT"),
+											Outer: token.New(1, 52, 51, 5, token.KeywordOuter, "OUTER"),
+											Join:  token.New(1, 58, 57, 4, token.KeywordJoin, "JOIN"),
+										},
+										TableOrSubquery: &ast.TableOrSubquery{
+											TableName: token.New(1, 63, 62, 6, token.Literal, "prices"),
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 
 	for _, input := range inputs {

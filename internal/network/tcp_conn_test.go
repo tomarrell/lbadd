@@ -22,7 +22,7 @@ func TestTCPConnSendReceive(t *testing.T) {
 
 	payload := []byte("Hello, World!")
 	recv := make([]byte, len(payload))
-	wg := &sync.WaitGroup{}
+	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
 		var err error
@@ -50,6 +50,8 @@ func TestDialTCP(t *testing.T) {
 
 	clientID := id.Create()
 	srvID := id.Create()
+	var wg sync.WaitGroup
+	wg.Add(1)
 	go func() {
 		conn, err := lis.Accept()
 		assert.NoError(err)
@@ -64,6 +66,8 @@ func TestDialTCP(t *testing.T) {
 		assert.Equal(clientID.String(), parsedID.String()) // parsed ID must be equal to actual client ID
 
 		assert.NoError(tcpConn.Send(ctx, payload))
+
+		wg.Done()
 	}()
 
 	port := lis.Addr().(*net.TCPAddr).Port
@@ -76,6 +80,8 @@ func TestDialTCP(t *testing.T) {
 	recv, err := conn.Receive(ctx)
 	assert.NoError(err)
 	assert.Equal(payload, recv)
+
+	wg.Wait()
 }
 
 func TestTCPConnWriteContext(t *testing.T) {
