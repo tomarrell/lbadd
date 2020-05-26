@@ -108,6 +108,7 @@ func (s *simpleServer) Start() (err error) {
 	// liveChan is a channel that passes the incomingData once received.
 	liveChan := make(chan *incomingData)
 	// Listen forever on all node connections.
+
 	go func() {
 		for {
 			// Parallely start waiting for incoming data.
@@ -126,6 +127,7 @@ func (s *simpleServer) Start() (err error) {
 			}
 		}
 	}()
+
 	// This block of code checks what kind of request has to be serviced
 	// and calls the necessary function to complete it.
 	for {
