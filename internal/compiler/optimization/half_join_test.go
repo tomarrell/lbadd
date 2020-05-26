@@ -1,4 +1,4 @@
-package compiler
+package optimization
 
 import (
 	"reflect"
@@ -54,6 +54,53 @@ func TestOptHalfJoin(t *testing.T) {
 			command.Select{
 				Input: command.Scan{
 					Table: command.SimpleTable{Table: "foobar"},
+				},
+			},
+			true,
+		},
+		{
+			"optimize left deep single",
+			command.Select{
+				Input: command.Join{
+					Left: command.Join{
+						Left: nil,
+						Right: command.Scan{
+							Table: command.SimpleTable{Table: "a"},
+						},
+					},
+					Right: command.Scan{
+						Table: command.SimpleTable{Table: "b"},
+					},
+				},
+			},
+			command.Select{
+				Input: command.Join{
+					Left: command.Scan{
+						Table: command.SimpleTable{Table: "a"},
+					},
+					Right: command.Scan{
+						Table: command.SimpleTable{Table: "b"},
+					},
+				},
+			},
+			true,
+		},
+		{
+			"optimize left deep double",
+			command.Select{
+				Input: command.Join{
+					Left: nil,
+					Right: command.Join{
+						Left: nil,
+						Right: command.Scan{
+							Table: command.SimpleTable{Table: "c"},
+						},
+					},
+				},
+			},
+			command.Select{
+				Input: command.Scan{
+					Table: command.SimpleTable{Table: "c"},
 				},
 			},
 			true,

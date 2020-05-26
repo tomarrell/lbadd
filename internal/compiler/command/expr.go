@@ -2,7 +2,7 @@ package command
 
 import (
 	"fmt"
-	"strconv"
+	"strings"
 )
 
 type (
@@ -21,12 +21,40 @@ type (
 		Value string
 	}
 
-	// NumericExpr is a simple expression that represents a numerical
-	// value of type int64. If a value does not fit into an int64, another
-	// expression has to be used.
-	NumericExpr struct {
-		// Value is the simple int64 value of this expression.
-		Value int64
+	// BooleanExpr is a simple expression that represents a boolean value.
+	BooleanExpr struct {
+		// Value is the simple bool value of this expression.
+		Value bool
+	}
+
+	// UnaryExpr represents a unary expression of the form <Operand><Value>.
+	UnaryExpr struct {
+		// Operator is the unary operator of the expression.
+		Operator string
+		// Value is the value that the unary operator operates on.
+		Value Expr
+	}
+
+	// BinaryExpr represents a binary expression of the form
+	// <Left><Operand><Right>.
+	BinaryExpr struct {
+		// Operator is the binary operator of the expression.
+		Operator string
+		// Left is the left hand side argument of the operator.
+		Left Expr
+		// Right is the right hand side argument of the operator.
+		Right Expr
+	}
+
+	// FunctionExpr represents a function call expression.
+	FunctionExpr struct {
+		// Name is the name of the function.
+		Name string
+		// Distinct determines, whether only distinct elements in the arguments'
+		// input lists must be considered.
+		Distinct bool
+		// Args are the function argument expressions.
+		Args []Expr
 	}
 
 	// EqualityExpr is an expression with a left and right side expression, and
@@ -60,16 +88,14 @@ type (
 )
 
 func (LiteralExpr) _expr()  {}
-func (NumericExpr) _expr()  {}
 func (EqualityExpr) _expr() {}
 func (RangeExpr) _expr()    {}
+func (UnaryExpr) _expr()    {}
+func (BinaryExpr) _expr()   {}
+func (FunctionExpr) _expr() {}
 
 func (l LiteralExpr) String() string {
 	return l.Value
-}
-
-func (n NumericExpr) String() string {
-	return strconv.FormatInt(n.Value, 10)
 }
 
 func (e EqualityExpr) String() string {
@@ -84,4 +110,23 @@ func (r RangeExpr) String() string {
 		return fmt.Sprintf("![%v;%v]", r.Lo, r.Hi)
 	}
 	return fmt.Sprintf("[%v;%v]", r.Lo, r.Hi)
+}
+
+func (e UnaryExpr) String() string {
+	return fmt.Sprintf("%v %v", e.Operator, e.Value)
+}
+
+func (e BinaryExpr) String() string {
+	return fmt.Sprintf("%v %v %v", e.Left, e.Operator, e.Right)
+}
+
+func (f FunctionExpr) String() string {
+	var args []string
+	for _, arg := range f.Args {
+		args = append(args, arg.String())
+	}
+	if f.Distinct {
+		return fmt.Sprintf("%s(DISTINCT %s)", f.Name, strings.Join(args, ","))
+	}
+	return fmt.Sprintf("%s(%s)", f.Name, strings.Join(args, ","))
 }
