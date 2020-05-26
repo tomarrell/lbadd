@@ -1,8 +1,6 @@
 package parser
 
 import (
-	"fmt"
-
 	"github.com/tomarrell/lbadd/internal/parser/ast"
 	"github.com/tomarrell/lbadd/internal/parser/scanner/token"
 )
@@ -3439,7 +3437,7 @@ func (p *simpleParser) parseSelectStmt(withClause *ast.WithClause, r reporter) (
 		stmt.Expr1 = p.parseExpression(r)
 
 		if stmt.Expr1 == nil {
-			fmt.Println("BRO")
+			r.expectedExpression()
 		}
 
 		next, ok = p.optionalLookahead(r)
@@ -3723,7 +3721,6 @@ func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 					}
 					return
 				}
-				fmt.Println("LL")
 				if next.Value() == "," {
 					p.consumeToken()
 				} else {
