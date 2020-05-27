@@ -3781,6 +3781,8 @@ func (p *simpleParser) parseResultColumn(r reporter) (stmt *ast.ResultColumn) {
 		p.consumeToken()
 		period, ok := p.optionalLookahead(r)
 		if !ok || period.Type() == token.EOF || period.Type() == token.StatementSeparator {
+			// If the statement ends on a literal, its an expression of form literal.
+			stmt.Expr = &ast.Expr{LiteralValue: tableNameOrAsteriskOrExpr}
 			return
 		}
 		if period.Value() == "." {

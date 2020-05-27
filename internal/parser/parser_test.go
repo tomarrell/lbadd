@@ -9760,6 +9760,26 @@ func TestSingleStatementParse(t *testing.T) {
 				},
 			},
 		},
+		{
+			`Simple select`,
+			"SELECT A",
+			&ast.SQLStmt{
+				SelectStmt: &ast.SelectStmt{
+					SelectCore: []*ast.SelectCore{
+						{
+							Select: token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+							ResultColumn: []*ast.ResultColumn{
+								{
+									Expr: &ast.Expr{
+										LiteralValue: token.New(1,8,7,1,token.Literal,"A"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 
 	for _, input := range inputs {
