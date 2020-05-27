@@ -1,1 +1,0 @@
-SELECT A(pri)AS ai FROM ie LEFT JOIN pri

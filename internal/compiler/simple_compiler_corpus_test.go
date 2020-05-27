@@ -1,4 +1,4 @@
-package parser
+package compiler
 
 import (
 	"io/ioutil"
@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/tomarrell/lbadd/internal/parser"
 )
 
 const (
@@ -31,14 +32,15 @@ func _TestCorpusFile(file string) func(*testing.T) {
 		data, err := ioutil.ReadFile(file)
 		assert.NoError(err)
 		content := string(data)
+		parser := parser.New(content)
+		compiler := New()
 
-		parser := New(content)
-		for {
-			stmt, _, ok := parser.Next()
-			if !ok {
-				break
-			}
-			assert.NotNil(stmt)
-		}
+		stmt, errs, ok := parser.Next()
+		assert.Len(errs, 0)
+		assert.True(ok)
+
+		cmd, err := compiler.Compile(stmt)
+		assert.NoError(err)
+		assert.NotNil(cmd)
 	}
 }
