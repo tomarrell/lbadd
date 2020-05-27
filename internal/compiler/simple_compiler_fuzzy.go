@@ -28,7 +28,7 @@ func Fuzz(data []byte) int {
 	if !ok || len(errs) != 0 {
 		// no statement at all or parse errors are not interesting, we need
 		// something we can compile
-		return Skip
+		return DataNotInteresting
 	}
 	if _, _, ok = parser.Next(); ok {
 		// more than one statement is valid, but not interesting

@@ -36,11 +36,20 @@ func _TestCorpusFile(file string) func(*testing.T) {
 		compiler := New()
 
 		stmt, errs, ok := parser.Next()
-		assert.Len(errs, 0)
 		assert.True(ok)
+		if !ok || len(errs) != 0 {
+			return
+		}
 
 		cmd, err := compiler.Compile(stmt)
-		assert.NoError(err)
-		assert.NotNil(cmd)
+		// We don't care about what the compilation result is or if there was an
+		// error. Fuzzing just ensures, that the compiler doesn't panic for any
+		// input. We just need to make sure, that the compilation result and
+		// compilation errors are mutually exclusive.
+		if err == nil {
+			assert.NotNil(cmd)
+		} else {
+			assert.Nil(cmd)
+		}
 	}
 }
