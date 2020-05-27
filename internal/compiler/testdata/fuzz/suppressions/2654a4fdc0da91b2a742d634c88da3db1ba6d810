@@ -1,0 +1,20 @@
+panic: runtime error: invalid memory address or nil pointer dereference
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).compileExpr
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).compileExpr
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).compileExpr
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).compileExpr
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).compileExpr
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).compileExpr
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).compileExpr
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).compileExpr
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).compileExpr
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).compileExpr
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).compileResultColumn
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).compileSelectCoreSelect
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).compileSelectCore
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).compileSelect
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).compileInternal
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).Compile
+github.com/tomarrell/lbadd/internal/compiler.Fuzz
+go-fuzz-dep.Main
+main.main

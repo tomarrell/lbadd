@@ -1,0 +1,31 @@
+panic: runtime error: invalid memory address or nil pointer dereference
+[signal SIGSEGV: segmentation violation code=0x1 addr=0x0 pc=0x1141232]
+
+goroutine 1 [running]:
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).compileExpr(0xc00000c180, 0x0, 0xc, 0x0, 0x2, 0x1)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/compiler/simple_compiler.go:241 +0x52
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).compileExpr(0xc00000c180, 0xc0000758c0, 0xc000010100, 0xc0000717a0, 0x110bec6, 0xc00002ae80)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/compiler/simple_compiler.go:244 +0x9b5
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).compileExpr(0xc00000c180, 0xc000076000, 0x11a8840, 0xc000010100, 0x0, 0x0)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/compiler/simple_compiler.go:253 +0x67a
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).compileExpr(0xc00000c180, 0xc000075600, 0x11a9640, 0xc00002ac80, 0xc000071ae8, 0x11069fc)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/compiler/simple_compiler.go:257 +0x7a2
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).compileResultColumn(0xc00000c180, 0xc00005a180, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0xc000071b38, 0x100b456)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/compiler/simple_compiler.go:228 +0x221
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).compileSelectCoreSelect(0xc00000c180, 0xc0000683c0, 0x100b456, 0xc00002af00, 0x40, 0x38)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/compiler/simple_compiler.go:142 +0xf1
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).compileSelectCore(0xc00000c180, 0xc0000683c0, 0x0, 0xc000071c60, 0x1010f93, 0xc00002af00)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/compiler/simple_compiler.go:117 +0x129
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).compileSelect(0xc00000c180, 0xc0000661e0, 0x0, 0x2, 0xc000016203, 0x0)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/compiler/simple_compiler.go:70 +0xb6
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).compileInternal(0xc00000c180, 0xc000064300, 0x0, 0x2, 0xc000016203, 0x0)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/compiler/simple_compiler.go:54 +0x7e
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).Compile(0xc00000c180, 0xc000064300, 0x0, 0x0, 0x0, 0x0)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/compiler/simple_compiler.go:34 +0x54
+github.com/tomarrell/lbadd/internal/compiler.Fuzz(0x8b81000, 0xc, 0xc, 0x3)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/compiler/simple_compiler_fuzzy.go:38 +0x3a4
+go-fuzz-dep.Main(0xc000071f70, 0x1, 0x1)
+	go-fuzz-dep/main.go:36 +0x1ad
+main.main()
+	github.com/tomarrell/lbadd/internal/compiler/go.fuzz.main/main.go:15 +0x52
+exit status 2
