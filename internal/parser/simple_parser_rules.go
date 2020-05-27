@@ -1384,6 +1384,9 @@ func (p *simpleParser) parseExpr4(expr *ast.Expr, r reporter) *ast.Expr {
 		exprParent.BinaryOperator = next
 		p.consumeToken()
 		exprParent.Expr2 = p.parseExpression(r)
+		if exprParent.Expr2 == nil {
+			r.expectedExpression()
+		}
 	}
 
 	next, ok = p.optionalLookahead(r)
@@ -1558,6 +1561,9 @@ func (p *simpleParser) parseExpr9(expr *ast.Expr, tokenNot token.Token, r report
 	}
 
 	exprParent.Expr2 = p.parseExpression(r)
+	if exprParent.Expr2 == nil {
+		r.expectedExpression()
+	}
 
 	next, ok = p.optionalLookahead(r)
 	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
@@ -1567,6 +1573,9 @@ func (p *simpleParser) parseExpr9(expr *ast.Expr, tokenNot token.Token, r report
 		exprParent.Escape = next
 		p.consumeToken()
 		exprParent.Expr3 = p.parseExpression(r)
+		if exprParent.Expr3 == nil {
+			r.expectedExpression()
+		}
 	}
 
 	next, ok = p.optionalLookahead(r)
@@ -1636,6 +1645,9 @@ func (p *simpleParser) parseExpr11(expr *ast.Expr, r reporter) *ast.Expr {
 		}
 
 		exprParent.Expr2 = p.parseExpression(r)
+		if exprParent.Expr2 == nil {
+			r.expectedExpression()
+		}
 	} else {
 		r.unexpectedToken(token.KeywordIs)
 	}
@@ -1666,6 +1678,9 @@ func (p *simpleParser) parseExpr12(expr *ast.Expr, tokenNot token.Token, r repor
 		p.consumeToken()
 
 		exprParent.Expr2 = p.parseExpression(r)
+		if exprParent.Expr2 == nil {
+			r.expectedExpression()
+		}
 
 		next, ok = p.lookahead(r)
 		if !ok {
@@ -1676,6 +1691,9 @@ func (p *simpleParser) parseExpr12(expr *ast.Expr, tokenNot token.Token, r repor
 			p.consumeToken()
 
 			exprParent.Expr3 = p.parseExpression(r)
+			if exprParent.Expr3 == nil {
+				r.expectedExpression()
+			}
 		} else {
 			r.unexpectedToken(token.KeywordAnd)
 		}
