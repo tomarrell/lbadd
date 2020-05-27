@@ -9692,6 +9692,94 @@ func TestSingleStatementParse(t *testing.T) {
 				},
 			},
 		},
+		{
+			`Compulsory Expr condition 1`,
+			"SELECT 0 LIKE 2 ESCAPE 3 FROM y",
+			&ast.SQLStmt{
+				SelectStmt: &ast.SelectStmt{
+					SelectCore: []*ast.SelectCore{
+						{
+							Select: token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+							ResultColumn: []*ast.ResultColumn{
+								{
+									Expr: &ast.Expr{
+										Expr1: &ast.Expr{
+											LiteralValue: token.New(1, 8, 7, 1, token.LiteralNumeric, "0"),
+										},
+										Like: token.New(1, 10, 9, 4, token.KeywordLike, "LIKE"),
+										Expr2: &ast.Expr{
+											LiteralValue: token.New(1, 15, 14, 1, token.LiteralNumeric, "2"),
+										},
+										Escape: token.New(1, 17, 16, 6, token.KeywordEscape, "ESCAPE"),
+										Expr3: &ast.Expr{
+											LiteralValue: token.New(1, 24, 23, 1, token.LiteralNumeric, "3"),
+										},
+									},
+								},
+							},
+							From: token.New(1, 26, 25, 4, token.KeywordFrom, "FROM"),
+							JoinClause: &ast.JoinClause{
+								TableOrSubquery: &ast.TableOrSubquery{
+									TableName: token.New(1, 31, 30, 1, token.Literal, "y"),
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			`Compulsory Expr condition 2`,
+			"SELECT 0 IS 1 FROM y",
+			&ast.SQLStmt{
+				SelectStmt: &ast.SelectStmt{
+					SelectCore: []*ast.SelectCore{
+						{
+							Select: token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+							ResultColumn: []*ast.ResultColumn{
+								{
+									Expr: &ast.Expr{
+										Expr1: &ast.Expr{
+											LiteralValue: token.New(1, 8, 7, 1, token.LiteralNumeric, "0"),
+										},
+										Is: token.New(1, 10, 9, 2, token.KeywordIs, "IS"),
+										Expr2: &ast.Expr{
+											LiteralValue: token.New(1, 13, 12, 1, token.LiteralNumeric, "1"),
+										},
+									},
+								},
+							},
+							From: token.New(1, 15, 14, 4, token.KeywordFrom, "FROM"),
+							JoinClause: &ast.JoinClause{
+								TableOrSubquery: &ast.TableOrSubquery{
+									TableName: token.New(1, 20, 19, 1, token.Literal, "y"),
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			`Simple select`,
+			"SELECT A",
+			&ast.SQLStmt{
+				SelectStmt: &ast.SelectStmt{
+					SelectCore: []*ast.SelectCore{
+						{
+							Select: token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+							ResultColumn: []*ast.ResultColumn{
+								{
+									Expr: &ast.Expr{
+										LiteralValue: token.New(1,8,7,1,token.Literal,"A"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 
 	for _, input := range inputs {

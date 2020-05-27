@@ -1384,6 +1384,9 @@ func (p *simpleParser) parseExpr4(expr *ast.Expr, r reporter) *ast.Expr {
 		exprParent.BinaryOperator = next
 		p.consumeToken()
 		exprParent.Expr2 = p.parseExpression(r)
+		if exprParent.Expr2 == nil {
+			r.expectedExpression()
+		}
 	}
 
 	next, ok = p.optionalLookahead(r)
@@ -1413,17 +1416,22 @@ func (p *simpleParser) parseExpr5(functionName token.Token, r reporter) (expr *a
 		if !ok {
 			return
 		}
-		if next.Type() == token.KeywordDistinct {
+		switch next.Type() {
+		case token.KeywordDistinct:
 			expr.Distinct = next
 			p.consumeToken()
 			expr.Expr = p.parseExprSequence(r)
-		} else if next.Type() == token.BinaryOperator {
+		case token.BinaryOperator:
 			expr.Asterisk = next
 			p.consumeToken()
-		} else if next.Type() == token.Delimiter && next.Value() == ")" {
-			expr.RightParen = next
-			p.consumeToken()
-		} else {
+		case token.Delimiter:
+			if next.Value() == ")" {
+				expr.RightParen = next
+				p.consumeToken()
+			} else {
+				r.unexpectedSingleRuneToken(')')
+			}
+		default:
 			expr.Expr = p.parseExprSequence(r)
 		}
 
@@ -1431,25 +1439,29 @@ func (p *simpleParser) parseExpr5(functionName token.Token, r reporter) (expr *a
 		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 			return
 		}
-		if next.Type() == token.Delimiter && next.Value() == ")" {
-			expr.RightParen = next
-			p.consumeToken()
-		}
-
-		next, ok = p.optionalLookahead(r)
-		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
-			return
-		}
-		if next.Type() == token.KeywordFilter {
+		// 3 possiblities, Filter OR over clause OR a ')'
+		switch next.Type() {
+		case token.KeywordFilter:
 			expr.FilterClause = p.parseFilterClause(r)
-		}
-
-		next, ok = p.optionalLookahead(r)
-		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
-			return
-		}
-		if next.Type() == token.KeywordOver {
+			next, ok = p.optionalLookahead(r)
+			if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+				return
+			}
+			if next.Type() == token.KeywordOver {
+				expr.OverClause = p.parseOverClause(r)
+			}
+		case token.KeywordOver:
 			expr.OverClause = p.parseOverClause(r)
+		default:
+			// Check whether it was already recorded before.
+			if expr.RightParen == nil {
+				if next.Type() == token.Delimiter && next.Value() == ")" {
+					expr.RightParen = next
+					p.consumeToken()
+				} else {
+					r.unexpectedSingleRuneToken(')')
+				}
+			}
 		}
 
 		next, ok := p.optionalLookahead(r)
@@ -1549,6 +1561,9 @@ func (p *simpleParser) parseExpr9(expr *ast.Expr, tokenNot token.Token, r report
 	}
 
 	exprParent.Expr2 = p.parseExpression(r)
+	if exprParent.Expr2 == nil {
+		r.expectedExpression()
+	}
 
 	next, ok = p.optionalLookahead(r)
 	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
@@ -1558,6 +1573,9 @@ func (p *simpleParser) parseExpr9(expr *ast.Expr, tokenNot token.Token, r report
 		exprParent.Escape = next
 		p.consumeToken()
 		exprParent.Expr3 = p.parseExpression(r)
+		if exprParent.Expr3 == nil {
+			r.expectedExpression()
+		}
 	}
 
 	next, ok = p.optionalLookahead(r)
@@ -1627,6 +1645,9 @@ func (p *simpleParser) parseExpr11(expr *ast.Expr, r reporter) *ast.Expr {
 		}
 
 		exprParent.Expr2 = p.parseExpression(r)
+		if exprParent.Expr2 == nil {
+			r.expectedExpression()
+		}
 	} else {
 		r.unexpectedToken(token.KeywordIs)
 	}
@@ -1657,6 +1678,9 @@ func (p *simpleParser) parseExpr12(expr *ast.Expr, tokenNot token.Token, r repor
 		p.consumeToken()
 
 		exprParent.Expr2 = p.parseExpression(r)
+		if exprParent.Expr2 == nil {
+			r.expectedExpression()
+		}
 
 		next, ok = p.lookahead(r)
 		if !ok {
@@ -1667,6 +1691,9 @@ func (p *simpleParser) parseExpr12(expr *ast.Expr, tokenNot token.Token, r repor
 			p.consumeToken()
 
 			exprParent.Expr3 = p.parseExpression(r)
+			if exprParent.Expr3 == nil {
+				r.expectedExpression()
+			}
 		} else {
 			r.unexpectedToken(token.KeywordAnd)
 		}
@@ -3360,6 +3387,7 @@ func (p *simpleParser) parseSelectStmt(withClause *ast.WithClause, r reporter) (
 			stmt.WithClause = p.parseWithClause(r)
 		}
 	}
+	var selectCore *ast.SelectCore
 
 	// Keep looping and searching for the select core until its exhausted.
 	// We are sure that a select core starts here as its the type of stmt we expect.
@@ -3369,7 +3397,17 @@ func (p *simpleParser) parseSelectStmt(withClause *ast.WithClause, r reporter) (
 			return
 		}
 		if next.Type() == token.KeywordSelect || next.Type() == token.KeywordValues {
-			stmt.SelectCore = append(stmt.SelectCore, p.parseSelectCore(r))
+			if selectCore != nil {
+				// Operated on previous selectCores.
+				// If there's no compounding in this statement;
+				// strict rule, thus breaking flow.
+				if selectCore.CompoundOperator == nil {
+					r.unexpectedToken(token.KeywordUnion, token.KeywordIntersect, token.KeywordExcept)
+					break
+				}
+			}
+			selectCore = p.parseSelectCore(r)
+			stmt.SelectCore = append(stmt.SelectCore, selectCore)
 		} else {
 			break
 		}
@@ -3415,6 +3453,10 @@ func (p *simpleParser) parseSelectStmt(withClause *ast.WithClause, r reporter) (
 		stmt.Limit = next
 		p.consumeToken()
 		stmt.Expr1 = p.parseExpression(r)
+
+		if stmt.Expr1 == nil {
+			r.expectedExpression()
+		}
 
 		next, ok = p.optionalLookahead(r)
 		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
@@ -3684,16 +3726,25 @@ func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 		if !ok {
 			return
 		}
-		if next.Value() == "(" {
+		if next.Type() == token.Delimiter && next.Value() == "(" {
 			for {
-				stmt.ParenthesizedExpressions = append(stmt.ParenthesizedExpressions, p.parseParenthesizedExpression(r))
+				parExp := p.parseParenthesizedExpression(r)
+				if parExp != nil {
+					stmt.ParenthesizedExpressions = append(stmt.ParenthesizedExpressions, parExp)
+				}
 				next, ok = p.optionalLookahead(r)
 				if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
+					if stmt.ParenthesizedExpressions == nil {
+						r.expectedExpression()
+					}
 					return
 				}
 				if next.Value() == "," {
 					p.consumeToken()
 				} else {
+					if len(stmt.ParenthesizedExpressions) == 0 {
+						r.expectedExpression()
+					}
 					break
 				}
 			}
@@ -3730,6 +3781,8 @@ func (p *simpleParser) parseResultColumn(r reporter) (stmt *ast.ResultColumn) {
 		p.consumeToken()
 		period, ok := p.optionalLookahead(r)
 		if !ok || period.Type() == token.EOF || period.Type() == token.StatementSeparator {
+			// If the statement ends on a literal, its an expression of form literal.
+			stmt.Expr = &ast.Expr{LiteralValue: tableNameOrAsteriskOrExpr}
 			return
 		}
 		if period.Value() == "." {
@@ -4183,7 +4236,10 @@ func (p *simpleParser) parseParenthesizedExpression(r reporter) (stmt *ast.Paren
 		stmt.LeftParen = next
 		p.consumeToken()
 		for {
-			stmt.Exprs = append(stmt.Exprs, p.parseExpression(r))
+			expr := p.parseExpression(r)
+			if expr != nil {
+				stmt.Exprs = append(stmt.Exprs, expr)
+			}
 			next, ok = p.lookahead(r)
 			if !ok {
 				return
@@ -4197,6 +4253,10 @@ func (p *simpleParser) parseParenthesizedExpression(r reporter) (stmt *ast.Paren
 				p.consumeToken()
 			}
 		}
+	}
+	// Minimum of one expr must exist.
+	if len(stmt.Exprs) == 0 {
+		stmt = nil
 	}
 	return
 }
