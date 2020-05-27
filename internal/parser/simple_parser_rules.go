@@ -1439,7 +1439,7 @@ func (p *simpleParser) parseExpr5(functionName token.Token, r reporter) (expr *a
 		if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 			return
 		}
-		// 3 possiblities, Filter or over clause OR a ')'
+		// 3 possiblities, Filter OR over clause OR a ')'
 		switch next.Type() {
 		case token.KeywordFilter:
 			expr.FilterClause = p.parseFilterClause(r)
