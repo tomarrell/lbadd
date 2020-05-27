@@ -115,6 +115,6 @@ type reporter interface {
 	// support, etc.).
 	unsupportedConstruct(t token.Token)
 	// expectedExpression is similar to unexpectedToken() but instead of
-	// expecting tokens, it expects an expression type.
+	// expecting tokens, it expects an expression.
 	expectedExpression()
 }
