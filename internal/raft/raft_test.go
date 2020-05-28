@@ -64,10 +64,10 @@ func Test_Raft(t *testing.T) {
 		conn4,
 	}
 
-	conn1 = addRemoteID(conn1)
-	conn2 = addRemoteID(conn2)
-	conn3 = addRemoteID(conn3)
-	conn4 = addRemoteID(conn4)
+	// conn1 = addRemoteID(conn1)
+	// conn2 = addRemoteID(conn2)
+	// conn3 = addRemoteID(conn3)
+	// conn4 = addRemoteID(conn4)
 
 	conn1.On("Send", ctx, mock.IsType([]byte{})).Return(nil)
 	conn2.On("Send", ctx, mock.IsType([]byte{})).Return(nil)
