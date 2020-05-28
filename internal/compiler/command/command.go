@@ -110,6 +110,17 @@ type (
 		Input List
 	}
 
+	// Delete instructs the instructor to delete all datasets from a table, that
+	// match the filter.
+	Delete struct {
+		// Table is the table to delete datasets from.
+		Table Table
+		// Filter is an expression that a dataset has to match in order to be
+		// deleted. This must not be nil. If all datasets from the table have to
+		// be deleted, the filter will be a constant true expression.
+		Filter Expr
+	}
+
 	// Column represents a database table column.
 	Column struct {
 		// Table is the table name that this column belongs to. May be empty, as
@@ -214,6 +225,10 @@ func (p Project) String() string {
 		colStrs[i] = col.String()
 	}
 	return fmt.Sprintf("Project[cols=%v](%v)", strings.Join(colStrs, ","), p.Input)
+}
+
+func (d Delete) String() string {
+	return fmt.Sprintf("Delete[filter=%v](%v)", d.Filter, d.Table)
 }
 
 func (c Column) String() string {

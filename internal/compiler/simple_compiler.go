@@ -50,14 +50,64 @@ func (c *simpleCompiler) Compile(ast *ast.SQLStmt) (command.Command, error) {
 }
 
 func (c *simpleCompiler) compileInternal(ast *ast.SQLStmt) (command.Command, error) {
-	if ast.SelectStmt != nil {
+	switch {
+	case ast.SelectStmt != nil:
 		cmd, err := c.compileSelect(ast.SelectStmt)
 		if err != nil {
 			return nil, fmt.Errorf("select: %w", err)
 		}
 		return cmd, nil
+	case ast.DeleteStmt != nil:
+		cmd, err := c.compileDelete(ast.DeleteStmt)
+		if err != nil {
+			return nil, fmt.Errorf("delete: %w", err)
+		}
+		return cmd, nil
 	}
-	return nil, fmt.Errorf("not select: %w", ErrUnsupported)
+	return nil, fmt.Errorf("statement type: %w", ErrUnsupported)
+}
+
+func (c *simpleCompiler) compileDelete(stmt *ast.DeleteStmt) (command.Command, error) {
+	if stmt.WithClause != nil {
+		return nil, fmt.Errorf("with: %w", ErrUnsupported)
+	}
+
+	var filter command.Expr
+	if stmt.Where != nil {
+		compiled, err := c.compileExpr(stmt.Expr)
+		if err != nil {
+			return nil, fmt.Errorf("expr: %w", err)
+		}
+		filter = compiled
+	} else {
+		filter = command.ConstantBooleanExpr{Value: true} // constant true
+	}
+
+	table, err := c.compileQualifiedTableName(stmt.QualifiedTableName)
+	if err != nil {
+		return nil, fmt.Errorf("qualified table name: %w", err)
+	}
+	return command.Delete{
+		Table:  table,
+		Filter: filter,
+	}, nil
+}
+
+func (c *simpleCompiler) compileQualifiedTableName(tableName *ast.QualifiedTableName) (command.Table, error) {
+	table := command.SimpleTable{
+		Table: tableName.TableName.Value(),
+	}
+	if tableName.SchemaName != nil {
+		table.Schema = tableName.SchemaName.Value()
+	}
+	if tableName.As != nil {
+		table.Alias = tableName.Alias.Value()
+	}
+	if tableName.By != nil {
+		table.Indexed = true
+		table.Index = tableName.IndexName.Value()
+	}
+	return table, nil
 }
 
 func (c *simpleCompiler) compileSelect(stmt *ast.SelectStmt) (command.Command, error) {
