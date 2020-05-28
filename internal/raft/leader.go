@@ -2,7 +2,6 @@ package raft
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/tomarrell/lbadd/internal/raft/message"
@@ -41,7 +40,6 @@ func startLeader(node *Node) {
 			node.PersistentState.mu.Unlock()
 		}
 	}()
-	fmt.Println("GO")
 }
 
 func sendHeartBeats(node *Node) {

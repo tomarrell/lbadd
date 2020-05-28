@@ -40,13 +40,14 @@ func StartElection(node *Node) {
 				lastLogIndex,
 				lastLogTerm,
 			)
+
 			node.log.
 				Debug().
 				Str("self-id", node.PersistentState.SelfID.String()).
 				Str("request-vote sent to", node.PersistentState.PeerIPs[i].RemoteID().String()).
 				Msg("request vote")
 
-				// send a requestVotesRPC
+			// send a requestVotesRPC
 			res, err := RequestVote(node.PersistentState.PeerIPs[i], req)
 			// If there's an error, the vote is considered to be not casted by the node.
 			// Worst case, there will be a re-election; the errors might be from network or

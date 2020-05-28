@@ -3,7 +3,6 @@ package raft
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/tomarrell/lbadd/internal/id"
 	"github.com/tomarrell/lbadd/internal/network"
@@ -14,8 +13,7 @@ import (
 // This function requests a vote from one node and returns that node's response.
 // It opens a connection to the intended node using the network layer and waits for a response.
 func RequestVote(nodeConn network.Conn, req *message.RequestVoteRequest) (*message.RequestVoteResponse, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
+	ctx := context.Background()
 
 	payload, err := message.Marshal(req)
 	if err != nil {

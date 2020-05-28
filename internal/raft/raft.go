@@ -182,6 +182,7 @@ func (s *simpleServer) Close() error {
 // NewRaftNode initialises a raft cluster with the given configuration.
 func NewRaftNode(cluster Cluster) *Node {
 	var nextIndex, matchIndex []int
+
 	for range cluster.Nodes() {
 		nextIndex = append(nextIndex, -1)
 		matchIndex = append(matchIndex, -1)

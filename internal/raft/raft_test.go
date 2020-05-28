@@ -10,8 +10,8 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/tomarrell/lbadd/internal/id"
 	"github.com/tomarrell/lbadd/internal/network"
+	networkmocks "github.com/tomarrell/lbadd/internal/network/mocks"
 	"github.com/tomarrell/lbadd/internal/raft/cluster"
-	"github.com/tomarrell/lbadd/internal/raft/message"
 	raftmocks "github.com/tomarrell/lbadd/internal/raft/mocks"
 )
 
@@ -40,52 +40,51 @@ func Test_Raft(t *testing.T) {
 	ctx := context.Background()
 	log := zerolog.Nop()
 
-	// create a new cluster
+	// Create a new cluster.
 	cluster := new(raftmocks.Cluster)
+	clusterID := id.Create()
 
-	conn1 := new(network.Conn)
-	conn2 := new(network.Conn)
-	conn3 := new(network.Conn)
-	conn4 := new(network.Conn)
-	conn5 := new(network.Conn)
+	// Mock 4 other nodes in the cluster.
+	conn1 := new(networkmocks.Conn)
+	conn2 := new(networkmocks.Conn)
+	conn3 := new(networkmocks.Conn)
+	conn4 := new(networkmocks.Conn)
 
 	connSlice := []network.Conn{
-		*conn1,
-		*conn2,
-		*conn3,
-		*conn4,
-		*conn5,
+		conn1,
+		conn2,
+		conn3,
+		conn4,
 	}
+
+	conn1 = addRemoteID(conn1)
+	conn2 = addRemoteID(conn2)
+	conn3 = addRemoteID(conn3)
+	conn4 = addRemoteID(conn4)
+
+	conn1.On("Send", ctx, mock.IsType([]byte{})).Return(nil)
+	conn2.On("Send", ctx, mock.IsType([]byte{})).Return(nil)
+	conn3.On("Send", ctx, mock.IsType([]byte{})).Return(nil)
+	conn4.On("Send", ctx, mock.IsType([]byte{})).Return(nil)
+
+	conn1.On("Receive", ctx).Return([]byte{}, nil)
+	conn2.On("Receive", ctx).Return([]byte{}, nil)
+	conn3.On("Receive", ctx).Return([]byte{}, nil)
+	conn4.On("Receive", ctx).Return([]byte{}, nil)
 
 	// set up cluster to return the slice of connections on demand.
 	cluster.
 		On("Nodes").
 		Return(connSlice)
 
-	clusterID := id.Create()
-
 	// return cluster ID
 	cluster.
 		On("OwnID").
 		Return(clusterID)
 
-	// receiveHelper function must wait until it receives a request
-	// from other "nodes"
-
-	receiveConnHelper := func() network.Conn {
-		<-time.NewTimer(time.Duration(1000) * time.Second).C
-		return nil
-	}
-	receiveMsgHelper := func() message.Message {
-		<-time.NewTimer(time.Duration(1000) * time.Second).C
-		return nil
-	}
-
-	// On calling receive it calls a function that mimicks a
-	// data sending operation.
 	cluster.
-		On("Receive", mock.IsType(ctx)).
-		Return(receiveConnHelper, receiveMsgHelper, nil)
+		On("Receive", ctx).
+		Return(conn1, nil, nil).After(time.Duration(1000) * time.Second)
 
 	server := NewServer(
 		log,
@@ -94,6 +93,7 @@ func Test_Raft(t *testing.T) {
 
 	_ = server
 	err := server.Start()
+	<-time.NewTimer(time.Duration(1000) * time.Second).C
 	assert.NoError(err)
 
 	// msg1 := message.NewAppendEntriesResponse(12, true)
@@ -120,4 +120,10 @@ func Test_Raft(t *testing.T) {
 	// assert.NoError(err)
 	// cluster.AssertNumberOfCalls(t, "Broadcast", 1)
 	// cluster.AssertCalled(t, "Broadcast", ctx, msg1)
+}
+
+func addRemoteID(conn *networkmocks.Conn) *networkmocks.Conn {
+	cID := id.Create()
+	conn.On("RemoteID").Return(cID)
+	return conn
 }
