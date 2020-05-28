@@ -8,13 +8,70 @@ import (
 	"github.com/tomarrell/lbadd/internal/parser"
 )
 
+type testcase struct {
+	name    string
+	input   string
+	want    command.Command
+	wantErr bool
+}
+
 func Test_simpleCompiler_Compile_NoOptimizations(t *testing.T) {
-	tests := []struct {
-		name    string
-		input   string
-		want    command.Command
-		wantErr bool
-	}{
+	t.Run("select", _TestSimpleCompilerCompileSelectNoOptimizations)
+	t.Run("delete", _TestSimpleCompilerCompileDeleteNoOptimizations)
+}
+
+func _TestSimpleCompilerCompileDeleteNoOptimizations(t *testing.T) {
+	tests := []testcase{
+		{
+			"simple delete",
+			"DELETE FROM myTable",
+			command.Delete{
+				Table: command.SimpleTable{
+					Table: "myTable",
+				},
+				Filter: command.ConstantBooleanExpr{
+					Value: true,
+				},
+			},
+			false,
+		},
+		{
+			"qualified delete",
+			"DELETE FROM mySchema.myTable",
+			command.Delete{
+				Table: command.SimpleTable{
+					Table:  "myTable",
+					Schema: "mySchema",
+				},
+				Filter: command.ConstantBooleanExpr{
+					Value: true,
+				},
+			},
+			false,
+		},
+		{
+			"delete with filter",
+			"DELETE FROM myTable WHERE col1 == col2",
+			command.Delete{
+				Table: command.SimpleTable{
+					Table: "myTable",
+				},
+				Filter: command.BinaryExpr{
+					Left:     command.LiteralExpr{Value: "col1"},
+					Operator: "==",
+					Right:    command.LiteralExpr{Value: "col2"},
+				},
+			},
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, _TestCompile(tt))
+	}
+}
+
+func _TestSimpleCompilerCompileSelectNoOptimizations(t *testing.T) {
+	tests := []testcase{
 		{
 			"simple values",
 			"VALUES (1,2,3),(4,5,6),(7,8,9)",
@@ -338,23 +395,27 @@ func Test_simpleCompiler_Compile_NoOptimizations(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert := assert.New(t)
+		t.Run(tt.name, _TestCompile(tt))
+	}
+}
 
-			c := &simpleCompiler{}
-			p := parser.New(tt.input)
-			stmt, errs, ok := p.Next()
-			assert.Len(errs, 0)
-			assert.True(ok)
+func _TestCompile(tt testcase) func(t *testing.T) {
+	return func(t *testing.T) {
+		assert := assert.New(t)
 
-			got, gotErr := c.Compile(stmt)
+		c := &simpleCompiler{}
+		p := parser.New(tt.input)
+		stmt, errs, ok := p.Next()
+		assert.Len(errs, 0)
+		assert.True(ok)
 
-			if tt.wantErr {
-				assert.Error(gotErr)
-			} else {
-				assert.NoError(gotErr)
-			}
-			assert.Equal(tt.want, got)
-		})
+		got, gotErr := c.Compile(stmt)
+
+		if tt.wantErr {
+			assert.Error(gotErr)
+		} else {
+			assert.NoError(gotErr)
+		}
+		assert.Equal(tt.want, got)
 	}
 }
