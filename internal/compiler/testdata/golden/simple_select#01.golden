@@ -1,0 +1,1 @@
+Project[cols=name](Select[filter=true](Scan[table=myTable]()))

@@ -74,6 +74,21 @@ func (r *errorReporter) errorf(format string, args ...interface{}) {
 	r.errs = append(r.errs, fmt.Errorf(format, args...))
 }
 
+func (r *errorReporter) expectedExpression() {
+	if r.sealed {
+		return
+	}
+	next, ok := r.p.unsafeLowLevelLookahead()
+	if !ok || next.Type() == token.EOF {
+		// use this instead of r.prematureEOF() because we can add the
+		// information about what tokens were expected
+		r.errorf("%w: expected expression", ErrPrematureEOF)
+		r.sealed = true
+		return
+	}
+	r.errorf("%w: got %s but expected expression at (%d:%d) offset %d length %d", ErrUnexpectedToken, next, next.Line(), next.Col(), next.Offset(), next.Length())
+}
+
 type reporter interface {
 	// errorToken reports the given token as error. This makes sense, if the
 	// scanner emitted an error token. If so, use this method to report it as
@@ -99,4 +114,7 @@ type reporter interface {
 	// but is not supported for some reason (not implemented, no database
 	// support, etc.).
 	unsupportedConstruct(t token.Token)
+	// expectedExpression is similar to unexpectedToken() but instead of
+	// expecting tokens, it expects an expression.
+	expectedExpression()
 }

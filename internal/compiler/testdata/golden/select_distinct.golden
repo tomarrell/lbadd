@@ -1,0 +1,1 @@
+Distinct[](Project[cols=*](Select[filter=true](Scan[table=myTable]())))
