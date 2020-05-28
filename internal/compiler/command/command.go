@@ -41,6 +41,22 @@ const (
 	JoinCross
 )
 
+//go:generate stringer -type=UpdateOr
+
+// UpdateOr is the type of update alternative that is specified in an update
+// statement.
+type UpdateOr uint8
+
+// Known UpdateOrs
+const (
+	UpdateOrUnknown UpdateOr = iota
+	UpdateOrRollback
+	UpdateOrAbort
+	UpdateOrReplace
+	UpdateOrFail
+	UpdateOrIgnore
+)
+
 type (
 	// Explain instructs the executor to explain the nested command instead of
 	// executing it.
@@ -150,6 +166,31 @@ type (
 	// DropTrigger instructs the executor to drop the trigger with the name and
 	// schema defined in this command.
 	DropTrigger drop
+
+	// Update instructs the executor to update all datasets, for which the
+	// filter expression evaluates to true, with the defined updates.
+	Update struct {
+		// UpdateOr is the OR clause in an update statement.
+		UpdateOr UpdateOr
+		// Table is the table on which the update should be performed.
+		Table Table
+		// Updates is a list of updates that must be applied.
+		Updates []UpdateSet
+		// Filter is the filter expression, that determines, which datasets are
+		// to be updated.
+		Filter Expr
+	}
+
+	// UpdateSet is an update that can be applied to a value in a dataset.
+	UpdateSet struct {
+		// Cols are the columns of the dataset, that have to be updated. Because
+		// the columns must be inside the table that this update refers to, and
+		// no alias can be specified according to the grammar, this is just a
+		// string, and not a full blown column.
+		Cols []string
+		// Value is the expression that the columns have to be set to.
+		Value Expr
+	}
 
 	// Column represents a database table column.
 	Column struct {
