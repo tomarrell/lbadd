@@ -2,6 +2,7 @@ package raft
 
 import (
 	"context"
+	"os"
 	"testing"
 	"time"
 
@@ -12,6 +13,7 @@ import (
 	"github.com/tomarrell/lbadd/internal/network"
 	networkmocks "github.com/tomarrell/lbadd/internal/network/mocks"
 	"github.com/tomarrell/lbadd/internal/raft/cluster"
+	"github.com/tomarrell/lbadd/internal/raft/message"
 	raftmocks "github.com/tomarrell/lbadd/internal/raft/mocks"
 )
 
@@ -36,9 +38,14 @@ func Test_NewServer(t *testing.T) {
 // Test_Raft tests the entire raft operation.
 func Test_Raft(t *testing.T) {
 	t.SkipNow()
+	zerolog.New(os.Stdout).With().
+		Str("foo", "bar").
+		Logger()
+
 	assert := assert.New(t)
 	ctx := context.Background()
-	log := zerolog.Nop()
+
+	log := zerolog.New(os.Stdout).With().Logger().Level(zerolog.GlobalLevel())
 
 	// Create a new cluster.
 	cluster := new(raftmocks.Cluster)
@@ -67,11 +74,21 @@ func Test_Raft(t *testing.T) {
 	conn3.On("Send", ctx, mock.IsType([]byte{})).Return(nil)
 	conn4.On("Send", ctx, mock.IsType([]byte{})).Return(nil)
 
-	conn1.On("Receive", ctx).Return([]byte{}, nil)
-	conn2.On("Receive", ctx).Return([]byte{}, nil)
-	conn3.On("Receive", ctx).Return([]byte{}, nil)
-	conn4.On("Receive", ctx).Return([]byte{}, nil)
+	reqVRes1 := message.NewRequestVoteResponse(1, true)
+	payload1, err := message.Marshal(reqVRes1)
 
+	conn1.On("Receive", ctx).Return(payload1, nil).Once()
+	conn2.On("Receive", ctx).Return(payload1, nil).Once()
+	conn3.On("Receive", ctx).Return(payload1, nil).Once()
+	conn4.On("Receive", ctx).Return(payload1, nil).Once()
+
+	appERes1 := message.NewAppendEntriesResponse(1, true)
+	payload2, err := message.Marshal(appERes1)
+
+	conn1.On("Receive", ctx).Return(payload2, nil)
+	conn2.On("Receive", ctx).Return(payload2, nil)
+	conn3.On("Receive", ctx).Return(payload2, nil)
+	conn4.On("Receive", ctx).Return(payload2, nil)
 	// set up cluster to return the slice of connections on demand.
 	cluster.
 		On("Nodes").
@@ -92,7 +109,7 @@ func Test_Raft(t *testing.T) {
 	)
 
 	_ = server
-	err := server.Start()
+	err = server.Start()
 	<-time.NewTimer(time.Duration(1000) * time.Second).C
 	assert.NoError(err)
 

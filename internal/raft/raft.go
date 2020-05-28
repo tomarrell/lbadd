@@ -134,7 +134,7 @@ func (s *simpleServer) Start() (err error) {
 		// If any sort of request (heartbeat,appendEntries,requestVote)
 		// isn't received by the server(node) it restarts leader election.
 		select {
-		case <-randomTimer().C:
+		case <-node.randomTimer().C:
 			node.log.
 				Debug().
 				Str("self-id", s.node.PersistentState.SelfID.String()).
@@ -208,8 +208,13 @@ func NewRaftNode(cluster Cluster) *Node {
 }
 
 // randomTimer returns tickers ranging from 150ms to 300ms.
-func randomTimer() *time.Timer {
+func (n *Node) randomTimer() *time.Timer {
 	randomInt := rand.Intn(150) + 150
+	n.log.
+		Debug().
+		Str("self-id", n.PersistentState.SelfID.String()).
+		Int("random timer set to", randomInt).
+		Msg("heart beat timer")
 	ticker := time.NewTimer(time.Duration(randomInt) * time.Millisecond)
 	return ticker
 }
