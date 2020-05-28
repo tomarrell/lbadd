@@ -139,8 +139,8 @@ func Test_Raft(t *testing.T) {
 	// cluster.AssertCalled(t, "Broadcast", ctx, msg1)
 }
 
-func addRemoteID(conn *networkmocks.Conn) *networkmocks.Conn {
-	cID := id.Create()
-	conn.On("RemoteID").Return(cID)
-	return conn
-}
+// func addRemoteID(conn *networkmocks.Conn) *networkmocks.Conn {
+// 	cID := id.Create()
+// 	conn.On("RemoteID").Return(cID)
+// 	return conn
+// }
