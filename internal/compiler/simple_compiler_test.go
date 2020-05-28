@@ -18,6 +18,163 @@ type testcase struct {
 func Test_simpleCompiler_Compile_NoOptimizations(t *testing.T) {
 	t.Run("select", _TestSimpleCompilerCompileSelectNoOptimizations)
 	t.Run("delete", _TestSimpleCompilerCompileDeleteNoOptimizations)
+	t.Run("drop", _TestSimpleCompilerCompileDropNoOptimizations)
+}
+
+func _TestSimpleCompilerCompileDropNoOptimizations(t *testing.T) {
+	tests := []testcase{
+		// table
+		{
+			"simple drop table",
+			"DROP TABLE myTable",
+			command.DropTable{
+				Name: "myTable",
+			},
+			false,
+		},
+		{
+			"simple drop table if exists",
+			"DROP TABLE IF EXISTS myTable",
+			command.DropTable{
+				Name:     "myTable",
+				IfExists: true,
+			},
+			false,
+		},
+		{
+			"qualified drop table",
+			"DROP TABLE mySchema.myTable",
+			command.DropTable{
+				Schema: "mySchema",
+				Name:   "myTable",
+			},
+			false,
+		},
+		{
+			"qualified drop table if exists",
+			"DROP TABLE IF EXISTS mySchema.myTable",
+			command.DropTable{
+				Schema:   "mySchema",
+				Name:     "myTable",
+				IfExists: true,
+			},
+			false,
+		},
+		// view
+		{
+			"simple drop view",
+			"DROP VIEW myView",
+			command.DropView{
+				Name: "myView",
+			},
+			false,
+		},
+		{
+			"simple drop view if exists",
+			"DROP VIEW IF EXISTS myView",
+			command.DropView{
+				Name:     "myView",
+				IfExists: true,
+			},
+			false,
+		},
+		{
+			"qualified drop view",
+			"DROP VIEW mySchema.myView",
+			command.DropView{
+				Schema: "mySchema",
+				Name:   "myView",
+			},
+			false,
+		},
+		{
+			"qualified drop view if exists",
+			"DROP VIEW IF EXISTS mySchema.myView",
+			command.DropView{
+				Schema:   "mySchema",
+				Name:     "myView",
+				IfExists: true,
+			},
+			false,
+		},
+		// index
+		{
+			"simple drop index",
+			"DROP INDEX myIndex",
+			command.DropIndex{
+				Name: "myIndex",
+			},
+			false,
+		},
+		{
+			"simple drop index if exists",
+			"DROP INDEX IF EXISTS myIndex",
+			command.DropIndex{
+				Name:     "myIndex",
+				IfExists: true,
+			},
+			false,
+		},
+		{
+			"qualified drop index",
+			"DROP INDEX mySchema.myIndex",
+			command.DropIndex{
+				Schema: "mySchema",
+				Name:   "myIndex",
+			},
+			false,
+		},
+		{
+			"qualified drop index if exists",
+			"DROP INDEX IF EXISTS mySchema.myIndex",
+			command.DropIndex{
+				Schema:   "mySchema",
+				Name:     "myIndex",
+				IfExists: true,
+			},
+			false,
+		},
+		// trigger
+		{
+			"simple drop trigger",
+			"DROP TRIGGER myTrigger",
+			command.DropTrigger{
+				Name: "myTrigger",
+			},
+			false,
+		},
+		{
+			"simple drop trigger if exists",
+			"DROP TRIGGER IF EXISTS myTrigger",
+			command.DropTrigger{
+				Name:     "myTrigger",
+				IfExists: true,
+			},
+			false,
+		},
+		{
+			"qualified drop trigger",
+			"DROP TRIGGER mySchema.myTrigger",
+			command.DropTrigger{
+				Schema: "mySchema",
+				Name:   "myTrigger",
+			},
+			false,
+		},
+		{
+			"qualified drop trigger if exists",
+			"DROP TRIGGER IF EXISTS mySchema.myTrigger",
+			command.DropTrigger{
+				Schema:   "mySchema",
+				Name:     "myTrigger",
+				IfExists: true,
+			},
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, _TestCompile(tt))
+	}
 }
 
 func _TestSimpleCompilerCompileDeleteNoOptimizations(t *testing.T) {

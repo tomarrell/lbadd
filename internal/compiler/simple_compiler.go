@@ -63,8 +63,76 @@ func (c *simpleCompiler) compileInternal(ast *ast.SQLStmt) (command.Command, err
 			return nil, fmt.Errorf("delete: %w", err)
 		}
 		return cmd, nil
+	case ast.DropTableStmt != nil:
+		cmd, err := c.compileDropTable(ast.DropTableStmt)
+		if err != nil {
+			return nil, fmt.Errorf("drop table: %w", err)
+		}
+		return cmd, nil
+	case ast.DropIndexStmt != nil:
+		cmd, err := c.compileDropIndex(ast.DropIndexStmt)
+		if err != nil {
+			return nil, fmt.Errorf("drop index: %w", err)
+		}
+		return cmd, nil
+	case ast.DropTriggerStmt != nil:
+		cmd, err := c.compileDropTrigger(ast.DropTriggerStmt)
+		if err != nil {
+			return nil, fmt.Errorf("drop trigger: %w", err)
+		}
+		return cmd, nil
+	case ast.DropViewStmt != nil:
+		cmd, err := c.compileDropView(ast.DropViewStmt)
+		if err != nil {
+			return nil, fmt.Errorf("drop view: %w", err)
+		}
+		return cmd, nil
 	}
 	return nil, fmt.Errorf("statement type: %w", ErrUnsupported)
+}
+
+func (c *simpleCompiler) compileDropTable(stmt *ast.DropTableStmt) (command.Command, error) {
+	cmd := command.DropTable{
+		IfExists: stmt.If != nil,
+		Name:     stmt.TableName.Value(),
+	}
+	if stmt.SchemaName != nil {
+		cmd.Schema = stmt.SchemaName.Value()
+	}
+	return cmd, nil
+}
+
+func (c *simpleCompiler) compileDropIndex(stmt *ast.DropIndexStmt) (command.Command, error) {
+	cmd := command.DropIndex{
+		IfExists: stmt.If != nil,
+		Name:     stmt.IndexName.Value(),
+	}
+	if stmt.SchemaName != nil {
+		cmd.Schema = stmt.SchemaName.Value()
+	}
+	return cmd, nil
+}
+
+func (c *simpleCompiler) compileDropTrigger(stmt *ast.DropTriggerStmt) (command.Command, error) {
+	cmd := command.DropTrigger{
+		IfExists: stmt.If != nil,
+		Name:     stmt.TriggerName.Value(),
+	}
+	if stmt.SchemaName != nil {
+		cmd.Schema = stmt.SchemaName.Value()
+	}
+	return cmd, nil
+}
+
+func (c *simpleCompiler) compileDropView(stmt *ast.DropViewStmt) (command.Command, error) {
+	cmd := command.DropView{
+		IfExists: stmt.If != nil,
+		Name:     stmt.ViewName.Value(),
+	}
+	if stmt.SchemaName != nil {
+		cmd.Schema = stmt.SchemaName.Value()
+	}
+	return cmd, nil
 }
 
 func (c *simpleCompiler) compileDelete(stmt *ast.DeleteStmt) (command.Command, error) {
