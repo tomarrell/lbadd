@@ -12,6 +12,11 @@ var _ Command = (*Explain)(nil)
 var _ Command = (*Scan)(nil)
 var _ Command = (*Select)(nil)
 var _ Command = (*Project)(nil)
+var _ Command = (*Delete)(nil)
+var _ Command = (*DropTable)(nil)
+var _ Command = (*DropIndex)(nil)
+var _ Command = (*DropTrigger)(nil)
+var _ Command = (*DropView)(nil)
 var _ Command = (*Join)(nil)
 var _ Command = (*Limit)(nil)
 
@@ -110,7 +115,7 @@ type (
 		Input List
 	}
 
-	// Delete instructs the instructor to delete all datasets from a table, that
+	// Delete instructs the executor to delete all datasets from a table, that
 	// match the filter.
 	Delete struct {
 		// Table is the table to delete datasets from.
@@ -120,6 +125,31 @@ type (
 		// be deleted, the filter will be a constant true expression.
 		Filter Expr
 	}
+
+	// drop instructs the executor to drop the component that is specified by
+	// the schema and name defined in this command.
+	drop struct {
+		// IfExists determines whether the executor should ignore an error that
+		// occurs if the component with the defined name doesn't exist.
+		IfExists bool
+		// Schema is the schema of the referenced component.
+		Schema string
+		// Name is the name of the referenced component.
+		Name string
+	}
+
+	// DropTable instructs the executor to drop the table with the name and
+	// schema defined in this command.
+	DropTable drop
+	// DropView instructs the executor to drop the view with the name and schema
+	// defined in this command.
+	DropView drop
+	// DropIndex instructs the executor to drop the index with the name and
+	// schema defined in this command.
+	DropIndex drop
+	// DropTrigger instructs the executor to drop the trigger with the name and
+	// schema defined in this command.
+	DropTrigger drop
 
 	// Column represents a database table column.
 	Column struct {
@@ -229,6 +259,38 @@ func (p Project) String() string {
 
 func (d Delete) String() string {
 	return fmt.Sprintf("Delete[filter=%v](%v)", d.Filter, d.Table)
+}
+
+func (d DropTable) String() string {
+	table := d.Name
+	if d.Schema != "" {
+		table = d.Schema + "." + table
+	}
+	return fmt.Sprintf("DropTable[table=%v,ifexists=%v]()", table, d.IfExists)
+}
+
+func (d DropIndex) String() string {
+	index := d.Name
+	if d.Schema != "" {
+		index = d.Schema + "." + index
+	}
+	return fmt.Sprintf("DropIndex[index=%v,ifexists=%v]()", index, d.IfExists)
+}
+
+func (d DropTrigger) String() string {
+	trigger := d.Name
+	if d.Schema != "" {
+		trigger = d.Schema + "." + trigger
+	}
+	return fmt.Sprintf("DropTrigger[trigger=%v,ifexists=%v]()", trigger, d.IfExists)
+}
+
+func (d DropView) String() string {
+	view := d.Name
+	if d.Schema != "" {
+		view = d.Schema + "." + view
+	}
+	return fmt.Sprintf("DropView[view=%v,ifexists=%v]()", view, d.IfExists)
 }
 
 func (c Column) String() string {
