@@ -19,6 +19,77 @@ func Test_simpleCompiler_Compile_NoOptimizations(t *testing.T) {
 	t.Run("select", _TestSimpleCompilerCompileSelectNoOptimizations)
 	t.Run("delete", _TestSimpleCompilerCompileDeleteNoOptimizations)
 	t.Run("drop", _TestSimpleCompilerCompileDropNoOptimizations)
+	t.Run("update", _TestSimpleCompilerCompileUpdateNoOptimizations)
+}
+
+func _TestSimpleCompilerCompileUpdateNoOptimizations(t *testing.T) {
+	tests := []testcase{
+		{
+			"simple update",
+			"UPDATE myTable SET myCol = 7",
+			command.Update{
+				UpdateOr: command.UpdateOrIgnore, // default
+				Table: command.SimpleTable{
+					Table: "myTable",
+				},
+				Filter: command.ConstantBooleanExpr{Value: true},
+				Updates: []command.UpdateSetter{
+					{
+						Cols:  []string{"myCol"},
+						Value: command.LiteralExpr{Value: "7"},
+					},
+				},
+			},
+			false,
+		},
+		{
+			"filtered update",
+			"UPDATE myTable SET myCol = 7 WHERE myOtherCol == 9",
+			command.Update{
+				UpdateOr: command.UpdateOrIgnore, // default
+				Table: command.SimpleTable{
+					Table: "myTable",
+				},
+				Filter: command.BinaryExpr{
+					Left:     command.LiteralExpr{Value: "myOtherCol"},
+					Operator: "==",
+					Right:    command.LiteralExpr{Value: "9"},
+				},
+				Updates: []command.UpdateSetter{
+					{
+						Cols:  []string{"myCol"},
+						Value: command.LiteralExpr{Value: "7"},
+					},
+				},
+			},
+			false,
+		},
+		{
+			"filtered update or fail",
+			"UPDATE OR FAIL myTable SET myCol = 7 WHERE myOtherCol == 9",
+			command.Update{
+				UpdateOr: command.UpdateOrFail,
+				Table: command.SimpleTable{
+					Table: "myTable",
+				},
+				Filter: command.BinaryExpr{
+					Left:     command.LiteralExpr{Value: "myOtherCol"},
+					Operator: "==",
+					Right:    command.LiteralExpr{Value: "9"},
+				},
+				Updates: []command.UpdateSetter{
+					{
+						Cols:  []string{"myCol"},
+						Value: command.LiteralExpr{Value: "7"},
+					},
+				},
+			},
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, _TestCompile(tt))
+	}
 }
 
 func _TestSimpleCompilerCompileDropNoOptimizations(t *testing.T) {
@@ -186,9 +257,7 @@ func _TestSimpleCompilerCompileDeleteNoOptimizations(t *testing.T) {
 				Table: command.SimpleTable{
 					Table: "myTable",
 				},
-				Filter: command.ConstantBooleanExpr{
-					Value: true,
-				},
+				Filter: command.ConstantBooleanExpr{Value: true},
 			},
 			false,
 		},
@@ -200,9 +269,7 @@ func _TestSimpleCompilerCompileDeleteNoOptimizations(t *testing.T) {
 					Table:  "myTable",
 					Schema: "mySchema",
 				},
-				Filter: command.ConstantBooleanExpr{
-					Value: true,
-				},
+				Filter: command.ConstantBooleanExpr{Value: true},
 			},
 			false,
 		},
@@ -280,7 +347,7 @@ func _TestSimpleCompilerCompileSelectNoOptimizations(t *testing.T) {
 					},
 				},
 				Input: command.Select{
-					Filter: command.LiteralExpr{Value: "true"},
+					Filter: command.ConstantBooleanExpr{Value: true},
 					Input: command.Scan{
 						Table: command.SimpleTable{
 							Table: "myTable",
@@ -367,7 +434,7 @@ func _TestSimpleCompilerCompileSelectNoOptimizations(t *testing.T) {
 						},
 					},
 					Input: command.Select{
-						Filter: command.LiteralExpr{Value: "true"},
+						Filter: command.ConstantBooleanExpr{Value: true},
 						Input: command.Scan{
 							Table: command.SimpleTable{
 								Table: "myTable",
@@ -388,7 +455,7 @@ func _TestSimpleCompilerCompileSelectNoOptimizations(t *testing.T) {
 					},
 				},
 				Input: command.Select{
-					Filter: command.LiteralExpr{Value: "true"},
+					Filter: command.ConstantBooleanExpr{Value: true},
 					Input: command.Join{
 						Left: command.Scan{
 							Table: command.SimpleTable{
@@ -415,7 +482,7 @@ func _TestSimpleCompilerCompileSelectNoOptimizations(t *testing.T) {
 					},
 				},
 				Input: command.Select{
-					Filter: command.LiteralExpr{Value: "true"},
+					Filter: command.ConstantBooleanExpr{Value: true},
 					Input: command.Join{
 						Left: command.Scan{
 							Table: command.SimpleTable{
@@ -442,7 +509,7 @@ func _TestSimpleCompilerCompileSelectNoOptimizations(t *testing.T) {
 					},
 				},
 				Input: command.Select{
-					Filter: command.LiteralExpr{Value: "true"},
+					Filter: command.ConstantBooleanExpr{Value: true},
 					Input: command.Join{
 						Left: command.Join{
 							Left: command.Scan{

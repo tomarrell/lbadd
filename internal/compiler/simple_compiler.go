@@ -2,6 +2,7 @@ package compiler
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/tomarrell/lbadd/internal/compiler/command"
 	"github.com/tomarrell/lbadd/internal/compiler/optimization"
@@ -87,11 +88,84 @@ func (c *simpleCompiler) compileInternal(ast *ast.SQLStmt) (command.Command, err
 			return nil, fmt.Errorf("drop view: %w", err)
 		}
 		return cmd, nil
+	case ast.UpdateStmt != nil:
+		cmd, err := c.compileUpdate(ast.UpdateStmt)
+		if err != nil {
+			return nil, fmt.Errorf("update: %w", err)
+		}
+		return cmd, nil
 	}
 	return nil, fmt.Errorf("statement type: %w", ErrUnsupported)
 }
 
-func (c *simpleCompiler) compileDropTable(stmt *ast.DropTableStmt) (command.Command, error) {
+func (c *simpleCompiler) compileUpdate(stmt *ast.UpdateStmt) (command.Update, error) {
+	updateOr := command.UpdateOrIgnore // ignore as default or
+	switch {
+	case stmt.Rollback != nil:
+		updateOr = command.UpdateOrRollback
+	case stmt.Abort != nil:
+		updateOr = command.UpdateOrAbort
+	case stmt.Replace != nil:
+		updateOr = command.UpdateOrReplace
+	case stmt.Fail != nil:
+		updateOr = command.UpdateOrFail
+	case stmt.Ignore != nil:
+		updateOr = command.UpdateOrIgnore
+	}
+
+	qtn, err := c.compileQualifiedTableName(stmt.QualifiedTableName)
+	if err != nil {
+		return command.Update{}, fmt.Errorf("qualified table name: %w", err)
+	}
+
+	var sets []command.UpdateSetter
+	for _, set := range stmt.UpdateSetter {
+		compiledSet, err := c.compileUpdateSetter(set)
+		if err != nil {
+			return command.Update{}, fmt.Errorf("update setter: %w", err)
+		}
+		sets = append(sets, compiledSet)
+	}
+
+	var filter command.Expr
+	if stmt.Where != nil {
+		filterExpr, err := c.compileExpr(stmt.Expr)
+		if err != nil {
+			return command.Update{}, fmt.Errorf("expr: %w", err)
+		}
+		filter = filterExpr
+	} else {
+		filter = command.ConstantBooleanExpr{Value: true}
+	}
+
+	return command.Update{
+		UpdateOr: updateOr,
+		Table:    qtn,
+		Updates:  sets,
+		Filter:   filter,
+	}, nil
+}
+
+func (c *simpleCompiler) compileUpdateSetter(setter *ast.UpdateSetter) (command.UpdateSetter, error) {
+	var cols []string
+	if setter.ColumnName != nil {
+		cols = append(cols, setter.ColumnName.Value())
+	} else {
+		for _, col := range setter.ColumnNameList.ColumnName {
+			cols = append(cols, col.Value())
+		}
+	}
+	expr, err := c.compileExpr(setter.Expr)
+	if err != nil {
+		return command.UpdateSetter{}, fmt.Errorf("expr: %w", err)
+	}
+	return command.UpdateSetter{
+		Cols:  cols,
+		Value: expr,
+	}, nil
+}
+
+func (c *simpleCompiler) compileDropTable(stmt *ast.DropTableStmt) (command.DropTable, error) {
 	cmd := command.DropTable{
 		IfExists: stmt.If != nil,
 		Name:     stmt.TableName.Value(),
@@ -102,7 +176,7 @@ func (c *simpleCompiler) compileDropTable(stmt *ast.DropTableStmt) (command.Comm
 	return cmd, nil
 }
 
-func (c *simpleCompiler) compileDropIndex(stmt *ast.DropIndexStmt) (command.Command, error) {
+func (c *simpleCompiler) compileDropIndex(stmt *ast.DropIndexStmt) (command.DropIndex, error) {
 	cmd := command.DropIndex{
 		IfExists: stmt.If != nil,
 		Name:     stmt.IndexName.Value(),
@@ -113,7 +187,7 @@ func (c *simpleCompiler) compileDropIndex(stmt *ast.DropIndexStmt) (command.Comm
 	return cmd, nil
 }
 
-func (c *simpleCompiler) compileDropTrigger(stmt *ast.DropTriggerStmt) (command.Command, error) {
+func (c *simpleCompiler) compileDropTrigger(stmt *ast.DropTriggerStmt) (command.DropTrigger, error) {
 	cmd := command.DropTrigger{
 		IfExists: stmt.If != nil,
 		Name:     stmt.TriggerName.Value(),
@@ -124,7 +198,7 @@ func (c *simpleCompiler) compileDropTrigger(stmt *ast.DropTriggerStmt) (command.
 	return cmd, nil
 }
 
-func (c *simpleCompiler) compileDropView(stmt *ast.DropViewStmt) (command.Command, error) {
+func (c *simpleCompiler) compileDropView(stmt *ast.DropViewStmt) (command.DropView, error) {
 	cmd := command.DropView{
 		IfExists: stmt.If != nil,
 		Name:     stmt.ViewName.Value(),
@@ -135,16 +209,16 @@ func (c *simpleCompiler) compileDropView(stmt *ast.DropViewStmt) (command.Comman
 	return cmd, nil
 }
 
-func (c *simpleCompiler) compileDelete(stmt *ast.DeleteStmt) (command.Command, error) {
+func (c *simpleCompiler) compileDelete(stmt *ast.DeleteStmt) (command.Delete, error) {
 	if stmt.WithClause != nil {
-		return nil, fmt.Errorf("with: %w", ErrUnsupported)
+		return command.Delete{}, fmt.Errorf("with: %w", ErrUnsupported)
 	}
 
 	var filter command.Expr
 	if stmt.Where != nil {
 		compiled, err := c.compileExpr(stmt.Expr)
 		if err != nil {
-			return nil, fmt.Errorf("expr: %w", err)
+			return command.Delete{}, fmt.Errorf("expr: %w", err)
 		}
 		filter = compiled
 	} else {
@@ -153,7 +227,7 @@ func (c *simpleCompiler) compileDelete(stmt *ast.DeleteStmt) (command.Command, e
 
 	table, err := c.compileQualifiedTableName(stmt.QualifiedTableName)
 	if err != nil {
-		return nil, fmt.Errorf("qualified table name: %w", err)
+		return command.Delete{}, fmt.Errorf("qualified table name: %w", err)
 	}
 	return command.Delete{
 		Table:  table,
@@ -235,14 +309,14 @@ func (c *simpleCompiler) compileSelectCore(core *ast.SelectCore) (command.Comman
 	return c.compileSelectCoreSelect(core)
 }
 
-func (c *simpleCompiler) compileSelectCoreValues(core *ast.SelectCore) (command.Command, error) {
+func (c *simpleCompiler) compileSelectCoreValues(core *ast.SelectCore) (command.Values, error) {
 	var datasets [][]command.Expr
 	for _, parExpr := range core.ParenthesizedExpressions {
 		var values []command.Expr
 		for _, expr := range parExpr.Exprs {
 			compiled, err := c.compileExpr(expr)
 			if err != nil {
-				return nil, fmt.Errorf("expr: %w", err)
+				return command.Values{}, fmt.Errorf("expr: %w", err)
 			}
 			values = append(values, compiled)
 		}
@@ -357,6 +431,9 @@ func (c *simpleCompiler) compileResultColumn(col *ast.ResultColumn) (command.Col
 func (c *simpleCompiler) compileExpr(expr *ast.Expr) (command.Expr, error) {
 	switch {
 	case expr.LiteralValue != nil:
+		if val := strings.ToLower(expr.LiteralValue.Value()); val == "true" || val == "false" {
+			return command.ConstantBooleanExpr{Value: val == "true"}, nil
+		}
 		return command.LiteralExpr{Value: expr.LiteralValue.Value()}, nil
 	case expr.UnaryOperator != nil:
 		val, err := c.compileExpr(expr.Expr1)

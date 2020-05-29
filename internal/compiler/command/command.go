@@ -68,7 +68,7 @@ type (
 	// List is a marker interface that facilitates creating a type hierarchy for
 	// the command model.
 	List interface {
-		fmt.Stringer
+		Command
 		_list()
 	}
 
@@ -175,14 +175,14 @@ type (
 		// Table is the table on which the update should be performed.
 		Table Table
 		// Updates is a list of updates that must be applied.
-		Updates []UpdateSet
+		Updates []UpdateSetter
 		// Filter is the filter expression, that determines, which datasets are
 		// to be updated.
 		Filter Expr
 	}
 
-	// UpdateSet is an update that can be applied to a value in a dataset.
-	UpdateSet struct {
+	// UpdateSetter is an update that can be applied to a value in a dataset.
+	UpdateSetter struct {
 		// Cols are the columns of the dataset, that have to be updated. Because
 		// the columns must be inside the table that this update refers to, and
 		// no alias can be specified according to the grammar, this is just a
@@ -332,6 +332,18 @@ func (d DropView) String() string {
 		view = d.Schema + "." + view
 	}
 	return fmt.Sprintf("DropView[view=%v,ifexists=%v]()", view, d.IfExists)
+}
+
+func (u Update) String() string {
+	var sets []string
+	for _, set := range u.Updates {
+		sets = append(sets, set.String())
+	}
+	return fmt.Sprintf("Update[or=%v,table=%v,sets=(%v),filter=%v]", u.UpdateOr, u.Table, strings.Join(sets, ","), u.Filter)
+}
+
+func (u UpdateSetter) String() string {
+	return fmt.Sprintf("%v=%v", strings.Join(u.Cols, ","), u.Value)
 }
 
 func (c Column) String() string {
