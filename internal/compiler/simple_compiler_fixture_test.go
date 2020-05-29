@@ -57,6 +57,7 @@ func _TestCompileSelect(t *testing.T) {
 		"SELECT name, amount * price AS total_price FROM items JOIN prices",
 		"SELECT AVG(price) AS avg_price FROM items LEFT JOIN prices",
 		"SELECT AVG(DISTINCT price) AS avg_price FROM items LEFT JOIN prices",
+		"VALUES (1,2,3),(4,5,6),(7,8,9)",
 	}
 	for _, test := range tests {
 		RunGolden(t, test)
