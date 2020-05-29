@@ -6,6 +6,19 @@ func TestCompileGolden(t *testing.T) {
 	t.Run("select", _TestCompileSelect)
 	t.Run("delete", _TestCompileDelete)
 	t.Run("drop", _TestCompileDrop)
+	t.Run("update", _TestCompileUpdate)
+}
+
+func _TestCompileUpdate(t *testing.T) {
+	tests := []string{
+		"UPDATE myTable SET myCol = 7",
+		"UPDATE myTable SET myCol = 7 WHERE myOtherCol == 9",
+		"UPDATE OR FAIL myTable SET myCol = 7 WHERE myOtherCol == 9",
+		"UPDATE myTable SET (myCol1, myCol2) = 7, (myOtherCol1, myOtherCol2) = 8 WHERE myOtherCol == 9",
+	}
+	for _, test := range tests {
+		RunGolden(t, test)
+	}
 }
 
 func _TestCompileDelete(t *testing.T) {
