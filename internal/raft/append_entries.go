@@ -9,12 +9,17 @@ func AppendEntriesResponse(node *Node, req *message.AppendEntriesRequest) *messa
 	leaderTerm := req.GetTerm()
 	nodePersistentState := node.PersistentState
 	nodeTerm := nodePersistentState.CurrentTerm
-	// return false if term is greater than currentTerm
-	// return false if msg Log Index is greater than node commit Index
-	// return false if term of msg at PrevLogIndex doesn't match prev Log Term stored by Leader
+	// Return false if term is greater than currentTerm,
+	// if msg Log Index is greater than node commit Index,
+	// if term of msg at PrevLogIndex doesn't match prev Log Term stored by Leader.
 	if nodeTerm > leaderTerm ||
 		req.GetPrevLogIndex() > node.VolatileState.CommitIndex ||
 		nodePersistentState.Log[req.PrevLogIndex].Term != req.GetPrevLogTerm() {
+		node.log.
+			Debug().
+			Str("self-id", node.PersistentState.SelfID.String()).
+			Str("returning failure to append entries to", string(req.GetLeaderID())).
+			Msg("append entries failure")
 		return &message.AppendEntriesResponse{
 			Term:    nodeTerm,
 			Success: false,
@@ -41,10 +46,15 @@ func AppendEntriesResponse(node *Node, req *message.AppendEntriesRequest) *messa
 		// TODO: Issue #152 apply the log command & update lastApplied
 	}
 
+	node.log.
+		Debug().
+		Str("self-id", node.PersistentState.SelfID.String()).
+		Str("returning success to append entries to", string(req.GetLeaderID())).
+		Msg("append entries success")
+
 	return &message.AppendEntriesResponse{
 		Term:    nodeTerm,
 		Success: true,
 	}
 
 }
-

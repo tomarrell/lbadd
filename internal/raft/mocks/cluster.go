@@ -32,6 +32,20 @@ func (_m *Cluster) Broadcast(_a0 context.Context, _a1 message.Message) error {
 	return r0
 }
 
+// Close provides a mock function with given fields:
+func (_m *Cluster) Close() error {
+	ret := _m.Called()
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func() error); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // Nodes provides a mock function with given fields:
 func (_m *Cluster) Nodes() []network.Conn {
 	ret := _m.Called()

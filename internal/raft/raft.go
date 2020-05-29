@@ -175,8 +175,14 @@ func (s *simpleServer) Close() error {
 	if s.node == nil {
 		return network.ErrClosed
 	}
-	// TODO: must close all operations gracefully.
-	return nil
+	s.node.
+		log.
+		Debug().
+		Str("self-id", s.node.PersistentState.SelfID.String()).
+		Msg("closing node")
+
+	s.node = nil
+	return s.cluster.Close()
 }
 
 // NewRaftNode initialises a raft cluster with the given configuration.

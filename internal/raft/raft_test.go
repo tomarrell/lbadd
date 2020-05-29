@@ -37,7 +37,7 @@ func Test_NewServer(t *testing.T) {
 
 // Test_Raft tests the entire raft operation.
 func Test_Raft(t *testing.T) {
-	t.SkipNow()
+	// t.SkipNow()
 	zerolog.New(os.Stdout).With().
 		Str("foo", "bar").
 		Logger()
@@ -64,10 +64,10 @@ func Test_Raft(t *testing.T) {
 		conn4,
 	}
 
-	// conn1 = addRemoteID(conn1)
-	// conn2 = addRemoteID(conn2)
-	// conn3 = addRemoteID(conn3)
-	// conn4 = addRemoteID(conn4)
+	conn1 = addRemoteID(conn1)
+	conn2 = addRemoteID(conn2)
+	conn3 = addRemoteID(conn3)
+	conn4 = addRemoteID(conn4)
 
 	conn1.On("Send", ctx, mock.IsType([]byte{})).Return(nil)
 	conn2.On("Send", ctx, mock.IsType([]byte{})).Return(nil)
@@ -103,44 +103,31 @@ func Test_Raft(t *testing.T) {
 		On("Receive", ctx).
 		Return(conn1, nil, nil).After(time.Duration(1000) * time.Second)
 
+	cluster.On("Close").Return(nil)
 	server := NewServer(
 		log,
 		cluster,
 	)
 
-	_ = server
-	err = server.Start()
-	<-time.NewTimer(time.Duration(1000) * time.Second).C
+	go func() {
+		err = server.Start()
+		assert.NoError(err)
+
+	}()
+
+	<-time.NewTimer(time.Duration(500000) * time.Microsecond).C
+
+	err = server.Close()
 	assert.NoError(err)
 
-	// msg1 := message.NewAppendEntriesResponse(12, true)
-	// msg2 := message.NewAppendEntriesResponse(12, true)
-	// // instead of mocking this connection, you can also use a real connection if
-	// // you need
-	// conn := new(networkmocks.Conn)
-	// conn.
-	// 	On("Send", mock.IsType(ctx), mock.IsType([]byte{})).
-	// 	Return(nil)
-	// // cluster := new(raftmocks.Cluster)
-	// cluster.
-	// 	On("Receive", mock.Anything).
-	// 	Return(conn, msg1, nil).
-	// 	Once()
-	// cluster.
-	// 	On("Receive", mock.Anything).
-	// 	Return(conn, msg2, nil).
-	// 	Once()
-	// cluster.
-	// 	On("Broadcast", mock.IsType(ctx), mock.IsType(msg1)).
-	// 	Return(nil)
 	// err := cluster.Broadcast(ctx, msg1)
 	// assert.NoError(err)
 	// cluster.AssertNumberOfCalls(t, "Broadcast", 1)
 	// cluster.AssertCalled(t, "Broadcast", ctx, msg1)
 }
 
-// func addRemoteID(conn *networkmocks.Conn) *networkmocks.Conn {
-// 	cID := id.Create()
-// 	conn.On("RemoteID").Return(cID)
-// 	return conn
-// }
+func addRemoteID(conn *networkmocks.Conn) *networkmocks.Conn {
+	cID := id.Create()
+	conn.On("RemoteID").Return(cID)
+	return conn
+}

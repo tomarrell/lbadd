@@ -2,6 +2,7 @@ package raft
 
 import (
 	"context"
+	"io"
 
 	"github.com/tomarrell/lbadd/internal/id"
 	"github.com/tomarrell/lbadd/internal/network"
@@ -16,4 +17,5 @@ type Cluster interface {
 	Nodes() []network.Conn
 	Receive(context.Context) (network.Conn, message.Message, error)
 	Broadcast(context.Context, message.Message) error
+	io.Closer
 }

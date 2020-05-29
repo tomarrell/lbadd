@@ -59,11 +59,12 @@ func StartElection(node *Node) {
 					Str("received vote from", node.PersistentState.PeerIPs[i].RemoteID().String()).
 					Msg("voting from peer")
 				votesRecieved := atomic.AddInt32(&votes, 1)
+
 				// Check whether this node has already voted.
 				// Else it can vote for itself.
-
 				node.PersistentState.mu.Lock()
 				defer node.PersistentState.mu.Unlock()
+
 				if node.PersistentState.VotedFor == nil {
 					node.PersistentState.VotedFor = node.PersistentState.SelfID
 					node.log.
@@ -73,7 +74,7 @@ func StartElection(node *Node) {
 					votesRecieved++
 				}
 
-				if votesRecieved > int32(len(node.PersistentState.PeerIPs)/2) {
+				if votesRecieved > int32(len(node.PersistentState.PeerIPs)/2) && node.State != StateLeader.String() {
 					// This node has won the election.
 					node.State = StateLeader.String()
 					node.PersistentState.LeaderID = node.PersistentState.SelfID
