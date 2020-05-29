@@ -1,0 +1,1 @@
+Project[cols=*](Select[filter=true](Join[](Join[](Scan[table=a](),Scan[table=b]()),Scan[table=c]())))

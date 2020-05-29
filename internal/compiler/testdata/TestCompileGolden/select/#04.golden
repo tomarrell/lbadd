@@ -1,1 +1,1 @@
-Project[cols=*](Select[filter=true](Join[](Scan[table=a](),Scan[table=b]())))
+Limit[limit=5](Offset[offset=10](Project[cols=*](Scan[table=myTable]())))
