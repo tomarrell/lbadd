@@ -343,7 +343,7 @@ func (u Update) String() string {
 }
 
 func (u UpdateSetter) String() string {
-	return fmt.Sprintf("%v=%v", strings.Join(u.Cols, ","), u.Value)
+	return fmt.Sprintf("(%v)=%v", strings.Join(u.Cols, ","), u.Value)
 }
 
 func (c Column) String() string {
