@@ -20,6 +20,107 @@ func Test_simpleCompiler_Compile_NoOptimizations(t *testing.T) {
 	t.Run("delete", _TestSimpleCompilerCompileDeleteNoOptimizations)
 	t.Run("drop", _TestSimpleCompilerCompileDropNoOptimizations)
 	t.Run("update", _TestSimpleCompilerCompileUpdateNoOptimizations)
+	t.Run("insert", _TestSimpleCompilerCompileInsertNoOptimizations)
+}
+
+func _TestSimpleCompilerCompileInsertNoOptimizations(t *testing.T) {
+	tests := []testcase{
+		{
+			"simple insert",
+			"INSERT INTO myTable VALUES (1, 2, 3)",
+			command.Insert{
+				Table: command.SimpleTable{Table: "myTable"},
+				Input: command.Values{
+					Values: [][]command.Expr{
+						{
+							command.LiteralExpr{Value: "1"},
+							command.LiteralExpr{Value: "2"},
+							command.LiteralExpr{Value: "3"},
+						},
+					},
+				},
+			},
+			false,
+		},
+		{
+			"qualified insert",
+			"INSERT INTO mySchema.myTable VALUES (1, 2, 3)",
+			command.Insert{
+				Table: command.SimpleTable{
+					Schema: "mySchema",
+					Table:  "myTable",
+				},
+				Input: command.Values{
+					Values: [][]command.Expr{
+						{
+							command.LiteralExpr{Value: "1"},
+							command.LiteralExpr{Value: "2"},
+							command.LiteralExpr{Value: "3"},
+						},
+					},
+				},
+			},
+			false,
+		},
+		{
+			"insert expression list",
+			"INSERT INTO mySchema.myTable VALUES (1, 2, 3), (4, 5, 6)",
+			command.Insert{
+				Table: command.SimpleTable{
+					Schema: "mySchema",
+					Table:  "myTable",
+				},
+				Input: command.Values{
+					Values: [][]command.Expr{
+						{
+							command.LiteralExpr{Value: "1"},
+							command.LiteralExpr{Value: "2"},
+							command.LiteralExpr{Value: "3"},
+						},
+						{
+							command.LiteralExpr{Value: "4"},
+							command.LiteralExpr{Value: "5"},
+							command.LiteralExpr{Value: "6"},
+						},
+					},
+				},
+			},
+			false,
+		},
+		{
+			"insert select list",
+			"INSERT INTO mySchema.myTable SELECT * FROM myOtherTable",
+			command.Insert{
+				Table: command.SimpleTable{
+					Schema: "mySchema",
+					Table:  "myTable",
+				},
+				Input: command.Project{
+					Cols: []command.Column{
+						{
+							Column: command.LiteralExpr{Value: "*"},
+						},
+					},
+					Input: command.Scan{
+						Table: command.SimpleTable{Table: "myOtherTable"},
+					},
+				},
+			},
+			false,
+		},
+		{
+			"insert default values",
+			"INSERT INTO myTable DEFAULT VALUES",
+			command.Insert{
+				Table:         command.SimpleTable{Table: "myTable"},
+				DefaultValues: true,
+			},
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, _TestCompile(tt))
+	}
 }
 
 func _TestSimpleCompilerCompileUpdateNoOptimizations(t *testing.T) {

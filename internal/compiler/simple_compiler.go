@@ -94,8 +94,86 @@ func (c *simpleCompiler) compileInternal(ast *ast.SQLStmt) (command.Command, err
 			return nil, fmt.Errorf("update: %w", err)
 		}
 		return cmd, nil
+	case ast.InsertStmt != nil:
+		cmd, err := c.compileInsert(ast.InsertStmt)
+		if err != nil {
+			return nil, fmt.Errorf("insert: %w", err)
+		}
+		return cmd, nil
 	}
 	return nil, fmt.Errorf("statement type: %w", ErrUnsupported)
+}
+
+func (c *simpleCompiler) compileInsert(stmt *ast.InsertStmt) (command.Insert, error) {
+	if stmt.Replace != nil {
+		return command.Insert{}, fmt.Errorf("replace: %w", ErrUnsupported)
+	}
+
+	// compile insertOr
+	var insertOr command.InsertOr
+	switch {
+	case stmt.Replace != nil:
+		insertOr = command.InsertOrReplace
+	case stmt.Rollback != nil:
+		insertOr = command.InsertOrRollback
+	case stmt.Abort != nil:
+		insertOr = command.InsertOrAbort
+	case stmt.Fail != nil:
+		insertOr = command.InsertOrFail
+	case stmt.Ignore != nil:
+		insertOr = command.InsertOrIgnore
+	}
+
+	// compile table
+	table := command.SimpleTable{
+		Table: stmt.TableName.Value(),
+	}
+	if stmt.SchemaName != nil {
+		table.Schema = stmt.SchemaName.Value()
+	}
+	if stmt.As != nil {
+		table.Alias = stmt.Alias.Value()
+	}
+
+	// compile column names
+	var cols []command.Column
+	if len(stmt.ColumnName) != 0 {
+		for _, col := range stmt.ColumnName {
+			cols = append(cols, command.Column{
+				Column: command.LiteralExpr{Value: col.Value()},
+			})
+		}
+	}
+
+	// compile the values to insert
+	var vals command.List
+	if stmt.Default == nil {
+		if stmt.SelectStmt != nil {
+			compiled, err := c.compileSelect(stmt.SelectStmt)
+			if err != nil {
+				return command.Insert{}, fmt.Errorf("select: %w", err)
+			}
+			list, ok := compiled.(command.List)
+			if !ok {
+				return command.Insert{}, fmt.Errorf("nested select must yield a list")
+			}
+			vals = list
+		} else {
+			compiled, err := c.compileParenthesizedExpressions(stmt.ParenthesizedExpressions)
+			if err != nil {
+				return command.Insert{}, fmt.Errorf("values: %w", err)
+			}
+			vals = compiled
+		}
+	}
+
+	return command.Insert{
+		InsertOr:      insertOr,
+		Table:         table,
+		Cols:          cols,
+		DefaultValues: stmt.Default != nil,
+		Input:         vals,
+	}, nil
 }
 
 func (c *simpleCompiler) compileUpdate(stmt *ast.UpdateStmt) (command.Update, error) {
@@ -310,8 +388,16 @@ func (c *simpleCompiler) compileSelectCore(core *ast.SelectCore) (command.Comman
 }
 
 func (c *simpleCompiler) compileSelectCoreValues(core *ast.SelectCore) (command.Values, error) {
+	vals, err := c.compileParenthesizedExpressions(core.ParenthesizedExpressions)
+	if err != nil {
+		return command.Values{}, fmt.Errorf("values: %w", err)
+	}
+	return vals, nil
+}
+
+func (c *simpleCompiler) compileParenthesizedExpressions(exprs []*ast.ParenthesizedExpressions) (command.Values, error) {
 	var datasets [][]command.Expr
-	for _, parExpr := range core.ParenthesizedExpressions {
+	for _, parExpr := range exprs {
 		var values []command.Expr
 		for _, expr := range parExpr.Exprs {
 			compiled, err := c.compileExpr(expr)
