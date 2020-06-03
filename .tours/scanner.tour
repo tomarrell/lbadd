@@ -1,0 +1,110 @@
+{
+  "title": "Scanner",
+  "steps": [
+    {
+      "file": "internal/parser/scanner/scanner.go",
+      "line": 18,
+      "description": "Welcome to the tour on our scanner.\n\nA scanner, also known as lexer or tokenizer, is a component, that splits input into tokens.\nThis is very abstract, but we can describe it more clearly, using our use case.\n\nThe user inputs some SQL statement into the application, and the scanner has to tokenize it.\nThis means, that the scanner takes the input string, and converts it to a list of tokens.\nA token, in our case, is a keyword (`SELECT`, `UPDATE`, `WHERE`), a literal (any string or number), or a delimiter (`,`, `:`, ...).\n\nThese tokens are used by the parser, and the sequence, in which tokens are allowed to occur, is defined in the grammar.\nThe parser checks, if the sequence of tokens, that the scanner produced, is valid according to the implemented grammar.\nIn our case, that's a slight modification of the SQLite grammar.\n\nBecause scanning everything is expensive, we decided that the scanner should **not** produce a list of tokens.\nInstead, the scanner remembers its current position on the input string, and whenever the parser is ready to process the next token, the scanner scans the next token and updates its position.\nImagine it as `token-on-demand` for the parser."
+    },
+    {
+      "file": "internal/parser/scanner/scanner.go",
+      "line": 19,
+      "description": "The `Next()` method is the call that the parser will make in order to get the next token.\nLet's have a look at what exactly a token is."
+    },
+    {
+      "file": "internal/parser/scanner/token/token.go",
+      "line": 6,
+      "description": "The composition of a token is easy.\nIt has a position, which is the location somewhere in the input string.\nThis is primarily used for error messages.\nIt also has a length, which is the length of the value it holds.\nIf the token is a literal `myTable`, then the length would be 7.\nTokens also have types.\nThe type is used by the scanner to differentiate between delimiter, literal or keyword.\nHowever, we don't generalize keywords.\nEvery keyword has its own token type.\nLastly, a token has a value.\nAs mentioned above, this value is the value that the token holds, and it is always a string.\nThis implies, that the scanner does not differentiate between numeric and string literals."
+    },
+    {
+      "file": "internal/parser/scanner/token/token.go",
+      "line": 15,
+      "description": "In addition to common tokens, we have error tokens that embed the token interface.\nIt's important to understand, why this is needed.\n\nWhenever the scanner encounters an illegal character or something invalid, it must not crash.\nEvery compiler you worked with, always processes the complete file and marks all errors.\nWe do the same thing.\nThe scanner must detect invalid parts and point them out, without stopping to scan.\n\nTo achieve this, it returns error tokens instead of e.g. panicking.\nThe parser has to handle this accordingly."
+    },
+    {
+      "file": "internal/parser/scanner/token/token.go",
+      "line": 54,
+      "description": "This is the way to create new tokens.\nThe scanner has to keep track of the line, col, offset of a token, and set it manually."
+    },
+    {
+      "file": "internal/parser/scanner/token/token.go",
+      "line": 100,
+      "description": "Error tokens are just normal tokens, but hold an error.\nThat way, the parser can access the actual error, not just the error message.\n\nAn error token must always have an error token type.\nAt the moment, there is only one, and that is `token.Error`."
+    },
+    {
+      "file": "internal/parser/scanner/rule_based_scanner.go",
+      "line": 12,
+      "description": "Let's advance to our actual scanner implementation.\nUnlike our parser, our scanner uses rules to determine the next token.\nTo learn how the rules work, have a look at the `(ruleset.Rule).Apply` method's godoc."
+    },
+    {
+      "file": "internal/parser/scanner/ruleset/ruleset_default.go",
+      "line": 17,
+      "description": "This is our default ruleset.\nIt contains a whitespace and linefeed detector, and all the rules."
+    },
+    {
+      "file": "internal/parser/scanner/ruleset/ruleset_default.go",
+      "line": 51,
+      "description": "There are rules for every token that we support, namely statement separators (`;`), placeholders (`?` in prepared statements, needed for the client), keywords and many more."
+    },
+    {
+      "file": "internal/parser/scanner/rule_based_scanner.go",
+      "line": 59,
+      "description": "When peeking, we compute the next token and cache it.\nWhen peeking again, we only return the cache, avoiding another potentially expensive token computation.\nThen actually getting the token with `Next()`, we return a `Peek`ed token and empty the cache, so that the next call to `Peek()` has to compute the next token."
+    },
+    {
+      "file": "internal/parser/scanner/rule_based_scanner.go",
+      "line": 24,
+      "description": "This struct is, where the scanner keeps track of its current position.\nEverything in here is meant to be changed, unlike all fields in `ruleBasedScanner`."
+    },
+    {
+      "file": "internal/parser/scanner/rule_based_scanner.go",
+      "line": 44,
+      "description": "Since line and col is used only for the user, and most of the text editors count lines and columns 1-based, these two values are also 1-based."
+    },
+    {
+      "file": "internal/parser/scanner/rule_based_scanner.go",
+      "line": 66,
+      "description": "This makes use of Go's pointer system.\nThis method just returns the current state of the scanner, however, since we don't use a pointer here, it is copied, and the returned state is completely independent frmo the actual scanner state."
+    },
+    {
+      "file": "internal/parser/scanner/rule_based_scanner.go",
+      "line": 70,
+      "description": "With this, you can restore a checkpoint, created with `checkpoint()`.\nThis is a great mechanism for our rule-based approach, as we have to reset the scanner position if a rule is not applicable.\nWe have to do this, because the rule might have modified the scanner position before recognizing that it's not applicable."
+    },
+    {
+      "file": "internal/parser/scanner/rule_based_scanner.go",
+      "line": 74,
+      "description": "The scanner is done when it has reached the end of its input. Basic."
+    },
+    {
+      "file": "internal/parser/scanner/rule_based_scanner.go",
+      "line": 78,
+      "description": "This is where the actual token computation starts."
+    },
+    {
+      "file": "internal/parser/scanner/rule_based_scanner.go",
+      "line": 79,
+      "description": "The grammar states, that a whitespace can occur between any tokens, but we don't need the whitespace for the parser, so we just discard it."
+    },
+    {
+      "file": "internal/parser/scanner/rule_based_scanner.go",
+      "line": 84,
+      "description": "If, after draining all whitespaces, there is no more input left, we return an `EOF` token (this is what `s.eof()` does).\nOtherwise, we start applying all rules until we find one that matches."
+    },
+    {
+      "file": "internal/parser/scanner/rule_based_scanner.go",
+      "line": 89,
+      "description": "And this is where the magic happens.\nWe try to apply all rules from top to bottom (in the list of rules).\nWe remember the position, apply the rule, and if it's not applicable, we restore the position."
+    },
+    {
+      "file": "internal/parser/scanner/rule_based_scanner.go",
+      "line": 93,
+      "description": "This is probably a bit confusing.\nThe way we create the tokens is this:\nWe have a `start` and a `current` position in the scanner.\nIf a rule modifies the scanner position, only `current` is modified.\nThis means, that `start` is always the start position of the current token, and `current` determines its end.\nAfter an applicable rule was applied, `start` is the start of the token, and `current` is the end, so what `s.token(typ)` does, is simply taking the string from the input at `input[start:current]`, and pack it into a token with the type that the rule returned.\n\n_(We didn't call it `start` and `current`, we called it `start` and `pos`)_"
+    },
+    {
+      "file": "internal/parser/scanner/rule_based_scanner.go",
+      "line": 1,
+      "description": "That's where it ends.\nIf you still have questions, please have a look at the test cases or get in touch with @SUMUKHA-PK or @TimSatke."
+    }
+  ]
+}
