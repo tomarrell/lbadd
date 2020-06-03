@@ -281,7 +281,7 @@ type (
 		Values [][]Expr
 	}
 
-	// Insert inststructs the executor to insert the input list into the
+	// Insert instructs the executor to insert the input list into the
 	// specified table. The specified columns must match the columns from the
 	// input list.
 	Insert struct {
