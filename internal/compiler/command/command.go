@@ -17,6 +17,8 @@ var _ Command = (*DropTable)(nil)
 var _ Command = (*DropIndex)(nil)
 var _ Command = (*DropTrigger)(nil)
 var _ Command = (*DropView)(nil)
+var _ Command = (*Update)(nil)
+var _ Command = (*Insert)(nil)
 var _ Command = (*Join)(nil)
 var _ Command = (*Limit)(nil)
 
@@ -55,6 +57,22 @@ const (
 	UpdateOrReplace
 	UpdateOrFail
 	UpdateOrIgnore
+)
+
+//go:generate stringer -type=InsertOr
+
+// InsertOr is the type of insert alternative that is specified in an insert
+// statement.
+type InsertOr uint8
+
+// Known InsertOrs
+const (
+	InsertOrUnknown InsertOr = iota
+	InsertOrReplace
+	InsertOrRollback
+	InsertOrAbort
+	InsertOrFail
+	InsertOrIgnore
 )
 
 type (
@@ -262,6 +280,26 @@ type (
 		// dataset consists of all expressions that are in the dataset.
 		Values [][]Expr
 	}
+
+	// Insert instructs the executor to insert the input list into the
+	// specified table. The specified columns must match the columns from the
+	// input list.
+	Insert struct {
+		// InsertOr is the specified fallback to perform when the insertion
+		// fails.
+		InsertOr InsertOr
+		// Table is the specified table, where the input list is inserted into.
+		Table Table
+		// Cols are the columns, which are modified. The columns of the input
+		// list have to match these columns.
+		Cols []Column
+		// DefaultValues determines whether to insert default values for all
+		// (specified) columns. If this is set to true, the input list must not
+		// be present.
+		DefaultValues bool
+		// Input is the input list of datasets, that will be inserted.
+		Input List
+	}
 )
 
 func (Scan) _list()     {}
@@ -284,9 +322,6 @@ func (s Scan) String() string {
 }
 
 func (s Select) String() string {
-	if s.Filter == nil {
-		return fmt.Sprintf("Select[](%v)", s.Input)
-	}
 	return fmt.Sprintf("Select[filter=%v](%v)", s.Filter, s.Input)
 }
 
@@ -413,4 +448,12 @@ func (v Values) String() string {
 		values = append(values, "("+strings.Join(exprs, ",")+")")
 	}
 	return fmt.Sprintf("Values[](%v)", strings.Join(values, ","))
+}
+
+func (i Insert) String() string {
+	var cols []string
+	for _, col := range i.Cols {
+		cols = append(cols, col.String())
+	}
+	return fmt.Sprintf("Insert[table=%v,cols=%v](%v)", i.Table, strings.Join(cols, ","), i.Input)
 }
