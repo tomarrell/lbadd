@@ -148,7 +148,7 @@ func Complex128ToByteSlice(v complex128) (result []byte) {
 
 // variable-size
 
-// StringToByteSlice converts the given argument string a byte ytwhich is then
+// StringToByteSlice converts the given argument string a []byte which is then
 // returned.
 func StringToByteSlice(v string) []byte {
 	return []byte(v)
