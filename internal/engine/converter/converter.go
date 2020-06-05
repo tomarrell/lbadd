@@ -16,8 +16,7 @@ var (
 
 // bool
 
-// BoolToByte converts the given argument to a byte output, which is then
-// returned.
+// BoolToByte converts the given argument bool to a byte which is then returned.
 func BoolToByte(v bool) byte {
 	if v {
 		return trueByte
@@ -25,13 +24,13 @@ func BoolToByte(v bool) byte {
 	return falseByte
 }
 
-// BoolToByteArray converts the given argument to a byte output, which is then
+// BoolToByteArray converts the given argument bool to a [1]byte is then
 // returned.
 func BoolToByteArray(v bool) [1]byte {
 	return [1]byte{BoolToByte(v)}
 }
 
-// BoolToByteSlice converts the given argument to a byte output, which is then
+// BoolToByteSlice converts the given argument bool to a []byte which is then
 // returned.
 func BoolToByteSlice(v bool) []byte {
 	arr := BoolToByteArray(v)
@@ -40,45 +39,45 @@ func BoolToByteSlice(v bool) []byte {
 
 // integral
 
-// Uint16ToByteArray converts the given argument to a byte output, which is then
-// returned.
+// Uint16ToByteArray converts the given argument uint16 to a [2]byte which is
+// then returned.
 func Uint16ToByteArray(v uint16) (result [2]byte) {
 	byteOrder.PutUint16(result[:], v)
 	return
 }
 
-// Uint16ToByteSlice converts the given argument to a byte output, which is then
-// returned.
+// Uint16ToByteSlice converts the given argument uint16 to a []byte which is
+// then returned.
 func Uint16ToByteSlice(v uint16) (result []byte) {
 	result = make([]byte, 2)
 	byteOrder.PutUint16(result, v)
 	return
 }
 
-// Uint32ToByteArray converts the given argument to a byte output, which is then
-// returned.
+// Uint32ToByteArray converts the given argument uint32 to a [4]byte which is
+// then returned.
 func Uint32ToByteArray(v uint32) (result [4]byte) {
 	byteOrder.PutUint32(result[:], v)
 	return
 }
 
-// Uint32ToByteSlice converts the given argument to a byte output, which is then
-// returned.
+// Uint32ToByteSlice converts the given argument uint32 to a []byte which is
+// then returned.
 func Uint32ToByteSlice(v uint32) (result []byte) {
 	result = make([]byte, 4)
 	byteOrder.PutUint32(result, v)
 	return
 }
 
-// Uint64ToByteArray converts the given argument to a byte output, which is then
-// returned.
+// Uint64ToByteArray converts the given argument uint64 to a [8]byte which is
+// then returned.
 func Uint64ToByteArray(v uint64) (result [8]byte) {
 	byteOrder.PutUint64(result[:], v)
 	return
 }
 
-// Uint64ToByteSlice converts the given argument to a byte output, which is then
-// returned.
+// Uint64ToByteSlice converts the given argument uint64 to a []byte which is
+// then returned.
 func Uint64ToByteSlice(v uint64) (result []byte) {
 	result = make([]byte, 8)
 	byteOrder.PutUint64(result, v)
@@ -87,42 +86,42 @@ func Uint64ToByteSlice(v uint64) (result []byte) {
 
 // fractal
 
-// Float32ToByteArray converts the given argument to a byte output, which is
-// then returned.
+// Float32ToByteArray converts the given float32 to a [4]byte, which is then
+// returned.
 func Float32ToByteArray(v float32) (result [4]byte) {
 	return Uint32ToByteArray(math.Float32bits(v))
 }
 
-// Float32ToByteSlice converts the given argument to a byte output, which is
-// then returned.
+// Float32ToByteSlice converts the given float32 to a []byte, which is then
+// returned.
 func Float32ToByteSlice(v float32) (result []byte) {
 	return Uint32ToByteSlice(math.Float32bits(v))
 }
 
-// Float64ToByteArray converts the given argument to a byte output, which is
-// then returned.
+// Float64ToByteArray converts the given float64 to a [8]byte, which is then
+// returned.
 func Float64ToByteArray(v float64) (result [8]byte) {
 	return Uint64ToByteArray(math.Float64bits(v))
 }
 
-// Float64ToByteSlice converts the given argument to a byte output, which is
-// then returned.
+// Float64ToByteSlice converts the given float64 to a []byte, which is then
+// returned.
 func Float64ToByteSlice(v float64) (result []byte) {
 	return Uint64ToByteSlice(math.Float64bits(v))
 }
 
 // complex
 
-// Complex64ToByteArray converts the given argument to a byte output, which is
-// then returned.
+// Complex64ToByteArray converts the given complex64 to a [8]byte, which is then
+// returned.
 func Complex64ToByteArray(v complex64) (result [8]byte) {
 	copy(result[:4], Float32ToByteSlice(real(v)))
 	copy(result[4:], Float32ToByteSlice(imag(v)))
 	return
 }
 
-// Complex64ToByteSlice converts the given argument to a byte output, which is
-// then returned.
+// Complex64ToByteSlice converts the given complex64 to a []byte, which is then
+// returned.
 func Complex64ToByteSlice(v complex64) (result []byte) {
 	result = make([]byte, 8)
 	copy(result[:4], Float32ToByteSlice(real(v)))
@@ -130,7 +129,7 @@ func Complex64ToByteSlice(v complex64) (result []byte) {
 	return
 }
 
-// Complex128ToByteArray converts the given argument to a byte output, which is
+// Complex128ToByteArray converts the given complex128 to a [16]byte, which is
 // then returned.
 func Complex128ToByteArray(v complex128) (result [16]byte) {
 	copy(result[:8], Float64ToByteSlice(real(v)))
@@ -138,7 +137,7 @@ func Complex128ToByteArray(v complex128) (result [16]byte) {
 	return
 }
 
-// Complex128ToByteSlice converts the given argument to a byte output, which is
+// Complex128ToByteSlice converts the given complex128 to a []byte, which is
 // then returned.
 func Complex128ToByteSlice(v complex128) (result []byte) {
 	result = make([]byte, 16)
@@ -149,7 +148,7 @@ func Complex128ToByteSlice(v complex128) (result []byte) {
 
 // variable-size
 
-// StringToByteSlice converts the given argument to a byte output, which is then
+// StringToByteSlice converts the given argument string a byte ytwhich is then
 // returned.
 func StringToByteSlice(v string) []byte {
 	return []byte(v)
