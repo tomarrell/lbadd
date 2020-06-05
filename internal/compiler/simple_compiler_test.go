@@ -8,13 +8,395 @@ import (
 	"github.com/tomarrell/lbadd/internal/parser"
 )
 
+type testcase struct {
+	name    string
+	input   string
+	want    command.Command
+	wantErr bool
+}
+
 func Test_simpleCompiler_Compile_NoOptimizations(t *testing.T) {
-	tests := []struct {
-		name    string
-		input   string
-		want    command.Command
-		wantErr bool
-	}{
+	t.Run("select", _TestSimpleCompilerCompileSelectNoOptimizations)
+	t.Run("delete", _TestSimpleCompilerCompileDeleteNoOptimizations)
+	t.Run("drop", _TestSimpleCompilerCompileDropNoOptimizations)
+	t.Run("update", _TestSimpleCompilerCompileUpdateNoOptimizations)
+	t.Run("insert", _TestSimpleCompilerCompileInsertNoOptimizations)
+}
+
+func _TestSimpleCompilerCompileInsertNoOptimizations(t *testing.T) {
+	tests := []testcase{
+		{
+			"simple insert",
+			"INSERT INTO myTable VALUES (1, 2, 3)",
+			command.Insert{
+				Table: command.SimpleTable{Table: "myTable"},
+				Input: command.Values{
+					Values: [][]command.Expr{
+						{
+							command.LiteralExpr{Value: "1"},
+							command.LiteralExpr{Value: "2"},
+							command.LiteralExpr{Value: "3"},
+						},
+					},
+				},
+			},
+			false,
+		},
+		{
+			"qualified insert",
+			"INSERT INTO mySchema.myTable VALUES (1, 2, 3)",
+			command.Insert{
+				Table: command.SimpleTable{
+					Schema: "mySchema",
+					Table:  "myTable",
+				},
+				Input: command.Values{
+					Values: [][]command.Expr{
+						{
+							command.LiteralExpr{Value: "1"},
+							command.LiteralExpr{Value: "2"},
+							command.LiteralExpr{Value: "3"},
+						},
+					},
+				},
+			},
+			false,
+		},
+		{
+			"insert expression list",
+			"INSERT INTO mySchema.myTable VALUES (1, 2, 3), (4, 5, 6)",
+			command.Insert{
+				Table: command.SimpleTable{
+					Schema: "mySchema",
+					Table:  "myTable",
+				},
+				Input: command.Values{
+					Values: [][]command.Expr{
+						{
+							command.LiteralExpr{Value: "1"},
+							command.LiteralExpr{Value: "2"},
+							command.LiteralExpr{Value: "3"},
+						},
+						{
+							command.LiteralExpr{Value: "4"},
+							command.LiteralExpr{Value: "5"},
+							command.LiteralExpr{Value: "6"},
+						},
+					},
+				},
+			},
+			false,
+		},
+		{
+			"insert select list",
+			"INSERT INTO mySchema.myTable SELECT * FROM myOtherTable",
+			command.Insert{
+				Table: command.SimpleTable{
+					Schema: "mySchema",
+					Table:  "myTable",
+				},
+				Input: command.Project{
+					Cols: []command.Column{
+						{
+							Column: command.LiteralExpr{Value: "*"},
+						},
+					},
+					Input: command.Scan{
+						Table: command.SimpleTable{Table: "myOtherTable"},
+					},
+				},
+			},
+			false,
+		},
+		{
+			"insert default values",
+			"INSERT INTO myTable DEFAULT VALUES",
+			command.Insert{
+				Table:         command.SimpleTable{Table: "myTable"},
+				DefaultValues: true,
+			},
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, _TestCompile(tt))
+	}
+}
+
+func _TestSimpleCompilerCompileUpdateNoOptimizations(t *testing.T) {
+	tests := []testcase{
+		{
+			"simple update",
+			"UPDATE myTable SET myCol = 7",
+			command.Update{
+				UpdateOr: command.UpdateOrIgnore, // default
+				Table: command.SimpleTable{
+					Table: "myTable",
+				},
+				Filter: command.ConstantBooleanExpr{Value: true},
+				Updates: []command.UpdateSetter{
+					{
+						Cols:  []string{"myCol"},
+						Value: command.LiteralExpr{Value: "7"},
+					},
+				},
+			},
+			false,
+		},
+		{
+			"filtered update",
+			"UPDATE myTable SET myCol = 7 WHERE myOtherCol == 9",
+			command.Update{
+				UpdateOr: command.UpdateOrIgnore, // default
+				Table: command.SimpleTable{
+					Table: "myTable",
+				},
+				Filter: command.BinaryExpr{
+					Left:     command.LiteralExpr{Value: "myOtherCol"},
+					Operator: "==",
+					Right:    command.LiteralExpr{Value: "9"},
+				},
+				Updates: []command.UpdateSetter{
+					{
+						Cols:  []string{"myCol"},
+						Value: command.LiteralExpr{Value: "7"},
+					},
+				},
+			},
+			false,
+		},
+		{
+			"filtered update or fail",
+			"UPDATE OR FAIL myTable SET myCol = 7 WHERE myOtherCol == 9",
+			command.Update{
+				UpdateOr: command.UpdateOrFail,
+				Table: command.SimpleTable{
+					Table: "myTable",
+				},
+				Filter: command.BinaryExpr{
+					Left:     command.LiteralExpr{Value: "myOtherCol"},
+					Operator: "==",
+					Right:    command.LiteralExpr{Value: "9"},
+				},
+				Updates: []command.UpdateSetter{
+					{
+						Cols:  []string{"myCol"},
+						Value: command.LiteralExpr{Value: "7"},
+					},
+				},
+			},
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, _TestCompile(tt))
+	}
+}
+
+func _TestSimpleCompilerCompileDropNoOptimizations(t *testing.T) {
+	tests := []testcase{
+		// table
+		{
+			"simple drop table",
+			"DROP TABLE myTable",
+			command.DropTable{
+				Name: "myTable",
+			},
+			false,
+		},
+		{
+			"simple drop table if exists",
+			"DROP TABLE IF EXISTS myTable",
+			command.DropTable{
+				Name:     "myTable",
+				IfExists: true,
+			},
+			false,
+		},
+		{
+			"qualified drop table",
+			"DROP TABLE mySchema.myTable",
+			command.DropTable{
+				Schema: "mySchema",
+				Name:   "myTable",
+			},
+			false,
+		},
+		{
+			"qualified drop table if exists",
+			"DROP TABLE IF EXISTS mySchema.myTable",
+			command.DropTable{
+				Schema:   "mySchema",
+				Name:     "myTable",
+				IfExists: true,
+			},
+			false,
+		},
+		// view
+		{
+			"simple drop view",
+			"DROP VIEW myView",
+			command.DropView{
+				Name: "myView",
+			},
+			false,
+		},
+		{
+			"simple drop view if exists",
+			"DROP VIEW IF EXISTS myView",
+			command.DropView{
+				Name:     "myView",
+				IfExists: true,
+			},
+			false,
+		},
+		{
+			"qualified drop view",
+			"DROP VIEW mySchema.myView",
+			command.DropView{
+				Schema: "mySchema",
+				Name:   "myView",
+			},
+			false,
+		},
+		{
+			"qualified drop view if exists",
+			"DROP VIEW IF EXISTS mySchema.myView",
+			command.DropView{
+				Schema:   "mySchema",
+				Name:     "myView",
+				IfExists: true,
+			},
+			false,
+		},
+		// index
+		{
+			"simple drop index",
+			"DROP INDEX myIndex",
+			command.DropIndex{
+				Name: "myIndex",
+			},
+			false,
+		},
+		{
+			"simple drop index if exists",
+			"DROP INDEX IF EXISTS myIndex",
+			command.DropIndex{
+				Name:     "myIndex",
+				IfExists: true,
+			},
+			false,
+		},
+		{
+			"qualified drop index",
+			"DROP INDEX mySchema.myIndex",
+			command.DropIndex{
+				Schema: "mySchema",
+				Name:   "myIndex",
+			},
+			false,
+		},
+		{
+			"qualified drop index if exists",
+			"DROP INDEX IF EXISTS mySchema.myIndex",
+			command.DropIndex{
+				Schema:   "mySchema",
+				Name:     "myIndex",
+				IfExists: true,
+			},
+			false,
+		},
+		// trigger
+		{
+			"simple drop trigger",
+			"DROP TRIGGER myTrigger",
+			command.DropTrigger{
+				Name: "myTrigger",
+			},
+			false,
+		},
+		{
+			"simple drop trigger if exists",
+			"DROP TRIGGER IF EXISTS myTrigger",
+			command.DropTrigger{
+				Name:     "myTrigger",
+				IfExists: true,
+			},
+			false,
+		},
+		{
+			"qualified drop trigger",
+			"DROP TRIGGER mySchema.myTrigger",
+			command.DropTrigger{
+				Schema: "mySchema",
+				Name:   "myTrigger",
+			},
+			false,
+		},
+		{
+			"qualified drop trigger if exists",
+			"DROP TRIGGER IF EXISTS mySchema.myTrigger",
+			command.DropTrigger{
+				Schema:   "mySchema",
+				Name:     "myTrigger",
+				IfExists: true,
+			},
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, _TestCompile(tt))
+	}
+}
+
+func _TestSimpleCompilerCompileDeleteNoOptimizations(t *testing.T) {
+	tests := []testcase{
+		{
+			"simple delete",
+			"DELETE FROM myTable",
+			command.Delete{
+				Table: command.SimpleTable{
+					Table: "myTable",
+				},
+				Filter: command.ConstantBooleanExpr{Value: true},
+			},
+			false,
+		},
+		{
+			"qualified delete",
+			"DELETE FROM mySchema.myTable",
+			command.Delete{
+				Table: command.SimpleTable{
+					Table:  "myTable",
+					Schema: "mySchema",
+				},
+				Filter: command.ConstantBooleanExpr{Value: true},
+			},
+			false,
+		},
+		{
+			"delete with filter",
+			"DELETE FROM myTable WHERE col1 == col2",
+			command.Delete{
+				Table: command.SimpleTable{
+					Table: "myTable",
+				},
+				Filter: command.BinaryExpr{
+					Left:     command.LiteralExpr{Value: "col1"},
+					Operator: "==",
+					Right:    command.LiteralExpr{Value: "col2"},
+				},
+			},
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, _TestCompile(tt))
+	}
+}
+
+func _TestSimpleCompilerCompileSelectNoOptimizations(t *testing.T) {
+	tests := []testcase{
 		{
 			"simple values",
 			"VALUES (1,2,3),(4,5,6),(7,8,9)",
@@ -66,7 +448,7 @@ func Test_simpleCompiler_Compile_NoOptimizations(t *testing.T) {
 					},
 				},
 				Input: command.Select{
-					Filter: command.LiteralExpr{Value: "true"},
+					Filter: command.ConstantBooleanExpr{Value: true},
 					Input: command.Scan{
 						Table: command.SimpleTable{
 							Table: "myTable",
@@ -153,7 +535,7 @@ func Test_simpleCompiler_Compile_NoOptimizations(t *testing.T) {
 						},
 					},
 					Input: command.Select{
-						Filter: command.LiteralExpr{Value: "true"},
+						Filter: command.ConstantBooleanExpr{Value: true},
 						Input: command.Scan{
 							Table: command.SimpleTable{
 								Table: "myTable",
@@ -174,7 +556,7 @@ func Test_simpleCompiler_Compile_NoOptimizations(t *testing.T) {
 					},
 				},
 				Input: command.Select{
-					Filter: command.LiteralExpr{Value: "true"},
+					Filter: command.ConstantBooleanExpr{Value: true},
 					Input: command.Join{
 						Left: command.Scan{
 							Table: command.SimpleTable{
@@ -201,7 +583,7 @@ func Test_simpleCompiler_Compile_NoOptimizations(t *testing.T) {
 					},
 				},
 				Input: command.Select{
-					Filter: command.LiteralExpr{Value: "true"},
+					Filter: command.ConstantBooleanExpr{Value: true},
 					Input: command.Join{
 						Left: command.Scan{
 							Table: command.SimpleTable{
@@ -228,7 +610,7 @@ func Test_simpleCompiler_Compile_NoOptimizations(t *testing.T) {
 					},
 				},
 				Input: command.Select{
-					Filter: command.LiteralExpr{Value: "true"},
+					Filter: command.ConstantBooleanExpr{Value: true},
 					Input: command.Join{
 						Left: command.Join{
 							Left: command.Scan{
@@ -338,23 +720,27 @@ func Test_simpleCompiler_Compile_NoOptimizations(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert := assert.New(t)
+		t.Run(tt.name, _TestCompile(tt))
+	}
+}
 
-			c := &simpleCompiler{}
-			p := parser.New(tt.input)
-			stmt, errs, ok := p.Next()
-			assert.Len(errs, 0)
-			assert.True(ok)
+func _TestCompile(tt testcase) func(t *testing.T) {
+	return func(t *testing.T) {
+		assert := assert.New(t)
 
-			got, gotErr := c.Compile(stmt)
+		c := &simpleCompiler{}
+		p := parser.New(tt.input)
+		stmt, errs, ok := p.Next()
+		assert.Len(errs, 0)
+		assert.True(ok)
 
-			if tt.wantErr {
-				assert.Error(gotErr)
-			} else {
-				assert.NoError(gotErr)
-			}
-			assert.Equal(tt.want, got)
-		})
+		got, gotErr := c.Compile(stmt)
+
+		if tt.wantErr {
+			assert.Error(gotErr)
+		} else {
+			assert.NoError(gotErr)
+		}
+		assert.Equal(tt.want, got)
 	}
 }

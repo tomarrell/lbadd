@@ -2,6 +2,7 @@ package command
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -21,8 +22,10 @@ type (
 		Value string
 	}
 
-	// BooleanExpr is a simple expression that represents a boolean value.
-	BooleanExpr struct {
+	// ConstantBooleanExpr is a simple expression that represents a boolean
+	// value. It is rarely emitted by the compiler and rather used by
+	// optimizations.
+	ConstantBooleanExpr struct {
 		// Value is the simple bool value of this expression.
 		Value bool
 	}
@@ -87,15 +90,20 @@ type (
 	}
 )
 
-func (LiteralExpr) _expr()  {}
-func (EqualityExpr) _expr() {}
-func (RangeExpr) _expr()    {}
-func (UnaryExpr) _expr()    {}
-func (BinaryExpr) _expr()   {}
-func (FunctionExpr) _expr() {}
+func (LiteralExpr) _expr()         {}
+func (ConstantBooleanExpr) _expr() {}
+func (EqualityExpr) _expr()        {}
+func (RangeExpr) _expr()           {}
+func (UnaryExpr) _expr()           {}
+func (BinaryExpr) _expr()          {}
+func (FunctionExpr) _expr()        {}
 
 func (l LiteralExpr) String() string {
 	return l.Value
+}
+
+func (b ConstantBooleanExpr) String() string {
+	return strconv.FormatBool(b.Value)
 }
 
 func (e EqualityExpr) String() string {
