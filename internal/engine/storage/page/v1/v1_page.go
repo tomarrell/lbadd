@@ -97,6 +97,21 @@ func (p *Page) StoreCell(cell page.Cell) error {
 	return nil
 }
 
+func (p *Page) Delete(key []byte) error {
+	panic("TODO")
+	return nil
+}
+
+func (p *Page) Cell(key []byte) (page.Cell, bool) {
+	// TODO: binary search
+	for _, cell := range p.Cells() {
+		if bytes.Equal(key, cell.Key) {
+			return cell, true
+		}
+	}
+	return page.Cell{}, false
+}
+
 // Cells returns all cells that are stored in this page in sorted fashion,
 // ordered ascending by key.
 func (p *Page) Cells() (cells []page.Cell) {

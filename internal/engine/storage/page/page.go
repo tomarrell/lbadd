@@ -32,6 +32,13 @@ type Page interface {
 	// StoreCell stores a cell on the page. If the page does not fit the cell
 	// because of size or too much fragmentation, an error will be returned.
 	StoreCell(Cell) error
+	// Delete deletes the cell with the given bytes as key. If the key couldn't
+	// be found, nil is returned. If an error occured during deletion, the error
+	// is returned.
+	Delete([]byte) error
+	// Cell returns a cell with the given key, together with a bool indicating
+	// whether any cell in the page has that key.
+	Cell([]byte) (Cell, bool)
 	// Cells returns all cells in this page as a slice. Cells are ordered
 	// ascending by key. Calling this method is relatively cheap.
 	Cells() []Cell
