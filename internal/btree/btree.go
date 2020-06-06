@@ -2,9 +2,31 @@ package btree
 
 import "github.com/davecgh/go-spew/spew"
 
-const defaultOrder = 3
+type Btreer interface {
+	// Get attempts to retrieve an entry in the tree by the given key `k`. It
+	// returns the entry and a bool indicating whether it was found or not.
+	Get(k Key) (result *Entry, exists bool)
 
-// btree is an implementation of a B+tree with the following invariants
+	// Insert adds a new key and value to the tree. If there exists a value
+	// already with the same key, the value is overridden.
+	Insert(k Key, v Value)
+
+	// Remove deletes a given key from the tree.
+	Remove(k Key) (removed bool)
+
+	// Height returns the maximum height of the Btree, from lowest node to the
+	// root.
+	Height() int
+
+	// Generate a string representation of the tree. Useful for debugging.
+	String() string
+}
+
+const (
+	defaultOrder = 3
+)
+
+// Btree is an implementation of a B+tree with the following invariants
 //
 // ref: c = len(children), k = len(keys), o = order
 //
@@ -22,7 +44,7 @@ type Btree struct {
 	order int
 }
 
-// newBtree creates a new instance of Btree
+// NewBtree creates a new instance of Btree
 func NewBtree() *Btree {
 	return &Btree{
 		root:  nil,
@@ -39,7 +61,7 @@ func NewBtreeOrder(order int) *Btree {
 	}
 }
 
-// Output the btree as a string representation
+// String returns a string representation of the Btree.
 func (b *Btree) String() string {
 	out := ""
 
@@ -80,8 +102,8 @@ func (b *Btree) String() string {
 	return out
 }
 
-// get searches for a specific Key in the btree, returning a pointer to the
-// resulting entry and a boolean as to whether it exists in the tree
+// Get searches for a specific Key in the btree, returning a pointer to the
+// resulting entry and a boolean as to whether it exists in the tree.
 func (b *Btree) Get(k Key) (result *Entry, exists bool) {
 	if b.root == nil || len(b.root.entries) == 0 {
 		return nil, false
@@ -103,8 +125,8 @@ func (b *Btree) getNode(node *node, k Key) (result *Entry, exists bool) {
 	return b.getNode(node.children[i], k)
 }
 
-// insert takes a Key and value, creats a new entry and inserts it in the tree
-// according to the Key
+// Insert takes a Key and value, creats a new entry and inserts it in the tree
+// according to the Key.
 func (b *Btree) Insert(k Key, v Value) {
 	if b.root == nil {
 		b.size++
@@ -154,8 +176,8 @@ func (b *Btree) insertNode(node *node, entry *Entry) (inserted bool) {
 	return b.insertNode(node.children[idx], entry)
 }
 
-// remove tries to delete an entry from the tree, and returns true if the entry
-// was removed, and false if the Key was not found in the tree
+// Remove tries to delete an entry from the tree, and returns true if the entry
+// was removed, and false if the Key was not found in the tree.
 func (b *Btree) Remove(k Key) (removed bool) {
 	if b.root == nil {
 		return false
