@@ -97,6 +97,8 @@ func (p *Page) StoreCell(cell page.Cell) error {
 	return nil
 }
 
+// Delete deletes the cell with the given key. If there is no such cell, this is
+// a no-op. This never returns an error.
 func (p *Page) Delete(key []byte) error {
 	offsets := p.Offsets()
 
@@ -119,6 +121,9 @@ func (p *Page) Delete(key []byte) error {
 	return nil
 }
 
+// Cell searches for a cell with the given key, and returns a cell object
+// representing all the found cell data. If no cell was found, false is
+// returned.
 func (p *Page) Cell(key []byte) (page.Cell, bool) {
 	// TODO: binary search
 	for _, cell := range p.Cells() {
