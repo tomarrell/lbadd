@@ -28,6 +28,7 @@ const (
 	KeywordAfter
 	KeywordAll
 	KeywordAlter
+	KeywordAlways
 	KeywordAnalyze
 	KeywordAnd
 	KeywordAs
@@ -132,7 +133,7 @@ const (
 	KeywordRecursive
 	KeywordReferences
 	KeywordRegexp
-	KeywordReindex
+	KeywordReIndex
 	KeywordRelease
 	KeywordRename
 	KeywordReplace
@@ -144,6 +145,7 @@ const (
 	KeywordSavepoint
 	KeywordSelect
 	KeywordSet
+	KeywordStored
 	KeywordTable
 	KeywordTemp
 	KeywordTemporary
@@ -168,6 +170,7 @@ const (
 	KeywordWithout
 
 	Literal
+	LiteralNumeric
 
 	UnaryOperator
 	BinaryOperator

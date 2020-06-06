@@ -1,0 +1,7 @@
+# global code owners
+*   @TimSatke @tomarrell
+
+internal/compiler @TimSatke
+internal/database/storage/btree @tomarrell
+internal/network @TimSatke
+internal/parser @TimSatke @SUMUKHA-PK

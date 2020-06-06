@@ -1,0 +1,1 @@
+INSERT INTO myTable VALUES (myExpr) ON CONFLICT DO UPDATE SET (myCol1,myCol2) = myNewCol, myNewCol1 = myNewerCol

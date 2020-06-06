@@ -1,0 +1,1 @@
+Limit[limit=5](Project[cols=*](Scan[table=myTable]()))

@@ -1,0 +1,1 @@
+DELETE FROM myTable WHERE CASE WHEN expr1 THEN expr2 END

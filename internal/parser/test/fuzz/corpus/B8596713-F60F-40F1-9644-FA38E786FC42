@@ -1,0 +1,1 @@
+CREATE TABLE myTable (myColumn DEFAULT -91)

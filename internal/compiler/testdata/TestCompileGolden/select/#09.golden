@@ -1,0 +1,1 @@
+Project[cols=name,amount * price AS total_price](Join[](Scan[table=items](),Scan[table=prices]()))

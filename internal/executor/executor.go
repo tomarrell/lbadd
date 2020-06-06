@@ -2,7 +2,7 @@ package executor
 
 import (
 	"github.com/rs/zerolog"
-	"github.com/tomarrell/lbadd/internal/executor/command"
+	"github.com/tomarrell/lbadd/internal/compiler/command"
 )
 
 // Executor describes a component that can execute a command. A command is the
@@ -15,6 +15,6 @@ type Executor interface {
 }
 
 // New creates a new, ready to use Executor.
-func New(log zerolog.Logger) Executor {
-	return newSimpleExecutor(log)
+func New(log zerolog.Logger, databaseFile string) Executor {
+	return newSimpleExecutor(log, databaseFile)
 }

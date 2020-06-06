@@ -1,0 +1,1 @@
+WITH RECURSIVE myTable AS (SELECT *) DELETE FROM myTable
