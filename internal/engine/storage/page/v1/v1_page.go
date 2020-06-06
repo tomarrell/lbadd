@@ -98,7 +98,24 @@ func (p *Page) StoreCell(cell page.Cell) error {
 }
 
 func (p *Page) Delete(key []byte) error {
-	panic("TODO")
+	offsets := p.Offsets()
+
+	for i, offset := range offsets {
+		if bytes.Equal(key, p.getCell(offset).Key) {
+			offsetData := p.data[ContentOffset : ContentOffset+(p.cellCount()*OffsetSize)]
+			zero(offsetData)
+			offsets = append(offsets[:i], offsets[i+1:]...)
+			for j, off := range offsets {
+				lo := uint16(j) * OffsetSize
+				hi := lo + OffsetSize
+				copy(offsetData[lo:hi], encodeOffset(off))
+			}
+			break
+		}
+	}
+
+	p.decrementCellCount()
+
 	return nil
 }
 
@@ -233,6 +250,11 @@ func (p *Page) setHeaderCellCount(count uint16) {
 // incrementCellCount increments the header field HeaderCellCount by one.
 func (p *Page) incrementCellCount() {
 	p.setHeaderCellCount(p.header[page.HeaderCellCount].(uint16) + 1)
+}
+
+// decrementCellCount decrements the header field HeaderCellCount by one.
+func (p *Page) decrementCellCount() {
+	p.setHeaderCellCount(p.header[page.HeaderCellCount].(uint16) - 1)
 }
 
 // cellCount returns the amount of currently stored cells. This value is

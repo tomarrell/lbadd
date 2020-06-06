@@ -38,13 +38,13 @@ var (
 	}
 )
 
-func TestStoreCell(t *testing.T) {
+func TestImplementations(t *testing.T) {
 	for _, loader := range Loaders {
-		t.Run("loader="+loader.Name, func(t *testing.T) { _TestStoreAndGetCell(t, loader.Loader, loader.PageSize) })
+		t.Run("loader="+loader.Name, func(t *testing.T) { _TestPageOperations(t, loader.Loader, loader.PageSize) })
 	}
 }
 
-func _TestStoreAndGetCell(t *testing.T, loader page.Loader, pageSize int) {
+func _TestPageOperations(t *testing.T, loader page.Loader, pageSize int) {
 	assert := assert.New(t)
 	rand := rand.New(rand.NewSource(87234562678)) // reproducible random
 	cells := make([]page.Cell, len(Cells))
@@ -69,4 +69,22 @@ func _TestStoreAndGetCell(t *testing.T, loader page.Loader, pageSize int) {
 		assert.True(ok)
 		assert.Equal(cell, obtained)
 	}
+
+	// page header cell count must be up-to-date
+	val, err := p.Header(page.HeaderCellCount)
+	assert.NoError(err)
+	assert.Equal(uint16(len(Cells)), val)
+
+	// delete one cell
+	deleteIndex := 2
+	err = p.Delete(Cells[deleteIndex].Key)
+	assert.NoError(err)
+
+	afterDeletionCells := make([]page.Cell, len(Cells))
+	copy(afterDeletionCells, Cells)
+	afterDeletionCells = append(afterDeletionCells[:deleteIndex], afterDeletionCells[deleteIndex+1:]...)
+	assert.Equal(afterDeletionCells, p.Cells())
+	obtained, ok := p.Cell(Cells[deleteIndex].Key)
+	assert.False(ok, "delete cell must not be obtainable anymore")
+	assert.Zero(obtained)
 }

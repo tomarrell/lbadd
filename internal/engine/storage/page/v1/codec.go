@@ -59,3 +59,9 @@ func decodeOffset(data []byte) Offset {
 		Size:     converter.ByteSliceToUint16(data[int(OffsetSize)/2 : int(OffsetSize)]),
 	}
 }
+
+func zero(b []byte) {
+	for i := range b {
+		b[i] = 0x00
+	}
+}
