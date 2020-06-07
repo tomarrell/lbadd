@@ -1,0 +1,1 @@
+Update[or=UpdateOrIgnore,table=myTable,sets=((myCol1,myCol2)=7,(myOtherCol1,myOtherCol2)=8),filter=myOtherCol == 9]

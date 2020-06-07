@@ -12,6 +12,13 @@ var _ Command = (*Explain)(nil)
 var _ Command = (*Scan)(nil)
 var _ Command = (*Select)(nil)
 var _ Command = (*Project)(nil)
+var _ Command = (*Delete)(nil)
+var _ Command = (*DropTable)(nil)
+var _ Command = (*DropIndex)(nil)
+var _ Command = (*DropTrigger)(nil)
+var _ Command = (*DropView)(nil)
+var _ Command = (*Update)(nil)
+var _ Command = (*Insert)(nil)
 var _ Command = (*Join)(nil)
 var _ Command = (*Limit)(nil)
 
@@ -36,6 +43,38 @@ const (
 	JoinCross
 )
 
+//go:generate stringer -type=UpdateOr
+
+// UpdateOr is the type of update alternative that is specified in an update
+// statement.
+type UpdateOr uint8
+
+// Known UpdateOrs
+const (
+	UpdateOrUnknown UpdateOr = iota
+	UpdateOrRollback
+	UpdateOrAbort
+	UpdateOrReplace
+	UpdateOrFail
+	UpdateOrIgnore
+)
+
+//go:generate stringer -type=InsertOr
+
+// InsertOr is the type of insert alternative that is specified in an insert
+// statement.
+type InsertOr uint8
+
+// Known InsertOrs
+const (
+	InsertOrUnknown InsertOr = iota
+	InsertOrReplace
+	InsertOrRollback
+	InsertOrAbort
+	InsertOrFail
+	InsertOrIgnore
+)
+
 type (
 	// Explain instructs the executor to explain the nested command instead of
 	// executing it.
@@ -47,7 +86,7 @@ type (
 	// List is a marker interface that facilitates creating a type hierarchy for
 	// the command model.
 	List interface {
-		fmt.Stringer
+		Command
 		_list()
 	}
 
@@ -108,6 +147,67 @@ type (
 		Cols []Column
 		// Input is the input list over which the projection takes place.
 		Input List
+	}
+
+	// Delete instructs the executor to delete all datasets from a table, that
+	// match the filter.
+	Delete struct {
+		// Table is the table to delete datasets from.
+		Table Table
+		// Filter is an expression that a dataset has to match in order to be
+		// deleted. This must not be nil. If all datasets from the table have to
+		// be deleted, the filter will be a constant true expression.
+		Filter Expr
+	}
+
+	// drop instructs the executor to drop the component that is specified by
+	// the schema and name defined in this command.
+	drop struct {
+		// IfExists determines whether the executor should ignore an error that
+		// occurs if the component with the defined name doesn't exist.
+		IfExists bool
+		// Schema is the schema of the referenced component.
+		Schema string
+		// Name is the name of the referenced component.
+		Name string
+	}
+
+	// DropTable instructs the executor to drop the table with the name and
+	// schema defined in this command.
+	DropTable drop
+	// DropView instructs the executor to drop the view with the name and schema
+	// defined in this command.
+	DropView drop
+	// DropIndex instructs the executor to drop the index with the name and
+	// schema defined in this command.
+	DropIndex drop
+	// DropTrigger instructs the executor to drop the trigger with the name and
+	// schema defined in this command.
+	DropTrigger drop
+
+	// Update instructs the executor to update all datasets, for which the
+	// filter expression evaluates to true, with the defined updates.
+	Update struct {
+		// UpdateOr is the OR clause in an update statement.
+		UpdateOr UpdateOr
+		// Table is the table on which the update should be performed.
+		Table Table
+		// Updates is a list of updates that must be applied.
+		Updates []UpdateSetter
+		// Filter is the filter expression, that determines, which datasets are
+		// to be updated.
+		Filter Expr
+	}
+
+	// UpdateSetter is an update that can be applied to a value in a dataset.
+	UpdateSetter struct {
+		// Cols are the columns of the dataset, that have to be updated. Because
+		// the columns must be inside the table that this update refers to, and
+		// no alias can be specified according to the grammar, this is just a
+		// string, and not a full blown column.
+		Cols []string
+		// Value is the expression that the columns have to be set to.
+		Value Expr
 	}
 
 	// Column represents a database table column.
@@ -180,6 +280,26 @@ type (
 		// dataset consists of all expressions that are in the dataset.
 		Values [][]Expr
 	}
+
+	// Insert instructs the executor to insert the input list into the
+	// specified table. The specified columns must match the columns from the
+	// input list.
+	Insert struct {
+		// InsertOr is the specified fallback to perform when the insertion
+		// fails.
+		InsertOr InsertOr
+		// Table is the specified table, where the input list is inserted into.
+		Table Table
+		// Cols are the columns, which are modified. The columns of the input
+		// list have to match these columns.
+		Cols []Column
+		// DefaultValues determines whether to insert default values for all
+		// (specified) columns. If this is set to true, the input list must not
+		// be present.
+		DefaultValues bool
+		// Input is the input list of datasets, that will be inserted.
+		Input List
+	}
 )
 
 func (Scan) _list()     {}
@@ -202,9 +322,6 @@ func (s Scan) String() string {
 }
 
 func (s Select) String() string {
-	if s.Filter == nil {
-		return fmt.Sprintf("Select[](%v)", s.Input)
-	}
 	return fmt.Sprintf("Select[filter=%v](%v)", s.Filter, s.Input)
 }
 
@@ -214,6 +331,54 @@ func (p Project) String() string {
 		colStrs[i] = col.String()
 	}
 	return fmt.Sprintf("Project[cols=%v](%v)", strings.Join(colStrs, ","), p.Input)
+}
+
+func (d Delete) String() string {
+	return fmt.Sprintf("Delete[filter=%v](%v)", d.Filter, d.Table)
+}
+
+func (d DropTable) String() string {
+	table := d.Name
+	if d.Schema != "" {
+		table = d.Schema + "." + table
+	}
+	return fmt.Sprintf("DropTable[table=%v,ifexists=%v]()", table, d.IfExists)
+}
+
+func (d DropIndex) String() string {
+	index := d.Name
+	if d.Schema != "" {
+		index = d.Schema + "." + index
+	}
+	return fmt.Sprintf("DropIndex[index=%v,ifexists=%v]()", index, d.IfExists)
+}
+
+func (d DropTrigger) String() string {
+	trigger := d.Name
+	if d.Schema != "" {
+		trigger = d.Schema + "." + trigger
+	}
+	return fmt.Sprintf("DropTrigger[trigger=%v,ifexists=%v]()", trigger, d.IfExists)
+}
+
+func (d DropView) String() string {
+	view := d.Name
+	if d.Schema != "" {
+		view = d.Schema + "." + view
+	}
+	return fmt.Sprintf("DropView[view=%v,ifexists=%v]()", view, d.IfExists)
+}
+
+func (u Update) String() string {
+	var sets []string
+	for _, set := range u.Updates {
+		sets = append(sets, set.String())
+	}
+	return fmt.Sprintf("Update[or=%v,table=%v,sets=(%v),filter=%v]", u.UpdateOr, u.Table, strings.Join(sets, ","), u.Filter)
+}
+
+func (u UpdateSetter) String() string {
+	return fmt.Sprintf("(%v)=%v", strings.Join(u.Cols, ","), u.Value)
 }
 
 func (c Column) String() string {
@@ -283,4 +448,12 @@ func (v Values) String() string {
 		values = append(values, "("+strings.Join(exprs, ",")+")")
 	}
 	return fmt.Sprintf("Values[](%v)", strings.Join(values, ","))
+}
+
+func (i Insert) String() string {
+	var cols []string
+	for _, col := range i.Cols {
+		cols = append(cols, col.String())
+	}
+	return fmt.Sprintf("Insert[table=%v,cols=%v](%v)", i.Table, strings.Join(cols, ","), i.Input)
 }
