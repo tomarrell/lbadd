@@ -32,7 +32,7 @@ func Test_Page_StoreCell(t *testing.T) {
 			0xFE, 0xBA, 0xBE, // record
 		}, p.data[PageSize-8:])
 
-		assert.EqualValues(1, p.header[page.HeaderCellCount])
+		assert.EqualValues(1, p.header[InternalHeaderCellCount])
 		assert.Equal([]byte{
 			0x3D, 0xF8, // location of our cell
 			0x00, 0x08, // size of our cell
@@ -154,8 +154,7 @@ func TestHeaderVersion(t *testing.T) {
 	p, err := load(data)
 	assert.NoError(err)
 
-	version, err := p.Header(page.HeaderVersion)
-	assert.NoError(err)
+	version := p.Header(page.HeaderVersion)
 	assert.IsType(uint16(0), version)
 	assert.EqualValues(0xCAFE, version)
 
@@ -176,8 +175,7 @@ func TestHeaderID(t *testing.T) {
 	p, err := load(data)
 	assert.NoError(err)
 
-	id, err := p.Header(page.HeaderID)
-	assert.NoError(err)
+	id := p.Header(page.HeaderID)
 	assert.IsType(uint16(0), id)
 	assert.EqualValues(0xCAFE, id)
 
@@ -201,8 +199,7 @@ func TestHeaderCellCount(t *testing.T) {
 	p, err := load(data)
 	assert.NoError(err)
 
-	cellCount, err := p.Header(page.HeaderCellCount)
-	assert.NoError(err)
+	cellCount := p.Header(InternalHeaderCellCount)
 	assert.IsType(uint16(0), cellCount)
 	assert.EqualValues(0xCAFE, cellCount)
 

@@ -9,14 +9,13 @@ const (
 	// HeaderID is the page ID, which may be used outside of the page for
 	// housekeeping. This is a uint16.
 	HeaderID
-	// HeaderCellCount is the amount of cells that are currently stored in the
-	// page. This is a uint16.
-	HeaderCellCount
 )
 
 // Loader is a function that can load a page from a given byte slice, and return
 // errors if any occur.
 type Loader func([]byte) (Page, error)
+
+//go:generate mockery -case=snake -name=Page
 
 // Page describes a memory page that stores (page.Cell)s. A page consists of
 // header fields and cells, and is a plain store. Obtained cells are always
@@ -24,10 +23,17 @@ type Loader func([]byte) (Page, error)
 // and records.
 type Page interface {
 	// Header obtains a header field from the page's header. If the header is
-	// not supported, a result=nil,error=ErrUnknownHeader is returned. The type
-	// of the returned header field value is documented in the header key's
-	// godoc.
-	Header(Header) (interface{}, error)
+	// not supported, result=nil is returned. The type of the returned header
+	// field value is documented in the header key's godoc.
+	Header(Header) interface{}
+
+	// Dirty determines whether this page has been modified since the last time
+	// `Page.ClearDirty` was called.
+	Dirty() bool
+	// MarkDirty marks this page as dirty.
+	MarkDirty()
+	// ClearDirty unsets the dirty flag from this page.
+	ClearDirty()
 
 	// StoreCell stores a cell on the page. If the page does not fit the cell
 	// because of size or too much fragmentation, an error will be returned.

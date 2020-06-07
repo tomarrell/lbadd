@@ -70,11 +70,6 @@ func _TestPageOperations(t *testing.T, loader page.Loader, pageSize int) {
 		assert.Equal(cell, obtained)
 	}
 
-	// page header cell count must be up-to-date
-	val, err := p.Header(page.HeaderCellCount)
-	assert.NoError(err)
-	assert.Equal(uint16(len(Cells)), val)
-
 	// delete one cell
 	deleteIndex := 2
 	err = p.Delete(Cells[deleteIndex].Key)
@@ -85,6 +80,6 @@ func _TestPageOperations(t *testing.T, loader page.Loader, pageSize int) {
 	afterDeletionCells = append(afterDeletionCells[:deleteIndex], afterDeletionCells[deleteIndex+1:]...)
 	assert.Equal(afterDeletionCells, p.Cells())
 	obtained, ok := p.Cell(Cells[deleteIndex].Key)
-	assert.False(ok, "delete cell must not be obtainable anymore")
+	assert.False(ok, "deleted cell must not be obtainable anymore")
 	assert.Zero(obtained)
 }

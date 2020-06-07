@@ -9,6 +9,13 @@ import (
 	"github.com/tomarrell/lbadd/internal/engine/storage/page"
 )
 
+// Internal headers, defined from 255 downwards, as opposed to other headers,
+// which are defined from 0 upwards.
+const (
+	InternalHeaderCellCount page.Header = page.Header(^uint8(0)) - iota
+	InternalHeaderDirty
+)
+
 // Constants.
 const (
 	// PageSize is the fixed size of one page.
@@ -38,10 +45,14 @@ const (
 	HeaderIDLo     = HeaderIDOffset
 	HeaderIDHi     = HeaderIDOffset + HeaderIDSize
 
-	HeaderCellCountOffset = HeaderIDOffset + HeaderIDSize
-	HeaderCellCountSize   = uint16(unsafe.Sizeof(uint16(0))) // #nosec
-	HeaderCellCountLo     = HeaderCellCountOffset
-	HeaderCellCountHi     = HeaderCellCountOffset + HeaderCellCountSize
+	InternalHeaderCellCountOffset = HeaderIDOffset + HeaderIDSize
+	InternalHeaderCellCountSize   = uint16(unsafe.Sizeof(uint16(0))) // #nosec
+	InternalHeaderCellCountLo     = InternalHeaderCellCountOffset
+	InternalHeaderCellCountHi     = InternalHeaderCellCountOffset + InternalHeaderCellCountSize
+
+	InternalHeaderDirtyOffset = InternalHeaderCellCountOffset + InternalHeaderCellCountSize
+	InternalHeaderDirtySize   = uint16(unsafe.Sizeof(false)) // #nosec
+	InternalHeaderDirtyIndex  = InternalHeaderDirtyOffset
 )
 
 var _ page.Loader = Load
@@ -69,14 +80,34 @@ func Load(data []byte) (page.Page, error) {
 }
 
 // Header obtains the header field value of the given key. If the key is not
-// supported by this implementation, it will return an error indicating an
-// unknown header.
-func (p *Page) Header(key page.Header) (interface{}, error) {
+// supported by this implementation, it will return nil indicating an unknown
+// header.
+func (p *Page) Header(key page.Header) interface{} {
 	val, ok := p.header[key]
 	if !ok {
-		return nil, page.ErrUnknownHeader
+		return nil
 	}
-	return val, nil
+	return val
+}
+
+// Dirty returns the value of the header flag dirty, meaning that the page has
+// been modified since ClearDirty() has been called the last time.
+func (p *Page) Dirty() bool {
+	return p.header[InternalHeaderDirty].(bool)
+}
+
+// MarkDirty marks this page as dirty. Call this when you have modified the
+// page. This will
+func (p *Page) MarkDirty() {
+	p.data[InternalHeaderDirtyIndex] = converter.BoolToByte(true)
+	p.header[InternalHeaderDirty] = true
+}
+
+// ClearDirty marks this page as NOT dirty (anymore). Call this when the page
+// has been written to persistent storage.
+func (p *Page) ClearDirty() {
+	p.data[InternalHeaderDirtyIndex] = converter.BoolToByte(false)
+	p.header[InternalHeaderDirty] = false
 }
 
 // StoreCell will store the given cell in this page. If there is not enough
@@ -242,28 +273,28 @@ func (p *Page) findOffsetInsertionOffset(cell page.Cell) Offset {
 func (p *Page) loadHeader() {
 	p.header[page.HeaderVersion] = converter.ByteSliceToUint16(p.data[HeaderVersionLo:HeaderVersionHi])
 	p.header[page.HeaderID] = converter.ByteSliceToUint16(p.data[HeaderIDLo:HeaderIDHi])
-	p.header[page.HeaderCellCount] = converter.ByteSliceToUint16(p.data[HeaderCellCountLo:HeaderCellCountHi])
+	p.header[InternalHeaderCellCount] = converter.ByteSliceToUint16(p.data[InternalHeaderCellCountLo:InternalHeaderCellCountHi])
 }
 
-func (p *Page) setHeaderCellCount(count uint16) {
+func (p *Page) setInternalHeaderCellCount(count uint16) {
 	// set in memory cache
-	p.header[page.HeaderCellCount] = count
+	p.header[InternalHeaderCellCount] = count
 	// set in data
-	copy(p.data[HeaderCellCountLo:HeaderCellCountHi], converter.Uint16ToByteSlice(count))
+	copy(p.data[InternalHeaderCellCountLo:InternalHeaderCellCountHi], converter.Uint16ToByteSlice(count))
 }
 
-// incrementCellCount increments the header field HeaderCellCount by one.
+// incrementCellCount increments the header field InternalHeaderCellCount by one.
 func (p *Page) incrementCellCount() {
-	p.setHeaderCellCount(p.header[page.HeaderCellCount].(uint16) + 1)
+	p.setInternalHeaderCellCount(p.header[InternalHeaderCellCount].(uint16) + 1)
 }
 
-// decrementCellCount decrements the header field HeaderCellCount by one.
+// decrementCellCount decrements the header field InternalHeaderCellCount by one.
 func (p *Page) decrementCellCount() {
-	p.setHeaderCellCount(p.header[page.HeaderCellCount].(uint16) - 1)
+	p.setInternalHeaderCellCount(p.header[InternalHeaderCellCount].(uint16) - 1)
 }
 
 // cellCount returns the amount of currently stored cells. This value is
-// retrieved from the header field HeaderCellCount.
+// retrieved from the header field InternalHeaderCellCount.
 func (p *Page) cellCount() uint16 {
-	return p.header[page.HeaderCellCount].(uint16)
+	return p.header[InternalHeaderCellCount].(uint16)
 }
