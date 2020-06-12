@@ -1,5 +1,3 @@
-// +build !race
-
 package raft
 
 import (
@@ -40,6 +38,9 @@ func Test_NewServer(t *testing.T) {
 // Test_Raft tests the entire raft operation.
 func Test_Raft(t *testing.T) {
 	// t.SkipNow()
+
+	// defer leaktest.Check(t)()
+
 	zerolog.New(os.Stdout).With().
 		Str("foo", "bar").
 		Logger()
@@ -78,6 +79,7 @@ func Test_Raft(t *testing.T) {
 
 	reqVRes1 := message.NewRequestVoteResponse(1, true)
 	payload1, err := message.Marshal(reqVRes1)
+	assert.NoError(err)
 
 	conn1.On("Receive", ctx).Return(payload1, nil).Once()
 	conn2.On("Receive", ctx).Return(payload1, nil).Once()
@@ -86,11 +88,13 @@ func Test_Raft(t *testing.T) {
 
 	appERes1 := message.NewAppendEntriesResponse(1, true)
 	payload2, err := message.Marshal(appERes1)
+	assert.NoError(err)
 
 	conn1.On("Receive", ctx).Return(payload2, nil)
 	conn2.On("Receive", ctx).Return(payload2, nil)
 	conn3.On("Receive", ctx).Return(payload2, nil)
 	conn4.On("Receive", ctx).Return(payload2, nil)
+
 	// set up cluster to return the slice of connections on demand.
 	cluster.
 		On("Nodes").
@@ -106,17 +110,18 @@ func Test_Raft(t *testing.T) {
 		Return(conn1, nil, nil).After(time.Duration(1000) * time.Second)
 
 	cluster.On("Close").Return(nil)
-	server := NewServer(
+
+	server := newServer(
 		log,
 		cluster,
+		timeoutProvider,
 	)
 
 	go func() {
 		err = server.Start()
 		assert.NoError(err)
 	}()
-
-	<-time.NewTimer(time.Duration(400) * time.Millisecond).C
+	<-time.NewTimer(time.Duration(300) * time.Millisecond).C
 
 	err = server.Close()
 	assert.NoError(err)
@@ -131,4 +136,13 @@ func addRemoteID(conn *networkmocks.Conn) *networkmocks.Conn {
 	cID := id.Create()
 	conn.On("RemoteID").Return(cID)
 	return conn
+}
+
+func timeoutProvider(node *Node) *time.Timer {
+	node.log.
+		Debug().
+		Str("self-id", node.PersistentState.SelfID.String()).
+		Int("random timer set to", 150).
+		Msg("heart beat timer")
+	return time.NewTimer(time.Duration(150) * time.Millisecond)
 }
