@@ -70,12 +70,12 @@ func TestAppendEntries(t *testing.T) {
 	}
 
 	node.PersistentState.CurrentTerm = 3
-	res := AppendEntriesResponse(node, msg)
+	res := node.AppendEntriesResponse(msg)
 	assert.False(res.Success, "Node Term is lesser than leader term")
 	msg.Term = 3
 	msg.PrevLogIndex = 3
 	node.VolatileState.CommitIndex = 2
-	res = AppendEntriesResponse(node, msg)
+	res = node.AppendEntriesResponse(msg)
 	assert.False(res.Success, "Node Log Index is lesser than"+
 		"leader commit Index")
 	msg.Term = 2
@@ -86,7 +86,7 @@ func TestAppendEntries(t *testing.T) {
 	node.PersistentState.Log = []*message.LogData{message.NewLogData(1,
 		"execute cmd1"), message.NewLogData(1, "execute cmd2")}
 	numberOfPersistentLog := len(node.PersistentState.Log)
-	res = AppendEntriesResponse(node, msg)
+	res = node.AppendEntriesResponse(msg)
 	assert.True(res.Success, "Msg isn't appended to the node Logs")
 	assert.Equal(node.PersistentState.CurrentTerm, res.GetTerm(),
 		"Node doesn't have same term as leader")

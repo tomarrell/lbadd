@@ -1,3 +1,5 @@
+// +build !race
+
 package raft
 
 import (
@@ -112,10 +114,9 @@ func Test_Raft(t *testing.T) {
 	go func() {
 		err = server.Start()
 		assert.NoError(err)
-
 	}()
 
-	<-time.NewTimer(time.Duration(500000) * time.Microsecond).C
+	<-time.NewTimer(time.Duration(400) * time.Millisecond).C
 
 	err = server.Close()
 	assert.NoError(err)

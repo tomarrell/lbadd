@@ -137,7 +137,7 @@ func sendHeartBeats(node *Node) {
 				node.log.Debug().
 					Str(node.PersistentState.SelfID.String(), "stale term").
 					Str("following newer node", node.PersistentState.PeerIPs[i].RemoteID().String())
-				becomeFollower(node)
+				node.becomeFollower()
 				return
 			}
 

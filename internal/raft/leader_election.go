@@ -12,7 +12,7 @@ import (
 // the function triggers the necessary functions responsible to continue the raft cluster
 // into it's working stage if the node won the election.
 // TODO: Logging.
-func StartElection(node *Node) {
+func (node *Node) StartElection() {
 
 	node.PersistentState.mu.Lock()
 
@@ -26,7 +26,7 @@ func StartElection(node *Node) {
 		lastLogTerm = node.PersistentState.Log[len(node.PersistentState.Log)].Term
 	}
 	lastLogIndex = int32(len(node.PersistentState.Log))
-
+	selfID := node.PersistentState.SelfID
 	node.PersistentState.mu.Unlock()
 
 	var votes int32
@@ -43,7 +43,7 @@ func StartElection(node *Node) {
 
 			node.log.
 				Debug().
-				Str("self-id", node.PersistentState.SelfID.String()).
+				Str("self-id", selfID.String()).
 				Str("request-vote sent to", node.PersistentState.PeerIPs[i].RemoteID().String()).
 				Msg("request vote")
 
@@ -66,10 +66,10 @@ func StartElection(node *Node) {
 				defer node.PersistentState.mu.Unlock()
 
 				if node.PersistentState.VotedFor == nil {
-					node.PersistentState.VotedFor = node.PersistentState.SelfID
+					node.PersistentState.VotedFor = selfID
 					node.log.
 						Debug().
-						Str("self-id", node.PersistentState.SelfID.String()).
+						Str("self-id", selfID.String()).
 						Msg("node voting for itself")
 					votesRecieved++
 				}
@@ -80,9 +80,8 @@ func StartElection(node *Node) {
 					node.PersistentState.LeaderID = node.PersistentState.SelfID
 					node.log.
 						Debug().
-						Str("self-id", node.PersistentState.SelfID.String()).
+						Str("self-id", selfID.String()).
 						Msg("node elected leader")
-					// node.PersistentState.mu.Unlock()
 					startLeader(node)
 					return
 				}

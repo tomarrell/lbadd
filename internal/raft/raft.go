@@ -65,10 +65,11 @@ var _ Server = (*simpleServer)(nil)
 
 // simpleServer implements a server in a cluster.
 type simpleServer struct {
-	node          *Node
-	cluster       Cluster
-	onReplication ReplicationHandler
-	log           zerolog.Logger
+	node            *Node
+	cluster         Cluster
+	onReplication   ReplicationHandler
+	log             zerolog.Logger
+	timeoutProvider func(*Node) *time.Timer
 }
 
 // incomingData describes every request that the server gets.
@@ -79,9 +80,17 @@ type incomingData struct {
 
 // NewServer enables starting a raft server/cluster.
 func NewServer(log zerolog.Logger, cluster Cluster) Server {
+	return newServer(log, cluster, nil)
+}
+
+func newServer(log zerolog.Logger, cluster Cluster, timeoutProvider func(*Node) *time.Timer) Server {
+	if timeoutProvider == nil {
+		timeoutProvider = randomTimer
+	}
 	return &simpleServer{
-		log:     log.With().Str("component", "raft").Logger(),
-		cluster: cluster,
+		log:             log.With().Str("component", "raft").Logger(),
+		cluster:         cluster,
+		timeoutProvider: timeoutProvider,
 	}
 }
 
@@ -101,8 +110,11 @@ func (s *simpleServer) Start() (err error) {
 
 	// Initialise all raft variables in this node.
 	node := NewRaftNode(s.cluster)
+	node.PersistentState.mu.Lock()
 	node.log = s.log
 	s.node = node
+	selfID := node.PersistentState.SelfID
+	node.PersistentState.mu.Unlock()
 
 	ctx := context.Background()
 	// liveChan is a channel that passes the incomingData once received.
@@ -115,7 +127,7 @@ func (s *simpleServer) Start() (err error) {
 			conn, msg, err := s.cluster.Receive(ctx)
 			node.log.
 				Debug().
-				Str("self-id", s.node.PersistentState.SelfID.String()).
+				Str("self-id", selfID.String()).
 				Str("received", msg.Kind().String()).
 				Msg("received request")
 			liveChan <- &incomingData{
@@ -134,15 +146,15 @@ func (s *simpleServer) Start() (err error) {
 		// If any sort of request (heartbeat,appendEntries,requestVote)
 		// isn't received by the server(node) it restarts leader election.
 		select {
-		case <-node.randomTimer().C:
+		case <-s.timeoutProvider(node).C:
 			node.log.
 				Debug().
-				Str("self-id", s.node.PersistentState.SelfID.String()).
+				Str("self-id", selfID.String()).
 				Int32("term", node.PersistentState.CurrentTerm+1).
 				Msg("starting election")
-			StartElection(node)
+			node.StartElection()
 		case data := <-liveChan:
-			err = processIncomingData(data, node)
+			err = node.processIncomingData(data)
 			if err != nil {
 				return
 			}
@@ -214,27 +226,27 @@ func NewRaftNode(cluster Cluster) *Node {
 }
 
 // randomTimer returns tickers ranging from 150ms to 300ms.
-func (n *Node) randomTimer() *time.Timer {
+func randomTimer(node *Node) *time.Timer {
 	randomInt := rand.Intn(150) + 150
-	n.log.
-		Debug().
-		Str("self-id", n.PersistentState.SelfID.String()).
-		Int("random timer set to", randomInt).
-		Msg("heart beat timer")
+	// node.log.
+	// 	Debug().
+	// 	Str("self-id", node.PersistentState.SelfID.String()).
+	// 	Int("random timer set to", randomInt).
+	// 	Msg("heart beat timer")
 	ticker := time.NewTimer(time.Duration(randomInt) * time.Millisecond)
 	return ticker
 }
 
 // processIncomingData is responsible for parsing the incoming data and calling
 // appropriate functions based on the request type.
-func processIncomingData(data *incomingData, node *Node) error {
+func (node *Node) processIncomingData(data *incomingData) error {
 
 	ctx := context.TODO()
 
 	switch data.msg.Kind() {
 	case message.KindRequestVoteRequest:
 		requestVoteRequest := data.msg.(*message.RequestVoteRequest)
-		requestVoteResponse := RequestVoteResponse(node, requestVoteRequest)
+		requestVoteResponse := node.RequestVoteResponse(requestVoteRequest)
 		payload, err := message.Marshal(requestVoteResponse)
 		if err != nil {
 			return err
@@ -245,7 +257,7 @@ func processIncomingData(data *incomingData, node *Node) error {
 		}
 	case message.KindAppendEntriesRequest:
 		appendEntriesRequest := data.msg.(*message.AppendEntriesRequest)
-		appendEntriesResponse := AppendEntriesResponse(node, appendEntriesRequest)
+		appendEntriesResponse := node.AppendEntriesResponse(appendEntriesRequest)
 		payload, err := message.Marshal(appendEntriesResponse)
 		if err != nil {
 			return err
