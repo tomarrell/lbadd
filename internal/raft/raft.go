@@ -1,5 +1,3 @@
-// +build !race
-
 package raft
 
 import (
@@ -159,11 +157,7 @@ func (s *simpleServer) Start() (err error) {
 
 	// This block of code checks what kind of request has to be serviced
 	// and calls the necessary function to complete it.
-	// for {
-	// select {
 
-	// default:
-	// }
 	// If any sort of request (heartbeat,appendEntries,requestVote)
 	// isn't received by the server(node) it restarts leader election.
 	select {
