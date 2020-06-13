@@ -2,7 +2,6 @@ package raft
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/tomarrell/lbadd/internal/raft/message"
@@ -26,7 +25,6 @@ func (s *simpleServer) startLeader() {
 	s.lock.Unlock()
 	select {
 	case <-s.getDoneChan():
-		fmt.Println("D")
 		return
 	default:
 	}
@@ -37,10 +35,8 @@ func (s *simpleServer) startLeader() {
 		// periodically sending heartbeats/appendEntries.
 		// This loop goes on until this node is the leader.
 		for {
-			fmt.Println("X")
 			select {
 			case <-s.getDoneChan():
-				fmt.Println("D")
 				return
 			default:
 			}
