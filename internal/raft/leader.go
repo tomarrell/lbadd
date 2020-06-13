@@ -2,6 +2,7 @@ package raft
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/tomarrell/lbadd/internal/raft/message"
@@ -15,34 +16,56 @@ import (
 // Empty append entries request are also called heartbeats.
 // The data that goes in the append entries request is determined by
 // existance of data in the LogChannel channel.
-func startLeader(node *Node) {
+func (s *simpleServer) startLeader() {
 
-	node.log.
+	s.lock.Lock()
+	s.node.log.
 		Debug().
-		Str("self-id", node.PersistentState.SelfID.String()).
+		Str("self-id", s.node.PersistentState.SelfID.String()).
 		Msg("starting leader election proceedings")
+	s.lock.Unlock()
+	select {
+	case <-s.getDoneChan():
+		fmt.Println("D")
+		return
+	default:
+	}
+
 	go func() {
 		// The loop that the leader stays in until it's functioning properly.
 		// The goal of this loop is to maintain raft in it's working phase;
 		// periodically sending heartbeats/appendEntries.
 		// This loop goes on until this node is the leader.
 		for {
+			fmt.Println("X")
+			select {
+			case <-s.getDoneChan():
+				fmt.Println("D")
+				return
+			default:
+			}
+
 			// Send heartbeats every 50ms.
 			<-time.NewTimer(50 * time.Millisecond).C
 
-			sendHeartBeats(node)
-
-			node.PersistentState.mu.Lock()
-			if node.State != StateLeader.String() {
-				node.PersistentState.mu.Unlock()
+			s.lock.Lock()
+			if s.node == nil {
 				return
 			}
-			node.PersistentState.mu.Unlock()
+			s.node.sendHeartBeats()
+			s.lock.Unlock()
+
+			s.node.PersistentState.mu.Lock()
+			if s.node.State != StateLeader.String() {
+				s.node.PersistentState.mu.Unlock()
+				return
+			}
+			s.node.PersistentState.mu.Unlock()
 		}
 	}()
 }
 
-func sendHeartBeats(node *Node) {
+func (node *Node) sendHeartBeats() {
 	ctx := context.TODO()
 
 	node.PersistentState.mu.Lock()

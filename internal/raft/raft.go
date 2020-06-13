@@ -1,3 +1,5 @@
+// +build !race
+
 package raft
 
 import (
@@ -71,6 +73,7 @@ type simpleServer struct {
 	log             zerolog.Logger
 	timeoutProvider func(*Node) *time.Timer
 	lock            sync.Mutex
+	closeSignal     chan bool
 }
 
 // incomingData describes every request that the server gets.
@@ -88,10 +91,12 @@ func newServer(log zerolog.Logger, cluster Cluster, timeoutProvider func(*Node) 
 	if timeoutProvider == nil {
 		timeoutProvider = randomTimer
 	}
+	closingChannel := make(chan bool)
 	return &simpleServer{
 		log:             log.With().Str("component", "raft").Logger(),
 		cluster:         cluster,
 		timeoutProvider: timeoutProvider,
+		closeSignal:     closingChannel,
 	}
 }
 
@@ -125,6 +130,11 @@ func (s *simpleServer) Start() (err error) {
 
 	go func() {
 		for {
+			select {
+			case <-s.getDoneChan():
+				return
+			default:
+			}
 			// Parallely start waiting for incoming data.
 			conn, msg, err := s.cluster.Receive(ctx)
 			node.log.
@@ -139,36 +149,41 @@ func (s *simpleServer) Start() (err error) {
 			if err != nil {
 				return
 			}
-		}
-	}()
-
-	// This block of code checks what kind of request has to be serviced
-	// and calls the necessary function to complete it.
-	for {
-		// If any sort of request (heartbeat,appendEntries,requestVote)
-		// isn't received by the server(node) it restarts leader election.
-		select {
-		case <-s.timeoutProvider(node).C:
-			node.PersistentState.mu.Lock()
-			node.log.
-				Debug().
-				Str("self-id", selfID.String()).
-				Int32("term", node.PersistentState.CurrentTerm+1).
-				Msg("starting election")
-			node.PersistentState.mu.Unlock()
 			s.lock.Lock()
 			if s.node == nil {
 				return
 			}
 			s.lock.Unlock()
-			node.StartElection()
-		case data := <-liveChan:
-			err = node.processIncomingData(data)
-			if err != nil {
-				return
-			}
+		}
+	}()
+
+	// This block of code checks what kind of request has to be serviced
+	// and calls the necessary function to complete it.
+	// for {
+	// select {
+
+	// default:
+	// }
+	// If any sort of request (heartbeat,appendEntries,requestVote)
+	// isn't received by the server(node) it restarts leader election.
+	select {
+	case <-s.getDoneChan():
+		return
+	case <-s.timeoutProvider(node).C:
+		s.lock.Lock()
+		if s.node == nil {
+			return
+		}
+		s.lock.Unlock()
+		s.StartElection()
+	case data := <-liveChan:
+		err = node.processIncomingData(data)
+		if err != nil {
+			return
 		}
 	}
+	// }
+	return
 }
 
 func (s *simpleServer) OnReplication(handler ReplicationHandler) {
@@ -207,6 +222,7 @@ func (s *simpleServer) Close() error {
 	s.node.PersistentState.mu.Unlock()
 	s.node = nil
 	err := s.cluster.Close()
+	s.closeSignal <- true
 	s.lock.Unlock()
 	return err
 }
@@ -282,4 +298,10 @@ func (node *Node) processIncomingData(data *incomingData) error {
 		}
 	}
 	return nil
+}
+
+func (s *simpleServer) getDoneChan() <-chan bool {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	return s.closeSignal
 }

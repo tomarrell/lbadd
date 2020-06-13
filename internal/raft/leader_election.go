@@ -12,77 +12,88 @@ import (
 // the function triggers the necessary functions responsible to continue the raft cluster
 // into it's working stage if the node won the election.
 // TODO: Logging.
-func (node *Node) StartElection() {
+func (s *simpleServer) StartElection() {
 
-	node.PersistentState.mu.Lock()
-
-	node.State = StateCandidate.String()
-	node.PersistentState.CurrentTerm++
+	s.node.PersistentState.mu.Lock()
+	s.node.State = StateCandidate.String()
+	s.node.PersistentState.CurrentTerm++
 	var lastLogTerm, lastLogIndex int32
-	savedCurrentTerm := node.PersistentState.CurrentTerm
-	if len(node.PersistentState.Log) == 0 {
+	savedCurrentTerm := s.node.PersistentState.CurrentTerm
+	if len(s.node.PersistentState.Log) == 0 {
 		lastLogTerm = 0
 	} else {
-		lastLogTerm = node.PersistentState.Log[len(node.PersistentState.Log)].Term
+		lastLogTerm = s.node.PersistentState.Log[len(s.node.PersistentState.Log)].Term
 	}
-	lastLogIndex = int32(len(node.PersistentState.Log))
-	selfID := node.PersistentState.SelfID
-	node.PersistentState.mu.Unlock()
+	lastLogIndex = int32(len(s.node.PersistentState.Log))
+	selfID := s.node.PersistentState.SelfID
+	s.node.log.
+		Debug().
+		Str("self-id", selfID.String()).
+		Int32("term", s.node.PersistentState.CurrentTerm+1).
+		Msg("starting election")
+	s.node.PersistentState.mu.Unlock()
 
 	var votes int32
 
-	for i := range node.PersistentState.PeerIPs {
+	for i := range s.node.PersistentState.PeerIPs {
 		// Parallely request votes from the peers.
 		go func(i int) {
 			req := message.NewRequestVoteRequest(
 				savedCurrentTerm,
-				node.PersistentState.SelfID,
+				s.node.PersistentState.SelfID,
 				lastLogIndex,
 				lastLogTerm,
 			)
-
-			node.log.
+			s.lock.Lock()
+			s.node.log.
 				Debug().
 				Str("self-id", selfID.String()).
-				Str("request-vote sent to", node.PersistentState.PeerIPs[i].RemoteID().String()).
+				Str("request-vote sent to", s.node.PersistentState.PeerIPs[i].RemoteID().String()).
 				Msg("request vote")
+			s.lock.Unlock()
 
 			// send a requestVotesRPC
-			res, err := RequestVote(node.PersistentState.PeerIPs[i], req)
+			res, err := RequestVote(s.node.PersistentState.PeerIPs[i], req)
 			// If there's an error, the vote is considered to be not casted by the node.
 			// Worst case, there will be a re-election; the errors might be from network or
 			// data consistency errors, which will be sorted by a re-election.
 			// This decision was taken because, StartElection returning an error is not feasible.
 			if res.VoteGranted && err == nil {
-				node.log.
+				s.lock.Lock()
+				s.node.log.
 					Debug().
-					Str("received vote from", node.PersistentState.PeerIPs[i].RemoteID().String()).
+					Str("received vote from", s.node.PersistentState.PeerIPs[i].RemoteID().String()).
 					Msg("voting from peer")
+				s.lock.Unlock()
 				votesRecieved := atomic.AddInt32(&votes, 1)
 
 				// Check whether this node has already voted.
 				// Else it can vote for itself.
-				node.PersistentState.mu.Lock()
-				defer node.PersistentState.mu.Unlock()
+				s.node.PersistentState.mu.Lock()
+				defer s.node.PersistentState.mu.Unlock()
 
-				if node.PersistentState.VotedFor == nil {
-					node.PersistentState.VotedFor = selfID
-					node.log.
+				if s.node.PersistentState.VotedFor == nil {
+					s.node.PersistentState.VotedFor = selfID
+					s.lock.Lock()
+					s.node.log.
 						Debug().
 						Str("self-id", selfID.String()).
 						Msg("node voting for itself")
+					s.lock.Unlock()
 					votesRecieved++
 				}
 
-				if votesRecieved > int32(len(node.PersistentState.PeerIPs)/2) && node.State != StateLeader.String() {
+				if votesRecieved > int32(len(s.node.PersistentState.PeerIPs)/2) && s.node.State != StateLeader.String() {
 					// This node has won the election.
-					node.State = StateLeader.String()
-					node.PersistentState.LeaderID = node.PersistentState.SelfID
-					node.log.
+					s.lock.Lock()
+					s.node.State = StateLeader.String()
+					s.node.PersistentState.LeaderID = s.node.PersistentState.SelfID
+					s.node.log.
 						Debug().
 						Str("self-id", selfID.String()).
 						Msg("node elected leader")
-					startLeader(node)
+					s.lock.Unlock()
+					s.startLeader()
 					return
 				}
 			}

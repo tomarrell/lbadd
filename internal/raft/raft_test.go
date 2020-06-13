@@ -121,6 +121,7 @@ func Test_Raft(t *testing.T) {
 		err = server.Start()
 		assert.NoError(err)
 	}()
+
 	<-time.NewTimer(time.Duration(300) * time.Millisecond).C
 
 	err = server.Close()
