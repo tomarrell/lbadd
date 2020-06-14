@@ -71,7 +71,7 @@ type simpleServer struct {
 	log             zerolog.Logger
 	timeoutProvider func(*Node) *time.Timer
 	lock            sync.Mutex
-	closeSignal     chan bool
+	closeSignal     chan struct{}
 }
 
 // incomingData describes every request that the server gets.
@@ -89,7 +89,8 @@ func newServer(log zerolog.Logger, cluster Cluster, timeoutProvider func(*Node) 
 	if timeoutProvider == nil {
 		timeoutProvider = randomTimer
 	}
-	closingChannel := make(chan bool)
+	// TODO: length needs to be figured out
+	closingChannel := make(chan struct{}, 5)
 	return &simpleServer{
 		log:             log.With().Str("component", "raft").Logger(),
 		cluster:         cluster,
@@ -128,11 +129,6 @@ func (s *simpleServer) Start() (err error) {
 
 	go func() {
 		for {
-			select {
-			case <-s.getDoneChan():
-				return
-			default:
-			}
 			// Parallely start waiting for incoming data.
 			conn, msg, err := s.cluster.Receive(ctx)
 			node.log.
@@ -176,7 +172,6 @@ func (s *simpleServer) Start() (err error) {
 			return
 		}
 	}
-	// }
 	return
 }
 
@@ -216,7 +211,7 @@ func (s *simpleServer) Close() error {
 	s.node.PersistentState.mu.Unlock()
 	s.node = nil
 	err := s.cluster.Close()
-	s.closeSignal <- true
+	s.closeSignal <- struct{}{}
 	s.lock.Unlock()
 	return err
 }
@@ -294,7 +289,7 @@ func (node *Node) processIncomingData(data *incomingData) error {
 	return nil
 }
 
-func (s *simpleServer) getDoneChan() <-chan bool {
+func (s *simpleServer) getDoneChan() <-chan struct{} {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	return s.closeSignal

@@ -1,5 +1,3 @@
-// +build !race
-
 package raft
 
 import (
@@ -8,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/fortytw2/leaktest"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -41,7 +40,7 @@ func Test_NewServer(t *testing.T) {
 func Test_Raft(t *testing.T) {
 	// t.SkipNow()
 
-	// defer leaktest.Check(t)()
+	defer leaktest.Check(t)()
 
 	zerolog.New(os.Stdout).With().
 		Str("foo", "bar").
