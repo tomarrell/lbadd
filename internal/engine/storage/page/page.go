@@ -15,46 +15,84 @@ const (
 // errors if any occur.
 type Loader func([]byte) (Page, error)
 
-//go:generate mockery -case=snake -name=Page
+// ID is the type of a page ID. This is mainly to avoid any confusion.
+// Changing this will break existing database files, so only change during major
+// version upgrades.
+type ID = uint32
 
 // Page describes a memory page that stores (page.Cell)s. A page consists of
 // header fields and cells, and is a plain store. Obtained cells are always
 // ordered ascending by the cell key. A page supports variable size cell keys
-// and records.
+// and records. A page is generally NOT safe for concurrent writes.
 type Page interface {
-	// Header obtains a header field from the page's header. If the header is
-	// not supported, result=nil is returned. The type of the returned header
-	// field value is documented in the header key's godoc.
-	Header(Header) interface{}
+	// Version returns the version of the page layout. Use this for choosing the
+	// page implementation to use to decode the page.
+	Version() uint32
+
+	// ID returns the page ID, as it is used by any page loader. It is unique in
+	// the scope of one database.
+	ID() ID
 
 	// Dirty determines whether this page has been modified since the last time
-	// `Page.ClearDirty` was called.
+	// Page.ClearDirty was called.
 	Dirty() bool
 	// MarkDirty marks this page as dirty.
 	MarkDirty()
 	// ClearDirty unsets the dirty flag from this page.
 	ClearDirty()
 
-	// StoreCell stores a cell on the page. If the page does not fit the cell
-	// because of size or too much fragmentation, an error will be returned.
-	StoreCell(Cell) error
+	// StorePointerCell stores the given pointer cell in the page.
+	//
+	// If a cell with the same key as the given pointer already exists in the
+	// page, it will be overwritten.
+	//
+	// If a cell with the same key as the given cell does NOT already exist, it
+	// will be created.
+	//
+	// To change the type of a cell, delete it and store a new cell.
+	StorePointerCell(PointerCell) error
+	// StoreRecordCell stores the given record cell in the page.
+	//
+	// If a cell with the same key as the given cell already exists in the page,
+	// it will be overwritten.
+	//
+	// If a cell with the same key as the given pointer does NOT already exist,
+	// it will be created.
+	//
+	// To change the type of a cell, delete it and store a new cell.
+	StoreRecordCell(RecordCell) error
 	// Delete deletes the cell with the given bytes as key. If the key couldn't
-	// be found, nil is returned. If an error occured during deletion, the error
-	// is returned.
-	Delete([]byte) error
+	// be found, false is returned. If an error occured during deletion, the
+	// error is returned.
+	DeleteCell([]byte) (bool, error)
 	// Cell returns a cell with the given key, together with a bool indicating
-	// whether any cell in the page has that key.
+	// whether any cell in the page has that key. Use a switch statement to
+	// determine which type of cell you just obtained (pointer, record).
 	Cell([]byte) (Cell, bool)
 	// Cells returns all cells in this page as a slice. Cells are ordered
-	// ascending by key. Calling this method is relatively cheap.
+	// ascending by key. Calling this method can be expensive since all cells
+	// have to be decoded.
 	Cells() []Cell
 }
 
-// Cell is a structure that represents a key-value cell. Both the key and the
-// record can be of variable size.
-type Cell struct {
-	// Key is the key of this cell, used for ordering.
-	Key []byte
-	// Record is the data stored inside the cell.
-	Record []byte
+// Cell describes a generic page cell that holds a key. Use a switch statement
+// to determine the type of the cell.
+type Cell interface {
+	// Key returns the key of the cell.
+	Key() []byte
+}
+
+// PointerCell describes a cell that points to another page in memory.
+type PointerCell interface {
+	Cell
+	// Pointer returns the page ID of the child page that this cell points to.
+	Pointer() ID
+}
+
+// RecordCell describes a cell that holds some kind of value. What value format
+// was used is none of the cells concern, just use it as what you put in.
+type RecordCell interface {
+	Cell
+	// Record is the data record in this cell, returned as a byte slice.
+	Record() []byte
 }

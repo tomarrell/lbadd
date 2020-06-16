@@ -10,16 +10,16 @@ type Cache interface {
 	// evicted. After working with the page, it must be released again, in order
 	// for the cache to be able to free memory. If a page with the given id does
 	// not exist, an error will be returned.
-	FetchAndPin(id uint32) (Page, error)
+	FetchAndPin(id ID) (Page, error)
 	// Unpin tells the cache that the page with the given id is no longer
 	// required directly, and that it can be evicted. Unpin is not a guarantee
 	// that the page will be evicted. The cache determines, when to evict a
 	// page. If a page with that id does not exist, this call is a no-op.
-	Unpin(id uint32)
+	Unpin(id ID)
 	// Flush writes the contents of the page with the given id to the configured
 	// source. Before a page is evicted, it is always flushed. Use this method
 	// to tell the cache that the page must be flushed immediately. If a page
 	// with the given id does not exist, an error will be returned.
-	Flush(id uint32) error
+	Flush(id ID) error
 	io.Closer
 }
