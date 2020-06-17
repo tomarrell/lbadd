@@ -1,5 +1,3 @@
-// +build !race
-
 package raft
 
 import (
@@ -8,7 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/fortytw2/leaktest"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -40,9 +37,6 @@ func Test_NewServer(t *testing.T) {
 
 // Test_Raft tests the entire raft operation.
 func Test_Raft(t *testing.T) {
-	// t.SkipNow()
-
-	defer leaktest.Check(t)()
 
 	zerolog.New(os.Stdout).With().
 		Str("foo", "bar").
@@ -121,19 +115,20 @@ func Test_Raft(t *testing.T) {
 	)
 
 	go func() {
-		err = server.Start()
+		err := server.Start()
 		assert.NoError(err)
 	}()
 
-	<-time.NewTimer(time.Duration(300) * time.Millisecond).C
+	<-time.After(time.Duration(300) * time.Millisecond)
 
-	err = server.Close()
-	assert.NoError(err)
-
-	// err := cluster.Broadcast(ctx, msg1)
-	// assert.NoError(err)
-	// cluster.AssertNumberOfCalls(t, "Broadcast", 1)
-	// cluster.AssertCalled(t, "Broadcast", ctx, msg1)
+	if conn1.AssertNumberOfCalls(t, "Receive", 3) &&
+		conn2.AssertNumberOfCalls(t, "Receive", 3) &&
+		conn3.AssertNumberOfCalls(t, "Receive", 3) &&
+		conn4.AssertNumberOfCalls(t, "Receive", 3) {
+		err := server.Close()
+		assert.NoError(err)
+		return
+	}
 }
 
 func addRemoteID(conn *networkmocks.Conn) *networkmocks.Conn {

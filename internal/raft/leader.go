@@ -17,17 +17,10 @@ import (
 // existance of data in the LogChannel channel.
 func (s *simpleServer) startLeader() {
 
-	s.lock.Lock()
 	s.node.log.
 		Debug().
 		Str("self-id", s.node.PersistentState.SelfID.String()).
 		Msg("starting leader election proceedings")
-	s.lock.Unlock()
-	select {
-	case <-s.getDoneChan():
-		return
-	default:
-	}
 
 	go func() {
 		// The loop that the leader stays in until it's functioning properly.
@@ -35,15 +28,11 @@ func (s *simpleServer) startLeader() {
 		// periodically sending heartbeats/appendEntries.
 		// This loop goes on until this node is the leader.
 		for {
-			select {
-			case <-s.getDoneChan():
-				return
-			default:
-			}
-
 			// Send heartbeats every 50ms.
 			<-time.NewTimer(50 * time.Millisecond).C
 
+			// Before continuing the operations, check whether
+			// the server is not closed.
 			s.lock.Lock()
 			if s.node == nil {
 				return
@@ -174,8 +163,6 @@ func (node *Node) sendHeartBeats() {
 				}
 
 			}
-
-			// node.PersistentState.mu.Unlock()
 		}(i)
 	}
 }

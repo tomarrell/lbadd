@@ -71,7 +71,6 @@ type simpleServer struct {
 	log             zerolog.Logger
 	timeoutProvider func(*Node) *time.Timer
 	lock            sync.Mutex
-	closeSignal     chan struct{}
 }
 
 // incomingData describes every request that the server gets.
@@ -89,13 +88,10 @@ func newServer(log zerolog.Logger, cluster Cluster, timeoutProvider func(*Node) 
 	if timeoutProvider == nil {
 		timeoutProvider = randomTimer
 	}
-	// TODO: length needs to be figured out
-	closingChannel := make(chan struct{}, 5)
 	return &simpleServer{
 		log:             log.With().Str("component", "raft").Logger(),
 		cluster:         cluster,
 		timeoutProvider: timeoutProvider,
-		closeSignal:     closingChannel,
 	}
 }
 
@@ -143,11 +139,6 @@ func (s *simpleServer) Start() (err error) {
 			if err != nil {
 				return
 			}
-			s.lock.Lock()
-			if s.node == nil {
-				return
-			}
-			s.lock.Unlock()
 		}
 	}()
 
@@ -157,14 +148,7 @@ func (s *simpleServer) Start() (err error) {
 	// If any sort of request (heartbeat,appendEntries,requestVote)
 	// isn't received by the server(node) it restarts leader election.
 	select {
-	case <-s.getDoneChan():
-		return
 	case <-s.timeoutProvider(node).C:
-		s.lock.Lock()
-		if s.node == nil {
-			return
-		}
-		s.lock.Unlock()
 		s.StartElection()
 	case data := <-liveChan:
 		err = node.processIncomingData(data)
@@ -211,7 +195,6 @@ func (s *simpleServer) Close() error {
 	s.node.PersistentState.mu.Unlock()
 	s.node = nil
 	err := s.cluster.Close()
-	s.closeSignal <- struct{}{}
 	s.lock.Unlock()
 	return err
 }
@@ -287,10 +270,4 @@ func (node *Node) processIncomingData(data *incomingData) error {
 		}
 	}
 	return nil
-}
-
-func (s *simpleServer) getDoneChan() <-chan struct{} {
-	s.lock.Lock()
-	defer s.lock.Unlock()
-	return s.closeSignal
 }
