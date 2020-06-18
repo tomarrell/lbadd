@@ -9,5 +9,5 @@ func (e Error) Error() string { return string(e) }
 const (
 	ErrUnknownHeader   = Error("unknown header")
 	ErrInvalidPageSize = Error("invalid page size")
-	ErrPageTooSmall    = Error("page is too small for the requested data")
+	ErrPageFull        = Error("page is full")
 )

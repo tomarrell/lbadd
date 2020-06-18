@@ -150,6 +150,46 @@ func (p *Page) Offsets() (result []Offset) {
 	return
 }
 
+// FreeSlots computes all free addressable cell slots in this page.
+func (p *Page) FreeSlots() (result []Offset) {
+	offsets := p.Offsets()
+	if len(offsets) == 0 {
+		// if there are no offsets at all, that means that the page is empty,
+		// and one slot is returned, which reaches from 0+OffsetSize until the
+		// end of the page
+		off := HeaderSize + OffsetSize
+		return []Offset{{
+			Offset: HeaderSize + OffsetSize,
+			Size:   uint16(len(p.data)) - off,
+		}}
+	}
+
+	sort.Slice(offsets, func(i, j int) bool {
+		return offsets[i].Offset < offsets[j].Offset
+	})
+	// first slot, from end of offset data until first cell
+	firstOff := HeaderSize + uint16(len(offsets)+1)*OffsetSize // +1 because we always need space to store one more offset, so if that space is blocked, there is no free slot that is addressable
+	firstSize := offsets[0].Offset - firstOff
+	if firstSize > 0 {
+		result = append(result, Offset{
+			Offset: firstOff,
+			Size:   firstSize,
+		})
+	}
+	// rest of the spaces between cells
+	for i := 0; i < len(offsets)-1; i++ {
+		off := offsets[i].Offset + offsets[i].Size
+		size := offsets[i+1].Offset - off
+		if size > 0 {
+			result = append(result, Offset{
+				Offset: off,
+				Size:   size,
+			})
+		}
+	}
+	return
+}
+
 func load(data []byte) (*Page, error) {
 	if len(data) > int(^uint16(0))-1 {
 		return nil, fmt.Errorf("page size too large: %v (max %v)", len(data), int(^uint16(0))-1)
@@ -181,17 +221,64 @@ func (p *Page) findCell(key []byte) (offsetIndex uint16, cellOffset Offset, cell
 }
 
 func (p *Page) storePointerCell(cell PointerCell) error {
-	return p.storeRawCell(encodePointerCell(cell))
+	return p.storeRawCell(cell.key, encodePointerCell(cell))
 }
 
 func (p *Page) storeRecordCell(cell RecordCell) error {
-	return p.storeRawCell(encodeRecordCell(cell))
+	return p.storeRawCell(cell.key, encodeRecordCell(cell))
 }
 
-func (p *Page) storeRawCell(rawCell []byte) error {
+func (p *Page) storeRawCell(key, rawCell []byte) error {
+	size := uint16(len(rawCell))
+	slot, ok := p.findFreeSlotForSize(size)
+	if !ok {
+		return page.ErrPageFull
+	}
+	copy(p.data[slot.Offset+slot.Size-size:], rawCell)
+	p.storeCellOffset(Offset{
+		Offset: slot.Offset + slot.Size - size,
+		Size:   size,
+	}, key)
 	p.incrementCellCount(1)
-	_ = Offset{}.encodeInto // to remove linter error
-	return fmt.Errorf("unimplemented")
+	return nil
+}
+
+func (p *Page) storeCellOffset(offset Offset, cellKey []byte) {
+	offsets := p.Offsets()
+	if len(offsets) == 0 {
+		// directly into the start of the page content, after the header
+		offset.encodeInto(p.data[HeaderSize:])
+		return
+	}
+
+	index := sort.Search(len(offsets), func(i int) bool {
+		return bytes.Compare(cellKey, p.cellAt(offsets[i]).Key()) > 0
+	})
+
+	// make room if neccessary
+	offsetOffset := uint16(index) * OffsetSize
+	allOffsetsEnd := uint16(len(offsets)) * OffsetSize
+	p.moveAndZero(offsetOffset, allOffsetsEnd-offsetOffset, offsetOffset+OffsetSize)
+	offset.encodeInto(p.data[offsetOffset:])
+}
+
+// findFreeSlotForSize searches for a free slot in this page, matching or
+// exceeding the given data size. This is done by using a best-fit algorithm.
+func (p *Page) findFreeSlotForSize(dataSize uint16) (Offset, bool) {
+	// sort all free slots by size
+	slots := p.FreeSlots()
+	sort.Slice(slots, func(i, j int) bool {
+		return slots[i].Size < slots[j].Size
+	})
+	// search for the best fitting slot, i.e. the first slot, whose size is greater
+	// than or equal to the given data size
+	index := sort.Search(len(slots), func(i int) bool {
+		return slots[i].Size >= dataSize
+	})
+	if index == len(slots) {
+		return Offset{}, false
+	}
+	return slots[index], true
 }
 
 func (p *Page) cellAt(offset Offset) Cell {
@@ -212,25 +299,28 @@ func (p *Page) cellAt(offset Offset) Cell {
 //  moveAndZero(2, 3, 4)
 //  [1,1,0,0,2,2,2,1,1,1]
 func (p *Page) moveAndZero(offset, size, target uint16) {
+	if target == offset {
+		// no-op when offset and target are the same
+		return
+	}
+
 	_ = p.data[offset+size-1] // bounds check
 	_ = p.data[target+size-1] // bounds check
 
 	copy(p.data[target:target+size], p.data[offset:offset+size])
 
 	// area needs zeroing
-	if target != offset {
-		if target > offset+size || target+size < offset {
-			// no overlap
-			p.zero(offset, size)
-		} else {
-			// overlap
-			if target > offset && target <= offset+size {
-				// move to right, zero non-overlapping area
-				p.zero(offset, target-offset)
-			} else if target < offset && target+size >= offset {
-				// move to left, zero non-overlapping area
-				p.zero(target+size, offset-target)
-			}
+	if target > offset+size || target+size < offset {
+		// no overlap
+		p.zero(offset, size)
+	} else {
+		// overlap
+		if target > offset && target <= offset+size {
+			// move to right, zero non-overlapping area
+			p.zero(offset, target-offset)
+		} else if target < offset && target+size >= offset {
+			// move to left, zero non-overlapping area
+			p.zero(target+size, offset-target)
 		}
 	}
 }

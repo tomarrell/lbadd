@@ -19,16 +19,18 @@ type Offset struct {
 	Size uint16
 }
 
+func (o Offset) encodeInto(target []byte) {
+	/* very simple way to avoid a new 4 byte allocation, should probably also be
+	applied to cells */
+	_ = target[3]
+	byteOrder.PutUint16(target[0:], o.Offset)
+	byteOrder.PutUint16(target[2:], o.Size)
+}
+
 func decodeOffset(data []byte) Offset {
 	_ = data[3]
 	return Offset{
 		Offset: byteOrder.Uint16(data[0:]),
 		Size:   byteOrder.Uint16(data[2:]),
 	}
-}
-
-func (o Offset) encodeInto(target []byte) {
-	_ = target[3]
-	byteOrder.PutUint16(target[0:], o.Offset)
-	byteOrder.PutUint16(target[2:], o.Size)
 }
