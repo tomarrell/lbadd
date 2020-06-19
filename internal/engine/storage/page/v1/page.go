@@ -99,13 +99,13 @@ func (p *Page) DeleteCell(key []byte) (bool, error) {
 	}
 
 	// delete offset
-	p.zero(offsetIndex*OffsetSize, OffsetSize)
+	p.zero(offsetIndex*SlotByteSize, SlotByteSize)
 	// delete cell data
 	p.zero(cellOffset.Offset, cellOffset.Size)
 	// close gap in offsets due to offset deletion
-	from := offsetIndex*OffsetSize + OffsetSize   // lower bound, right next to gap
-	to := p.CellCount() * OffsetSize              // upper bound of the offset data
-	p.moveAndZero(from, to-from, from-OffsetSize) // actually move the data
+	from := offsetIndex*SlotByteSize + SlotByteSize // lower bound, right next to gap
+	to := p.CellCount() * SlotByteSize              // upper bound of the offset data
+	p.moveAndZero(from, to-from, from-SlotByteSize) // actually move the data
 	// update cell count
 	p.decrementCellCount(1)
 	return true, nil
@@ -122,7 +122,7 @@ func (p *Page) Cell(key []byte) (page.Cell, bool) {
 // of them. The returned cells do not point back to the original page data, so
 // don't modify them. Instead, delete the old cell and store a new one.
 func (p *Page) Cells() (result []page.Cell) {
-	for _, offset := range p.Offsets() {
+	for _, offset := range p.OccupiedSlots() {
 		result = append(result, decodeCell(p.data[offset.Offset:offset.Offset+offset.Size]))
 	}
 	return
@@ -136,30 +136,30 @@ func (p *Page) RawData() []byte {
 	return cp
 }
 
-// Offsets returns all offsets in the page. The offsets can be used to find all
-// cells in the page. The amount of offsets will always be equal to the amount
-// of cells stored in a page. The amount of offsets in the page depends on the
-// cell count of this page, not the other way around.
-func (p *Page) Offsets() (result []Offset) {
+// OccupiedSlots returns all occupied slots in the page. The slots all point to
+// cells in the page. The amount of slots will always be equal to the amount of
+// cells stored in a page. The amount of slots in the page depends on the cell
+// count of this page, not the other way around.
+func (p *Page) OccupiedSlots() (result []Slot) {
 	cellCount := p.CellCount()
-	offsetsWidth := cellCount * OffsetSize
+	offsetsWidth := cellCount * SlotByteSize
 	offsetData := p.data[HeaderSize : HeaderSize+offsetsWidth]
 	for i := uint16(0); i < cellCount; i++ {
-		result = append(result, decodeOffset(offsetData[i*OffsetSize:i*OffsetSize+OffsetSize]))
+		result = append(result, decodeOffset(offsetData[i*SlotByteSize:i*SlotByteSize+SlotByteSize]))
 	}
 	return
 }
 
 // FreeSlots computes all free addressable cell slots in this page.
-func (p *Page) FreeSlots() (result []Offset) {
-	offsets := p.Offsets()
+func (p *Page) FreeSlots() (result []Slot) {
+	offsets := p.OccupiedSlots()
 	if len(offsets) == 0 {
 		// if there are no offsets at all, that means that the page is empty,
 		// and one slot is returned, which reaches from 0+OffsetSize until the
 		// end of the page
-		off := HeaderSize + OffsetSize
-		return []Offset{{
-			Offset: HeaderSize + OffsetSize,
+		off := HeaderSize + SlotByteSize
+		return []Slot{{
+			Offset: HeaderSize + SlotByteSize,
 			Size:   uint16(len(p.data)) - off,
 		}}
 	}
@@ -168,10 +168,10 @@ func (p *Page) FreeSlots() (result []Offset) {
 		return offsets[i].Offset < offsets[j].Offset
 	})
 	// first slot, from end of offset data until first cell
-	firstOff := HeaderSize + uint16(len(offsets)+1)*OffsetSize // +1 because we always need space to store one more offset, so if that space is blocked, there is no free slot that is addressable
+	firstOff := HeaderSize + uint16(len(offsets)+1)*SlotByteSize // +1 because we always need space to store one more offset, so if that space is blocked, there is no free slot that is addressable
 	firstSize := offsets[0].Offset - firstOff
 	if firstSize > 0 {
-		result = append(result, Offset{
+		result = append(result, Slot{
 			Offset: firstOff,
 			Size:   firstSize,
 		})
@@ -181,13 +181,32 @@ func (p *Page) FreeSlots() (result []Offset) {
 		off := offsets[i].Offset + offsets[i].Size
 		size := offsets[i+1].Offset - off
 		if size > 0 {
-			result = append(result, Offset{
+			result = append(result, Slot{
 				Offset: off,
 				Size:   size,
 			})
 		}
 	}
 	return
+}
+
+// findFreeSlotForSize searches for a free slot in this page, matching or
+// exceeding the given data size. This is done by using a best-fit algorithm.
+func (p *Page) FindFreeSlotForSize(dataSize uint16) (Slot, bool) {
+	// sort all free slots by size
+	slots := p.FreeSlots()
+	sort.Slice(slots, func(i, j int) bool {
+		return slots[i].Size < slots[j].Size
+	})
+	// search for the best fitting slot, i.e. the first slot, whose size is greater
+	// than or equal to the given data size
+	index := sort.Search(len(slots), func(i int) bool {
+		return slots[i].Size >= dataSize
+	})
+	if index == len(slots) {
+		return Slot{}, false
+	}
+	return slots[index], true
 }
 
 func load(data []byte) (*Page, error) {
@@ -208,14 +227,14 @@ func load(data []byte) (*Page, error) {
 // cell with the given key could be found. If no cell could be found,
 // found=false will be returned, as well as zero values for all other return
 // arguments.
-func (p *Page) findCell(key []byte) (offsetIndex uint16, cellOffset Offset, cell Cell, found bool) {
-	offsets := p.Offsets()
+func (p *Page) findCell(key []byte) (offsetIndex uint16, cellSlot Slot, cell Cell, found bool) {
+	offsets := p.OccupiedSlots()
 	result := sort.Search(len(offsets), func(i int) bool {
 		cell := p.cellAt(offsets[i])
 		return bytes.Compare(cell.Key(), key) >= 0
 	})
 	if result == len(offsets) {
-		return 0, Offset{}, nil, false
+		return 0, Slot{}, nil, false
 	}
 	return uint16(result), offsets[result], p.cellAt(offsets[result]), true
 }
@@ -230,12 +249,12 @@ func (p *Page) storeRecordCell(cell RecordCell) error {
 
 func (p *Page) storeRawCell(key, rawCell []byte) error {
 	size := uint16(len(rawCell))
-	slot, ok := p.findFreeSlotForSize(size)
+	slot, ok := p.FindFreeSlotForSize(size)
 	if !ok {
 		return page.ErrPageFull
 	}
 	copy(p.data[slot.Offset+slot.Size-size:], rawCell)
-	p.storeCellOffset(Offset{
+	p.storeCellOffset(Slot{
 		Offset: slot.Offset + slot.Size - size,
 		Size:   size,
 	}, key)
@@ -243,8 +262,8 @@ func (p *Page) storeRawCell(key, rawCell []byte) error {
 	return nil
 }
 
-func (p *Page) storeCellOffset(offset Offset, cellKey []byte) {
-	offsets := p.Offsets()
+func (p *Page) storeCellOffset(offset Slot, cellKey []byte) {
+	offsets := p.OccupiedSlots()
 	if len(offsets) == 0 {
 		// directly into the start of the page content, after the header
 		offset.encodeInto(p.data[HeaderSize:])
@@ -256,33 +275,14 @@ func (p *Page) storeCellOffset(offset Offset, cellKey []byte) {
 	})
 
 	// make room if neccessary
-	offsetOffset := uint16(index) * OffsetSize
-	allOffsetsEnd := uint16(len(offsets)) * OffsetSize
-	p.moveAndZero(offsetOffset, allOffsetsEnd-offsetOffset, offsetOffset+OffsetSize)
+	offsetOffset := uint16(index) * SlotByteSize
+	allOffsetsEnd := uint16(len(offsets)) * SlotByteSize
+	p.moveAndZero(offsetOffset, allOffsetsEnd-offsetOffset, offsetOffset+SlotByteSize)
 	offset.encodeInto(p.data[offsetOffset:])
 }
 
-// findFreeSlotForSize searches for a free slot in this page, matching or
-// exceeding the given data size. This is done by using a best-fit algorithm.
-func (p *Page) findFreeSlotForSize(dataSize uint16) (Offset, bool) {
-	// sort all free slots by size
-	slots := p.FreeSlots()
-	sort.Slice(slots, func(i, j int) bool {
-		return slots[i].Size < slots[j].Size
-	})
-	// search for the best fitting slot, i.e. the first slot, whose size is greater
-	// than or equal to the given data size
-	index := sort.Search(len(slots), func(i int) bool {
-		return slots[i].Size >= dataSize
-	})
-	if index == len(slots) {
-		return Offset{}, false
-	}
-	return slots[index], true
-}
-
-func (p *Page) cellAt(offset Offset) Cell {
-	return decodeCell(p.data[offset.Offset : offset.Offset+offset.Size])
+func (p *Page) cellAt(slot Slot) Cell {
+	return decodeCell(p.data[slot.Offset : slot.Offset+slot.Size])
 }
 
 // moveAndZero moves target bytes in the page's raw data from offset to target,

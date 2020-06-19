@@ -38,7 +38,7 @@ func TestPage_StoreRecordCell(t *testing.T) {
 	assert.Len(freeSlots, 1)
 	// offset must skipt reserved space for offset, as the offset is not free
 	// space
-	assert.Equal(Offset{
+	assert.Equal(Slot{
 		Offset: 18,
 		Size:   4,
 	}, freeSlots[0])
@@ -55,6 +55,43 @@ func TestPage_StoreRecordCell(t *testing.T) {
 	err = p.StoreRecordCell(anotherCell)
 	assert.Equal(page.ErrPageFull, err)
 	assert.Equal(pageData, p.data) // page must not have been modified
+}
+
+func TestPage_StoreRecordCell_Multiple(t *testing.T) {
+	assert := assert.New(t)
+
+	p, err := load(make([]byte, 64))
+	assert.NoError(err)
+
+	cells := []RecordCell{
+		{
+			cell: cell{
+				key: []byte{0x11},
+			},
+			record: []byte{0xCA, 0xFE, 0xBA, 0xBE},
+		},
+		{
+			cell: cell{
+				key: []byte{0x33},
+			},
+			record: []byte{0xD1, 0xCE},
+		},
+		{
+			cell: cell{
+				key: []byte{0x22},
+			},
+			record: []byte{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF},
+		},
+	}
+	assert.NoError(p.storeRecordCell(cells[0]))
+	assert.NoError(p.storeRecordCell(cells[1]))
+	assert.NoError(p.storeRecordCell(cells[2]))
+	assert.Equal([]byte{
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, // header
+		0x00, 0x3C, 0x00, 0x04, // offset #0
+		0x00, 0x3A, 0x00, 0x10, // offset #2
+		0x00, 0x3A, 0x00, 0x02, // offset #1
+	}, p.data)
 }
 
 func TestPage_offsets(t *testing.T) {
@@ -78,7 +115,7 @@ func TestPage_offsets(t *testing.T) {
 		0xAB, 0xBC, // size
 	}
 	// quick check if we made a mistake in the test
-	assert.EqualValues(OffsetSize, len(offsetData)/offsetCount)
+	assert.EqualValues(SlotByteSize, len(offsetData)/offsetCount)
 
 	// inject the offset data
 	p.incrementCellCount(3)               // set the cell count
@@ -86,17 +123,17 @@ func TestPage_offsets(t *testing.T) {
 
 	// actual test can start
 
-	offsets := p.Offsets()
+	offsets := p.OccupiedSlots()
 	assert.Len(offsets, 3)
-	assert.Equal(Offset{
+	assert.Equal(Slot{
 		Offset: 0x0112,
 		Size:   0x2334,
 	}, offsets[0])
-	assert.Equal(Offset{
+	assert.Equal(Slot{
 		Offset: 0x4556,
 		Size:   0x6778,
 	}, offsets[1])
-	assert.Equal(Offset{
+	assert.Equal(Slot{
 		Offset: 0x899A,
 		Size:   0xABBC,
 	}, offsets[2])
@@ -202,6 +239,21 @@ func TestPage_moveAndZero(t *testing.T) {
 			}
 			p.moveAndZero(tt.args.offset, tt.args.size, tt.args.target)
 			assert.Equal(tt.want, p.data)
+		})
+	}
+}
+
+func TestPage_FindFreeSlotForSize(t *testing.T) {
+	tests := []struct {
+		name    string
+		offsets []Slot
+		want    Slot
+		want1   bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
 		})
 	}
 }
