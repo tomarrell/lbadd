@@ -11,10 +11,6 @@ const (
 	HeaderID
 )
 
-// Loader is a function that can load a page from a given byte slice, and return
-// errors if any occur.
-type Loader func([]byte) (Page, error)
-
 // ID is the type of a page ID. This is mainly to avoid any confusion.
 // Changing this will break existing database files, so only change during major
 // version upgrades.

@@ -10,7 +10,6 @@ import (
 )
 
 var _ page.Page = (*Page)(nil)
-var _ page.Loader = Load
 
 const (
 	// PageSize is the fix size of a page, which is 16KB or 16384 bytes.
