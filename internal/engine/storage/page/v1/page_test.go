@@ -80,21 +80,40 @@ func TestPage_StoreRecordCell_Multiple(t *testing.T) {
 			cell: cell{
 				key: []byte{0x22},
 			},
-			record: []byte{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF},
+			record: []byte{0xFF},
 		},
 	}
 	assert.NoError(p.storeRecordCell(cells[0]))
 	assert.NoError(p.storeRecordCell(cells[1]))
 	assert.NoError(p.storeRecordCell(cells[2]))
 	assert.Equal([]byte{
-		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, // header
-		0x00, 0x3C, 0x00, 0x04, // offset #0
-		0x00, 0x3A, 0x00, 0x10, // offset #2
-		0x00, 0x3A, 0x00, 0x02, // offset #1
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, // header
+		0x00, 0x32, 0x00, 0x0E, // offset #0
+		0x00, 0x1B, 0x00, 0x0B, // offset #2
+		0x00, 0x26, 0x00, 0x0C, // offset #1
+		0x00, 0x00, 0x00, 0x00, 0x00, // free space
+		// cell #3
+		0x01,                   // cell #3 type
+		0x00, 0x00, 0x00, 0x01, // cell #3 key frame
+		0x22,                   // cell #3 key
+		0x00, 0x00, 0x00, 0x01, // cell #3 record frame
+		0xFF, // cell #3 record
+		// cell #2
+		0x01,                   // cell #2 type
+		0x00, 0x00, 0x00, 0x01, // cell #2 key frame
+		0x33,                   // cell #2 key
+		0x00, 0x00, 0x00, 0x02, // cell #2 record frame
+		0xD1, 0xCE, // cell #2 record
+		// cell #1
+		0x01,                   // cell #1 type
+		0x00, 0x00, 0x00, 0x01, // cell #1 key frame
+		0x11,                   // cell #1 key
+		0x00, 0x00, 0x00, 0x04, // cell #1 record frame
+		0xCA, 0xFE, 0xBA, 0xBE, // cell #1 record
 	}, p.data)
 }
 
-func TestPage_offsets(t *testing.T) {
+func TestPage_OccupiedSlots(t *testing.T) {
 	assert := assert.New(t)
 
 	// create a completely empty page
@@ -244,16 +263,73 @@ func TestPage_moveAndZero(t *testing.T) {
 }
 
 func TestPage_FindFreeSlotForSize(t *testing.T) {
-	tests := []struct {
-		name    string
-		offsets []Slot
-		want    Slot
-		want1   bool
-	}{
-		// TODO: Add test cases.
+	assert := assert.New(t)
+
+	p, err := load(make([]byte, 100))
+	assert.NoError(err)
+
+	occupiedSlots := []Slot{
+		{90, 10},
+		// 1 byte
+		{80, 9},
+		// 25 bytes
+		{50, 5},
+		// 10 bytes
+		{30, 10},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-		})
+
+	for i, slot := range occupiedSlots {
+		slot.encodeInto(p.data[HeaderSize+i*int(SlotByteSize):])
 	}
+	p.incrementCellCount(uint16(len(occupiedSlots)))
+
+	slot, ok := p.FindFreeSlotForSize(1)
+	assert.True(ok)
+	assert.Equal(Slot{89, 1}, slot)
+
+	slot, ok = p.FindFreeSlotForSize(15)
+	assert.True(ok)
+	assert.Equal(Slot{55, 25}, slot)
+
+	slot, ok = p.FindFreeSlotForSize(25)
+	assert.True(ok)
+	assert.Equal(Slot{55, 25}, slot)
+
+	slot, ok = p.FindFreeSlotForSize(10)
+	assert.True(ok)
+	assert.Equal(Slot{40, 10}, slot)
+
+	slot, ok = p.FindFreeSlotForSize(5)
+	assert.True(ok)
+	assert.Equal(Slot{40, 10}, slot)
+}
+
+func TestPage_FreeSlots(t *testing.T) {
+	assert := assert.New(t)
+
+	p, err := load(make([]byte, 100))
+	assert.NoError(err)
+
+	occupiedSlots := []Slot{
+		// 2 bytes
+		{32, 8},
+		// 10 bytes
+		{50, 5},
+		// 25 bytes
+		{80, 9},
+		// 1 byte
+		{90, 10},
+	}
+
+	for i, slot := range occupiedSlots {
+		slot.encodeInto(p.data[HeaderSize+i*int(SlotByteSize):])
+	}
+	p.incrementCellCount(uint16(len(occupiedSlots)))
+
+	assert.EqualValues([]Slot{
+		{30, 2},
+		{40, 10},
+		{55, 25},
+		{89, 1},
+	}, p.FreeSlots())
 }

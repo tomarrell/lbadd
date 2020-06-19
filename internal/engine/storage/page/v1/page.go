@@ -190,7 +190,7 @@ func (p *Page) FreeSlots() (result []Slot) {
 	return
 }
 
-// findFreeSlotForSize searches for a free slot in this page, matching or
+// FindFreeSlotForSize searches for a free slot in this page, matching or
 // exceeding the given data size. This is done by using a best-fit algorithm.
 func (p *Page) FindFreeSlotForSize(dataSize uint16) (Slot, bool) {
 	// sort all free slots by size
@@ -253,16 +253,16 @@ func (p *Page) storeRawCell(key, rawCell []byte) error {
 	if !ok {
 		return page.ErrPageFull
 	}
-	copy(p.data[slot.Offset+slot.Size-size:], rawCell)
-	p.storeCellOffset(Slot{
+	p.storeCellSlot(Slot{
 		Offset: slot.Offset + slot.Size - size,
 		Size:   size,
 	}, key)
+	copy(p.data[slot.Offset+slot.Size-size:], rawCell)
 	p.incrementCellCount(1)
 	return nil
 }
 
-func (p *Page) storeCellOffset(offset Slot, cellKey []byte) {
+func (p *Page) storeCellSlot(offset Slot, cellKey []byte) {
 	offsets := p.OccupiedSlots()
 	if len(offsets) == 0 {
 		// directly into the start of the page content, after the header
@@ -271,13 +271,15 @@ func (p *Page) storeCellOffset(offset Slot, cellKey []byte) {
 	}
 
 	index := sort.Search(len(offsets), func(i int) bool {
-		return bytes.Compare(cellKey, p.cellAt(offsets[i]).Key()) > 0
+		return bytes.Compare(cellKey, p.cellAt(offsets[i]).Key()) < 0
 	})
 
-	// make room if neccessary
-	offsetOffset := uint16(index) * SlotByteSize
-	allOffsetsEnd := uint16(len(offsets)) * SlotByteSize
-	p.moveAndZero(offsetOffset, allOffsetsEnd-offsetOffset, offsetOffset+SlotByteSize)
+	offsetOffset := HeaderSize + uint16(index)*SlotByteSize
+	if index != len(offsets) {
+		// make room if neccessary
+		allOffsetsEnd := HeaderSize + uint16(len(offsets))*SlotByteSize
+		p.moveAndZero(offsetOffset, allOffsetsEnd-offsetOffset, offsetOffset+SlotByteSize)
+	}
 	offset.encodeInto(p.data[offsetOffset:])
 }
 
