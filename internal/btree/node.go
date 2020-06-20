@@ -1,9 +1,5 @@
 package btree
 
-import (
-	"github.com/davecgh/go-spew/spew"
-)
-
 // node defines the stuct which contains keys (entries) and the child nodes of a
 // particular node in the b-tree
 type node struct {
@@ -12,59 +8,100 @@ type node struct {
 	children []*node
 }
 
-// func (n *node) String() string {
-// nStr := ""
-
-// nStr += fmt.Sprintf("%v", n.entries)
-
-// return nStr
-// }
-
+// recursiveBalance ...
+//
+// We know that a node is below the threshold for which we must rebalance. There
+// are three options:
+//   A: steal from the right sibling
+//   B: steal from the left sibling
+//   C: merge the node with the left sibling
+//   D: merge the node with the right sibling
+//
 func (n *node) recursiveBalance(k Key, order int, b *Btree) {
-	spew.Println(b.String())
-	spew.Println()
-	if n.isRoot() {
+	// If we're at the root or the current node is not breaking the invariant, we
+	// can stop.
+	if n.isRoot() || !n.isUnderflowed(order) {
 		return
 	}
 
-	idx, exists := search(n.entries, k)
-	// Can steal from the left leaf sibling
-	lleaf, exists := n.leftSibling(k)
-	if exists && lleaf.canStealEntry(order) {
-		// Take the parent's key and prepend it to this node
-		n.entries = append([]*Entry{n.parent.entries[idx]}, n.entries...)
-		// Set the parent's key to the key of the last entry in the sibling
-		n.parent.entries[idx] = &Entry{lleaf.entries[len(lleaf.entries)-1].key, nil}
-		// Remove the left sibling's last entry
-		lleaf.entries = lleaf.entries[:len(lleaf.entries)-1]
+	idx, _ := search(n.entries, k)
 
-		// If the node isn't a leaf, we need to steal the sibling's rightmost child
-		// as well, making sure it knows who its new parent is
+	// Scenario A: steal from the right sibling
+	//
+	// First we check whether a right sibling exists. If it does and it contains
+	// enough entries for us to steal one, we proceed.
+	//
+	// We will steal right right sibling's leftmost child and append this to the
+	// current node's children.
+	//
+	if rSib, exists := n.rightSibling(k); exists && rSib.canStealEntry(order) {
+		// Entry operations
+		//
+		// Append the right sibling's leftmost entry to this node
+		n.entries = append(n.entries, rSib.entries[0])
+		// Remove the right sibling's leftmost entry
+		rSib.entries = rSib.entries[1:]
+
+		// Child operations
+		// TODO update the stolen child's parent
 		if !n.isLeaf() {
-			stolen := lleaf.children[len(lleaf.children)-1]
-			stolen.parent = n
-			n.children = append([]*node{stolen}, n.children...)
-			lleaf.children = lleaf.children[:len(lleaf.children)-1]
+			// Append the right sibling's leftmost child to this node
+			n.children = append(n.children, rSib.children[0])
+			// Remove the right sibling's leftmost child
+			rSib.children = rSib.children[1:]
 		}
 
+		// Parent operations
+		//
+		parIdx, _ := search(n.parent.entries, k)
+
+		// Replace the parent key to the right sibling's leftmost entry's key
+		n.parent.entries[parIdx] = &Entry{rSib.entries[0].key, nil}
 		return
 	}
 
-	// Can steal from the right leaf sibling
-	rleaf, exists := n.rightSibling(k)
-	if exists && rleaf.canStealEntry(order) {
-		// Append the right sibling's first entry to this node
-		n.entries = append(n.entries, rleaf.entries[0])
-		// Remove the right sibling's first entry
-		rleaf.entries = rleaf.entries[1:]
-		// Replace the parent key to the right sibling's first entry's key
-		n.parent.entries[idx] = &Entry{rleaf.entries[0].key, nil}
+	// Scenario B: steal from left sibling.
+	//
+	// First we check whether a left sibling exists. If it does and it contains
+	// enough entries for us to steal one, we proceed.
+	//
+	// We will steal the left sibling's right most entry, and we will need to
+	// steal the right most child as well. This will be prepended to the current
+	// node's children.
+	//
+	// We will then update the entry key in the parent to the key of the entry
+	// that we stole from the left sibling.
+	//
+	if lSib, exists := n.leftSibling(k); exists && lSib.canStealEntry(order) {
+		// Entry operations
+		//
+		// Prepend the left sibling's rightmost entry to this node
+		n.entries = append([]*Entry{lSib.entries[len(lSib.entries)-1]}, n.entries...)
+		// Remove the left sibling's rightmost entry
+		lSib.entries = lSib.entries[:len(lSib.entries)-1]
+
+		// Child operations
+		// TODO update the stolen child's parent
+		if !n.isLeaf() {
+			// Prepend the left sibling's rightmost child to this node
+			toSteal := lSib.children[len(lSib.children)-1]
+			n.children = append([]*node{toSteal}, n.children...)
+			// Remove the left sibling's rightmost child
+			lSib.children = lSib.children[:len(lSib.children)-1]
+		}
+
+		parIdx, _ := search(n.parent.entries, k)
+
+		// Set the parent's key to the key of the last entry in the sibling
+		n.parent.entries[parIdx] = &Entry{lSib.entries[len(lSib.entries)-1].key, nil}
+		// Remove the left sibling's last entry
+		lSib.entries = lSib.entries[:len(lSib.entries)-1]
+
 		return
 	}
 
 	// Try to merge left
-	_, exists = n.leftSibling(k)
-	if exists {
+	if _, exists := n.leftSibling(k); exists {
 		panic("can merge left")
 	}
 
@@ -187,7 +224,6 @@ func (n *node) depth() int {
 	count := 0
 	par := n.parent
 
-	spew.Dump(n)
 	for !n.isRoot() && par != nil {
 		count++
 		par = par.parent

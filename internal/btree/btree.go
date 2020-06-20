@@ -1,7 +1,5 @@
 package btree
 
-import "github.com/davecgh/go-spew/spew"
-
 type Btreer interface {
 	// Get attempts to retrieve an entry in the tree by the given key `k`. It
 	// returns the entry and a bool indicating whether it was found or not.
@@ -91,12 +89,6 @@ func (b *Btree) String() string {
 		}
 
 		lvls[depth] = append(lvls[depth], groups)
-	}
-
-	spew.Println(lvls)
-
-	for i := 0; i < b.Height()+1; i++ {
-		spew.Println(i, lvls[i])
 	}
 
 	return out
@@ -191,26 +183,23 @@ func (b *Btree) Remove(k Key) (removed bool) {
 func (b *Btree) removeNode(n *node, k Key) (removed bool) {
 	idx, exists := search(n.entries, k)
 
-	// If the node is not a leaf, we need to continue traversal
+	// If the node is not a leaf, we need to continue traversal, otherwise check
+	// if the entry exists and return if it doesn't.
 	if !n.isLeaf() {
-		// If it exists, the idx is one less than what we need
 		return b.removeNode(n.children[idx], k)
-	}
-
-	// Otherwise, we check if the entry exists, and return if it doesn't
-	if !exists {
+	} else if !exists {
 		return false
 	}
 
-	// Ok, so we've found the Key, now we need to remove it.
+	// Ok, so we've found the key we were looking for, now we need to remove it
+	// and decrement the size.
 	n.entries = append(n.entries[:idx-1], n.entries[idx:]...)
 	b.size--
 
-	// Now we need to check if we've caused an underflow
+	// Now we need to check if we've caused an underflow, if we have we need to
+	// trigger a rebalance.
 	if n.isUnderflowed(b.order) {
 		n.recursiveBalance(k, b.order, b)
-
-		return true
 	}
 
 	return true
