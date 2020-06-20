@@ -7,6 +7,10 @@ all: lint test build ## test -> lint -> build
 
 .PHONY: test
 test: ## Runs the unit test suite
+	go test ./...
+
+.PHONY: race
+race: ## Runs the unit test suite with the race detector enabled (slow, ~45sec)
 	go test -race ./...
 
 .PHONY: lint
