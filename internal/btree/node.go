@@ -24,8 +24,6 @@ func (n *node) recursiveBalance(k Key, order int, b *Btree) {
 		return
 	}
 
-	idx, _ := search(n.entries, k)
-
 	// Scenario A: steal from the right sibling
 	//
 	// First we check whether a right sibling exists. If it does and it contains
@@ -43,10 +41,11 @@ func (n *node) recursiveBalance(k Key, order int, b *Btree) {
 		rSib.entries = rSib.entries[1:]
 
 		// Child operations
-		// TODO update the stolen child's parent
 		if !n.isLeaf() {
 			// Append the right sibling's leftmost child to this node
 			n.children = append(n.children, rSib.children[0])
+			// Update the stolen child's parent
+			n.children[len(n.children)-1].parent = n
 			// Remove the right sibling's leftmost child
 			rSib.children = rSib.children[1:]
 		}
@@ -57,6 +56,7 @@ func (n *node) recursiveBalance(k Key, order int, b *Btree) {
 
 		// Replace the parent key to the right sibling's leftmost entry's key
 		n.parent.entries[parIdx] = &Entry{rSib.entries[0].key, nil}
+
 		return
 	}
 
@@ -81,53 +81,38 @@ func (n *node) recursiveBalance(k Key, order int, b *Btree) {
 		lSib.entries = lSib.entries[:len(lSib.entries)-1]
 
 		// Child operations
-		// TODO update the stolen child's parent
+		//
 		if !n.isLeaf() {
 			// Prepend the left sibling's rightmost child to this node
-			toSteal := lSib.children[len(lSib.children)-1]
-			n.children = append([]*node{toSteal}, n.children...)
+			n.children = append([]*node{lSib.children[len(lSib.children)-1]}, n.children...)
+			n.children[0].parent = n
 			// Remove the left sibling's rightmost child
 			lSib.children = lSib.children[:len(lSib.children)-1]
 		}
 
+		// Parent operations
+		//
 		parIdx, _ := search(n.parent.entries, k)
 
-		// Set the parent's key to the key of the last entry in the sibling
-		n.parent.entries[parIdx] = &Entry{lSib.entries[len(lSib.entries)-1].key, nil}
-		// Remove the left sibling's last entry
-		lSib.entries = lSib.entries[:len(lSib.entries)-1]
+		// Set the parent's key to the key of the first entry of the node
+		n.parent.entries[parIdx] = &Entry{n.entries[0].key, nil}
 
 		return
 	}
 
-	// Try to merge left
+	// Scenario C: merge the node with the left sibling.
+	//
+	// First we check whether a left sibling exists.
+	//
 	if _, exists := n.leftSibling(k); exists {
 		panic("can merge left")
 	}
 
-	// Try to merge right
-	rdest, exists := n.rightSibling(k)
-	if exists {
-		// Create a new node, which is the combination of the two nodes to merge
-		mergedNode := &node{
-			parent:   rdest.parent,
-			entries:  append(n.entries, rdest.entries...),
-			children: append(n.children, rdest.children...),
-		}
-
-		// Check if removing a child from the parent would cause it to underflow
-		parIdx, _ := search(n.parent.entries, k)
-
-		n.parent.entries = append(n.parent.entries[:parIdx], n.parent.entries[parIdx+1:]...)
-		n.parent.children = append(n.parent.children[:parIdx], n.parent.children[parIdx+1:]...)
-		n.parent.children[parIdx] = mergedNode
-
-		// Check if parent now has too few children, and recursively merge
-		if n.parent.isUnderflowed(order) {
-			n.parent.recursiveBalance(k, order, b)
-			return
-		}
-
+	// Scenario D: merge the node with the left sibling.
+	//
+	// First we check whether a left sibling exists.
+	//
+	if _, exists := n.rightSibling(k); exists {
 		panic("can merge right")
 	}
 }
