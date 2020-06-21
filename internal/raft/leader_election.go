@@ -44,13 +44,11 @@ func (s *simpleServer) StartElection() {
 				lastLogIndex,
 				lastLogTerm,
 			)
-			// s.lock.Lock()
 			s.node.log.
 				Debug().
 				Str("self-id", selfID.String()).
 				Str("request-vote sent to", s.node.PersistentState.PeerIPs[i].RemoteID().String()).
 				Msg("request vote")
-			// s.lock.Unlock()
 
 			// send a requestVotesRPC
 			res, err := RequestVote(s.node.PersistentState.PeerIPs[i], req)
@@ -59,12 +57,10 @@ func (s *simpleServer) StartElection() {
 			// data consistency errors, which will be sorted by a re-election.
 			// This decision was taken because, StartElection returning an error is not feasible.
 			if res.VoteGranted && err == nil {
-				// s.lock.Lock()
 				s.node.log.
 					Debug().
 					Str("received vote from", s.node.PersistentState.PeerIPs[i].RemoteID().String()).
 					Msg("voting from peer")
-				// s.lock.Unlock()
 				votesRecieved := atomic.AddInt32(&votes, 1)
 
 				// Check whether this node has already voted.
@@ -74,25 +70,21 @@ func (s *simpleServer) StartElection() {
 
 				if s.node.PersistentState.VotedFor == nil {
 					s.node.PersistentState.VotedFor = selfID
-					// s.lock.Lock()
 					s.node.log.
 						Debug().
 						Str("self-id", selfID.String()).
 						Msg("node voting for itself")
-					// s.lock.Unlock()
 					votesRecieved++
 				}
 
 				if votesRecieved > int32(len(s.node.PersistentState.PeerIPs)/2) && s.node.State != StateLeader.String() {
 					// This node has won the election.
-					// s.lock.Lock()
 					s.node.State = StateLeader.String()
 					s.node.PersistentState.LeaderID = s.node.PersistentState.SelfID
 					s.node.log.
 						Debug().
 						Str("self-id", selfID.String()).
 						Msg("node elected leader")
-					// s.lock.Unlock()
 					s.startLeader()
 					return
 				}
