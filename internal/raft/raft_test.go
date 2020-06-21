@@ -2,7 +2,6 @@ package raft
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"sync"
 	"testing"
@@ -131,11 +130,9 @@ func Test_Raft(t *testing.T) {
 		conn2.AssertNumberOfCalls(t, "Receive", 3) &&
 		conn3.AssertNumberOfCalls(t, "Receive", 3) &&
 		conn4.AssertNumberOfCalls(t, "Receive", 3) {
-		fmt.Println("Y")
 		err := server.Close()
 		assert.NoError(err)
 	}
-	return
 }
 
 func addRemoteID(conn *networkmocks.Conn) *networkmocks.Conn {
