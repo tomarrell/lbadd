@@ -133,6 +133,11 @@ func Test_Raft(t *testing.T) {
 		err := server.Close()
 		assert.NoError(err)
 	}
+
+	err = server.Close()
+	if err != network.ErrClosed {
+		assert.NoError(err)
+	}
 }
 
 func addRemoteID(conn *networkmocks.Conn) *networkmocks.Conn {

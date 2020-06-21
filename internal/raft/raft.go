@@ -222,7 +222,6 @@ func (s *simpleServer) Input(input string) {
 // Close closes the node and returns an error on failure.
 func (s *simpleServer) Close() error {
 	s.lock.Lock()
-	s.node.PersistentState.mu.Lock()
 	// Maintaining idempotency of the close function.
 	if s.node == nil {
 		return network.ErrClosed
@@ -233,7 +232,6 @@ func (s *simpleServer) Close() error {
 		Str("self-id", s.node.PersistentState.SelfID.String()).
 		Msg("closing node")
 
-	s.node.PersistentState.mu.Unlock()
 	s.node = nil
 	err := s.cluster.Close()
 	s.lock.Unlock()
