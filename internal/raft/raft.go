@@ -2,7 +2,6 @@ package raft
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"math/rand"
 	"sync"
@@ -43,10 +42,11 @@ type PersistentState struct {
 	VotedFor    id.ID // VotedFor is nil at init, and id.ID of the node after voting is complete.
 	Log         []*message.LogData
 
-	SelfID   id.ID
-	LeaderID id.ID          // LeaderID is nil at init, and the id.ID of the node after the leader is elected.
-	PeerIPs  []network.Conn // PeerIPs has the connection variables of all the other nodes in the cluster.
-	mu       sync.Mutex
+	SelfID    id.ID
+	LeaderID  id.ID          // LeaderID is nil at init, and the ID of the node after the leader is elected.
+	PeerIPs   []network.Conn // PeerIPs has the connection variables of all the other nodes in the cluster.
+	ConnIDMap map[id.ID]int  // ConnIDMap has a mapping of the ID of the server to its connection.
+	mu        sync.Mutex
 }
 
 // VolatileState describes the volatile state data on a raft node.
@@ -93,6 +93,39 @@ func newServer(log zerolog.Logger, cluster Cluster, timeoutProvider func(*Node) 
 		cluster:         cluster,
 		timeoutProvider: timeoutProvider,
 	}
+}
+
+// NewRaftNode initialises a raft cluster with the given configuration.
+func NewRaftNode(cluster Cluster) *Node {
+	var nextIndex, matchIndex []int
+
+	for range cluster.Nodes() {
+		nextIndex = append(nextIndex, -1)
+		matchIndex = append(matchIndex, -1)
+	}
+	connIDMap := make(map[id.ID]int)
+	for i := range cluster.Nodes() {
+		connIDMap[cluster.Nodes()[i].RemoteID()] = i
+	}
+	node := &Node{
+		State: StateCandidate.String(),
+		PersistentState: &PersistentState{
+			CurrentTerm: 0,
+			VotedFor:    nil,
+			SelfID:      cluster.OwnID(),
+			PeerIPs:     cluster.Nodes(),
+			ConnIDMap:   connIDMap,
+		},
+		VolatileState: &VolatileState{
+			CommitIndex: -1,
+			LastApplied: -1,
+		},
+		VolatileStateLeader: &VolatileStateLeader{
+			NextIndex:  nextIndex,
+			MatchIndex: matchIndex,
+		},
+	}
+	return node
 }
 
 // Start starts a single raft node into beginning raft operations.
@@ -174,7 +207,9 @@ func (s *simpleServer) Input(input string) {
 		s.node.PersistentState.Log = append(s.node.PersistentState.Log, logData)
 	} else {
 		// Relay data to leader.
-		fmt.Println("TODO")
+		logAppendRequest := message.NewLogAppendRequest(input)
+
+		s.relayDataToServer(logAppendRequest)
 	}
 }
 
@@ -197,34 +232,6 @@ func (s *simpleServer) Close() error {
 	err := s.cluster.Close()
 	s.lock.Unlock()
 	return err
-}
-
-// NewRaftNode initialises a raft cluster with the given configuration.
-func NewRaftNode(cluster Cluster) *Node {
-	var nextIndex, matchIndex []int
-
-	for range cluster.Nodes() {
-		nextIndex = append(nextIndex, -1)
-		matchIndex = append(matchIndex, -1)
-	}
-	node := &Node{
-		State: StateCandidate.String(),
-		PersistentState: &PersistentState{
-			CurrentTerm: 0,
-			VotedFor:    nil,
-			SelfID:      cluster.OwnID(),
-			PeerIPs:     cluster.Nodes(),
-		},
-		VolatileState: &VolatileState{
-			CommitIndex: -1,
-			LastApplied: -1,
-		},
-		VolatileStateLeader: &VolatileStateLeader{
-			NextIndex:  nextIndex,
-			MatchIndex: matchIndex,
-		},
-	}
-	return node
 }
 
 // randomTimer returns tickers ranging from 150ms to 300ms.
@@ -268,6 +275,28 @@ func (node *Node) processIncomingData(data *incomingData) error {
 		if err != nil {
 			return err
 		}
+	// When the leader gets a forwarded append input message from one of it's followers.
+	case message.KindLogAppendRequest:
+		logAppendRequest := data.msg.(*message.LogAppendRequest)
+		input := logAppendRequest.Data
+		logData := message.NewLogData(node.PersistentState.CurrentTerm, input)
+		node.PersistentState.Log = append(node.PersistentState.Log, logData)
 	}
 	return nil
+}
+
+// relayDataToServer sends the input log from the follower to a leader node.
+func (s *simpleServer) relayDataToServer(req *message.LogAppendRequest) {
+	ctx := context.Background()
+
+	payload, err := message.Marshal(req)
+	if err != nil {
+
+	}
+
+	leaderNodeConn := s.cluster.Nodes()[s.node.PersistentState.ConnIDMap[s.node.PersistentState.LeaderID]]
+	err = leaderNodeConn.Send(ctx, payload)
+	if err != nil {
+
+	}
 }

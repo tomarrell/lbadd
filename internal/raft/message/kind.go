@@ -24,4 +24,6 @@ const (
 
 	KindRequestVoteRequest
 	KindRequestVoteResponse
+
+	KindLogAppendRequest
 )

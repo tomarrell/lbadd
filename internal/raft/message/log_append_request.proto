@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+//lint:file-ignore SA1019 Generated deprecated import
+
+package message;
+option go_package = ".;message";
+
+message LogAppendRequest {
+    string data = 1;
+}

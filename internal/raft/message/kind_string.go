@@ -18,11 +18,12 @@ func _() {
 	_ = x[KindLeaderLocationResponse-7]
 	_ = x[KindRequestVoteRequest-8]
 	_ = x[KindRequestVoteResponse-9]
+	_ = x[KindLogAppendRequest-10]
 }
 
-const _Kind_name = "KindUnknownKindTestMessageKindAppendEntriesRequestKindAppendEntriesResponseKindFollowerLocationListRequestKindFollowerLocationListResponseKindLeaderLocationRequestKindLeaderLocationResponseKindRequestVoteRequestKindRequestVoteResponse"
+const _Kind_name = "KindUnknownKindTestMessageKindAppendEntriesRequestKindAppendEntriesResponseKindFollowerLocationListRequestKindFollowerLocationListResponseKindLeaderLocationRequestKindLeaderLocationResponseKindRequestVoteRequestKindRequestVoteResponseKindLogAppendRequest"
 
-var _Kind_index = [...]uint8{0, 11, 26, 50, 75, 106, 138, 163, 189, 211, 234}
+var _Kind_index = [...]uint8{0, 11, 26, 50, 75, 106, 138, 163, 189, 211, 234, 254}
 
 func (i Kind) String() string {
 	if i >= Kind(len(_Kind_index)-1) {

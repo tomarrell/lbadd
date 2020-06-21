@@ -2,7 +2,9 @@ package raft
 
 import (
 	"context"
+	"fmt"
 	"os"
+	"sync"
 	"testing"
 	"time"
 
@@ -87,6 +89,8 @@ func Test_Raft(t *testing.T) {
 	payload2, err := message.Marshal(appERes1)
 	assert.NoError(err)
 
+	var wg sync.WaitGroup
+	wg.Add(4)
 	conn1.On("Receive", ctx).Return(payload2, nil)
 	conn2.On("Receive", ctx).Return(payload2, nil)
 	conn3.On("Receive", ctx).Return(payload2, nil)
@@ -119,16 +123,19 @@ func Test_Raft(t *testing.T) {
 		assert.NoError(err)
 	}()
 
+	// Wait for 2 rounds of raft to complete.
 	<-time.After(time.Duration(300) * time.Millisecond)
 
+	// Check whether 2 rounds of operation of Raft was done.
 	if conn1.AssertNumberOfCalls(t, "Receive", 3) &&
 		conn2.AssertNumberOfCalls(t, "Receive", 3) &&
 		conn3.AssertNumberOfCalls(t, "Receive", 3) &&
 		conn4.AssertNumberOfCalls(t, "Receive", 3) {
+		fmt.Println("Y")
 		err := server.Close()
 		assert.NoError(err)
-		return
 	}
+	return
 }
 
 func addRemoteID(conn *networkmocks.Conn) *networkmocks.Conn {

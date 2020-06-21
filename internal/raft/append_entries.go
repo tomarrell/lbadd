@@ -27,7 +27,6 @@ func (node *Node) AppendEntriesResponse(req *message.AppendEntriesRequest) *mess
 	}
 
 	entries := req.GetEntries()
-	// if heartbeat, skip adding entries
 	if len(entries) > 0 {
 		nodePersistentState.mu.Lock()
 		if req.GetPrevLogIndex() < node.VolatileState.CommitIndex {
