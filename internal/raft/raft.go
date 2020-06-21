@@ -286,17 +286,12 @@ func (node *Node) processIncomingData(data *incomingData) error {
 }
 
 // relayDataToServer sends the input log from the follower to a leader node.
+// TODO: Figure out what to do with the errors generated here.
 func (s *simpleServer) relayDataToServer(req *message.LogAppendRequest) {
 	ctx := context.Background()
 
-	payload, err := message.Marshal(req)
-	if err != nil {
-
-	}
+	payload, _ := message.Marshal(req)
 
 	leaderNodeConn := s.cluster.Nodes()[s.node.PersistentState.ConnIDMap[s.node.PersistentState.LeaderID]]
-	err = leaderNodeConn.Send(ctx, payload)
-	if err != nil {
-
-	}
+	_ = leaderNodeConn.Send(ctx, payload)
 }
