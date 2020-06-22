@@ -1,30 +1,27 @@
-package v1
+package page
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/tomarrell/lbadd/internal/engine/storage/page"
 )
 
 func TestPage_StoreRecordCell(t *testing.T) {
 	assert := assert.New(t)
 
-	p, err := load(make([]byte, 36))
+	p, err := load(make([]byte, 32))
 	assert.NoError(err)
 
 	c := RecordCell{
-		cell: cell{
-			key: []byte{0xAB},
-		},
-		record: []byte{0xCA, 0xFE, 0xBA, 0xBE},
+		Key:    []byte{0xAB},
+		Record: []byte{0xCA, 0xFE, 0xBA, 0xBE},
 	}
 
 	err = p.StoreRecordCell(c)
 	assert.NoError(err)
 	assert.Equal([]byte{
-		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, // header
-		0x00, 0x16, 0x00, 0x0E, // offset
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x01, // header
+		0x00, 0x12, 0x00, 0x0E, // offset
 		0x00, 0x00, 0x00, 0x00, // reserved for next offset
 		0x00, 0x00, 0x00, 0x00, // free slot #0
 		0x01,                   // cell type
@@ -39,7 +36,7 @@ func TestPage_StoreRecordCell(t *testing.T) {
 	// offset must skipt reserved space for offset, as the offset is not free
 	// space
 	assert.Equal(Slot{
-		Offset: 18,
+		Offset: 14,
 		Size:   4,
 	}, freeSlots[0])
 
@@ -47,50 +44,42 @@ func TestPage_StoreRecordCell(t *testing.T) {
 	copy(pageData, p.data)
 
 	anotherCell := RecordCell{
-		cell: cell{
-			key: []byte("large key"),
-		},
-		record: []byte("way too large record"),
+		Key:    []byte("large key"),
+		Record: []byte("way too large record"),
 	}
 	err = p.StoreRecordCell(anotherCell)
-	assert.Equal(page.ErrPageFull, err)
+	assert.Equal(ErrPageFull, err)
 	assert.Equal(pageData, p.data) // page must not have been modified
 }
 
 func TestPage_StoreRecordCell_Multiple(t *testing.T) {
 	assert := assert.New(t)
 
-	p, err := load(make([]byte, 64))
+	p, err := load(make([]byte, 60))
 	assert.NoError(err)
 
 	cells := []RecordCell{
 		{
-			cell: cell{
-				key: []byte{0x11},
-			},
-			record: []byte{0xCA, 0xFE, 0xBA, 0xBE},
+			Key:    []byte{0x11},
+			Record: []byte{0xCA, 0xFE, 0xBA, 0xBE},
 		},
 		{
-			cell: cell{
-				key: []byte{0x33},
-			},
-			record: []byte{0xD1, 0xCE},
+			Key:    []byte{0x33},
+			Record: []byte{0xD1, 0xCE},
 		},
 		{
-			cell: cell{
-				key: []byte{0x22},
-			},
-			record: []byte{0xFF},
+			Key:    []byte{0x22},
+			Record: []byte{0xFF},
 		},
 	}
 	assert.NoError(p.storeRecordCell(cells[0]))
 	assert.NoError(p.storeRecordCell(cells[1]))
 	assert.NoError(p.storeRecordCell(cells[2]))
 	assert.Equal([]byte{
-		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, // header
-		0x00, 0x32, 0x00, 0x0E, // offset #0
-		0x00, 0x1B, 0x00, 0x0B, // offset #2
-		0x00, 0x26, 0x00, 0x0C, // offset #1
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x03, // header
+		0x00, 0x2E, 0x00, 0x0E, // offset #0
+		0x00, 0x17, 0x00, 0x0B, // offset #2
+		0x00, 0x22, 0x00, 0x0C, // offset #1
 		0x00, 0x00, 0x00, 0x00, 0x00, // free space
 		// cell #3
 		0x01,                   // cell #3 type
@@ -117,7 +106,7 @@ func TestPage_OccupiedSlots(t *testing.T) {
 	assert := assert.New(t)
 
 	// create a completely empty page
-	p, err := load(make([]byte, PageSize))
+	p, err := load(make([]byte, Size))
 	assert.NoError(err)
 
 	// create the offset source data
@@ -312,13 +301,13 @@ func TestPage_FreeSlots(t *testing.T) {
 
 	occupiedSlots := []Slot{
 		// 2 bytes
-		{32, 8},
+		{28, 8},
 		// 10 bytes
-		{50, 5},
+		{46, 5},
 		// 25 bytes
-		{80, 9},
+		{76, 9},
 		// 1 byte
-		{90, 10},
+		{86, 10},
 	}
 
 	for i, slot := range occupiedSlots {
@@ -327,9 +316,9 @@ func TestPage_FreeSlots(t *testing.T) {
 	p.incrementCellCount(uint16(len(occupiedSlots)))
 
 	assert.EqualValues([]Slot{
-		{30, 2},
-		{40, 10},
-		{55, 25},
-		{89, 1},
+		{26, 2},
+		{36, 10},
+		{51, 25},
+		{85, 1},
 	}, p.FreeSlots())
 }

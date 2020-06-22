@@ -1,13 +1,11 @@
-package v1
+package page
 
 import (
 	"bytes"
-
-	"github.com/tomarrell/lbadd/internal/engine/storage/page"
 )
 
-var _ page.Cell = (*RecordCell)(nil)
-var _ page.Cell = (*PointerCell)(nil)
+var _ CellTyper = (*RecordCell)(nil)
+var _ CellTyper = (*PointerCell)(nil)
 
 //go:generate stringer -type=CellType
 
@@ -27,47 +25,32 @@ const (
 )
 
 type (
-	// Cell is a cell that has a type and a key.
-	Cell interface {
-		page.Cell
+	CellTyper interface {
 		Type() CellType
-	}
-
-	cell struct {
-		key []byte
 	}
 
 	// RecordCell is a cell with CellTypeRecord. It holds a key and a variable
 	// size record.
 	RecordCell struct {
-		cell
-		record []byte
+		Key    []byte
+		Record []byte
 	}
 
 	// PointerCell is a cell with CellTypePointer. It holds a key and an uint32,
 	// pointing to another page.
 	PointerCell struct {
-		cell
-		pointer page.ID
+		Key     []byte
+		Pointer ID
 	}
 )
 
-// Key returns the key of this cell.
-func (c cell) Key() []byte { return c.key }
-
-// Record returns the record data of this cell.
-func (c RecordCell) Record() []byte { return c.record }
-
-// Pointer returns the pointer of this page, that points to another page.
-func (c PointerCell) Pointer() page.ID { return c.pointer }
-
 // Type returns CellTypeRecord.
-func (c RecordCell) Type() CellType { return CellTypeRecord }
+func (RecordCell) Type() CellType { return CellTypeRecord }
 
 // Type returns CellTypePointer.
-func (c PointerCell) Type() CellType { return CellTypePointer }
+func (PointerCell) Type() CellType { return CellTypePointer }
 
-func decodeCell(data []byte) Cell {
+func decodeCell(data []byte) CellTyper {
 	switch t := CellType(data[0]); t {
 	case CellTypePointer:
 		return decodePointerCell(data)
@@ -79,8 +62,8 @@ func decodeCell(data []byte) Cell {
 }
 
 func encodeRecordCell(cell RecordCell) []byte {
-	key := frame(cell.key)
-	record := frame(cell.record)
+	key := frame(cell.Key)
+	record := frame(cell.Record)
 
 	var buf bytes.Buffer
 	buf.WriteByte(byte(CellTypeRecord))
@@ -91,24 +74,20 @@ func encodeRecordCell(cell RecordCell) []byte {
 }
 
 func decodeRecordCell(data []byte) RecordCell {
-	cp := copySlice(data)
-
-	keySize := byteOrder.Uint32(cp[1:5])
-	key := cp[5 : 5+keySize]
-	recordSize := byteOrder.Uint32(cp[5+keySize : 5+keySize+4])
-	record := cp[5+keySize+4 : 5+keySize+4+recordSize]
+	keySize := byteOrder.Uint32(data[1:5])
+	key := data[5 : 5+keySize]
+	recordSize := byteOrder.Uint32(data[5+keySize : 5+keySize+4])
+	record := data[5+keySize+4 : 5+keySize+4+recordSize]
 	return RecordCell{
-		cell: cell{
-			key: key,
-		},
-		record: record,
+		Key:    key,
+		Record: record,
 	}
 }
 
 func encodePointerCell(cell PointerCell) []byte {
-	key := frame(cell.key)
+	key := frame(cell.Key)
 	pointer := make([]byte, 4)
-	byteOrder.PutUint32(pointer, cell.pointer)
+	byteOrder.PutUint32(pointer, cell.Pointer)
 
 	var buf bytes.Buffer
 	buf.WriteByte(byte(CellTypePointer))
@@ -119,16 +98,12 @@ func encodePointerCell(cell PointerCell) []byte {
 }
 
 func decodePointerCell(data []byte) PointerCell {
-	cp := copySlice(data)
-
-	keySize := byteOrder.Uint32(cp[1:5])
-	key := cp[5 : 5+keySize]
-	pointer := byteOrder.Uint32(cp[5+keySize : 5+keySize+4])
+	keySize := byteOrder.Uint32(data[1:5])
+	key := data[5 : 5+keySize]
+	pointer := byteOrder.Uint32(data[5+keySize : 5+keySize+4])
 	return PointerCell{
-		cell: cell{
-			key: key,
-		},
-		pointer: pointer,
+		Key:     key,
+		Pointer: pointer,
 	}
 }
 
@@ -139,10 +114,4 @@ func frame(data []byte) []byte {
 	copy(result[4:], data)
 	byteOrder.PutUint32(result, uint32(len(data)))
 	return result
-}
-
-func copySlice(original []byte) []byte {
-	copied := make([]byte, len(original))
-	copy(copied, original)
-	return copied
 }

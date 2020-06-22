@@ -1,14 +1,27 @@
 package page
 
-// Header is an enum type for header fields.
-type Header uint8
+import (
+	"bytes"
+	"encoding/binary"
+	"fmt"
+	"sort"
+)
 
 const (
-	// HeaderVersion is the version number, that a page is in. This is a uint16.
-	HeaderVersion Header = iota
-	// HeaderID is the page ID, which may be used outside of the page for
-	// housekeeping. This is a uint16.
-	HeaderID
+	// Size is the fix size of a page, which is 16KB or 16384 bytes.
+	Size = 1 << 14
+	// HeaderSize is the fix size of a page header, which is 10 bytes.
+	HeaderSize = 6
+)
+
+// Header field offset in page data.
+const (
+	idOffset        = 0 // byte 1,2,3,4: byte page ID
+	cellCountOffset = 4 // byte 5,6: cell count
+)
+
+var (
+	byteOrder = binary.BigEndian
 )
 
 // ID is the type of a page ID. This is mainly to avoid any confusion.
@@ -16,79 +29,327 @@ const (
 // version upgrades.
 type ID = uint32
 
-// Page describes a memory page that stores (page.Cell)s. A page consists of
-// header fields and cells, and is a plain store. Obtained cells are always
-// ordered ascending by the cell key. A page supports variable size cell keys
-// and records. A page is generally NOT safe for concurrent writes.
-type Page interface {
-	// Version returns the version of the page layout. Use this for choosing the
-	// page implementation to use to decode the page.
-	Version() uint32
+// Page is a page implementation that does not support overflow pages. It is not
+// meant for that. Since we want to separate index and data, records should not
+// contain datasets, but rather enough information, to find the corresponding
+// dataset in a data file.
+type Page struct {
+	// data is the underlying data byte slice, which holds the header, offsets
+	// and cells.
+	data []byte
 
-	// ID returns the page ID, as it is used by any page loader. It is unique in
-	// the scope of one database.
-	ID() ID
-
-	// Dirty determines whether this page has been modified since the last time
-	// Page.ClearDirty was called.
-	Dirty() bool
-	// MarkDirty marks this page as dirty.
-	MarkDirty()
-	// ClearDirty unsets the dirty flag from this page.
-	ClearDirty()
-
-	// StorePointerCell stores the given pointer cell in the page.
-	//
-	// If a cell with the same key as the given pointer already exists in the
-	// page, it will be overwritten.
-	//
-	// If a cell with the same key as the given cell does NOT already exist, it
-	// will be created.
-	//
-	// To change the type of a cell, delete it and store a new cell.
-	StorePointerCell(PointerCell) error
-	// StoreRecordCell stores the given record cell in the page.
-	//
-	// If a cell with the same key as the given cell already exists in the page,
-	// it will be overwritten.
-	//
-	// If a cell with the same key as the given pointer does NOT already exist,
-	// it will be created.
-	//
-	// To change the type of a cell, delete it and store a new cell.
-	StoreRecordCell(RecordCell) error
-	// Delete deletes the cell with the given bytes as key. If the key couldn't
-	// be found, false is returned. If an error occured during deletion, the
-	// error is returned.
-	DeleteCell([]byte) (bool, error)
-	// Cell returns a cell with the given key, together with a bool indicating
-	// whether any cell in the page has that key. Use a switch statement to
-	// determine which type of cell you just obtained (pointer, record).
-	Cell([]byte) (Cell, bool)
-	// Cells returns all cells in this page as a slice. Cells are ordered
-	// ascending by key. Calling this method can be expensive since all cells
-	// have to be decoded.
-	Cells() []Cell
+	dirty bool
 }
 
-// Cell describes a generic page cell that holds a key. Use a switch statement
-// to determine the type of the cell.
-type Cell interface {
-	// Key returns the key of the cell.
-	Key() []byte
+// New creates a new page with the given ID.
+func New(id ID) *Page {
+	data := make([]byte, Size)
+	byteOrder.PutUint32(data[idOffset:], id)
+	return &Page{
+		data: data,
+	}
 }
 
-// PointerCell describes a cell that points to another page in memory.
-type PointerCell interface {
-	Cell
-	// Pointer returns the page ID of the child page that this cell points to.
-	Pointer() ID
+// Load loads the given data into the page. The length of the given data byte
+// slice may differ from v1.PageSize, however, it cannot exceed ^uint16(0)-1
+// (65535 or 64KB), and must be larger than 22 (HeaderSize(=10) + 1 Offset(=4) +
+// 1 empty cell(=8)).
+func Load(data []byte) (*Page, error) {
+	return load(data)
 }
 
-// RecordCell describes a cell that holds some kind of value. What value format
-// was used is none of the cells concern, just use it as what you put in.
-type RecordCell interface {
-	Cell
-	// Record is the data record in this cell, returned as a byte slice.
-	Record() []byte
+// ID returns the ID of this page. This value must be constant.
+func (p *Page) ID() ID { return byteOrder.Uint32(p.data[idOffset:]) }
+
+// CellCount returns the amount of stored cells in this page. This value is NOT
+// constant.
+func (p *Page) CellCount() uint16 { return byteOrder.Uint16(p.data[cellCountOffset:]) }
+
+// Dirty returns whether the page is dirty (needs syncing with secondary
+// storage).
+func (p *Page) Dirty() bool { return p.dirty }
+
+// MarkDirty marks this page as dirty.
+func (p *Page) MarkDirty() { p.dirty = true }
+
+// ClearDirty marks this page as NOT dirty.
+func (p *Page) ClearDirty() { p.dirty = false }
+
+// StorePointerCell stores a pointer cell in this page. A pointer cell points to
+// other page IDs.
+func (p *Page) StorePointerCell(cell PointerCell) error {
+	return p.storePointerCell(cell)
 }
+
+// StoreRecordCell stores a record cell in this page. A record cell holds
+// arbitrary, variable size data.
+func (p *Page) StoreRecordCell(cell RecordCell) error {
+	return p.storeRecordCell(cell)
+}
+
+// DeleteCell deletes a cell with the given key. If no such cell could be found,
+// false is returned. In this implementation, an error can not occur while
+// deleting a cell.
+func (p *Page) DeleteCell(key []byte) (bool, error) {
+	offsetIndex, cellOffset, _, found := p.findCell(key)
+	if !found {
+		return false, nil
+	}
+
+	// delete offset
+	p.zero(offsetIndex*SlotByteSize, SlotByteSize)
+	// delete cell data
+	p.zero(cellOffset.Offset, cellOffset.Size)
+	// close gap in offsets due to offset deletion
+	from := offsetIndex*SlotByteSize + SlotByteSize // lower bound, right next to gap
+	to := p.CellCount() * SlotByteSize              // upper bound of the offset data
+	p.moveAndZero(from, to-from, from-SlotByteSize) // actually move the data
+	// update cell count
+	p.decrementCellCount(1)
+	return true, nil
+}
+
+// Cell returns a cell from this page with the given key, or false if no such
+// cell exists in this page. In that case, the returned page is also nil.
+func (p *Page) Cell(key []byte) (CellTyper, bool) {
+	_, _, cell, found := p.findCell(key)
+	return cell, found
+}
+
+// Cells decodes all cells in this page, which can be expensive, and returns all
+// of them. The returned cells do not point back to the original page data, so
+// don't modify them. Instead, delete the old cell and store a new one.
+func (p *Page) Cells() (result []CellTyper) {
+	for _, offset := range p.OccupiedSlots() {
+		result = append(result, decodeCell(p.data[offset.Offset:offset.Offset+offset.Size]))
+	}
+	return
+}
+
+// RawData returns a copy of the page's internal data, so you can modify it at
+// will, and it won't change the original page data.
+func (p *Page) RawData() []byte {
+	cp := make([]byte, len(p.data))
+	copy(cp, p.data)
+	return cp
+}
+
+// OccupiedSlots returns all occupied slots in the page. The slots all point to
+// cells in the page. The amount of slots will always be equal to the amount of
+// cells stored in a page. The amount of slots in the page depends on the cell
+// count of this page, not the other way around.
+func (p *Page) OccupiedSlots() (result []Slot) {
+	cellCount := p.CellCount()
+	offsetsWidth := cellCount * SlotByteSize
+	offsetData := p.data[HeaderSize : HeaderSize+offsetsWidth]
+	for i := uint16(0); i < cellCount; i++ {
+		result = append(result, decodeOffset(offsetData[i*SlotByteSize:i*SlotByteSize+SlotByteSize]))
+	}
+	return
+}
+
+// FreeSlots computes all free addressable cell slots in this page.
+func (p *Page) FreeSlots() (result []Slot) {
+	offsets := p.OccupiedSlots()
+	if len(offsets) == 0 {
+		// if there are no offsets at all, that means that the page is empty,
+		// and one slot is returned, which reaches from 0+OffsetSize until the
+		// end of the page
+		off := HeaderSize + SlotByteSize
+		return []Slot{{
+			Offset: HeaderSize + SlotByteSize,
+			Size:   uint16(len(p.data)) - off,
+		}}
+	}
+
+	sort.Slice(offsets, func(i, j int) bool {
+		return offsets[i].Offset < offsets[j].Offset
+	})
+	// first slot, from end of offset data until first cell
+	firstOff := HeaderSize + uint16(len(offsets)+1)*SlotByteSize // +1 because we always need space to store one more offset, so if that space is blocked, there is no free slot that is addressable
+	firstSize := offsets[0].Offset - firstOff
+	if firstSize > 0 {
+		result = append(result, Slot{
+			Offset: firstOff,
+			Size:   firstSize,
+		})
+	}
+	// rest of the spaces between cells
+	for i := 0; i < len(offsets)-1; i++ {
+		off := offsets[i].Offset + offsets[i].Size
+		size := offsets[i+1].Offset - off
+		if size > 0 {
+			result = append(result, Slot{
+				Offset: off,
+				Size:   size,
+			})
+		}
+	}
+	return
+}
+
+// FindFreeSlotForSize searches for a free slot in this page, matching or
+// exceeding the given data size. This is done by using a best-fit algorithm.
+func (p *Page) FindFreeSlotForSize(dataSize uint16) (Slot, bool) {
+	// sort all free slots by size
+	slots := p.FreeSlots()
+	sort.Slice(slots, func(i, j int) bool {
+		return slots[i].Size < slots[j].Size
+	})
+	// search for the best fitting slot, i.e. the first slot, whose size is greater
+	// than or equal to the given data size
+	index := sort.Search(len(slots), func(i int) bool {
+		return slots[i].Size >= dataSize
+	})
+	if index == len(slots) {
+		return Slot{}, false
+	}
+	return slots[index], true
+}
+
+func load(data []byte) (*Page, error) {
+	if len(data) > int(^uint16(0))-1 {
+		return nil, fmt.Errorf("page size too large: %v (max %v)", len(data), int(^uint16(0))-1)
+	}
+
+	return &Page{
+		data: data,
+	}, nil
+}
+
+// findCell searches for a cell with the given key, as well as the corresponding
+// offset and the corresponding offset index. The index is the index of the cell
+// offset in all offsets, meaning that the byte location of the offset in the
+// page can be obtained with offsetIndex*OffsetSize. The cellOffset is the
+// offset that points to the cell. cell is the cell that was found, or nil if no
+// cell with the given key could be found. If no cell could be found,
+// found=false will be returned, as well as zero values for all other return
+// arguments.
+func (p *Page) findCell(key []byte) (offsetIndex uint16, cellSlot Slot, cell CellTyper, found bool) {
+	offsets := p.OccupiedSlots()
+	result := sort.Search(len(offsets), func(i int) bool {
+		cell := p.cellAt(offsets[i])
+		switch c := cell.(type) {
+		case RecordCell:
+			return bytes.Compare(c.Key, key) >= 0
+		case PointerCell:
+			return bytes.Compare(c.Key, key) >= 0
+		}
+		return false
+	})
+	if result == len(offsets) {
+		return 0, Slot{}, nil, false
+	}
+	return uint16(result), offsets[result], p.cellAt(offsets[result]), true
+}
+
+func (p *Page) storePointerCell(cell PointerCell) error {
+	return p.storeRawCell(cell.Key, encodePointerCell(cell))
+}
+
+func (p *Page) storeRecordCell(cell RecordCell) error {
+	return p.storeRawCell(cell.Key, encodeRecordCell(cell))
+}
+
+func (p *Page) storeRawCell(key, rawCell []byte) error {
+	size := uint16(len(rawCell))
+	slot, ok := p.FindFreeSlotForSize(size)
+	if !ok {
+		return ErrPageFull
+	}
+	p.storeCellSlot(Slot{
+		Offset: slot.Offset + slot.Size - size,
+		Size:   size,
+	}, key)
+	copy(p.data[slot.Offset+slot.Size-size:], rawCell)
+	p.incrementCellCount(1)
+	return nil
+}
+
+func (p *Page) storeCellSlot(offset Slot, cellKey []byte) {
+	offsets := p.OccupiedSlots()
+	if len(offsets) == 0 {
+		// directly into the start of the page content, after the header
+		offset.encodeInto(p.data[HeaderSize:])
+		return
+	}
+
+	index := sort.Search(len(offsets), func(i int) bool {
+		cell := p.cellAt(offsets[i])
+		switch c := cell.(type) {
+		case RecordCell:
+			return bytes.Compare(cellKey, c.Key) < 0
+		case PointerCell:
+			return bytes.Compare(cellKey, c.Key) < 0
+		}
+		return false
+	})
+
+	offsetOffset := HeaderSize + uint16(index)*SlotByteSize
+	if index != len(offsets) {
+		// make room if neccessary
+		allOffsetsEnd := HeaderSize + uint16(len(offsets))*SlotByteSize
+		p.moveAndZero(offsetOffset, allOffsetsEnd-offsetOffset, offsetOffset+SlotByteSize)
+	}
+	offset.encodeInto(p.data[offsetOffset:])
+}
+
+func (p *Page) cellAt(slot Slot) CellTyper {
+	return decodeCell(p.data[slot.Offset : slot.Offset+slot.Size])
+}
+
+// moveAndZero moves target bytes in the page's raw data from offset to target,
+// and zeros all bytes from offset to offset+size, that do not overlap with the
+// target area. Source and target area may overlap.
+//
+//  [1,1,2,2,2,1,1,1,1,1]
+//  moveAndZero(2, 3, 6)
+//  [1,1,0,0,0,1,2,2,2,1]
+//
+// or, with overlap
+//
+//  [1,1,2,2,2,1,1,1,1,1]
+//  moveAndZero(2, 3, 4)
+//  [1,1,0,0,2,2,2,1,1,1]
+func (p *Page) moveAndZero(offset, size, target uint16) {
+	if target == offset {
+		// no-op when offset and target are the same
+		return
+	}
+
+	_ = p.data[offset+size-1] // bounds check
+	_ = p.data[target+size-1] // bounds check
+
+	copy(p.data[target:target+size], p.data[offset:offset+size])
+
+	// area needs zeroing
+	if target > offset+size || target+size < offset {
+		// no overlap
+		p.zero(offset, size)
+	} else {
+		// overlap
+		if target > offset && target <= offset+size {
+			// move to right, zero non-overlapping area
+			p.zero(offset, target-offset)
+		} else if target < offset && target+size >= offset {
+			// move to left, zero non-overlapping area
+			p.zero(target+size, offset-target)
+		}
+	}
+}
+
+// zero zeroes size bytes, starting at offset in the page's raw data.
+func (p *Page) zero(offset, size uint16) {
+	for i := uint16(0); i < size; i++ {
+		p.data[offset+i] = 0
+	}
+}
+
+func (p *Page) incrementCellCount(delta uint16) { p.incrementUint16(cellCountOffset, delta) }
+func (p *Page) decrementCellCount(delta uint16) { p.decrementUint16(cellCountOffset, delta) }
+
+func (p *Page) storeUint16(at, val uint16)  { byteOrder.PutUint16(p.data[at:], val) }
+func (p *Page) loadUint16(at uint16) uint16 { return byteOrder.Uint16(p.data[at:]) }
+
+func (p *Page) incrementUint16(at, delta uint16) { p.storeUint16(at, p.loadUint16(at)+delta) }
+func (p *Page) decrementUint16(at, delta uint16) { p.storeUint16(at, p.loadUint16(at)-delta) }

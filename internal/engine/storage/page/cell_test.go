@@ -1,4 +1,4 @@
-package v1
+package page
 
 import (
 	"testing"
@@ -75,10 +75,8 @@ func Test_encodeRecordCell(t *testing.T) {
 		{
 			"small",
 			RecordCell{
-				cell: cell{
-					key: []byte{0xD1, 0xCE},
-				},
-				record: []byte{0xCA, 0xFE, 0xBA, 0xBE},
+				Key:    []byte{0xD1, 0xCE},
+				Record: []byte{0xCA, 0xFE, 0xBA, 0xBE},
 			},
 			[]byte{
 				byte(CellTypeRecord),   // cell type
@@ -118,10 +116,8 @@ func Test_encodePointerCell(t *testing.T) {
 		{
 			"simple",
 			PointerCell{
-				cell: cell{
-					key: []byte{0xD1, 0xCE},
-				},
-				pointer: 0xCAFEBABE,
+				Key:     []byte{0xD1, 0xCE},
+				Pointer: 0xCAFEBABE,
 			},
 			[]byte{
 				byte(CellTypePointer),  // cell type
@@ -163,10 +159,8 @@ func Test_decodeRecordCell(t *testing.T) {
 				// no record
 			},
 			RecordCell{
-				cell: cell{
-					key: []byte{},
-				},
-				record: []byte{},
+				Key:    []byte{},
+				Record: []byte{},
 			},
 		},
 		{
@@ -179,10 +173,8 @@ func Test_decodeRecordCell(t *testing.T) {
 				0xCA, 0xFE, 0xBA, 0xBE, // record
 			},
 			RecordCell{
-				cell: cell{
-					key: []byte{0xD1, 0xCE},
-				},
-				record: []byte{0xCA, 0xFE, 0xBA, 0xBE},
+				Key:    []byte{0xD1, 0xCE},
+				Record: []byte{0xCA, 0xFE, 0xBA, 0xBE},
 			},
 		},
 	}
@@ -211,10 +203,8 @@ func Test_decodePointerCell(t *testing.T) {
 				0x00, 0x00, 0x00, 0x00, // pointer
 			},
 			PointerCell{
-				cell: cell{
-					key: []byte{},
-				},
-				pointer: 0,
+				Key:     []byte{},
+				Pointer: 0,
 			},
 		},
 		{
@@ -226,10 +216,8 @@ func Test_decodePointerCell(t *testing.T) {
 				0xCA, 0xFE, 0xBA, 0xBE, // pointer
 			},
 			PointerCell{
-				cell: cell{
-					key: []byte{0xD1, 0xCE},
-				},
-				pointer: 0xCAFEBABE,
+				Key:     []byte{0xD1, 0xCE},
+				Pointer: 0xCAFEBABE,
 			},
 		},
 	}
@@ -247,7 +235,7 @@ func Test_decodeCell(t *testing.T) {
 	tests := []struct {
 		name string
 		data []byte
-		want Cell
+		want CellTyper
 	}{
 		{
 			"zero record cell",
@@ -259,8 +247,8 @@ func Test_decodeCell(t *testing.T) {
 				// no record
 			},
 			RecordCell{
-				cell:   cell{key: []byte{}},
-				record: []byte{},
+				Key:    []byte{},
+				Record: []byte{},
 			},
 		},
 		{
@@ -272,8 +260,8 @@ func Test_decodeCell(t *testing.T) {
 				0x00, 0x00, 0x00, 0x00, // pointer
 			},
 			PointerCell{
-				cell:    cell{key: []byte{}},
-				pointer: 0,
+				Key:     []byte{},
+				Pointer: 0,
 			},
 		},
 		{
