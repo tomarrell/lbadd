@@ -6,6 +6,8 @@ import (
 	"github.com/tomarrell/lbadd/internal/engine/storage/page"
 )
 
+// SecondaryStorage is the abstraction that a cache uses, to synchronize dirty
+// pages with secondary storage.
 type SecondaryStorage interface {
 	ReadPage(page.ID) (*page.Page, error)
 	WritePage(*page.Page) error
@@ -13,14 +15,20 @@ type SecondaryStorage interface {
 
 var _ Cache = (*LRUCache)(nil)
 
+// LRUCache is a simple implementation of an LRU cache.
 type LRUCache struct {
 	store  SecondaryStorage
-	pages  map[uint32]*page.Page
-	pinned map[uint32]struct{}
+	pages  map[page.ID]*page.Page
+	pinned map[page.ID]struct{}
 	size   int
-	lru    []uint32
+	lru    []page.ID
 }
 
+// NewLRUCache creates a new LRU cache with the given size and secondary storage
+// to write dirty pages to. The size is the maximum amount of pages, that can be
+// held by this cache. If more pages than the size are requested, old pages will
+// be evicted from the cache. If all pages are pinned (in use and not released
+// yet), requesting a new page will fail.
 func NewLRUCache(size int, store SecondaryStorage) *LRUCache {
 	return &LRUCache{
 		store:  store,
@@ -31,19 +39,36 @@ func NewLRUCache(size int, store SecondaryStorage) *LRUCache {
 	}
 }
 
+// FetchAndPin will return the page with the given ID. This will fail, if the
+// page with the given ID is not in the cache, but the cache is full and all
+// pages are pinned. After obtaining a page with this method, you MUST release
+// it, once you are done using it, with Unpin(ID).
 func (c *LRUCache) FetchAndPin(id page.ID) (*page.Page, error) {
 	return c.fetchAndPin(id)
 }
 
+// Unpin unpins the page with the given ID. If the page with the given ID is not
+// pinned, then this is a no-op.
 func (c *LRUCache) Unpin(id page.ID) {
 	c.unpin(id)
 }
 
+// Flush writes the contents of the page with the given ID to secondary storage.
+// This fails, if the page with the given ID is not in the cache anymore. Only
+// call this if you know what you are doing. Pages will always be flushed before
+// being evicted. If you really do need to use this, call it before unpinning
+// the page, to guarantee that the page will not be evicted between unpinning
+// and flushing.
 func (c *LRUCache) Flush(id page.ID) error {
 	return c.flush(id)
 }
 
+// Close will flush all dirty pages and then close this cache.
 func (c *LRUCache) Close() error {
+	// TODO: can we really just flush on close?
+	for id := range c.pages {
+		_ = c.flush(id)
+	}
 	return nil
 }
 

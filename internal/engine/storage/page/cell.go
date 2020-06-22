@@ -25,6 +25,7 @@ const (
 )
 
 type (
+	// CellTyper describes a component that has a cell type.
 	CellTyper interface {
 		Type() CellType
 	}

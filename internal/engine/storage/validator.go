@@ -8,11 +8,16 @@ import (
 	"github.com/tomarrell/lbadd/internal/engine/storage/page"
 )
 
+// Validator can be used to validate a database file prior to opening it. If
+// validation fails, a speaking error is returned. If validation does not fail,
+// the file is a valid database file and can be used. Valid means, that the file
+// is not structurally corrupted and usable.
 type Validator struct {
 	file afero.File
 	info os.FileInfo
 }
 
+// NewValidator creates a new validator over the given file.
 func NewValidator(file afero.File) *Validator {
 	return &Validator{
 		file: file,
@@ -20,6 +25,8 @@ func NewValidator(file afero.File) *Validator {
 	}
 }
 
+// Validate runs the file validation and returns a speaking error on why the
+// validation failed, if it failed.
 func (v *Validator) Validate() error {
 	stat, err := v.file.Stat()
 	if err != nil {

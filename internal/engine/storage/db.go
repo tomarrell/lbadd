@@ -19,9 +19,12 @@ const (
 	// (CacheSize * page.Size).
 	DefaultCacheSize = 1 << 8
 
+	// HeaderPageID is the page ID of the header page of the database file.
 	HeaderPageID page.ID = 0
 
-	HeaderTables    = "tables"
+	// HeaderTables is the string key for the header page's cell "tables"
+	HeaderTables = "tables"
+	// HeaderPageCount is the string key for the header page's cell "pageCount"
 	HeaderPageCount = "pageCount"
 )
 
@@ -29,6 +32,8 @@ var (
 	byteOrder = binary.BigEndian
 )
 
+// DBFile is a database file that can be opened or created. From this file, you
+// can obtain a page cache, which you must use for reading pages.
 type DBFile struct {
 	closed uint32
 
@@ -42,9 +47,17 @@ type DBFile struct {
 	headerPage *page.Page
 }
 
+// Create creates a new database in the given file with the given options. The
+// file must exist, but be empty and must be a regular file.
 func Create(file afero.File, opts ...Option) (*DBFile, error) {
-	if _, err := file.Stat(); err != nil {
+	if info, err := file.Stat(); err != nil {
 		return nil, fmt.Errorf("stat: %w", err)
+	} else if info.IsDir() {
+		return nil, fmt.Errorf("file is directory")
+	} else if size := info.Size(); size != 0 {
+		return nil, fmt.Errorf("file is not empty, has %v bytes", size)
+	} else if !info.Mode().IsRegular() {
+		return nil, fmt.Errorf("file is not a regular file")
 	}
 
 	mgr, err := NewPageManager(file)
@@ -61,14 +74,18 @@ func Create(file afero.File, opts ...Option) (*DBFile, error) {
 		return nil, fmt.Errorf("allocate tables page: %w", err)
 	}
 
-	headerPage.StoreRecordCell(page.RecordCell{
+	if err := headerPage.StoreRecordCell(page.RecordCell{
 		Key:    []byte(HeaderPageCount),
 		Record: encodeUint64(2), // header and tables page
-	})
-	headerPage.StorePointerCell(page.PointerCell{
+	}); err != nil {
+		return nil, fmt.Errorf("store record cell: %w", err)
+	}
+	if err := headerPage.StorePointerCell(page.PointerCell{
 		Key:     []byte(HeaderTables),
 		Pointer: tablesPage.ID(),
-	})
+	}); err != nil {
+		return nil, fmt.Errorf("store pointer cell: %w", err)
+	}
 
 	err = mgr.WritePage(headerPage) // immediately flush
 	if err != nil {
@@ -82,6 +99,9 @@ func Create(file afero.File, opts ...Option) (*DBFile, error) {
 	return newDB(file, mgr, headerPage, opts...), nil
 }
 
+// Open opens and validates a given file and creates a (*DBFile) with the given
+// options. If the validation fails, an error explaining the failure will be
+// returned.
 func Open(file afero.File, opts ...Option) (*DBFile, error) {
 	if err := NewValidator(file).Validate(); err != nil {
 		return nil, fmt.Errorf("validate: %w", err)
@@ -100,24 +120,30 @@ func Open(file afero.File, opts ...Option) (*DBFile, error) {
 	return newDB(file, mgr, headerPage, opts...), nil
 }
 
-func (db *DBFile) AllocateNewPage() (*page.Page, error) {
+// AllocateNewPage allocates and immediately persists a new page in secondary
+// storage. This will fail if the DBFile is closed. After this method returns,
+// the allocated page can immediately be found by the cache, and you can use the
+// returned page ID to load the page through the cache.
+func (db *DBFile) AllocateNewPage() (page.ID, error) {
 	if db.Closed() {
-		return nil, ErrClosed
+		return 0, ErrClosed
 	}
 
 	page, err := db.pageManager.AllocateNew()
 	if err != nil {
-		return nil, fmt.Errorf("allocate new: %w", err)
+		return 0, fmt.Errorf("allocate new: %w", err)
 	}
 	if err := db.incrementHeaderPageCount(); err != nil {
-		return nil, fmt.Errorf("increment header page count: %w", err)
+		return 0, fmt.Errorf("increment header page count: %w", err)
 	}
 	if err := db.pageManager.WritePage(db.headerPage); err != nil {
-		return nil, fmt.Errorf("write header page: %w", err)
+		return 0, fmt.Errorf("write header page: %w", err)
 	}
-	return page, nil
+	return page.ID(), nil
 }
 
+// Cache returns the cache implementation, that you must use to obtain pages.
+// This will fail if the DBFile is closed.
 func (db *DBFile) Cache() cache.Cache {
 	if db.Closed() {
 		return nil
@@ -125,17 +151,22 @@ func (db *DBFile) Cache() cache.Cache {
 	return db.cache
 }
 
+// Close will close the underlying cache, as well as page manager, as well as
+// file.
 func (db *DBFile) Close() error {
 	_ = db.cache.Close()
+	_ = db.pageManager.Close()
 	_ = db.file.Close()
 	atomic.StoreUint32(&db.closed, 1)
 	return nil
 }
 
+// Closed indicates, whether this file was closed.
 func (db *DBFile) Closed() bool {
 	return atomic.LoadUint32(&db.closed) == 1
 }
 
+// newDB creates a new DBFile from the given objects, and applies all options.
 func newDB(file afero.File, mgr *PageManager, headerPage *page.Page, opts ...Option) *DBFile {
 	db := &DBFile{
 		log:       zerolog.Nop(),
@@ -154,6 +185,8 @@ func newDB(file afero.File, mgr *PageManager, headerPage *page.Page, opts ...Opt
 	return db
 }
 
+// incrementHeaderPageCount will increment the 8 byte uint64 in the
+// HeaderPageCount cell by 1.
 func (db *DBFile) incrementHeaderPageCount() error {
 	val, ok := db.headerPage.Cell([]byte(HeaderPageCount))
 	if !ok {
@@ -164,8 +197,10 @@ func (db *DBFile) incrementHeaderPageCount() error {
 	return nil
 }
 
+// encodeUint64 will allocate 8 bytes to encode the given uint64 into. This
+// newly allocated byte-slice is then returned.
 func encodeUint64(v uint64) []byte {
-	buf := make([]byte, unsafe.Sizeof(v))
+	buf := make([]byte, unsafe.Sizeof(v)) // #nosec
 	byteOrder.PutUint64(buf, v)
 	return buf
 }
