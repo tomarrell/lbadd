@@ -126,6 +126,10 @@ func (c *LRUCache) evict(id uint32) error {
 }
 
 func (c *LRUCache) flush(id page.ID) error {
+	page, ok := c.pages[id]
+	if !ok || !page.Dirty() {
+		return nil
+	}
 	if err := c.store.WritePage(c.pages[id]); err != nil {
 		return fmt.Errorf("write page: %w", err)
 	}
