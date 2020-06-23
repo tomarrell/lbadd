@@ -4,19 +4,22 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/tomarrell/lbadd/internal/compiler/command"
 	"github.com/tomarrell/lbadd/internal/engine/storage"
+	"github.com/tomarrell/lbadd/internal/engine/storage/cache"
 )
 
 // Engine is the component that is used to evaluate commands.
 type Engine struct {
-	log    zerolog.Logger
-	dbFile *storage.DBFile
+	log       zerolog.Logger
+	dbFile    *storage.DBFile
+	pageCache cache.Cache
 }
 
 // New creates a new engine object and applies the given options to it.
 func New(dbFile *storage.DBFile, opts ...Option) (*Engine, error) {
 	e := &Engine{
-		log:    zerolog.Nop(),
-		dbFile: dbFile,
+		log:       zerolog.Nop(),
+		dbFile:    dbFile,
+		pageCache: dbFile.Cache(),
 	}
 	for _, opt := range opts {
 		opt(e)
