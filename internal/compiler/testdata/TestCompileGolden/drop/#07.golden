@@ -1,0 +1,1 @@
+DropView[view=mySchema.myView,ifexists=true]()

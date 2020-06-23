@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/tomarrell/lbadd/internal/parser"
 )
 
@@ -21,39 +21,41 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-func RunGolden(t *testing.T, input, testName string) {
-	t.Run(testName, func(t *testing.T) {
+func RunGolden(t *testing.T, input string) {
+	t.Helper()
+	t.Run("", func(t *testing.T) {
 		t.Helper()
 		runGolden(t, input)
 	})
 }
 
 func runGolden(t *testing.T, input string) {
-	t.Helper()
-	assert := assert.New(t)
+	t.Logf("testcase:\nname: %v\ninput: \"%v\"", t.Name(), input)
+
+	require := require.New(t)
 
 	c := &simpleCompiler{}
 	p := parser.New(input)
 	stmt, errs, ok := p.Next()
-	assert.Len(errs, 0)
-	assert.True(ok)
+	require.Len(errs, 0)
+	require.True(ok, "expected at least one statement that can be parsed")
 
 	got, err := c.Compile(stmt)
-	assert.NoError(err)
+	require.NoError(err)
 
 	gotString := got.String()
-	testFilePath := "testdata/golden/" + filepath.Base(t.Name()) + ".golden"
+	testFilePath := "testdata/" + t.Name() + ".golden"
 
 	if *record {
 		t.Logf("overwriting golden file %v", testFilePath)
 		err := os.MkdirAll(filepath.Dir(testFilePath), 0777)
-		assert.NoError(err)
+		require.NoError(err)
 		err = ioutil.WriteFile(testFilePath, []byte(gotString), 0666)
-		assert.NoError(err)
+		require.NoError(err)
 		t.Fail()
 	} else {
 		data, err := ioutil.ReadFile(testFilePath)
-		assert.NoError(err)
-		assert.Equal(string(data), gotString)
+		require.NoError(err)
+		require.Equal(string(data), gotString)
 	}
 }

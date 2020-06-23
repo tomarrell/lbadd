@@ -14,7 +14,7 @@ lint: ## Runs the linters (including internal ones)
 	# internal analysis tools
 	go run ./internal/tool/analysis ./...;
 	# external analysis tools
-	golint ./...;
+	golint -set_exit_status ./...;
 	errcheck ./...;
 	gosec -quiet ./...;
 	staticcheck ./...;
