@@ -36,4 +36,4 @@ func (StringType) Compare(left, right Value) (int, error) {
 }
 
 // Type returns a string type.
-func (StringValue) Type() Type { return blobType }
+func (StringValue) Type() Type { return numericType }
