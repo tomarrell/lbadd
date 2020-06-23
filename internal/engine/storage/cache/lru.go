@@ -2,26 +2,21 @@ package cache
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/tomarrell/lbadd/internal/engine/storage/page"
 )
-
-// SecondaryStorage is the abstraction that a cache uses, to synchronize dirty
-// pages with secondary storage.
-type SecondaryStorage interface {
-	ReadPage(page.ID) (*page.Page, error)
-	WritePage(*page.Page) error
-}
 
 var _ Cache = (*LRUCache)(nil)
 
 // LRUCache is a simple implementation of an LRU cache.
 type LRUCache struct {
-	store  SecondaryStorage
-	pages  map[page.ID]*page.Page
-	pinned map[page.ID]struct{}
-	size   int
-	lru    []page.ID
+	store     SecondaryStorage
+	pages     map[page.ID]*page.Page
+	pageLocks map[page.ID]*sync.Mutex
+	pinned    map[page.ID]struct{}
+	size      int
+	lru       []page.ID
 }
 
 // NewLRUCache creates a new LRU cache with the given size and secondary storage
@@ -31,11 +26,12 @@ type LRUCache struct {
 // yet), requesting a new page will fail.
 func NewLRUCache(size int, store SecondaryStorage) *LRUCache {
 	return &LRUCache{
-		store:  store,
-		pages:  make(map[uint32]*page.Page),
-		pinned: make(map[uint32]struct{}),
-		size:   size,
-		lru:    make([]uint32, 0),
+		store:     store,
+		pages:     make(map[uint32]*page.Page),
+		pageLocks: make(map[uint32]*sync.Mutex),
+		pinned:    make(map[uint32]struct{}),
+		size:      size,
+		lru:       make([]uint32, 0),
 	}
 }
 
@@ -73,6 +69,10 @@ func (c *LRUCache) Close() error {
 }
 
 func (c *LRUCache) fetchAndPin(id page.ID) (*page.Page, error) {
+	// first lock page for others
+	lock := c.obtainPageLock(id)
+	lock.Lock() // unpin unlocks this lock
+
 	// pin id first in order to avoid potential concurrent eviction at this
 	// point
 	c.pin(id)
@@ -85,12 +85,22 @@ func (c *LRUCache) fetchAndPin(id page.ID) (*page.Page, error) {
 	return p, nil
 }
 
+func (c *LRUCache) obtainPageLock(id page.ID) *sync.Mutex {
+	lock, ok := c.pageLocks[id]
+	if !ok {
+		lock = new(sync.Mutex)
+		c.pageLocks[id] = lock
+	}
+	return lock
+}
+
 func (c *LRUCache) pin(id uint32) {
 	c.pinned[id] = struct{}{}
 }
 
 func (c *LRUCache) unpin(id uint32) {
 	delete(c.pinned, id)
+	c.pageLocks[id].Unlock() // unlock page lock after page is released by user
 }
 
 func (c *LRUCache) fetch(id uint32) (*page.Page, error) {

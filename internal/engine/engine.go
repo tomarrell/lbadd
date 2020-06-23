@@ -37,3 +37,15 @@ func (e Engine) Evaluate(cmd command.Command) (Result, error) {
 	_ = e.gteq
 	return nil, nil
 }
+
+// Closed determines whether the underlying database file was closed. If so,
+// this engine is considered closed, as it can no longer operate on the
+// underlying file.
+func (e Engine) Closed() bool {
+	return e.dbFile.Closed()
+}
+
+// Close closes the underlying database file.
+func (e Engine) Close() error {
+	return e.dbFile.Close()
+}
