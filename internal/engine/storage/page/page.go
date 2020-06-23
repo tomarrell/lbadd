@@ -97,13 +97,14 @@ func (p *Page) DeleteCell(key []byte) (bool, error) {
 	}
 
 	// delete offset
-	p.zero(offsetIndex*SlotByteSize, SlotByteSize)
+	p.zero(offsetIndex, SlotByteSize)
 	// delete cell data
 	p.zero(cellOffset.Offset, cellOffset.Size)
 	// close gap in offsets due to offset deletion
-	from := offsetIndex*SlotByteSize + SlotByteSize // lower bound, right next to gap
-	to := p.CellCount() * SlotByteSize              // upper bound of the offset data
-	p.moveAndZero(from, to-from, from-SlotByteSize) // actually move the data
+	from := offsetIndex + SlotByteSize // lower bound, right next to gap
+	to := offsetIndex                  // upper bound of the offset data
+	cellCount := p.CellCount()
+	p.moveAndZero(from, HeaderSize+cellCount*SlotByteSize-from, to) // actually move the data
 	// update cell count
 	p.decrementCellCount(1)
 	return true, nil
@@ -292,7 +293,7 @@ func (p *Page) findCell(key []byte) (offsetIndex uint16, cellSlot Slot, cell Cel
 	if result == len(offsets) {
 		return 0, Slot{}, nil, false
 	}
-	return uint16(result), offsets[result], p.cellAt(offsets[result]), true
+	return HeaderSize + uint16(result)*SlotByteSize, offsets[result], p.cellAt(offsets[result]), true
 }
 
 func (p *Page) storePointerCell(cell PointerCell) error {
