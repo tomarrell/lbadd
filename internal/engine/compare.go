@@ -1,0 +1,65 @@
+package engine
+
+//go:generate stringer -type=cmpResult
+
+type cmpResult uint8
+
+const (
+	cmpUncomparable cmpResult = iota
+	cmpEqual
+	cmpLessThan
+	cmpGreaterThan
+)
+
+// cmp compares two values. The result is to be interpreted as R(left, right) or
+// left~right, meaning if e.g. cmpLessThan is returned, it is to be understood
+// as left<right. If left and right cannot be compared, e.g. because they have
+// different types, cmpUncomparable will be returned.
+func (e Engine) cmp(left, right Value) cmpResult {
+	// types must be equal
+	if left.Type() != right.Type() {
+		return cmpUncomparable
+	}
+	res, err := left.Type().Compare(left, right)
+	if err != nil {
+		// TODO: log error?
+		return cmpUncomparable
+	}
+	switch res {
+	case -1:
+		return cmpLessThan
+	case 0:
+		return cmpEqual
+	case 1:
+		return cmpGreaterThan
+	}
+	return cmpUncomparable
+}
+
+// eq checks if left and right are equal. If left and right can't be compared
+// according to (Engine).cmp, false is returned.
+func (e Engine) eq(left, right Value) bool {
+	return e.cmp(left, right) == cmpEqual
+}
+
+// lt checks if the left value is less than the right value. For the <= (less
+// than or equal) relation, see (Engine).lteq.
+func (e Engine) lt(left, right Value) bool {
+	return e.cmp(left, right) == cmpLessThan
+}
+
+// gt checks if the left value is less than the right value. For the >= (greater
+// than or equal) relation, see (Engine).gteq.
+func (e Engine) gt(left, right Value) bool {
+	return e.lt(right, left)
+}
+
+// lteq checks if the left value is smaller than or equal to the right value.
+func (e Engine) lteq(left, right Value) bool {
+	return e.eq(left, right) || e.lt(left, right)
+}
+
+// gteq checks if the right value is smaller than or equal to the left value.
+func (e Engine) gteq(left, right Value) bool {
+	return e.eq(left, right) || e.gt(left, right)
+}
