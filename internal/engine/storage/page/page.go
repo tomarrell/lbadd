@@ -148,7 +148,8 @@ func (p *Page) OccupiedSlots() (result []Slot) {
 	return
 }
 
-// FreeSlots computes all free addressable cell slots in this page.
+// FreeSlots computes all free addressable cell slots in this page. The free
+// slots are sorted in ascending order by the offset in the page.
 func (p *Page) FreeSlots() (result []Slot) {
 	offsets := p.OccupiedSlots()
 	if len(offsets) == 0 {
@@ -207,9 +208,60 @@ func (p *Page) FindFreeSlotForSize(dataSize uint16) (Slot, bool) {
 	return slots[index], true
 }
 
+// Defragment will move the cells in the page in a way that after defragmenting,
+// there is only a single free block, and that is located between the offsets
+// and the cell data. After calling this method, (*Page).Fragmentation() will
+// return 0.
+func (p *Page) Defragment() {
+	occupied := p.OccupiedSlots()
+	var newSlots []Slot
+	nextLeftBound := uint16(len(p.data))
+	for i := len(occupied) - 1; i >= 0; i-- {
+		slot := occupied[i]
+		newOffset := nextLeftBound - slot.Size
+		p.moveAndZero(slot.Offset, slot.Size, newOffset)
+		nextLeftBound = newOffset
+		newSlots = append(newSlots, Slot{
+			Offset: newOffset,
+			Size:   slot.Size,
+		})
+	}
+	// no need to sort new slots, as the order was not modified during
+	// defragmentation, but we need to reverse it
+	for i, j := 0, len(newSlots)-1; i < j; i, j = i+1, j-1 {
+		newSlots[i], newSlots[j] = newSlots[j], newSlots[i]
+	}
+
+	for i, slot := range newSlots {
+		slot.encodeInto(p.data[HeaderSize+uint16(i)*SlotByteSize:])
+	}
+}
+
+// Fragmentation computes the page fragmentation, which is defined by 1 -
+// (largest free block / total free size). Multiply with 100 to get the
+// fragmentation percentage.
+func (p *Page) Fragmentation() float32 {
+	slots := p.FreeSlots()
+	if len(slots) == 0 {
+		return 0
+	}
+
+	var largestFree, totalFree uint16
+	for _, slot := range slots {
+		totalFree += slot.Size
+		if slot.Size > largestFree {
+			largestFree = slot.Size
+		}
+	}
+	return 1 - (float32(largestFree) / float32(totalFree))
+}
+
 func load(data []byte) (*Page, error) {
 	if len(data) > int(^uint16(0))-1 {
 		return nil, fmt.Errorf("page size too large: %v (max %v)", len(data), int(^uint16(0))-1)
+	}
+	if len(data) < HeaderSize {
+		return nil, fmt.Errorf("page size too small: %v (min %v)", len(data), HeaderSize)
 	}
 
 	return &Page{

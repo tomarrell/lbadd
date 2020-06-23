@@ -35,7 +35,7 @@ func NewLRUCache(size int, store SecondaryStorage) *LRUCache {
 		pages:  make(map[uint32]*page.Page),
 		pinned: make(map[uint32]struct{}),
 		size:   size,
-		lru:    make([]uint32, size),
+		lru:    make([]uint32, 0),
 	}
 }
 
