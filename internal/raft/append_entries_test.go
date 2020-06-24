@@ -55,8 +55,8 @@ func TestAppendEntries(t *testing.T) {
 	}
 
 	entries := []*message.LogData{
-		message.NewLogData(2, "execute cmd3"),
-		message.NewLogData(2, "execute cmd4"),
+		message.NewLogData(2, &message.Command{Stuff: "execute cmd3"}),
+		message.NewLogData(2, &message.Command{Stuff: "execute cmd4"}),
 	}
 	// Creating a mock msg AppendEntriesRequest with default values
 	// Leader commit specifies the Index of Log commited by leader and
@@ -69,13 +69,19 @@ func TestAppendEntries(t *testing.T) {
 		LeaderCommit: 3,
 	}
 
+	server := simpleServer{
+		node:    node,
+		cluster: cluster,
+		log:     log,
+	}
+
 	node.PersistentState.CurrentTerm = 3
-	res := node.AppendEntriesResponse(msg)
+	res := server.AppendEntriesResponse(msg)
 	assert.False(res.Success, "Node Term is lesser than leader term")
 	msg.Term = 3
 	msg.PrevLogIndex = 3
 	node.VolatileState.CommitIndex = 2
-	res = node.AppendEntriesResponse(msg)
+	res = server.AppendEntriesResponse(msg)
 	assert.False(res.Success, "Node Log Index is lesser than"+
 		"leader commit Index")
 	msg.Term = 2
@@ -83,10 +89,12 @@ func TestAppendEntries(t *testing.T) {
 	msg.PrevLogIndex = 1
 	msg.PrevLogTerm = 1
 	node.VolatileState.CommitIndex = 1
-	node.PersistentState.Log = []*message.LogData{message.NewLogData(1,
-		"execute cmd1"), message.NewLogData(1, "execute cmd2")}
+	node.PersistentState.Log = []*message.LogData{
+		message.NewLogData(1, &message.Command{Stuff: "execute cmd1"}),
+		message.NewLogData(1, &message.Command{Stuff: "execute cmd2"}),
+	}
 	numberOfPersistentLog := len(node.PersistentState.Log)
-	res = node.AppendEntriesResponse(msg)
+	res = server.AppendEntriesResponse(msg)
 	assert.True(res.Success, "Msg isn't appended to the node Logs")
 	assert.Equal(node.PersistentState.CurrentTerm, res.GetTerm(),
 		"Node doesn't have same term as leader")

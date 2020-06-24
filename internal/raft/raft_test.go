@@ -3,7 +3,6 @@ package raft
 import (
 	"context"
 	"os"
-	"sync"
 	"testing"
 	"time"
 
@@ -88,8 +87,6 @@ func Test_Raft(t *testing.T) {
 	payload2, err := message.Marshal(appERes1)
 	assert.NoError(err)
 
-	var wg sync.WaitGroup
-	wg.Add(4)
 	conn1.On("Receive", ctx).Return(payload2, nil)
 	conn2.On("Receive", ctx).Return(payload2, nil)
 	conn3.On("Receive", ctx).Return(payload2, nil)

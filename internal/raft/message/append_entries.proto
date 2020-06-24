@@ -4,6 +4,7 @@ syntax = "proto3";
 
 package message;
 option go_package = ".;message";
+import "command.proto";
 
 message AppendEntriesRequest {
     int32 term = 1;
@@ -16,8 +17,7 @@ message AppendEntriesRequest {
 
 message LogData {
     int32 term = 1;
-    string data = 2;
-    reserved 3; // will be used for intermediate representation when switching from SQL to AST
+    Command Entry = 2; // Each is a compiled sql stmt
 }
 
 message AppendEntriesResponse {

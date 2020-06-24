@@ -6,7 +6,7 @@ var _ Message = (*AppendEntriesRequest)(nil)
 
 // NewLogAppendRequest creates a new append-entries-request message with the
 // given parameters.
-func NewLogAppendRequest(data string) *LogAppendRequest {
+func NewLogAppendRequest(data *Command) *LogAppendRequest {
 	return &LogAppendRequest{
 		Data: data,
 	}

@@ -17,12 +17,14 @@ import (
 type Server interface {
 	Start() error
 	OnReplication(ReplicationHandler)
-	Input(string)
+	Input(*message.Command)
 	io.Closer
 }
 
 // ReplicationHandler is a handler setter.
-type ReplicationHandler func(string)
+// It takes in the log entries as a string and returns the number
+// of succeeded application of entries.
+type ReplicationHandler func([]*message.Command) int
 
 // Node describes the current state of a raft node.
 // The raft paper describes this as a "State" but node
@@ -71,6 +73,10 @@ type simpleServer struct {
 	log             zerolog.Logger
 	timeoutProvider func(*Node) *time.Timer
 	lock            sync.Mutex
+
+	onRequestVotes  func(message.RequestVoteRequest)
+	onLeaderElected func()
+	onAppendEntries func(message.AppendEntriesRequest)
 }
 
 // incomingData describes every request that the server gets.
@@ -190,7 +196,7 @@ func (s *simpleServer) Start() (err error) {
 			s.lock.Unlock()
 			s.StartElection()
 		case data := <-liveChan:
-			err = node.processIncomingData(data)
+			err = s.processIncomingData(data)
 			if err != nil {
 				return
 			}
@@ -204,7 +210,7 @@ func (s *simpleServer) OnReplication(handler ReplicationHandler) {
 
 // Input appends the input log into the leaders log, only if the current node is the leader.
 // If this was not a leader, the leaders data is communicated to the client.
-func (s *simpleServer) Input(input string) {
+func (s *simpleServer) Input(input *message.Command) {
 	s.node.PersistentState.mu.Lock()
 	defer s.node.PersistentState.mu.Unlock()
 
@@ -252,14 +258,14 @@ func randomTimer(node *Node) *time.Timer {
 
 // processIncomingData is responsible for parsing the incoming data and calling
 // appropriate functions based on the request type.
-func (node *Node) processIncomingData(data *incomingData) error {
+func (s *simpleServer) processIncomingData(data *incomingData) error {
 
 	ctx := context.TODO()
 
 	switch data.msg.Kind() {
 	case message.KindRequestVoteRequest:
 		requestVoteRequest := data.msg.(*message.RequestVoteRequest)
-		requestVoteResponse := node.RequestVoteResponse(requestVoteRequest)
+		requestVoteResponse := s.node.RequestVoteResponse(requestVoteRequest)
 		payload, err := message.Marshal(requestVoteResponse)
 		if err != nil {
 			return err
@@ -269,8 +275,9 @@ func (node *Node) processIncomingData(data *incomingData) error {
 			return err
 		}
 	case message.KindAppendEntriesRequest:
+
 		appendEntriesRequest := data.msg.(*message.AppendEntriesRequest)
-		appendEntriesResponse := node.AppendEntriesResponse(appendEntriesRequest)
+		appendEntriesResponse := s.AppendEntriesResponse(appendEntriesRequest)
 		payload, err := message.Marshal(appendEntriesResponse)
 		if err != nil {
 			return err
@@ -283,8 +290,8 @@ func (node *Node) processIncomingData(data *incomingData) error {
 	case message.KindLogAppendRequest:
 		logAppendRequest := data.msg.(*message.LogAppendRequest)
 		input := logAppendRequest.Data
-		logData := message.NewLogData(node.PersistentState.CurrentTerm, input)
-		node.PersistentState.Log = append(node.PersistentState.Log, logData)
+		logData := message.NewLogData(s.node.PersistentState.CurrentTerm, input)
+		s.node.PersistentState.Log = append(s.node.PersistentState.Log, logData)
 	}
 	return nil
 }
@@ -298,4 +305,16 @@ func (s *simpleServer) relayDataToServer(req *message.LogAppendRequest) {
 
 	leaderNodeConn := s.cluster.Nodes()[s.node.PersistentState.ConnIDMap[s.node.PersistentState.LeaderID]]
 	_ = leaderNodeConn.Send(ctx, payload)
+}
+
+func (s *simpleServer) OnRequestVotes(hook func(message.RequestVoteRequest)) {
+	s.onRequestVotes = hook
+}
+
+func (s *simpleServer) OnLeaderElected(hook func()) {
+	s.onLeaderElected = hook
+}
+
+func (s *simpleServer) OnAppendEntries(hook func(message.AppendEntriesRequest)) {
+	s.onAppendEntries = hook
 }

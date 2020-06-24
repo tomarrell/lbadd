@@ -4,8 +4,7 @@ syntax = "proto3";
 
 package message;
 option go_package = ".;message";
-import "command.proto";
 
-message LogAppendRequest {
-    Command data = 1;
+message Command {
+    string stuff = 1;
 }
