@@ -14,6 +14,8 @@ type Engine struct {
 	dbFile    *storage.DBFile
 	pageCache cache.Cache
 	profiler  *profile.Profiler
+
+	builtinFunctions map[string]builtinFunction
 }
 
 // New creates a new engine object and applies the given options to it.
@@ -22,6 +24,16 @@ func New(dbFile *storage.DBFile, opts ...Option) (Engine, error) {
 		log:       zerolog.Nop(),
 		dbFile:    dbFile,
 		pageCache: dbFile.Cache(),
+
+		builtinFunctions: map[string]builtinFunction{
+			"RAND":  builtinRandom,
+			"COUNT": builtinCount,
+			"UCASE": builtinUCase,
+			"LCASE": builtinLCase,
+			"NOW":   builtinNow,
+			"MAX":   builtinMax,
+			"MIN":   builtinMin,
+		},
 	}
 	for _, opt := range opts {
 		opt(&e)

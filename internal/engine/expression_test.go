@@ -6,13 +6,14 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"github.com/tomarrell/lbadd/internal/compiler/command"
+	"github.com/tomarrell/lbadd/internal/engine/types"
 )
 
 func TestEngine_evaluateExpression(t *testing.T) {
 	tests := []struct {
 		name    string
 		expr    command.Expr
-		want    Value
+		want    types.Value
 		wantErr bool
 	}{
 		{
@@ -24,13 +25,13 @@ func TestEngine_evaluateExpression(t *testing.T) {
 		{
 			"true",
 			command.ConstantBooleanExpr{Value: true},
-			BoolValue{Value: true},
+			types.BoolValue{Value: true},
 			false,
 		},
 		{
 			"false",
 			command.ConstantBooleanExpr{Value: false},
-			BoolValue{Value: false},
+			types.BoolValue{Value: false},
 			false,
 		},
 	}

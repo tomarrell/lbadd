@@ -15,8 +15,19 @@ func WithLogger(log zerolog.Logger) Option {
 	}
 }
 
+// WithProfiler passes a profiler into the engine. The default for the engine is
+// not using a profiler at all.
 func WithProfiler(profiler *profile.Profiler) Option {
 	return func(e *Engine) {
 		e.profiler = profiler
+	}
+}
+
+// WithBuiltinFunction registeres or overwrites an existing builtin function.
+// Use this to (e.g.) overwrite the SQL function NOW() to get constant
+// timestamps.
+func WithBuiltinFunction(name string, fn builtinFunction) Option {
+	return func(e *Engine) {
+		e.builtinFunctions[name] = fn
 	}
 }

@@ -4,37 +4,38 @@ import (
 	"testing"
 
 	"github.com/rs/zerolog"
+	"github.com/tomarrell/lbadd/internal/engine/types"
 )
 
 func TestEngine_cmp(t *testing.T) {
 	tests := []struct {
 		name  string
-		left  Value
-		right Value
+		left  types.Value
+		right types.Value
 		want  cmpResult
 	}{
 		{
 			"true <-> true",
-			BoolValue{Value: true},
-			BoolValue{Value: true},
+			types.BoolValue{Value: true},
+			types.BoolValue{Value: true},
 			cmpEqual,
 		},
 		{
 			"true <-> false",
-			BoolValue{Value: true},
-			BoolValue{Value: false},
+			types.BoolValue{Value: true},
+			types.BoolValue{Value: false},
 			cmpGreaterThan,
 		},
 		{
 			"false <-> true",
-			BoolValue{Value: false},
-			BoolValue{Value: true},
+			types.BoolValue{Value: false},
+			types.BoolValue{Value: true},
 			cmpLessThan,
 		},
 		{
 			"false <-> false",
-			BoolValue{Value: false},
-			BoolValue{Value: false},
+			types.BoolValue{Value: false},
+			types.BoolValue{Value: false},
 			cmpEqual,
 		},
 	}
