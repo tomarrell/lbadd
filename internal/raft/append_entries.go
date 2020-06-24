@@ -65,10 +65,10 @@ func (s *simpleServer) AppendEntriesResponse(req *message.AppendEntriesRequest) 
 
 }
 
-func getCommandFromLogs(entries []*message.LogData) []*message.Command {
-	var commandEntries []*message.Command
-	for i := range entries {
-		commandEntries = append(commandEntries, entries[i].Entry)
-	}
-	return commandEntries
-}
+// func getCommandFromLogs(entries []*message.LogData) []*message.Command {
+// 	var commandEntries []*message.Command
+// 	for i := range entries {
+// 		commandEntries = append(commandEntries, entries[i].Entry)
+// 	}
+// 	return commandEntries
+// }
