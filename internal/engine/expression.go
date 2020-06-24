@@ -15,6 +15,8 @@ func (e Engine) evaluateExpression(expr command.Expr) (types.Value, error) {
 	switch ex := expr.(type) {
 	case command.ConstantBooleanExpr:
 		return types.BoolValue{Value: ex.Value}, nil
+	case command.LiteralExpr:
+		return types.StringValue{Value: ex.Value}, nil
 	}
 	return nil, fmt.Errorf("cannot evaluate expression of type %T", expr)
 }

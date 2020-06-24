@@ -61,3 +61,5 @@ func (functionValue) Type() Type { return Function }
 
 // Is checks if this value is of type function.
 func (functionValue) Is(t Type) bool { return t == Function }
+
+func (f functionValue) String() string { return f.Name + "()" }

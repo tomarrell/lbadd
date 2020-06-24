@@ -1,6 +1,8 @@
 package types
 
-import "bytes"
+import (
+	"bytes"
+)
 
 var (
 	// Blob is the blob type. A Blob is a Binary Large OBject, and its base type
@@ -51,3 +53,5 @@ func (BlobValue) Type() Type { return Blob }
 
 // Is checks if this value is of type Blob.
 func (BlobValue) Is(t Type) bool { return t == Blob }
+
+func (v BlobValue) String() string { return string(v.Value) }

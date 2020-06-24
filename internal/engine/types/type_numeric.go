@@ -1,6 +1,9 @@
 package types
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+)
 
 var (
 	// Numeric is the numeric type. Its base type is a numeric type.
@@ -58,3 +61,5 @@ func (NumericValue) Type() Type { return Numeric }
 
 // Is checks if this value is of type Numeric.
 func (NumericValue) Is(t Type) bool { return t == Numeric }
+
+func (v NumericValue) String() string { return strconv.FormatFloat(v.Value, 'f', -1, 64) }

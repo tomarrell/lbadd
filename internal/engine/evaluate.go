@@ -4,13 +4,22 @@ import (
 	"fmt"
 
 	"github.com/tomarrell/lbadd/internal/compiler/command"
+	"github.com/tomarrell/lbadd/internal/engine/result"
 	"github.com/tomarrell/lbadd/internal/engine/types"
 )
 
-func (e Engine) evaluate(c command.Command) (Result, error) {
+func (e Engine) evaluate(c command.Command) (result.Result, error) {
 	switch cmd := c.(type) {
 	case command.Values:
-		_, _ = e.evaluateValues(cmd)
+		values, err := e.evaluateValues(cmd)
+		if err != nil {
+			return nil, fmt.Errorf("values: %w", err)
+		}
+		res, err := result.FromValues(values)
+		if err != nil {
+			return nil, fmt.Errorf("from values: %w", err)
+		}
+		return res, nil
 	}
 	return nil, nil
 }

@@ -4,6 +4,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/tomarrell/lbadd/internal/compiler/command"
 	"github.com/tomarrell/lbadd/internal/engine/profile"
+	"github.com/tomarrell/lbadd/internal/engine/result"
 	"github.com/tomarrell/lbadd/internal/engine/storage"
 	"github.com/tomarrell/lbadd/internal/engine/storage/cache"
 )
@@ -43,7 +44,7 @@ func New(dbFile *storage.DBFile, opts ...Option) (Engine, error) {
 
 // Evaluate evaluates the given command. This may mutate the state of the
 // database, and changes may occur to the database file.
-func (e Engine) Evaluate(cmd command.Command) (Result, error) {
+func (e Engine) Evaluate(cmd command.Command) (result.Result, error) {
 	defer e.profiler.Enter(EvtEvaluate).Exit()
 
 	_ = e.eq

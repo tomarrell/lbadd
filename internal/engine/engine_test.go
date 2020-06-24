@@ -11,8 +11,6 @@ import (
 )
 
 func TestEngine(t *testing.T) {
-	t.Skip("not working yet")
-
 	assert := assert.New(t)
 
 	fs := afero.NewMemMapFs()
@@ -43,7 +41,7 @@ func TestEngine(t *testing.T) {
 	assert.Equal(types.String, cols[1].Type())
 	// col[2]
 	assert.Equal(2, cols[2].Size())
-	assert.Equal(types.Numeric, cols[2].Type())
+	assert.Equal(types.Bool, cols[2].Type())
 	// col value types
 	assert.Equal(cols[0].Type(), cols[0].Get(0).Type())
 	assert.Equal(cols[0].Type(), cols[0].Get(1).Type())

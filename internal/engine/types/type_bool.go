@@ -1,6 +1,9 @@
 package types
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+)
 
 var (
 	// Bool is the boolean type. Its base type is a bool.
@@ -57,3 +60,5 @@ func (BoolValue) Type() Type { return Bool }
 
 // Is checks if this value is of type Bool.
 func (BoolValue) Is(t Type) bool { return t == Bool }
+
+func (v BoolValue) String() string { return strconv.FormatBool(v.Value) }

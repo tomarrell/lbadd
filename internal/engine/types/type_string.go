@@ -50,3 +50,5 @@ func (StringValue) Type() Type { return String }
 
 // Is checks if this value is of type String.
 func (StringValue) Is(t Type) bool { return t == String }
+
+func (v StringValue) String() string { return v.Value }
