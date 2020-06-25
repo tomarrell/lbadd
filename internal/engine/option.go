@@ -23,11 +23,19 @@ func WithProfiler(profiler *profile.Profiler) Option {
 	}
 }
 
-// WithBuiltinFunction registeres or overwrites an existing builtin function.
-// Use this to (e.g.) overwrite the SQL function NOW() to get constant
-// timestamps.
-func WithBuiltinFunction(name string, fn builtinFunction) Option {
+// WithTimeProvider sets a time provider, which will be used by the engine to
+// evaluate expressions, that require a timestamp, such as the function NOW().
+func WithTimeProvider(tp timeProvider) Option {
 	return func(e *Engine) {
-		e.builtinFunctions[name] = fn
+		e.timeProvider = tp
+	}
+}
+
+// WithRandomProvider sets a random provider, which will be used by the engine
+// to evaluate expressions, that require a random source, such as the function
+// RAND().
+func WithRandomProvider(rp randomProvider) Option {
+	return func(e *Engine) {
+		e.randomProvider = rp
 	}
 }

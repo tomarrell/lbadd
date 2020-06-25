@@ -1,5 +1,7 @@
 package engine
 
+import "fmt"
+
 // Error is a sentinel error.
 type Error string
 
@@ -11,3 +13,9 @@ const (
 	ErrUnsupported   Error = "unsupported"
 	ErrUnimplemented Error = "unimplemented"
 )
+
+// ErrNoSuchFunction returns an error indicating that an error with the given
+// name can not be found.
+func ErrNoSuchFunction(name string) error {
+	return fmt.Errorf("no function for name %v(...)", name)
+}

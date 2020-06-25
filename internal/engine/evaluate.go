@@ -8,10 +8,10 @@ import (
 	"github.com/tomarrell/lbadd/internal/engine/types"
 )
 
-func (e Engine) evaluate(c command.Command) (result.Result, error) {
+func (e Engine) evaluate(ctx ExecutionContext, c command.Command) (result.Result, error) {
 	switch cmd := c.(type) {
 	case command.Values:
-		values, err := e.evaluateValues(cmd)
+		values, err := e.evaluateValues(ctx, cmd)
 		if err != nil {
 			return nil, fmt.Errorf("values: %w", err)
 		}
@@ -24,12 +24,12 @@ func (e Engine) evaluate(c command.Command) (result.Result, error) {
 	return nil, nil
 }
 
-func (e Engine) evaluateValues(v command.Values) ([][]types.Value, error) {
+func (e Engine) evaluateValues(ctx ExecutionContext, v command.Values) ([][]types.Value, error) {
 	result := make([][]types.Value, len(v.Values))
 	for y, values := range v.Values {
 		rowValues := make([]types.Value, len(values))
 		for x, value := range values {
-			internalValue, err := e.evaluateExpression(value)
+			internalValue, err := e.evaluateExpression(ctx, value)
 			if err != nil {
 				return nil, fmt.Errorf("expr: %w", err)
 			}

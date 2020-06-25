@@ -1,6 +1,9 @@
 package engine
 
 import (
+	"math/rand"
+	"time"
+
 	"github.com/rs/zerolog"
 	"github.com/tomarrell/lbadd/internal/compiler/command"
 	"github.com/tomarrell/lbadd/internal/engine/profile"
@@ -9,6 +12,9 @@ import (
 	"github.com/tomarrell/lbadd/internal/engine/storage/cache"
 )
 
+type timeProvider func() time.Time
+type randomProvider func() float64
+
 // Engine is the component that is used to evaluate commands.
 type Engine struct {
 	log       zerolog.Logger
@@ -16,7 +22,8 @@ type Engine struct {
 	pageCache cache.Cache
 	profiler  *profile.Profiler
 
-	builtinFunctions map[string]builtinFunction
+	timeProvider   timeProvider
+	randomProvider randomProvider
 }
 
 // New creates a new engine object and applies the given options to it.
@@ -26,15 +33,8 @@ func New(dbFile *storage.DBFile, opts ...Option) (Engine, error) {
 		dbFile:    dbFile,
 		pageCache: dbFile.Cache(),
 
-		builtinFunctions: map[string]builtinFunction{
-			"RAND":  builtinRandom,
-			"COUNT": builtinCount,
-			"UCASE": builtinUCase,
-			"LCASE": builtinLCase,
-			"NOW":   builtinNow,
-			"MAX":   builtinMax,
-			"MIN":   builtinMin,
-		},
+		timeProvider:   time.Now,
+		randomProvider: rand.Float64,
 	}
 	for _, opt := range opts {
 		opt(&e)
@@ -52,7 +52,11 @@ func (e Engine) Evaluate(cmd command.Command) (result.Result, error) {
 	_ = e.gt
 	_ = e.lteq
 	_ = e.gteq
-	return e.evaluate(cmd)
+
+	ctx := ExecutionContext{
+		executionContext: &executionContext{},
+	}
+	return e.evaluate(ctx, cmd)
 }
 
 // Closed determines whether the underlying database file was closed. If so,

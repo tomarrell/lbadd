@@ -2,30 +2,41 @@ package engine
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/tomarrell/lbadd/internal/engine/types"
 )
 
-type builtinFunction = func(...types.Value) (types.Value, error)
+var (
+	// suppress warnings, TODO: remove
+	_ = builtinCount
+	_ = builtinUCase
+	_ = builtinLCase
+	_ = builtinMin
+)
 
-func builtinRandom(args ...types.Value) (types.Value, error) {
-	return nil, ErrUnimplemented
+func builtinNow(tp timeProvider) (types.Value, error) {
+	return types.DateValue{Value: tp()}, nil
 }
 
 func builtinCount(args ...types.Value) (types.Value, error) {
 	return types.NumericValue{Value: float64(len(args))}, nil
 }
 
-func builtinUCase(args ...types.Value) (types.Value, error) {
-	return nil, ErrUnimplemented
+func builtinUCase(args ...types.StringValue) ([]types.StringValue, error) {
+	var output []types.StringValue
+	for _, arg := range args {
+		output = append(output, types.StringValue{Value: strings.ToUpper(arg.Value)})
+	}
+	return output, nil
 }
 
-func builtinLCase(args ...types.Value) (types.Value, error) {
-	return nil, ErrUnimplemented
-}
-
-func builtinNow(args ...types.Value) (types.Value, error) {
-	return nil, ErrUnimplemented
+func builtinLCase(args ...types.StringValue) ([]types.StringValue, error) {
+	var output []types.StringValue
+	for _, arg := range args {
+		output = append(output, types.StringValue{Value: strings.ToLower(arg.Value)})
+	}
+	return output, nil
 }
 
 func builtinMax(args ...types.Value) (types.Value, error) {
