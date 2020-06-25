@@ -8,7 +8,9 @@ type (
 	// left<right, 0 if left==right, 1 if left>right. What exectly is considered
 	// to be <, ==, > is up to the implementation.
 	Comparator interface {
-		Compare(Value, Value) (int, error)
+		// Compare compares the given to values left and right as follows. -1 if
+		// left<right, 0 if left==right, 1 if left>right.
+		Compare(left, right Value) (int, error)
 	}
 
 	// Caster wraps the Cast method, which is used to transform the input value
