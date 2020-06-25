@@ -16,26 +16,26 @@ func TestEngine_cmp(t *testing.T) {
 	}{
 		{
 			"true <-> true",
-			types.BoolValue{Value: true},
-			types.BoolValue{Value: true},
+			types.NewBool(true),
+			types.NewBool(true),
 			cmpEqual,
 		},
 		{
 			"true <-> false",
-			types.BoolValue{Value: true},
-			types.BoolValue{Value: false},
+			types.NewBool(true),
+			types.NewBool(false),
 			cmpGreaterThan,
 		},
 		{
 			"false <-> true",
-			types.BoolValue{Value: false},
-			types.BoolValue{Value: true},
+			types.NewBool(false),
+			types.NewBool(true),
 			cmpLessThan,
 		},
 		{
 			"false <-> false",
-			types.BoolValue{Value: false},
-			types.BoolValue{Value: false},
+			types.NewBool(false),
+			types.NewBool(false),
 			cmpEqual,
 		},
 	}

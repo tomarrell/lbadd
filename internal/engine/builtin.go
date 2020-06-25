@@ -16,11 +16,11 @@ var (
 )
 
 func builtinNow(tp timeProvider) (types.Value, error) {
-	return types.DateValue{Value: tp()}, nil
+	return types.NewDate(tp()), nil
 }
 
 func builtinCount(args ...types.Value) (types.Value, error) {
-	return types.NumericValue{Value: float64(len(args))}, nil
+	return nil, ErrUnimplemented
 }
 
 func builtinUCase(args ...types.StringValue) ([]types.StringValue, error) {
@@ -48,10 +48,14 @@ func builtinMax(args ...types.Value) (types.Value, error) {
 		return nil, err
 	}
 
-	largest := args[0]
+	largest := args[0] // start at 0 and compare on
 	t := largest.Type()
+	comparator, ok := t.(types.Comparator)
+	if !ok {
+		return nil, ErrUncomparable(t)
+	}
 	for i := 1; i < len(args); i++ {
-		res, err := t.Compare(largest, args[i])
+		res, err := comparator.Compare(largest, args[i])
 		if err != nil {
 			return nil, fmt.Errorf("compare: %w", err)
 		}
@@ -73,8 +77,12 @@ func builtinMin(args ...types.Value) (types.Value, error) {
 
 	smallest := args[0]
 	t := smallest.Type()
+	comparator, ok := t.(types.Comparator)
+	if !ok {
+		return nil, ErrUncomparable(t)
+	}
 	for i := 1; i < len(args); i++ {
-		res, err := t.Compare(smallest, args[i])
+		res, err := comparator.Compare(smallest, args[i])
 		if err != nil {
 			return nil, fmt.Errorf("compare: %w", err)
 		}

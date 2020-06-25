@@ -36,7 +36,7 @@ func TestEngine_evaluateExpression(t *testing.T) {
 			builder().build(),
 			ExecutionContext{},
 			command.ConstantBooleanExpr{Value: true},
-			types.BoolValue{Value: true},
+			types.NewBool(true),
 			"",
 		},
 		{
@@ -44,7 +44,7 @@ func TestEngine_evaluateExpression(t *testing.T) {
 			builder().build(),
 			ExecutionContext{},
 			command.ConstantBooleanExpr{Value: false},
-			types.BoolValue{Value: false},
+			types.NewBool(false),
 			"",
 		},
 		{
@@ -56,7 +56,7 @@ func TestEngine_evaluateExpression(t *testing.T) {
 			command.FunctionExpr{
 				Name: "NOW",
 			},
-			types.DateValue{Value: fixedTimestamp},
+			types.NewDate(fixedTimestamp),
 			"",
 		},
 		{

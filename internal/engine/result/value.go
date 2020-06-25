@@ -68,7 +68,7 @@ func (r valueResult) String() string {
 
 	var types []string
 	for _, col := range r.Cols() {
-		types = append(types, col.Type().String())
+		types = append(types, col.Type().Name())
 	}
 	_, _ = fmt.Fprintln(w, strings.Join(types, "\t"))
 

@@ -14,3 +14,16 @@ type Value interface {
 type IsTyper interface {
 	Is(Type) bool
 }
+
+type value struct {
+	typ Type
+}
+
+func (v value) Type() Type {
+	return v.typ
+}
+
+// Is checks whether this value is of the given type.
+func (v value) Is(t Type) bool {
+	return v.typ.Name() == t.Name()
+}

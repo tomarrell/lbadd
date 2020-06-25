@@ -14,7 +14,7 @@ import (
 func (e Engine) evaluateExpression(ctx ExecutionContext, expr command.Expr) (types.Value, error) {
 	switch ex := expr.(type) {
 	case command.ConstantBooleanExpr:
-		return types.BoolValue{Value: ex.Value}, nil
+		return types.NewBool(ex.Value), nil
 	case command.LiteralExpr:
 		return e.evaluateLiteralExpr(ctx, ex)
 	case command.FunctionExpr:
@@ -36,7 +36,7 @@ func (e Engine) evaluateMultipleExpressions(ctx ExecutionContext, exprs []comman
 }
 
 func (e Engine) evaluateLiteralExpr(ctx ExecutionContext, expr command.LiteralExpr) (types.Value, error) {
-	return types.StringValue{Value: expr.Value}, nil
+	return types.NewString(expr.Value), nil
 }
 
 func (e Engine) evaluateFunctionExpr(ctx ExecutionContext, expr command.FunctionExpr) (types.Value, error) {
@@ -45,6 +45,6 @@ func (e Engine) evaluateFunctionExpr(ctx ExecutionContext, expr command.Function
 		return nil, fmt.Errorf("arguments: %w", err)
 	}
 
-	function := types.NewFunctionValue(expr.Name, exprs...)
+	function := types.NewFunction(expr.Name, exprs...)
 	return e.evaluateFunction(ctx, function)
 }

@@ -22,7 +22,11 @@ func (e Engine) cmp(left, right types.Value) cmpResult {
 	if !right.Is(left.Type()) {
 		return cmpUncomparable
 	}
-	res, err := left.Type().Compare(left, right)
+	comparator, ok := left.Type().(types.Comparator)
+	if !ok {
+		return cmpUncomparable
+	}
+	res, err := comparator.Compare(left, right)
 	if err != nil {
 		// TODO: log error?
 		return cmpUncomparable
