@@ -6,7 +6,8 @@ import (
 
 var _ Value = (*BoolValue)(nil)
 
-// BoolValue is a value of type Bool.
+// BoolValue is a value of type Bool. The boolean value is held as a primitive
+// Go bool.
 type BoolValue struct {
 	value
 
@@ -24,6 +25,7 @@ func NewBool(v bool) BoolValue {
 	}
 }
 
+// String returns "true" or "false", depending on the value of this bool value.
 func (v BoolValue) String() string {
 	return strconv.FormatBool(v.Value)
 }
