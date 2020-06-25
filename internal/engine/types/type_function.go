@@ -17,9 +17,12 @@ type (
 		genericTypeDescriptor
 	}
 
-	functionValue struct {
-		Name  string
-		value func(...Value) (Value, error)
+	// FunctionValue represents a callable function. It consists of a nameand
+	// arguments. How the function is evaluated and what code is actually
+	// executed, is decided by the engine.
+	FunctionValue struct {
+		Name string
+		Args []Value
 	}
 )
 
@@ -40,26 +43,17 @@ func (FunctionTypeDescriptor) String() string { return "Function" }
 
 // NewFunctionValue creates a new function value with the given name and
 // underlying function.
-func NewFunctionValue(name string, fn func(...Value) (Value, error)) Value {
-	return functionValue{
-		Name:  name,
-		value: fn,
+func NewFunctionValue(name string, args ...Value) FunctionValue {
+	return FunctionValue{
+		Name: name,
+		Args: args,
 	}
-}
-
-// CallWithArgs will call the underlying function with the given arguments.
-func (f functionValue) CallWithArgs(args ...Value) (Value, error) {
-	result, err := f.value(args...)
-	if err != nil {
-		return nil, fmt.Errorf("call %v: %w", f.Name, err)
-	}
-	return result, nil
 }
 
 // Type returns a function type.
-func (functionValue) Type() Type { return Function }
+func (FunctionValue) Type() Type { return Function }
 
 // Is checks if this value is of type function.
-func (functionValue) Is(t Type) bool { return t == Function }
+func (FunctionValue) Is(t Type) bool { return t == Function }
 
-func (f functionValue) String() string { return f.Name + "()" }
+func (f FunctionValue) String() string { return f.Name + "()" }
