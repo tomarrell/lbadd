@@ -26,16 +26,15 @@ bytes are the UTF-8 encoding of that string.
 ### Table pages
 Table pages do not directly hold data of a table. Instead, they hold pointers to
 pages, that do, i.e. the index and data page. Table pages do however hold
-information about the table schema. The schema information is a single record
-that is to be interpreted as a schema (<span style="color:red;">**TODO:
-schemas**</span>).
+information about the table data definition. The data definition information is
+a single record that is to be interpreted as a data definition (<span
+style="color:red;">**TODO: data definitions**</span>).
 
 The keys of the three values, index page, data page and schema are as follows.
 
-* `schema` is a record cell containing the schema information about this table.
-  That is, columns, column types, references, triggers etc. How the schema
-  information is to be interpreted, is explained [here](#)(<span
-  style="color:red;">**TODO: schemas**</span>).
+* `datadefinition` is a record cell containing the schema information about this
+  table. That is, columns, column types, references, triggers etc. How the
+  schema information is to be interpreted, is explained [here](#data-definition).
 * `index` is a pointer cell pointing to the index page of this table. The index
   page contains pages that are used as nodes in a btree. See more
   [here](#index-pages)
@@ -45,3 +44,26 @@ The keys of the three values, index page, data page and schema are as follows.
 ### Index pages
 
 ### Data pages
+A data page stores plain record in a cell. Cell values are the full records,
+cell keys are the RID of the record. The RID (row-ID) is an 8 byte unsigned
+integer, which may not be reused for other records, even if a record was
+deleted. The only scenario where an RID may be re-used is, when a record is
+deleted from a page, while it is also being written into the same page or
+another page (i.e. on move only) (this means, that the RID is not actually
+re-used, just kept when moving or re-writing a cell). This can happen, if the
+size of the record grows, and the cell has to be re-written. The cell keys aka.
+RIDs are referenced by cells from the index pages. A full table scan is
+performed by obtaining all cells in the data page and checking their records.
+
+### Data definition
+A data definition follows the following format (everything encoded in big
+endian).
+
+* 2 bytes `uint16` the amount of columns
+* for each column
+  * 2 bytes `uint16` frame for the column name
+  * name bytes
+  * 1 byte `bool` that is 0 if the table is **NOT**, and 1 if the column is
+    nullable
+  * 2 bytes `uint16` frame for the type name
+  * type name bytes
