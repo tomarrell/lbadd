@@ -20,7 +20,7 @@ type DateType struct {
 // larger. This method will return 1 if left>right, 0 if left==right, and -1 if
 // left<right.
 func (t DateType) Compare(left, right Value) (int, error) {
-	if err := t.ensureCanCompare(left, right); err != nil {
+	if err := t.ensureHaveThisType(left, right); err != nil {
 		return 0, err
 	}
 

@@ -14,7 +14,11 @@ func ErrTypeMismatch(expected, got Type) Error {
 }
 
 // ErrCannotCast returns an error that indicates, that a case from the given
-// frmo type to the given to type cannot be performed.
+// from type to the given to type cannot be performed.
 func ErrCannotCast(from, to Type) Error {
 	return Error(fmt.Sprintf("cannot cast %v to %v", from, to))
+}
+
+func ErrDataSizeMismatch(expectedSize, gotSize int) Error {
+	return Error(fmt.Sprintf("unexpected data size %v, need %v", gotSize, expectedSize))
 }

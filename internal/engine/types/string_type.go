@@ -26,7 +26,7 @@ type StringType struct {
 // two underlying primitive values. This method will return 1 if left>right, 0
 // if left==right, and -1 if left<right.
 func (t StringType) Compare(left, right Value) (int, error) {
-	if err := t.ensureCanCompare(left, right); err != nil {
+	if err := t.ensureHaveThisType(left, right); err != nil {
 		return 0, err
 	}
 
