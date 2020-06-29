@@ -19,6 +19,9 @@ func ErrCannotCast(from, to Type) Error {
 	return Error(fmt.Sprintf("cannot cast %v to %v", from, to))
 }
 
+// ErrDataSizeMismatch returns an error that indicates, that data which had an
+// unexpected size was passed in. This will be useful for functions that expect
+// fixed-size data.
 func ErrDataSizeMismatch(expectedSize, gotSize int) Error {
 	return Error(fmt.Sprintf("unexpected data size %v, need %v", gotSize, expectedSize))
 }
