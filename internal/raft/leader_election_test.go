@@ -80,7 +80,7 @@ func Test_LeaderElection(t *testing.T) {
 		wg.Done()
 	}()
 
-	server := simpleServer{
+	server := SimpleServer{
 		node:    node,
 		cluster: cluster,
 		log:     log,

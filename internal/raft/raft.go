@@ -63,10 +63,10 @@ type VolatileStateLeader struct {
 	MatchIndex []int // Holds the matchIndex value for each of the followers in the cluster.
 }
 
-var _ Server = (*simpleServer)(nil)
+var _ Server = (*SimpleServer)(nil)
 
-// simpleServer implements a server in a cluster.
-type simpleServer struct {
+// SimpleServer implements a server in a cluster.
+type SimpleServer struct {
 	node            *Node
 	cluster         Cluster
 	onReplication   ReplicationHandler
@@ -86,15 +86,15 @@ type incomingData struct {
 }
 
 // NewServer enables starting a raft server/cluster.
-func NewServer(log zerolog.Logger, cluster Cluster) Server {
+func NewServer(log zerolog.Logger, cluster Cluster) *SimpleServer {
 	return newServer(log, cluster, nil)
 }
 
-func newServer(log zerolog.Logger, cluster Cluster, timeoutProvider func(*Node) *time.Timer) Server {
+func newServer(log zerolog.Logger, cluster Cluster, timeoutProvider func(*Node) *time.Timer) *SimpleServer {
 	if timeoutProvider == nil {
 		timeoutProvider = randomTimer
 	}
-	return &simpleServer{
+	return &SimpleServer{
 		log:             log.With().Str("component", "raft").Logger(),
 		cluster:         cluster,
 		timeoutProvider: timeoutProvider,
@@ -139,7 +139,7 @@ func NewRaftNode(cluster Cluster) *Node {
 // regular heartbeats to the node exists. It restarts leader election on failure to do so.
 // This function also continuously listens on all the connections to the nodes
 // and routes the requests to appropriate functions.
-func (s *simpleServer) Start() (err error) {
+func (s *SimpleServer) Start() (err error) {
 	// Making the function idempotent, returns whether the server is already open.
 	s.lock.Lock()
 	if s.node != nil {
@@ -204,13 +204,14 @@ func (s *simpleServer) Start() (err error) {
 	}
 }
 
-func (s *simpleServer) OnReplication(handler ReplicationHandler) {
+// OnReplication is a handler setter.
+func (s *SimpleServer) OnReplication(handler ReplicationHandler) {
 	s.onReplication = handler
 }
 
 // Input appends the input log into the leaders log, only if the current node is the leader.
 // If this was not a leader, the leaders data is communicated to the client.
-func (s *simpleServer) Input(input *message.Command) {
+func (s *SimpleServer) Input(input *message.Command) {
 	s.node.PersistentState.mu.Lock()
 	defer s.node.PersistentState.mu.Unlock()
 
@@ -226,7 +227,7 @@ func (s *simpleServer) Input(input *message.Command) {
 }
 
 // Close closes the node and returns an error on failure.
-func (s *simpleServer) Close() error {
+func (s *SimpleServer) Close() error {
 	s.lock.Lock()
 	// Maintaining idempotency of the close function.
 	if s.node == nil {
@@ -258,7 +259,7 @@ func randomTimer(node *Node) *time.Timer {
 
 // processIncomingData is responsible for parsing the incoming data and calling
 // appropriate functions based on the request type.
-func (s *simpleServer) processIncomingData(data *incomingData) error {
+func (s *SimpleServer) processIncomingData(data *incomingData) error {
 
 	ctx := context.TODO()
 
@@ -298,7 +299,7 @@ func (s *simpleServer) processIncomingData(data *incomingData) error {
 
 // relayDataToServer sends the input log from the follower to a leader node.
 // TODO: Figure out what to do with the errors generated here.
-func (s *simpleServer) relayDataToServer(req *message.LogAppendRequest) {
+func (s *SimpleServer) relayDataToServer(req *message.LogAppendRequest) {
 	ctx := context.Background()
 
 	payload, _ := message.Marshal(req)
@@ -307,14 +308,17 @@ func (s *simpleServer) relayDataToServer(req *message.LogAppendRequest) {
 	_ = leaderNodeConn.Send(ctx, payload)
 }
 
-func (s *simpleServer) OnRequestVotes(hook func(message.RequestVoteRequest)) {
+// OnRequestVotes is a hook setter for RequestVotesRequest.
+func (s *SimpleServer) OnRequestVotes(hook func(message.RequestVoteRequest)) {
 	s.onRequestVotes = hook
 }
 
-func (s *simpleServer) OnLeaderElected(hook func()) {
+// OnLeaderElected is a hook setter for LeadeElectedRequest.
+func (s *SimpleServer) OnLeaderElected(hook func()) {
 	s.onLeaderElected = hook
 }
 
-func (s *simpleServer) OnAppendEntries(hook func(message.AppendEntriesRequest)) {
+// OnAppendEntries is a hook setter for AppenEntriesRequest.
+func (s *SimpleServer) OnAppendEntries(hook func(message.AppendEntriesRequest)) {
 	s.onAppendEntries = hook
 }

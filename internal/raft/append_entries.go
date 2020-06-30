@@ -7,7 +7,7 @@ import (
 // AppendEntriesResponse function is called on a request from the leader to append log data
 // to the follower node. This function generates the response to be sent to the leader node.
 // This is the response to the contact by the leader to assert it's leadership.
-func (s *simpleServer) AppendEntriesResponse(req *message.AppendEntriesRequest) *message.AppendEntriesResponse {
+func (s *SimpleServer) AppendEntriesResponse(req *message.AppendEntriesRequest) *message.AppendEntriesResponse {
 	leaderTerm := req.GetTerm()
 	nodePersistentState := s.node.PersistentState
 	nodeTerm := nodePersistentState.CurrentTerm

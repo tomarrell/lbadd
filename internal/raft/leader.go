@@ -15,7 +15,7 @@ import (
 // Empty append entries request are also called heartbeats.
 // The data that goes in the append entries request is determined by
 // existance of data in the LogChannel channel.
-func (s *simpleServer) startLeader() {
+func (s *SimpleServer) startLeader() {
 
 	s.node.log.
 		Debug().

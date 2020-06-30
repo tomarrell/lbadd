@@ -26,4 +26,24 @@ const (
 	KindRequestVoteResponse
 
 	KindLogAppendRequest
+
+	KindCommand
+	KindCommandScan
+	KindCommandSelect
+	KindCommandProject
+	KindCommandDelete
+	KindCommandDrop
+	KindCommandUpdate
+	KindCommandJoin
+	KindCommandLimit
+	KindCommandInsert
+
+	KindExpr
+	KindLiteralExpr
+	KindConstantBooleanExpr
+	KindUnaryExpr
+	KindBinaryExpr
+	KindFunctionExpr
+	KindEqualityExpr
+	KindRangeExpr
 )

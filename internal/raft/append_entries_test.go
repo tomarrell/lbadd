@@ -55,8 +55,22 @@ func TestAppendEntries(t *testing.T) {
 	}
 
 	entries := []*message.LogData{
-		message.NewLogData(2, &message.Command{Stuff: "execute cmd3"}),
-		message.NewLogData(2, &message.Command{Stuff: "execute cmd4"}),
+		message.NewLogData(
+			2,
+			&message.Command_Scan{
+				Table: &message.SimpleTable{
+					Table: "table1",
+				},
+			},
+		),
+		message.NewLogData(
+			2,
+			&message.Command_Scan{
+				Table: &message.SimpleTable{
+					Table: "table2",
+				},
+			},
+		),
 	}
 	// Creating a mock msg AppendEntriesRequest with default values
 	// Leader commit specifies the Index of Log commited by leader and
@@ -69,7 +83,7 @@ func TestAppendEntries(t *testing.T) {
 		LeaderCommit: 3,
 	}
 
-	server := simpleServer{
+	server := SimpleServer{
 		node:    node,
 		cluster: cluster,
 		log:     log,
@@ -90,8 +104,22 @@ func TestAppendEntries(t *testing.T) {
 	msg.PrevLogTerm = 1
 	node.VolatileState.CommitIndex = 1
 	node.PersistentState.Log = []*message.LogData{
-		message.NewLogData(1, &message.Command{Stuff: "execute cmd1"}),
-		message.NewLogData(1, &message.Command{Stuff: "execute cmd2"}),
+		message.NewLogData(
+			2,
+			&message.Command_Scan{
+				Table: &message.SimpleTable{
+					Table: "table1",
+				},
+			},
+		),
+		message.NewLogData(
+			2,
+			&message.Command_Scan{
+				Table: &message.SimpleTable{
+					Table: "table2",
+				},
+			},
+		),
 	}
 	numberOfPersistentLog := len(node.PersistentState.Log)
 	res = server.AppendEntriesResponse(msg)

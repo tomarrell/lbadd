@@ -1,6 +1,7 @@
 package message
 
 import (
+	"github.com/tomarrell/lbadd/internal/compiler/command"
 	"github.com/tomarrell/lbadd/internal/id"
 )
 
@@ -28,10 +29,10 @@ func (*AppendEntriesRequest) Kind() Kind {
 
 // NewLogData creates a new log-data object, which can be used for an
 // append-entries-request message.
-func NewLogData(term int32, data *Command) *LogData {
+func NewLogData(term int32, data command.Command) *LogData {
 	return &LogData{
 		Term:  term,
-		Entry: data,
+		Entry: ConvertCommandToMessage(data).(*Command),
 	}
 }
 

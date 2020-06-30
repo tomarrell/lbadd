@@ -90,22 +90,21 @@ func (n *Node) startNode() error {
 	return n.raft.Start()
 }
 
+// replicate returns the number of commands that were executed from the
+// given slice of commands. -1 is returned if no commands were executed.
 func (n *Node) replicate(input []*message.Command) int {
 	for i := range input {
 		cmd := convert(input[i])
 
-		res, err := n.exec.Execute(cmd)
+		_, err := n.exec.Execute(cmd)
 		if err != nil {
 			n.log.Error().
 				Err(err).
 				Msg("failed to replicate input: execute")
-			return 0
+			return i - 1
 		}
-
-		_ = res // ignore the result, because we don't need it to be printed or processed anywhere
 	}
-	// TODO - return appropriate values of executed commands.
-	return -1
+	return len(input)
 }
 
 // convert is a stop gap arrangement until the compile.Command aligns with the universal format for IR commands.

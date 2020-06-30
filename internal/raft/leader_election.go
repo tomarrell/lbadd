@@ -12,7 +12,7 @@ import (
 // the function triggers the necessary functions responsible to continue the raft cluster
 // into it's working stage if the node won the election.
 // TODO: Logging.
-func (s *simpleServer) StartElection() {
+func (s *SimpleServer) StartElection() {
 
 	s.node.PersistentState.mu.Lock()
 	s.node.State = StateCandidate.String()
