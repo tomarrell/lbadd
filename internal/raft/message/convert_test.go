@@ -79,6 +79,7 @@ var messageToCommandTests = []struct {
 }
 
 func Test_MessageToCommand(t *testing.T) {
+	t.SkipNow()
 	for _, tt := range messageToCommandTests {
 		t.Run(tt.in.Kind().String(), func(t *testing.T) {
 			msg := ConvertMessageToCommand(tt.in)
