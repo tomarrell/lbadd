@@ -7,7 +7,10 @@ import (
 
 var _ Value = (*FunctionValue)(nil)
 
-// FunctionValue is a value of type Function.
+// FunctionValue is a value of type Function. This can not be called, it is
+// simply a shell that holds a function name and the arguments, that were used
+// in the SQL statement. It is the engine's responsibility, to execute the
+// appropriate code to make this function call happen.
 type FunctionValue struct {
 	value
 

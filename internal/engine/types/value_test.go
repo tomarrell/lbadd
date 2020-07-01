@@ -11,5 +11,6 @@ func TestValue_Is(t *testing.T) {
 
 	v := NewString("foobar")
 	assert.True(v.Is(String)) // Is must yield the same result as .Type() ==
+	assert.True(v.Is(v.Type()))
 	assert.Equal(String, v.Type())
 }

@@ -1,3 +1,12 @@
+// This file contains implementations for builtin functions, such as RAND() or
+// NOW(). The arguments for the herein implemented functions differ from those
+// that are required in the SQL statement. For example, COUNT(x) takes only one
+// argument, but builtinCount requires many values. The engine is responsible to
+// interpret COUNT(x), and instead of the single value 'x', pass in all values
+// in the column 'x'. How SQL arguments are to be interpreted, depends on the
+// SQL function. The builtin functions in this file don't access the result
+// table, but instead rely on the engine to pass in the correct values.
+
 package engine
 
 import (
@@ -15,14 +24,20 @@ var (
 	_ = builtinMin
 )
 
-func builtinNow(tp timeProvider) (types.Value, error) {
+// builtinNow returns a new date value, containing the timestamp provided by the
+// given timeProvider.
+func builtinNow(tp timeProvider) (types.DateValue, error) {
 	return types.NewDate(tp()), nil
 }
 
-func builtinCount(args ...types.Value) (types.Value, error) {
-	return nil, ErrUnimplemented
+// builtinCount returns a new integral value, representing the count of the
+// passed in values.
+func builtinCount(args ...types.Value) (types.IntegerValue, error) {
+	return types.NewInteger(int64(len(args))), nil
 }
 
+// builtinUCase maps all passed in string values to new string values with the
+// internal string value folded to upper case.
 func builtinUCase(args ...types.StringValue) ([]types.StringValue, error) {
 	var output []types.StringValue
 	for _, arg := range args {
@@ -31,6 +46,8 @@ func builtinUCase(args ...types.StringValue) ([]types.StringValue, error) {
 	return output, nil
 }
 
+// builtinLCase maps all passed in string values to new string values with the
+// internal string value folded to lower case.
 func builtinLCase(args ...types.StringValue) ([]types.StringValue, error) {
 	var output []types.StringValue
 	for _, arg := range args {
@@ -39,6 +56,8 @@ func builtinLCase(args ...types.StringValue) ([]types.StringValue, error) {
 	return output, nil
 }
 
+// builtinMax returns the largest value out of all passed in values. The largest
+// value is determined by comparing one element to all others.
 func builtinMax(args ...types.Value) (types.Value, error) {
 	if len(args) == 0 {
 		return nil, nil
@@ -66,6 +85,8 @@ func builtinMax(args ...types.Value) (types.Value, error) {
 	return largest, nil
 }
 
+// builtinMin returns the smallest value out of all passed in values. The
+// smallest value is determined by comparing one element to all others.
 func builtinMin(args ...types.Value) (types.Value, error) {
 	if len(args) == 0 {
 		return nil, nil
@@ -93,6 +114,7 @@ func builtinMin(args ...types.Value) (types.Value, error) {
 	return smallest, nil
 }
 
+// ensureSameType returns an error if not all given values have the same type.
 func ensureSameType(args ...types.Value) error {
 	if len(args) == 0 {
 		return nil
