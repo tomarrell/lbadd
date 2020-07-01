@@ -2,6 +2,7 @@ package engine
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/tomarrell/lbadd/internal/compiler/command"
 	"github.com/tomarrell/lbadd/internal/engine/types"
@@ -39,7 +40,12 @@ func (e Engine) evaluateLiteralExpr(ctx ExecutionContext, expr command.LiteralEx
 	if numVal, ok := ToNumericValue(expr.Value); ok {
 		return numVal, nil
 	}
-	return types.NewString(expr.Value), nil
+	resolved, err := strconv.Unquote(expr.Value)
+	if err != nil {
+		// use the original string
+		return types.NewString(expr.Value), nil
+	}
+	return types.NewString(resolved), nil
 }
 
 func (e Engine) evaluateFunctionExpr(ctx ExecutionContext, expr command.FunctionExpr) (types.Value, error) {

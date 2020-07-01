@@ -8,7 +8,7 @@ import (
 	"github.com/tomarrell/lbadd/internal/engine/types"
 )
 
-type state func(*numericParser) state
+type numericParserState func(*numericParser) numericParserState
 
 type numericParser struct {
 	candidate string
@@ -21,7 +21,7 @@ type numericParser struct {
 
 	value *bytes.Buffer
 
-	current state
+	current numericParserState
 }
 
 // ToNumericValue checks whether the given string is of this form
@@ -83,7 +83,7 @@ func (p *numericParser) step() {
 	p.index++
 }
 
-func stateInitial(p *numericParser) state {
+func stateInitial(p *numericParser) numericParserState {
 	switch {
 	case strings.HasPrefix(p.candidate, "0x"):
 		p.index += 2
@@ -97,8 +97,8 @@ func stateInitial(p *numericParser) state {
 	return nil
 }
 
-func stateHex(p *numericParser) state {
-	if isDigit(p.get()) || (p.get()-'A' <= 15) {
+func stateHex(p *numericParser) numericParserState {
+	if isHexDigit(p.get()) {
 		p.step()
 		return stateHex
 	}
@@ -106,7 +106,7 @@ func stateHex(p *numericParser) state {
 	return nil
 }
 
-func stateFirstDigits(p *numericParser) state {
+func stateFirstDigits(p *numericParser) numericParserState {
 	if isDigit(p.get()) {
 		p.hasDigitsBeforeExponent = true
 		p.step()
@@ -118,7 +118,7 @@ func stateFirstDigits(p *numericParser) state {
 	return nil
 }
 
-func stateDecimalPoint(p *numericParser) state {
+func stateDecimalPoint(p *numericParser) numericParserState {
 	if p.get() == '.' {
 		p.step()
 		p.isReal = true
@@ -128,7 +128,7 @@ func stateDecimalPoint(p *numericParser) state {
 	return nil
 }
 
-func stateSecondDigits(p *numericParser) state {
+func stateSecondDigits(p *numericParser) numericParserState {
 	if isDigit(p.get()) {
 		p.hasDigitsBeforeExponent = true
 		p.step()
@@ -143,7 +143,7 @@ func stateSecondDigits(p *numericParser) state {
 	return nil
 }
 
-func stateExponent(p *numericParser) state {
+func stateExponent(p *numericParser) numericParserState {
 	if p.get() == 'E' {
 		p.step()
 		return stateOptionalSign
@@ -152,7 +152,7 @@ func stateExponent(p *numericParser) state {
 	return nil
 }
 
-func stateOptionalSign(p *numericParser) state {
+func stateOptionalSign(p *numericParser) numericParserState {
 	if p.get() == '+' || p.get() == '-' {
 		p.step()
 		return stateThirdDigits
@@ -163,7 +163,7 @@ func stateOptionalSign(p *numericParser) state {
 	return nil
 }
 
-func stateThirdDigits(p *numericParser) state {
+func stateThirdDigits(p *numericParser) numericParserState {
 	if isDigit(p.get()) {
 		p.step()
 		return stateThirdDigits
@@ -174,4 +174,8 @@ func stateThirdDigits(p *numericParser) state {
 
 func isDigit(b byte) bool {
 	return b-'0' <= 9
+}
+
+func isHexDigit(b byte) bool {
+	return isDigit(b) || (b-'A' <= 15) || (b-'a' <= 15)
 }
