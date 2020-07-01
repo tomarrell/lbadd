@@ -36,6 +36,9 @@ func (e Engine) evaluateMultipleExpressions(ctx ExecutionContext, exprs []comman
 }
 
 func (e Engine) evaluateLiteralExpr(ctx ExecutionContext, expr command.LiteralExpr) (types.Value, error) {
+	if numVal, ok := ToNumericValue(expr.Value); ok {
+		return numVal, nil
+	}
 	return types.NewString(expr.Value), nil
 }
 
