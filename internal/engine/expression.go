@@ -36,10 +36,16 @@ func (e Engine) evaluateMultipleExpressions(ctx ExecutionContext, exprs []comman
 	return vals, nil
 }
 
+// evaluateLiteralExpr evaluates the given literal expression based on the
+// current execution context. The returned value will either be a numeric value
+// (integer or real) or a string value.
 func (e Engine) evaluateLiteralExpr(ctx ExecutionContext, expr command.LiteralExpr) (types.Value, error) {
+	// Check whether the expression value is a numeric literal. In the future,
+	// this evaluation might depend on the execution context.
 	if numVal, ok := ToNumericValue(expr.Value); ok {
 		return numVal, nil
 	}
+	// if not a numeric literal, remove quotes and resolve escapes
 	resolved, err := strconv.Unquote(expr.Value)
 	if err != nil {
 		// use the original string

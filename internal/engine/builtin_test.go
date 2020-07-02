@@ -43,6 +43,24 @@ func Test_builtinMax(t *testing.T) {
 			types.NewBool(true),
 			false,
 		},
+		{
+			"integers",
+			args{
+				[]types.Value{
+					types.NewInteger(3456),
+					types.NewInteger(0),
+					types.NewInteger(76526),
+					types.NewInteger(1),
+					types.NewInteger(23685245),
+					types.NewInteger(45634),
+					types.NewInteger(1345),
+					types.NewInteger(346),
+					types.NewInteger(5697),
+				},
+			},
+			types.NewInteger(23685245),
+			false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
