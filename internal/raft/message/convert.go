@@ -289,27 +289,27 @@ func ConvertCommandToMessageDelete(cmd command.Command) *Command_Delete {
 // ConvertCommandToMessageDrop converts a Command type to a CommandDrop type.
 func ConvertCommandToMessageDrop(cmd command.Command) *CommandDrop {
 	msgCmdDrop := &CommandDrop{}
-	switch cmd.(type) {
+	switch cmd := cmd.(type) {
 	case *command.DropTable:
 		msgCmdDrop.Target = 0
-		msgCmdDrop.IfExists = cmd.(*command.DropTable).IfExists
-		msgCmdDrop.Schema = cmd.(*command.DropTable).Schema
-		msgCmdDrop.Name = cmd.(*command.DropTable).Name
+		msgCmdDrop.IfExists = cmd.IfExists
+		msgCmdDrop.Schema = cmd.Schema
+		msgCmdDrop.Name = cmd.Name
 	case *command.DropView:
 		msgCmdDrop.Target = 1
-		msgCmdDrop.IfExists = cmd.(*command.DropView).IfExists
-		msgCmdDrop.Schema = cmd.(*command.DropView).Schema
-		msgCmdDrop.Name = cmd.(*command.DropView).Name
+		msgCmdDrop.IfExists = cmd.IfExists
+		msgCmdDrop.Schema = cmd.Schema
+		msgCmdDrop.Name = cmd.Name
 	case *command.DropIndex:
 		msgCmdDrop.Target = 2
-		msgCmdDrop.IfExists = cmd.(*command.DropIndex).IfExists
-		msgCmdDrop.Schema = cmd.(*command.DropIndex).Schema
-		msgCmdDrop.Name = cmd.(*command.DropIndex).Name
+		msgCmdDrop.IfExists = cmd.IfExists
+		msgCmdDrop.Schema = cmd.Schema
+		msgCmdDrop.Name = cmd.Name
 	case *command.DropTrigger:
 		msgCmdDrop.Target = 3
-		msgCmdDrop.IfExists = cmd.(*command.DropTrigger).IfExists
-		msgCmdDrop.Schema = cmd.(*command.DropTrigger).Schema
-		msgCmdDrop.Name = cmd.(*command.DropTrigger).Name
+		msgCmdDrop.IfExists = cmd.IfExists
+		msgCmdDrop.Schema = cmd.Schema
+		msgCmdDrop.Name = cmd.Name
 	}
 	return msgCmdDrop
 }
