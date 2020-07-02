@@ -13,7 +13,7 @@ import (
 )
 
 type timeProvider func() time.Time
-type randomProvider func() float64
+type randomProvider func() int64
 
 // Engine is the component that is used to evaluate commands.
 type Engine struct {
@@ -34,7 +34,7 @@ func New(dbFile *storage.DBFile, opts ...Option) (Engine, error) {
 		pageCache: dbFile.Cache(),
 
 		timeProvider:   time.Now,
-		randomProvider: rand.Float64,
+		randomProvider: func() int64 { return int64(rand.Uint64()) },
 	}
 	for _, opt := range opts {
 		opt(&e)

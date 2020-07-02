@@ -30,6 +30,10 @@ func builtinNow(tp timeProvider) (types.DateValue, error) {
 	return types.NewDate(tp()), nil
 }
 
+func builtinRand(rp randomProvider) (types.IntegerValue, error) {
+	return types.NewInteger(rp()), nil
+}
+
 // builtinCount returns a new integral value, representing the count of the
 // passed in values.
 func builtinCount(args ...types.Value) (types.IntegerValue, error) {

@@ -33,7 +33,7 @@ func WithTimeProvider(tp timeProvider) Option {
 
 // WithRandomProvider sets a random provider, which will be used by the engine
 // to evaluate expressions, that require a random source, such as the function
-// RAND().
+// RANDOM().
 func WithRandomProvider(rp randomProvider) Option {
 	return func(e *Engine) {
 		e.randomProvider = rp

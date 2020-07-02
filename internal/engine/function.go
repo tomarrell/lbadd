@@ -8,6 +8,8 @@ func (e Engine) evaluateFunction(ctx ExecutionContext, fn types.FunctionValue) (
 	switch fn.Name {
 	case "NOW":
 		return builtinNow(e.timeProvider)
+	case "RANDOM":
+		return builtinRand(e.randomProvider)
 	}
 	return nil, ErrNoSuchFunction(fn.Name)
 }
