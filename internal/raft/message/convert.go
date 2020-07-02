@@ -7,29 +7,29 @@ import (
 // ConvertCommandToMessage converts a command.Command to a message.Command
 func ConvertCommandToMessage(cmd command.Command) Message {
 	switch c := cmd.(type) {
-	case command.Scan:
+	case *command.Scan:
 		return ConvertCommandToMessageScan(c)
-	case command.Select:
+	case *command.Select:
 		return ConvertCommandToMessageSelect(c)
-	case command.Project:
+	case *command.Project:
 		return ConvertCommandToMessageProject(c)
-	case command.Delete:
+	case *command.Delete:
 		return ConvertCommandToMessageDelete(c)
-	case command.DropIndex:
+	case *command.DropIndex:
 		return ConvertCommandToMessageDrop(c)
-	case command.DropTable:
+	case *command.DropTable:
 		return ConvertCommandToMessageDrop(c)
-	case command.DropTrigger:
+	case *command.DropTrigger:
 		return ConvertCommandToMessageDrop(c)
-	case command.DropView:
+	case *command.DropView:
 		return ConvertCommandToMessageDrop(c)
-	case command.Update:
+	case *command.Update:
 		return ConvertCommandToMessageUpdate(c)
-	case command.Join:
+	case *command.Join:
 		return ConvertCommandToMessageJoin(c)
-	case command.Limit:
+	case *command.Limit:
 		return ConvertCommandToMessageLimit(c)
-	case command.Insert:
+	case *command.Insert:
 		return ConvertCommandToMessageInsert(c)
 	}
 	return nil
@@ -54,30 +54,30 @@ func ConvertCommandToMessageScan(cmd command.Command) *Command_Scan {
 }
 
 // ConvertCommandToMessageLiteralExpr converts a command.Expr to a message.Expr_Literal
-func ConvertCommandToMessageLiteralExpr(cmd command.LiteralExpr) *Expr_Literal {
-	msgExprLiteral := &Expr_Literal{}
+func ConvertCommandToMessageLiteralExpr(cmd *command.LiteralExpr) *Expr_Literal {
+	msgExprLiteral := &Expr_Literal{&LiteralExpr{}}
 	msgExprLiteral.Literal.Value = cmd.Value
 	return msgExprLiteral
 }
 
 // ConvertCommandToMessageConstantBooleanExpr converts a command.Expr to a message.Expr_Constant
-func ConvertCommandToMessageConstantBooleanExpr(cmd command.ConstantBooleanExpr) *Expr_Constant {
-	msgExprConstant := &Expr_Constant{}
+func ConvertCommandToMessageConstantBooleanExpr(cmd *command.ConstantBooleanExpr) *Expr_Constant {
+	msgExprConstant := &Expr_Constant{&ConstantBooleanExpr{}}
 	msgExprConstant.Constant.Value = cmd.Value
 	return msgExprConstant
 }
 
 // ConvertCommandToMessageUnaryExpr converts a command.Expr to a message.Expr_Unary
-func ConvertCommandToMessageUnaryExpr(cmd command.UnaryExpr) *Expr_Unary {
-	msgExprUnary := &Expr_Unary{}
+func ConvertCommandToMessageUnaryExpr(cmd *command.UnaryExpr) *Expr_Unary {
+	msgExprUnary := &Expr_Unary{&UnaryExpr{}}
 	msgExprUnary.Unary.Operator = cmd.Operator
 	msgExprUnary.Unary.Value = ConvertCommandToMessageExpr(cmd.Value)
 	return msgExprUnary
 }
 
 // ConvertCommandToMessageBinaryExpr converts a command.Expr to a message.Expr_Binary
-func ConvertCommandToMessageBinaryExpr(cmd command.BinaryExpr) *Expr_Binary {
-	msgExprBinary := &Expr_Binary{}
+func ConvertCommandToMessageBinaryExpr(cmd *command.BinaryExpr) *Expr_Binary {
+	msgExprBinary := &Expr_Binary{&BinaryExpr{}}
 	msgExprBinary.Binary.Operator = cmd.Operator
 	msgExprBinary.Binary.Left = ConvertCommandToMessageExpr(cmd.Left)
 	msgExprBinary.Binary.Right = ConvertCommandToMessageExpr(cmd.Right)
@@ -94,8 +94,8 @@ func ConvertCommandToMessageRepeatedExpr(cmd []command.Expr) []*Expr {
 }
 
 // ConvertCommandToMessageFunctionalExpr converts a command.Expr to a message.Expr_CFExpr_Func
-func ConvertCommandToMessageFunctionalExpr(cmd command.FunctionExpr) *Expr_Func {
-	msgExprFunc := &Expr_Func{}
+func ConvertCommandToMessageFunctionalExpr(cmd *command.FunctionExpr) *Expr_Func {
+	msgExprFunc := &Expr_Func{&FunctionExpr{}}
 	msgExprFunc.Func.Name = cmd.Name
 	msgExprFunc.Func.Distinct = cmd.Distinct
 	msgExprFunc.Func.Args = ConvertCommandToMessageRepeatedExpr(cmd.Args)
@@ -103,8 +103,8 @@ func ConvertCommandToMessageFunctionalExpr(cmd command.FunctionExpr) *Expr_Func 
 }
 
 // ConvertCommandToMessageEqualityExpr converts a command.Expr to a message.Expr_Equality
-func ConvertCommandToMessageEqualityExpr(cmd command.EqualityExpr) *Expr_Equality {
-	msgExprEquality := &Expr_Equality{}
+func ConvertCommandToMessageEqualityExpr(cmd *command.EqualityExpr) *Expr_Equality {
+	msgExprEquality := &Expr_Equality{&EqualityExpr{}}
 	msgExprEquality.Equality.Left = ConvertCommandToMessageExpr(cmd.Left)
 	msgExprEquality.Equality.Right = ConvertCommandToMessageExpr(cmd.Right)
 	msgExprEquality.Equality.Invert = cmd.Invert
@@ -112,8 +112,8 @@ func ConvertCommandToMessageEqualityExpr(cmd command.EqualityExpr) *Expr_Equalit
 }
 
 // ConvertCommandToMessageRangeExpr converts a command.Expr to a message.Expr_Range
-func ConvertCommandToMessageRangeExpr(cmd command.RangeExpr) *Expr_Range {
-	msgExprRange := &Expr_Range{}
+func ConvertCommandToMessageRangeExpr(cmd *command.RangeExpr) *Expr_Range {
+	msgExprRange := &Expr_Range{&RangeExpr{}}
 	msgExprRange.Range.Needle = ConvertCommandToMessageExpr(cmd.Needle)
 	msgExprRange.Range.Lo = ConvertCommandToMessageExpr(cmd.Lo)
 	msgExprRange.Range.Hi = ConvertCommandToMessageExpr(cmd.Hi)
@@ -124,51 +124,51 @@ func ConvertCommandToMessageRangeExpr(cmd command.RangeExpr) *Expr_Range {
 // ConvertCommandToMessageExpr converts command.Expr to a message.Expr
 func ConvertCommandToMessageExpr(cmd command.Expr) *Expr {
 	msgExpr := &Expr{}
-	switch cmd.(type) {
-	case command.LiteralExpr:
-		msgExpr.Expr = ConvertCommandToMessageLiteralExpr(cmd.(command.LiteralExpr))
-	case command.ConstantBooleanExpr:
-		msgExpr.Expr = ConvertCommandToMessageConstantBooleanExpr(cmd.(command.ConstantBooleanExpr))
-	case command.UnaryExpr:
-		msgExpr.Expr = ConvertCommandToMessageUnaryExpr(cmd.(command.UnaryExpr))
-	case command.BinaryExpr:
-		msgExpr.Expr = ConvertCommandToMessageBinaryExpr(cmd.(command.BinaryExpr))
-	case command.FunctionExpr:
-		msgExpr.Expr = ConvertCommandToMessageFunctionalExpr(cmd.(command.FunctionExpr))
-	case command.EqualityExpr:
-		msgExpr.Expr = ConvertCommandToMessageEqualityExpr(cmd.(command.EqualityExpr))
-	case command.RangeExpr:
-		msgExpr.Expr = ConvertCommandToMessageRangeExpr(cmd.(command.RangeExpr))
+	switch cmd := cmd.(type) {
+	case *command.LiteralExpr:
+		msgExpr.Expr = ConvertCommandToMessageLiteralExpr(cmd)
+	case *command.ConstantBooleanExpr:
+		msgExpr.Expr = ConvertCommandToMessageConstantBooleanExpr(cmd)
+	case *command.UnaryExpr:
+		msgExpr.Expr = ConvertCommandToMessageUnaryExpr(cmd)
+	case *command.BinaryExpr:
+		msgExpr.Expr = ConvertCommandToMessageBinaryExpr(cmd)
+	case *command.FunctionExpr:
+		msgExpr.Expr = ConvertCommandToMessageFunctionalExpr(cmd)
+	case *command.EqualityExpr:
+		msgExpr.Expr = ConvertCommandToMessageEqualityExpr(cmd)
+	case *command.RangeExpr:
+		msgExpr.Expr = ConvertCommandToMessageRangeExpr(cmd)
 	}
 	return msgExpr
 }
 
 // ConvertCommandToMessageListScan converts a command.Scan to a message.List_Scan
-func ConvertCommandToMessageListScan(cmd command.Scan) *List_Scan {
-	msgListScan := &List_Scan{}
+func ConvertCommandToMessageListScan(cmd *command.Scan) *List_Scan {
+	msgListScan := &List_Scan{&Command_Scan{}}
 	msgListScan.Scan.Table = ConvertCommandToMessageTable(cmd.Table)
 	return msgListScan
 }
 
 // ConvertCommandToMessageListSelect converts a command.Select to a message.List_Select
-func ConvertCommandToMessageListSelect(cmd command.Select) *List_Select {
-	msgListSelect := &List_Select{}
+func ConvertCommandToMessageListSelect(cmd *command.Select) *List_Select {
+	msgListSelect := &List_Select{&Command_Select{}}
 	msgListSelect.Select.Filter = ConvertCommandToMessageExpr(cmd.Filter)
 	msgListSelect.Select.Input = ConvertCommandToMessageList(cmd.Input)
 	return msgListSelect
 }
 
 // ConvertCommandToMessageListProject converts a command.Project to a message.List_Project
-func ConvertCommandToMessageListProject(cmd command.Project) *List_Project {
-	msgListProject := &List_Project{}
+func ConvertCommandToMessageListProject(cmd *command.Project) *List_Project {
+	msgListProject := &List_Project{&Command_Project{}}
 	msgListProject.Project.Cols = ConvertCommandToMessageCols(cmd.Cols)
 	msgListProject.Project.Input = ConvertCommandToMessageList(cmd.Input)
 	return msgListProject
 }
 
 // ConvertCommandToMessageListJoin converts a command.Join to a message.List_Join
-func ConvertCommandToMessageListJoin(cmd command.Join) *List_Join {
-	msgListJoin := &List_Join{}
+func ConvertCommandToMessageListJoin(cmd *command.Join) *List_Join {
+	msgListJoin := &List_Join{&Command_Join{}}
 	msgListJoin.Join.Natural = cmd.Natural
 	msgListJoin.Join.Type = ConvertCommandToMessageJoinType(cmd.Type)
 	msgListJoin.Join.Filter = ConvertCommandToMessageExpr(cmd.Filter)
@@ -178,24 +178,24 @@ func ConvertCommandToMessageListJoin(cmd command.Join) *List_Join {
 }
 
 // ConvertCommandToMessageListLimit converts a command.Limit to a message.List_Limit
-func ConvertCommandToMessageListLimit(cmd command.Limit) *List_Limit {
-	msgListLimit := &List_Limit{}
+func ConvertCommandToMessageListLimit(cmd *command.Limit) *List_Limit {
+	msgListLimit := &List_Limit{&Command_Limit{}}
 	msgListLimit.Limit.Limit = ConvertCommandToMessageExpr(cmd.Limit)
 	msgListLimit.Limit.Input = ConvertCommandToMessageList(cmd.Input)
 	return msgListLimit
 }
 
 // ConvertCommandToMessageListOffset converts a command.Offset to a message.List_Offset
-func ConvertCommandToMessageListOffset(cmd command.Offset) *List_Offset {
-	msgListOffset := &List_Offset{}
+func ConvertCommandToMessageListOffset(cmd *command.Offset) *List_Offset {
+	msgListOffset := &List_Offset{&Command_Offset{}}
 	msgListOffset.Offset.Offset = ConvertCommandToMessageExpr(cmd.Offset)
 	msgListOffset.Offset.Input = ConvertCommandToMessageList(cmd.Input)
 	return msgListOffset
 }
 
 // ConvertCommandToMessageListDistinct converts a command.Distinct to a message.List_Distinct
-func ConvertCommandToMessageListDistinct(cmd command.Distinct) *List_Distinct {
-	msgListDistinct := &List_Distinct{}
+func ConvertCommandToMessageListDistinct(cmd *command.Distinct) *List_Distinct {
+	msgListDistinct := &List_Distinct{&Command_Distinct{}}
 	msgListDistinct.Distinct.Input = ConvertCommandToMessageList(cmd.Input)
 	return msgListDistinct
 }
@@ -214,7 +214,7 @@ func ConvertCommandToMessageRepeatedExprSlice(cmd [][]command.Expr) []*RepeatedE
 }
 
 // ConvertCommandToMessageListValues converts a command.Values to a message.List_Values
-func ConvertCommandToMessageListValues(cmd command.Values) *List_Values {
+func ConvertCommandToMessageListValues(cmd *command.Values) *List_Values {
 	msgListValues := &List_Values{}
 	msgListValues.Values.Expr = ConvertCommandToMessageRepeatedExprSlice(cmd.Values)
 	return msgListValues
@@ -223,23 +223,23 @@ func ConvertCommandToMessageListValues(cmd command.Values) *List_Values {
 // ConvertCommandToMessageList converts
 func ConvertCommandToMessageList(cmd command.List) *List {
 	msgList := &List{}
-	switch cmd.(type) {
-	case command.Scan:
-		msgList.List = ConvertCommandToMessageListScan(cmd.(command.Scan))
-	case command.Select:
-		msgList.List = ConvertCommandToMessageListSelect(cmd.(command.Select))
-	case command.Project:
-		msgList.List = ConvertCommandToMessageListProject(cmd.(command.Project))
-	case command.Join:
-		msgList.List = ConvertCommandToMessageListJoin(cmd.(command.Join))
-	case command.Limit:
-		msgList.List = ConvertCommandToMessageListLimit(cmd.(command.Limit))
-	case command.Offset:
-		msgList.List = ConvertCommandToMessageListOffset(cmd.(command.Offset))
-	case command.Distinct:
-		msgList.List = ConvertCommandToMessageListDistinct(cmd.(command.Distinct))
-	case command.Values:
-		msgList.List = ConvertCommandToMessageListValues(cmd.(command.Values))
+	switch cmd := cmd.(type) {
+	case *command.Scan:
+		msgList.List = ConvertCommandToMessageListScan(cmd)
+	case *command.Select:
+		msgList.List = ConvertCommandToMessageListSelect(cmd)
+	case *command.Project:
+		msgList.List = ConvertCommandToMessageListProject(cmd)
+	case *command.Join:
+		msgList.List = ConvertCommandToMessageListJoin(cmd)
+	case *command.Limit:
+		msgList.List = ConvertCommandToMessageListLimit(cmd)
+	case *command.Offset:
+		msgList.List = ConvertCommandToMessageListOffset(cmd)
+	case *command.Distinct:
+		msgList.List = ConvertCommandToMessageListDistinct(cmd)
+	case *command.Values:
+		msgList.List = ConvertCommandToMessageListValues(cmd)
 	}
 	return msgList
 }
@@ -290,22 +290,22 @@ func ConvertCommandToMessageDelete(cmd command.Command) *Command_Delete {
 func ConvertCommandToMessageDrop(cmd command.Command) *CommandDrop {
 	msgCmdDrop := &CommandDrop{}
 	switch cmd.(type) {
-	case command.DropTable:
+	case *command.DropTable:
 		msgCmdDrop.Target = 0
 		msgCmdDrop.IfExists = cmd.(*command.DropTable).IfExists
 		msgCmdDrop.Schema = cmd.(*command.DropTable).Schema
 		msgCmdDrop.Name = cmd.(*command.DropTable).Name
-	case command.DropView:
+	case *command.DropView:
 		msgCmdDrop.Target = 1
 		msgCmdDrop.IfExists = cmd.(*command.DropView).IfExists
 		msgCmdDrop.Schema = cmd.(*command.DropView).Schema
 		msgCmdDrop.Name = cmd.(*command.DropView).Name
-	case command.DropIndex:
+	case *command.DropIndex:
 		msgCmdDrop.Target = 2
 		msgCmdDrop.IfExists = cmd.(*command.DropIndex).IfExists
 		msgCmdDrop.Schema = cmd.(*command.DropIndex).Schema
 		msgCmdDrop.Name = cmd.(*command.DropIndex).Name
-	case command.DropTrigger:
+	case *command.DropTrigger:
 		msgCmdDrop.Target = 3
 		msgCmdDrop.IfExists = cmd.(*command.DropTrigger).IfExists
 		msgCmdDrop.Schema = cmd.(*command.DropTrigger).Schema
@@ -335,50 +335,60 @@ func ConvertCommandToMessageUpdateOr(cmd command.UpdateOr) UpdateOr {
 
 // ConvertCommandToMessageUpdateSetterLiteral converts a command.Literal to a message.UpdateSetter_Literal
 func ConvertCommandToMessageUpdateSetterLiteral(cmd command.LiteralExpr) *UpdateSetter_Literal {
-	msgUpdateSetterLiteral := &UpdateSetter_Literal{}
-
+	msgUpdateSetterLiteral := &UpdateSetter_Literal{&LiteralExpr{}}
+	msgUpdateSetterLiteral.Literal.Value = cmd.Value
 	return msgUpdateSetterLiteral
 }
 
 // ConvertCommandToMessageUpdateSetterConstant converts a command.Constant to a message.UpdateSetter_Constant
 func ConvertCommandToMessageUpdateSetterConstant(cmd command.ConstantBooleanExpr) *UpdateSetter_Constant {
-	msgUpdateSetterConstant := &UpdateSetter_Constant{}
-
+	msgUpdateSetterConstant := &UpdateSetter_Constant{&ConstantBooleanExpr{}}
+	msgUpdateSetterConstant.Constant.Value = cmd.Value
 	return msgUpdateSetterConstant
 }
 
 // ConvertCommandToMessageUpdateSetterUnary converts a command.Unary to a message.UpdateSetter_Unary
 func ConvertCommandToMessageUpdateSetterUnary(cmd command.UnaryExpr) *UpdateSetter_Unary {
-	msgUpdateSetterUnary := &UpdateSetter_Unary{}
-
+	msgUpdateSetterUnary := &UpdateSetter_Unary{&UnaryExpr{}}
+	msgUpdateSetterUnary.Unary.Operator = cmd.Operator
+	msgUpdateSetterUnary.Unary.Value = ConvertCommandToMessageExpr(cmd.Value)
 	return msgUpdateSetterUnary
 }
 
 // ConvertCommandToMessageUpdateSetterBinary converts a command.Binary to a message.UpdateSetter_Binary
 func ConvertCommandToMessageUpdateSetterBinary(cmd command.BinaryExpr) *UpdateSetter_Binary {
-	msgUpdateSetterBinary := &UpdateSetter_Binary{}
-
+	msgUpdateSetterBinary := &UpdateSetter_Binary{&BinaryExpr{}}
+	msgUpdateSetterBinary.Binary.Operator = cmd.Operator
+	msgUpdateSetterBinary.Binary.Left = ConvertCommandToMessageExpr(cmd.Left)
+	msgUpdateSetterBinary.Binary.Right = ConvertCommandToMessageExpr(cmd.Right)
 	return msgUpdateSetterBinary
 }
 
 // ConvertCommandToMessageUpdateSetterFunc converts a command.Func to a message.UpdateSetter_Func
 func ConvertCommandToMessageUpdateSetterFunc(cmd command.FunctionExpr) *UpdateSetter_Func {
-	msgUpdateSetterFunc := &UpdateSetter_Func{}
-
+	msgUpdateSetterFunc := &UpdateSetter_Func{&FunctionExpr{}}
+	msgUpdateSetterFunc.Func.Name = cmd.Name
+	msgUpdateSetterFunc.Func.Distinct = cmd.Distinct
+	msgUpdateSetterFunc.Func.Args = ConvertCommandToMessageRepeatedExpr(cmd.Args)
 	return msgUpdateSetterFunc
 }
 
 // ConvertCommandToMessageUpdateSetterEquality converts a command.Equality to a message.UpdateSetter_Equality
 func ConvertCommandToMessageUpdateSetterEquality(cmd command.EqualityExpr) *UpdateSetter_Equality {
-	msgUpdateSetterEquality := &UpdateSetter_Equality{}
-
+	msgUpdateSetterEquality := &UpdateSetter_Equality{&EqualityExpr{}}
+	msgUpdateSetterEquality.Equality.Left = ConvertCommandToMessageExpr(cmd.Left)
+	msgUpdateSetterEquality.Equality.Right = ConvertCommandToMessageExpr(cmd.Right)
+	msgUpdateSetterEquality.Equality.Invert = cmd.Invert
 	return msgUpdateSetterEquality
 }
 
 // ConvertCommandToMessageUpdateSetterRange converts a command.Range to a message.UpdateSetter_Range
 func ConvertCommandToMessageUpdateSetterRange(cmd command.RangeExpr) *UpdateSetter_Range {
-	msgUpdateSetterRange := &UpdateSetter_Range{}
-
+	msgUpdateSetterRange := &UpdateSetter_Range{&RangeExpr{}}
+	msgUpdateSetterRange.Range.Needle = ConvertCommandToMessageExpr(cmd.Needle)
+	msgUpdateSetterRange.Range.Lo = ConvertCommandToMessageExpr(cmd.Lo)
+	msgUpdateSetterRange.Range.Hi = ConvertCommandToMessageExpr(cmd.Hi)
+	msgUpdateSetterRange.Range.Invert = cmd.Invert
 	return msgUpdateSetterRange
 }
 
