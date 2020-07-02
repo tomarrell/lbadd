@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/rs/zerolog"
-	"github.com/tomarrell/lbadd/internal/compile"
+	"github.com/tomarrell/lbadd/internal/compiler/command"
 )
 
 var _ Executor = (*simpleExecutor)(nil)
@@ -23,7 +23,7 @@ func NewSimpleExecutor(log zerolog.Logger, databaseFile string) Executor {
 	}
 }
 
-func (e *simpleExecutor) Execute(cmd compile.Command) (Result, error) {
+func (e *simpleExecutor) Execute(cmd command.Command) (Result, error) {
 	return nil, fmt.Errorf("unimplemented")
 }
 

@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/rs/zerolog"
-	"github.com/tomarrell/lbadd/internal/compile"
 	"github.com/tomarrell/lbadd/internal/executor"
 	"github.com/tomarrell/lbadd/internal/network"
 	"github.com/tomarrell/lbadd/internal/raft"
@@ -94,8 +93,9 @@ func (n *Node) startNode() error {
 // given slice of commands. -1 is returned if no commands were executed.
 func (n *Node) replicate(input []*message.Command) int {
 	for i := range input {
-		cmd := convert(input[i])
+		cmd := message.ConvertMessageToCommand(input[i])
 
+		// Link to the engine's executor must be added here.
 		_, err := n.exec.Execute(cmd)
 		if err != nil {
 			n.log.Error().
@@ -105,9 +105,4 @@ func (n *Node) replicate(input []*message.Command) int {
 		}
 	}
 	return len(input)
-}
-
-// convert is a stop gap arrangement until the compile.Command aligns with the universal format for IR commands.
-func convert(input *message.Command) compile.Command {
-	return compile.Command{}
 }
