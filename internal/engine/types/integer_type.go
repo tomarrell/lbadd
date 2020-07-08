@@ -24,6 +24,12 @@ func (t IntegerType) Compare(left, right Value) (int, error) {
 		return 0, err
 	}
 
+	if left.IsNull() {
+		return -1, nil
+	} else if right.IsNull() {
+		return 1, nil
+	}
+
 	leftInteger := left.(IntegerValue).Value
 	rightInteger := right.(IntegerValue).Value
 

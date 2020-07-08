@@ -24,6 +24,30 @@ func TestBoolType_Compare(t *testing.T) {
 			"type mismatch: want Bool, got <nil>",
 		},
 		{
+			"null <-> nil",
+			args{NewNull(Bool), nil},
+			0,
+			"type mismatch: want Bool, got <nil>",
+		},
+		{
+			"null <-> null",
+			args{NewNull(Bool), NewNull(Bool)},
+			-1,
+			"",
+		},
+		{
+			"null <-> true",
+			args{NewNull(Bool), NewBool(true)},
+			-1,
+			"",
+		},
+		{
+			"null <-> false",
+			args{NewNull(Bool), NewBool(false)},
+			-1,
+			"",
+		},
+		{
 			"left nil",
 			args{nil, NewBool(false)},
 			0,

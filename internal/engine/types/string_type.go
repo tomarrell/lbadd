@@ -31,6 +31,12 @@ func (t StringType) Compare(left, right Value) (int, error) {
 		return 0, err
 	}
 
+	if left.IsNull() {
+		return -1, nil
+	} else if right.IsNull() {
+		return 1, nil
+	}
+
 	leftString := left.(StringValue).Value
 	rightString := right.(StringValue).Value
 	return strings.Compare(leftString, rightString), nil

@@ -7,7 +7,14 @@ import "fmt"
 type Value interface {
 	Type() Type
 	IsTyper
+	IsNuller
 	fmt.Stringer
+}
+
+// IsNuller wraps the method IsNull, which determines whether the value is a
+// null value or not.
+type IsNuller interface {
+	IsNull() bool
 }
 
 // IsTyper wraps the basic method Is, which can check the type of a value.
@@ -16,7 +23,12 @@ type IsTyper interface {
 }
 
 type value struct {
-	typ Type
+	typ    Type
+	isNull bool
+}
+
+func (v value) IsNull() bool {
+	return v.isNull
 }
 
 func (v value) Type() Type {

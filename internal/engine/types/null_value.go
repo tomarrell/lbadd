@@ -13,7 +13,8 @@ type NullValue struct {
 func NewNull(t Type) NullValue {
 	return NullValue{
 		value: value{
-			typ: t,
+			typ:    t,
+			isNull: true,
 		},
 	}
 }
