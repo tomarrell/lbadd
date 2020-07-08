@@ -76,7 +76,7 @@ type SimpleServer struct {
 
 	onRequestVotes  func(*message.RequestVoteRequest)
 	onLeaderElected func()
-	onAppendEntries func(*message.AppendEntriesRequest)
+	onAppendEntries func()
 }
 
 // incomingData describes every request that the server gets.
@@ -319,6 +319,6 @@ func (s *SimpleServer) OnLeaderElected(hook func()) {
 }
 
 // OnAppendEntries is a hook setter for AppenEntriesRequest.
-func (s *SimpleServer) OnAppendEntries(hook func(*message.AppendEntriesRequest)) {
+func (s *SimpleServer) OnAppendEntries(hook func()) {
 	s.onAppendEntries = hook
 }

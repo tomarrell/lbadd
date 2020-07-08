@@ -38,9 +38,6 @@ func (s *SimpleServer) startLeader() {
 				s.lock.Unlock()
 				return
 			}
-			s.node.sendHeartBeats()
-			s.lock.Unlock()
-
 			s.node.PersistentState.mu.Lock()
 			if s.node.State != StateLeader.String() {
 				s.node.PersistentState.mu.Unlock()
@@ -48,7 +45,12 @@ func (s *SimpleServer) startLeader() {
 			}
 			s.node.PersistentState.mu.Unlock()
 
-			s.onAppendEntries(nil)
+			s.node.sendHeartBeats()
+			s.lock.Unlock()
+
+			if s.onAppendEntries != nil {
+				s.onAppendEntries()
+			}
 		}
 	}()
 }

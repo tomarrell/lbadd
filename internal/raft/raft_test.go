@@ -13,35 +13,12 @@ import (
 	"github.com/tomarrell/lbadd/internal/id"
 	"github.com/tomarrell/lbadd/internal/network"
 	networkmocks "github.com/tomarrell/lbadd/internal/network/mocks"
-	"github.com/tomarrell/lbadd/internal/raft/cluster"
 	"github.com/tomarrell/lbadd/internal/raft/message"
 	raftmocks "github.com/tomarrell/lbadd/internal/raft/mocks"
 )
 
-// Raft integration tests go here.
-func Test_NewServer(t *testing.T) {
-	t.SkipNow()
-	assert := assert.New(t)
-
-	log := zerolog.Nop()
-	ctx := context.Background()
-	cluster := cluster.NewTCPCluster(log)
-	err := cluster.Open(ctx, ":0")
-	server := NewServer(
-		log,
-		cluster,
-	)
-	assert.NoError(err)
-	err = server.Start()
-	assert.NoError(err)
-}
-
 // Test_Raft tests the entire raft operation.
 func Test_Raft(t *testing.T) {
-
-	zerolog.New(os.Stdout).With().
-		Str("foo", "bar").
-		Logger()
 
 	assert := assert.New(t)
 	ctx := context.Background()
@@ -117,7 +94,7 @@ func Test_Raft(t *testing.T) {
 
 	server.OnRequestVotes(func(msg *message.RequestVoteRequest) {})
 	server.OnLeaderElected(func() {})
-	server.OnAppendEntries(func(msg *message.AppendEntriesRequest) {
+	server.OnAppendEntries(func() {
 		err = server.Close()
 		if err != network.ErrClosed {
 			assert.NoError(err)

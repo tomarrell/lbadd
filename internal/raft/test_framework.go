@@ -20,17 +20,13 @@ type TestFramework interface {
 	// OpParams provides the parameters for operation of the raft cluster.
 	OpParams() OperationParameters
 	// Cfg provides the network configuration of the cluster.
-	Cfg() NetworkConfiguration
+	Config() NetworkConfiguration
 	// BeginTest kicks of all operations by starting the raft cluster.
 	// It obeys the parameters of operation and raises an error if the
 	// conditions for the test don't satisfy.
 	BeginTest() error
 	// InjectOperation will initiate the given operation in the cluster.
 	InjectOperation(op Operation, args interface{})
-	// Monitor generates a detailed log about the entire raft operation
-	// and other conditions of the test framework. Generates an error if
-	// a logger doesn't exist in the struct, with name "log".
-	Monitor() error
 	// GracefulShutdown ensures the cluster is shutdown by waiting for
 	// all the running operations to complete.
 	GracefulShutdown() error
@@ -54,8 +50,8 @@ type OperationParameters struct {
 
 // NetworkConfiguration holds the details of the network of the cluster.
 type NetworkConfiguration struct {
-	IP []network.Conn
-	ID []id.ID
+	IPs []network.Conn
+	IDs []id.ID
 }
 
 // Operation describes the different types of operations that can be performed on the cluster.

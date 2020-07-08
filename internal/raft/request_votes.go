@@ -25,7 +25,9 @@ func (s *SimpleServer) RequestVote(nodeConn network.Conn, req *message.RequestVo
 		return nil, err
 	}
 
-	s.onRequestVotes(req)
+	if s.onRequestVotes != nil {
+		s.onRequestVotes(req)
+	}
 
 	res, err := nodeConn.Receive(ctx)
 	if err != nil {

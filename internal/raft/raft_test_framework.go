@@ -44,8 +44,8 @@ func (t *SimpleRaftTest) OpParams() OperationParameters {
 	return t.parameters
 }
 
-// Cfg returns the configuration under which the test is running.
-func (t *SimpleRaftTest) Cfg() NetworkConfiguration {
+// Config returns the configuration under which the test is running.
+func (t *SimpleRaftTest) Config() NetworkConfiguration {
 	return t.config
 }
 
@@ -61,12 +61,6 @@ func (t *SimpleRaftTest) BeginTest() error {
 	//
 	//
 	shutDownTimer := time.NewTimer(time.Duration(t.OpParams().TimeLimit) * time.Second)
-	signal := make(chan bool, 1)
-
-	go func() {
-		<-shutDownTimer.C
-		signal <- true
-	}()
 
 	go func() {
 		for {
@@ -79,7 +73,7 @@ func (t *SimpleRaftTest) BeginTest() error {
 	for {
 		select {
 		case <-t.opChannel:
-		case <-signal:
+		case <-shutDownTimer.C:
 			return t.GracefulShutdown()
 		}
 	}
@@ -90,7 +84,6 @@ func (t *SimpleRaftTest) BeginTest() error {
 func (t *SimpleRaftTest) GracefulShutdown() error {
 	log.Debug().
 		Msg("gracefully shutting down")
-
 	return nil
 }
 
@@ -101,9 +94,4 @@ func (t *SimpleRaftTest) InjectOperation(op Operation, args interface{}) {
 	case StopNode:
 	case PartitionNetwork:
 	}
-}
-
-//Monitor monitors
-func (t *SimpleRaftTest) Monitor() error {
-	return nil
 }
