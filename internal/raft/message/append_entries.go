@@ -30,9 +30,11 @@ func (*AppendEntriesRequest) Kind() Kind {
 // NewLogData creates a new log-data object, which can be used for an
 // append-entries-request message.
 func NewLogData(term int32, data command.Command) *LogData {
+	msg, _ := ConvertCommandToMessage(data)
+
 	return &LogData{
 		Term:  term,
-		Entry: ConvertCommandToMessage(data).(*Command),
+		Entry: msg.(*Command),
 	}
 }
 

@@ -51,7 +51,7 @@ func (s *SimpleServer) StartElection() {
 				Msg("request vote")
 
 			// send a requestVotesRPC
-			res, err := RequestVote(s.node.PersistentState.PeerIPs[i], req)
+			res, err := s.RequestVote(s.node.PersistentState.PeerIPs[i], req)
 			// If there's an error, the vote is considered to be not casted by the node.
 			// Worst case, there will be a re-election; the errors might be from network or
 			// data consistency errors, which will be sorted by a re-election.

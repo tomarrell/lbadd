@@ -2,6 +2,7 @@ package raft
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -114,27 +115,16 @@ func Test_Raft(t *testing.T) {
 		timeoutProvider,
 	)
 
-	go func() {
-		err := server.Start()
-		assert.NoError(err)
-	}()
-
-	// Wait for 2 rounds of raft to complete.
-	<-time.After(time.Duration(300) * time.Millisecond)
-
-	// Check whether 2 rounds of operation of Raft was done.
-	if conn1.AssertNumberOfCalls(t, "Receive", 3) &&
-		conn2.AssertNumberOfCalls(t, "Receive", 3) &&
-		conn3.AssertNumberOfCalls(t, "Receive", 3) &&
-		conn4.AssertNumberOfCalls(t, "Receive", 3) {
-		err := server.Close()
-		assert.NoError(err)
-	}
-
-	err = server.Close()
-	if err != network.ErrClosed {
-		assert.NoError(err)
-	}
+	server.OnRequestVotes(func(msg *message.RequestVoteRequest) {})
+	server.OnLeaderElected(func() {})
+	server.OnAppendEntries(func(msg *message.AppendEntriesRequest) {
+		err = server.Close()
+		if err != network.ErrClosed {
+			assert.NoError(err)
+		}
+	})
+	err = server.Start()
+	assert.NoError(err)
 }
 
 func addRemoteID(conn *networkmocks.Conn) *networkmocks.Conn {
@@ -150,4 +140,21 @@ func timeoutProvider(node *Node) *time.Timer {
 		Int("random timer set to", 150).
 		Msg("heart beat timer")
 	return time.NewTimer(time.Duration(150) * time.Millisecond)
+}
+
+func Test_Integration(t *testing.T) {
+	log := zerolog.New(os.Stdout).With().Logger().Level(zerolog.GlobalLevel())
+
+	opParams := OperationParameters{
+		Rounds:    4,
+		TimeLimit: 2,
+	}
+
+	cfg := NetworkConfiguration{}
+
+	raftTest := NewSimpleRaftTest(log, opParams, cfg)
+
+	err := raftTest.BeginTest()
+
+	fmt.Println(err)
 }

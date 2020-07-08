@@ -74,9 +74,9 @@ type SimpleServer struct {
 	timeoutProvider func(*Node) *time.Timer
 	lock            sync.Mutex
 
-	onRequestVotes  func(message.RequestVoteRequest)
+	onRequestVotes  func(*message.RequestVoteRequest)
 	onLeaderElected func()
-	onAppendEntries func(message.AppendEntriesRequest)
+	onAppendEntries func(*message.AppendEntriesRequest)
 }
 
 // incomingData describes every request that the server gets.
@@ -309,7 +309,7 @@ func (s *SimpleServer) relayDataToServer(req *message.LogAppendRequest) {
 }
 
 // OnRequestVotes is a hook setter for RequestVotesRequest.
-func (s *SimpleServer) OnRequestVotes(hook func(message.RequestVoteRequest)) {
+func (s *SimpleServer) OnRequestVotes(hook func(*message.RequestVoteRequest)) {
 	s.onRequestVotes = hook
 }
 
@@ -319,6 +319,6 @@ func (s *SimpleServer) OnLeaderElected(hook func()) {
 }
 
 // OnAppendEntries is a hook setter for AppenEntriesRequest.
-func (s *SimpleServer) OnAppendEntries(hook func(message.AppendEntriesRequest)) {
+func (s *SimpleServer) OnAppendEntries(hook func(*message.AppendEntriesRequest)) {
 	s.onAppendEntries = hook
 }

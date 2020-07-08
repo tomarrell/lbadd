@@ -584,7 +584,7 @@ var commandToMessageTests = []struct {
 func Test_CommandToMessage(t *testing.T) {
 	for _, tt := range commandToMessageTests {
 		t.Run(tt.in.String(), func(t *testing.T) {
-			msg := ConvertCommandToMessage(tt.in)
+			msg, _ := ConvertCommandToMessage(tt.in)
 			if !reflect.DeepEqual(msg, tt.out) {
 				t.Errorf("got %q, want %q", msg, tt.out)
 			}

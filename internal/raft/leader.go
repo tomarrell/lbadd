@@ -35,6 +35,7 @@ func (s *SimpleServer) startLeader() {
 			// the server is not closed.
 			s.lock.Lock()
 			if s.node == nil {
+				s.lock.Unlock()
 				return
 			}
 			s.node.sendHeartBeats()
@@ -46,6 +47,8 @@ func (s *SimpleServer) startLeader() {
 				return
 			}
 			s.node.PersistentState.mu.Unlock()
+
+			s.onAppendEntries(nil)
 		}
 	}()
 }

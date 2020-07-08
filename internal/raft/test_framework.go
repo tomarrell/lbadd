@@ -1,6 +1,7 @@
 package raft
 
 import (
+	"github.com/tomarrell/lbadd/internal/compile"
 	"github.com/tomarrell/lbadd/internal/id"
 	"github.com/tomarrell/lbadd/internal/network"
 )
@@ -24,14 +25,15 @@ type TestFramework interface {
 	// It obeys the parameters of operation and raises an error if the
 	// conditions for the test don't satisfy.
 	BeginTest() error
-	// InjectData allows injecting data into the raft operation to test the consesus aspect.
-	InjectData(interface{})
 	// InjectOperation will initiate the given operation in the cluster.
 	InjectOperation(op Operation, args interface{})
 	// Monitor generates a detailed log about the entire raft operation
 	// and other conditions of the test framework. Generates an error if
 	// a logger doesn't exist in the struct, with name "log".
 	Monitor() error
+	// GracefulShutdown ensures the cluster is shutdown by waiting for
+	// all the running operations to complete.
+	GracefulShutdown() error
 }
 
 // OperationParameters are the bounds which dictate the parameters
@@ -61,6 +63,29 @@ type Operation int
 
 // Types of Operations.
 const (
-	StopNode Operation = 1 + iota
+	SendData Operation = 1 + iota
+	StopNode
 	PartitionNetwork
 )
+
+// OpData fully describes a runnable operation on the raft cluster.
+// The "data" field can be either of the data related to the operation.
+type OpData struct {
+	Op   Operation
+	Data interface{}
+}
+
+// OpSendData describes the data related to SendData.
+type OpSendData struct {
+	Data []*compile.Command
+}
+
+// OpStopNode describes the data related to StopNode
+type OpStopNode struct {
+	NodeID id.ID
+}
+
+// OpPartitionNetwork describes the data related to PartitionNetwork.
+type OpPartitionNetwork struct {
+	Groups [][]id.ID
+}
