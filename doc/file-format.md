@@ -20,8 +20,11 @@ bytes are the UTF-8 encoding of that string.
 
 * `pageCount` is a record cell whose entry is an 8 byte big endian unsigned
   integer, representing the amount of pages stored in the file.
+* `config` is a pointer cell which points to a page, that contains configuration
+  parameters for this database.
 * `tables` is a pointer cell which points to a page, that contains pointers to
-  all tables that are stored in this database. The format of the table pages is explained in the next section.
+  all tables that are stored in this database. The format of the table pages is
+  explained in the next section.
 
 ### Table pages
 Table pages do not directly hold data of a table. Instead, they hold pointers to
@@ -34,14 +37,15 @@ The keys of the three values, index page, data page and schema are as follows.
 
 * `datadefinition` is a record cell containing the schema information about this
   table. That is, columns, column types, references, triggers etc. How the
-  schema information is to be interpreted, is explained [here](#data-definition).
+  schema information is to be interpreted, is explained
+  [here](#data-definition).
 * `index` is a pointer cell pointing to the index page of this table. The index
-  page contains pages that are used as nodes in a btree. See more
+  page points to pages that are an actual index in the table. See more
   [here](#index-pages)
 * `data` is a pointer cell pointing to the data page of this table. See more
   [here](#data-pages)
 
-### Index pages
+### Index page
 
 ### Data pages
 A data page stores plain record in a cell. Cell values are the full records,

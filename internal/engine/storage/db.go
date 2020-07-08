@@ -26,6 +26,8 @@ const (
 	HeaderTables = "tables"
 	// HeaderPageCount is the string key for the header page's cell "pageCount"
 	HeaderPageCount = "pageCount"
+	// HeaderConfig is the string key for the header page's cell "config"
+	HeaderConfig = "config"
 )
 
 var (
@@ -45,6 +47,7 @@ type DBFile struct {
 	cache       cache.Cache
 
 	headerPage *page.Page
+	configPage *page.Page
 }
 
 // Create creates a new database in the given file with the given options. The
@@ -69,34 +72,51 @@ func Create(file afero.File, opts ...Option) (*DBFile, error) {
 	if err != nil {
 		return nil, fmt.Errorf("allocate header page: %w", err)
 	}
+	configPage, err := mgr.AllocateNew()
+	if err != nil {
+		return nil, fmt.Errorf("allocate config page: %w", err)
+	}
 	tablesPage, err := mgr.AllocateNew()
 	if err != nil {
 		return nil, fmt.Errorf("allocate tables page: %w", err)
 	}
 
+	// store page count
 	if err := headerPage.StoreRecordCell(page.RecordCell{
 		Key:    []byte(HeaderPageCount),
-		Record: encodeUint64(2), // header and tables page
+		Record: encodeUint64(3), // header, config and tables page
 	}); err != nil {
-		return nil, fmt.Errorf("store record cell: %w", err)
+		return nil, fmt.Errorf("store page count: %w", err)
 	}
+	// store pointer to config page
+	if err := headerPage.StorePointerCell(page.PointerCell{
+		Key:     []byte(HeaderConfig),
+		Pointer: configPage.ID(),
+	}); err != nil {
+		return nil, fmt.Errorf("store config pointer: %w", err)
+	}
+	// store pointer to tables page
 	if err := headerPage.StorePointerCell(page.PointerCell{
 		Key:     []byte(HeaderTables),
 		Pointer: tablesPage.ID(),
 	}); err != nil {
-		return nil, fmt.Errorf("store pointer cell: %w", err)
+		return nil, fmt.Errorf("store tables pointer: %w", err)
 	}
 
 	err = mgr.WritePage(headerPage) // immediately flush
 	if err != nil {
 		return nil, fmt.Errorf("write header page: %w", err)
 	}
+	err = mgr.WritePage(configPage) // immediately flush
+	if err != nil {
+		return nil, fmt.Errorf("write config page: %w", err)
+	}
 	err = mgr.WritePage(tablesPage) // immediately flush
 	if err != nil {
 		return nil, fmt.Errorf("write tables page: %w", err)
 	}
 
-	return newDB(file, mgr, headerPage, opts...), nil
+	return newDB(file, mgr, headerPage, opts...)
 }
 
 // Open opens and validates a given file and creates a (*DBFile) with the given
@@ -117,13 +137,14 @@ func Open(file afero.File, opts ...Option) (*DBFile, error) {
 		return nil, fmt.Errorf("read header page: %w", err)
 	}
 
-	return newDB(file, mgr, headerPage, opts...), nil
+	return newDB(file, mgr, headerPage, opts...)
 }
 
 // AllocateNewPage allocates and immediately persists a new page in secondary
 // storage. This will fail if the DBFile is closed. After this method returns,
-// the allocated page can immediately be found by the cache, and you can use the
-// returned page ID to load the page through the cache.
+// the allocated page can immediately be found by the cache (it is not loaded
+// yet), and you can use the returned page ID to load the page through the
+// cache.
 func (db *DBFile) AllocateNewPage() (page.ID, error) {
 	if db.Closed() {
 		return 0, ErrClosed
@@ -152,8 +173,14 @@ func (db *DBFile) Cache() cache.Cache {
 }
 
 // Close will close the underlying cache, as well as page manager, as well as
-// file.
+// the file. Everything will be closed after writing the config and header page.
 func (db *DBFile) Close() error {
+	if err := db.pageManager.WritePage(db.headerPage); err != nil {
+		return fmt.Errorf("write header page: %w", err)
+	}
+	if err := db.pageManager.WritePage(db.configPage); err != nil {
+		return fmt.Errorf("write config page: %w", err)
+	}
 	_ = db.cache.Close()
 	_ = db.pageManager.Close()
 	_ = db.file.Close()
@@ -167,7 +194,7 @@ func (db *DBFile) Closed() bool {
 }
 
 // newDB creates a new DBFile from the given objects, and applies all options.
-func newDB(file afero.File, mgr *PageManager, headerPage *page.Page, opts ...Option) *DBFile {
+func newDB(file afero.File, mgr *PageManager, headerPage *page.Page, opts ...Option) (*DBFile, error) {
 	db := &DBFile{
 		log:       zerolog.Nop(),
 		cacheSize: DefaultCacheSize,
@@ -180,9 +207,30 @@ func newDB(file afero.File, mgr *PageManager, headerPage *page.Page, opts ...Opt
 		opt(db)
 	}
 
+	if err := db.initialize(); err != nil {
+		return nil, fmt.Errorf("initialize: %w", err)
+	}
+
 	db.cache = cache.NewLRUCache(db.cacheSize, mgr)
 
-	return db
+	return db, nil
+}
+
+func (db *DBFile) initialize() error {
+	// get config page id
+	cfgPageID, err := pointerCellValue(db.headerPage, HeaderConfig)
+	if err != nil {
+		return err
+	}
+
+	// read config page
+	cfgPage, err := db.pageManager.ReadPage(cfgPageID)
+	if err != nil {
+		return fmt.Errorf("can't read config page: %w", err)
+	}
+	db.configPage = cfgPage
+
+	return nil
 }
 
 // incrementHeaderPageCount will increment the 8 byte uint64 in the
@@ -203,4 +251,15 @@ func encodeUint64(v uint64) []byte {
 	buf := make([]byte, unsafe.Sizeof(v)) // #nosec
 	byteOrder.PutUint64(buf, v)
 	return buf
+}
+
+func pointerCellValue(p *page.Page, cellKey string) (page.ID, error) {
+	cell, ok := p.Cell([]byte(cellKey))
+	if !ok {
+		return 0, ErrNoSuchCell(cellKey)
+	}
+	if cell.Type() != page.CellTypePointer {
+		return 0, fmt.Errorf("cell '%v' is %v, which is not a pointer cell", cellKey, cell.Type())
+	}
+	return cell.(page.PointerCell).Pointer, nil
 }

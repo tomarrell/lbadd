@@ -475,3 +475,108 @@ func TestPage_DeleteCell(t *testing.T) {
 		})
 	}
 }
+
+func TestPage_findCell(t *testing.T) {
+	pageID := ID(0)
+	p := New(pageID)
+	cells := []CellTyper{
+		// these cells should remain sorted, as sorted insertion is tested
+		// somewhere else, and by being sorted, the tests are more readable
+		// regarding the offset indexes
+		PointerCell{
+			Key:     []byte("001 first"),
+			Pointer: ID(1),
+		},
+		PointerCell{
+			Key:     []byte("002 second"),
+			Pointer: ID(2),
+		},
+		PointerCell{
+			Key:     []byte("003 third"),
+			Pointer: ID(3),
+		},
+		PointerCell{
+			Key:     []byte("004 fourth"),
+			Pointer: ID(4),
+		},
+	}
+	for _, cell := range cells {
+		switch c := cell.(type) {
+		case RecordCell:
+			assert.NoError(t, p.StoreRecordCell(c))
+		case PointerCell:
+			assert.NoError(t, p.StorePointerCell(c))
+		default:
+			assert.FailNow(t, "unknown cell type")
+		}
+	}
+
+	// actual tests
+
+	tests := []struct {
+		name            string
+		p               *Page
+		key             string
+		wantOffsetIndex uint16
+		wantCellSlot    Slot
+		wantCell        CellTyper
+		wantFound       bool
+	}{
+		{
+			name:            "first",
+			p:               p,
+			key:             "001 first",
+			wantOffsetIndex: 6,
+			wantCellSlot:    Slot{Offset: 16366, Size: 18},
+			wantCell:        cells[0],
+			wantFound:       true,
+		},
+		{
+			name:            "second",
+			p:               p,
+			key:             "002 second",
+			wantOffsetIndex: 10,
+			wantCellSlot:    Slot{Offset: 16347, Size: 19},
+			wantCell:        cells[1],
+			wantFound:       true,
+		},
+		{
+			name:            "third",
+			p:               p,
+			key:             "003 third",
+			wantOffsetIndex: 14,
+			wantCellSlot:    Slot{Offset: 16329, Size: 18},
+			wantCell:        cells[2],
+			wantFound:       true,
+		},
+		{
+			name:            "fourth",
+			p:               p,
+			key:             "004 fourth",
+			wantOffsetIndex: 18,
+			wantCellSlot:    Slot{Offset: 16310, Size: 19},
+			wantCell:        cells[3],
+			wantFound:       true,
+		},
+		{
+			name:            "missing cell",
+			p:               p,
+			key:             "some key that doesn't exist",
+			wantOffsetIndex: 0,
+			wantCellSlot:    Slot{Offset: 0, Size: 0},
+			wantCell:        nil,
+			wantFound:       false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert := assert.New(t)
+
+			offsetIndex, cellSlot, cell, found := p.findCell([]byte(tt.key))
+			assert.Equal(tt.wantOffsetIndex, offsetIndex, "offset indexes don't match")
+			assert.Equal(tt.wantCellSlot, cellSlot, "cell slot don't match")
+			assert.Equal(tt.wantCell, cell, "cell don't match")
+			assert.Equal(tt.wantFound, found, "found don't match")
+		})
+	}
+}

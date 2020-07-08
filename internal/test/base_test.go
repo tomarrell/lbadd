@@ -38,7 +38,9 @@ func TestMain(m *testing.M) {
 }
 
 func RunAndCompare(t *testing.T, tt Test) {
+	t.Helper()
 	t.Run(tt.Name, func(t *testing.T) {
+		t.Helper()
 		runAndCompare(t, tt)
 	})
 }
