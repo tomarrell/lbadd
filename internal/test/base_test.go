@@ -74,7 +74,6 @@ func runAndCompare(t *testing.T, tt Test) {
 	p := parser.New(tt.Statement)
 	stmt, errs, ok := p.Next()
 	assert.True(ok)
-	assert.Len(errs, 0)
 	for _, err := range errs {
 		assert.NoError(err)
 	}
