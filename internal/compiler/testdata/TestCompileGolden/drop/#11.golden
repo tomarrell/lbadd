@@ -1,1 +1,4 @@
+command.DropIndex{IfExists:true, Schema:"mySchema", Name:"myIndex"}
+
+String:
 DropIndex[index=mySchema.myIndex,ifexists=true]()

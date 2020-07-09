@@ -104,6 +104,7 @@ type (
 	// select statements.
 	Table interface {
 		_table()
+		QualifiedName() string
 	}
 
 	// SimpleTable is a table that is only specified by schema and table name,
@@ -312,6 +313,16 @@ func (Distinct) _list() {}
 func (Values) _list()   {}
 
 func (SimpleTable) _table() {}
+
+// QualifiedName returns '<Schema>.<TableName>', or only '<TableName>' if no
+// schema is specified.
+func (t SimpleTable) QualifiedName() string {
+	qualifiedName := t.Table
+	if t.Schema != "" {
+		qualifiedName = t.Schema + "." + qualifiedName
+	}
+	return qualifiedName
+}
 
 func (e Explain) String() string {
 	return fmt.Sprintf("explanation: %v", e.Command)

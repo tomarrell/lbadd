@@ -2,6 +2,7 @@ package compiler
 
 import (
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -43,19 +44,22 @@ func runGolden(t *testing.T, input string) {
 	got, err := c.Compile(stmt)
 	require.NoError(err)
 
+	gotGoString := fmt.Sprintf("%#v", got)
 	gotString := got.String()
+	gotFull := gotGoString + "\n\nString:\n" + gotString
+
 	testFilePath := "testdata/" + t.Name() + ".golden"
 
 	if *record {
 		t.Logf("overwriting golden file %v", testFilePath)
 		err := os.MkdirAll(filepath.Dir(testFilePath), 0777)
 		require.NoError(err)
-		err = ioutil.WriteFile(testFilePath, []byte(gotString), 0666)
+		err = ioutil.WriteFile(testFilePath, []byte(gotFull), 0666)
 		require.NoError(err)
 		t.Fail()
 	} else {
 		data, err := ioutil.ReadFile(testFilePath)
 		require.NoError(err)
-		require.Equal(string(data), gotString)
+		require.Equal(string(data), gotFull)
 	}
 }

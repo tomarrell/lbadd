@@ -1,0 +1,4 @@
+command.Values{Values:[][]command.Expr{[]command.Expr{command.UnaryExpr{Operator:"-", Value:command.LiteralExpr{Value:"7"}}}}}
+
+String:
+Values[]((- 7))
