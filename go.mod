@@ -17,7 +17,7 @@ require (
 	golang.org/x/net v0.0.0-20200505041828-1ed23360d12c
 	golang.org/x/sync v0.0.0-20200317015054-43a5402ce75a
 	golang.org/x/sys v0.0.0-20200501145240-bc7a7d42d5c3 // indirect
-	golang.org/x/text v0.3.2
+	golang.org/x/text v0.3.3
 	golang.org/x/tools v0.0.0-20200521211927-2b542361a4fc
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/yaml.v2 v2.2.8 // indirect
