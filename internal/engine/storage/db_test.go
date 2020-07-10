@@ -33,7 +33,7 @@ func TestCreate(t *testing.T) {
 		mustCell(assert, headerPage, HeaderPageCount).(page.RecordCell).Record,
 	)
 
-	// Allocating a new page must persist it in the created database file. This
+	// Allocating a new page must persist it is in the created database file. This
 	// check ensures, that the file is writable.
 	_, err = db.AllocateNewPage()
 	assert.NoError(err)
