@@ -9,7 +9,7 @@ import (
 // ExecutionContext is a context that is passed down throughout a complete
 // evaluation. It may be populated further.
 type ExecutionContext struct {
-	ctx *executionContext
+	*executionContext
 }
 
 type executionContext struct {
@@ -20,7 +20,7 @@ type executionContext struct {
 
 func newEmptyExecutionContext() ExecutionContext {
 	return ExecutionContext{
-		ctx: &executionContext{
+		executionContext: &executionContext{
 			id:            id.Create(),
 			scannedTables: make(map[string]Table),
 		},
@@ -28,20 +28,20 @@ func newEmptyExecutionContext() ExecutionContext {
 }
 
 func (c ExecutionContext) putScannedTable(name string, table Table) {
-	c.ctx.scannedTablesLock.Lock()
-	defer c.ctx.scannedTablesLock.Unlock()
+	c.scannedTablesLock.Lock()
+	defer c.scannedTablesLock.Unlock()
 
-	c.ctx.scannedTables[name] = table
+	c.scannedTables[name] = table
 }
 
 func (c ExecutionContext) getScannedTable(name string) (Table, bool) {
-	c.ctx.scannedTablesLock.Lock()
-	defer c.ctx.scannedTablesLock.Unlock()
+	c.scannedTablesLock.Lock()
+	defer c.scannedTablesLock.Unlock()
 
-	tbl, ok := c.ctx.scannedTables[name]
+	tbl, ok := c.scannedTables[name]
 	return tbl, ok
 }
 
 func (c ExecutionContext) String() string {
-	return c.ctx.id.String()
+	return c.id.String()
 }
