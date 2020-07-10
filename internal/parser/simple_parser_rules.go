@@ -1262,7 +1262,7 @@ func (p *simpleParser) parseExprRecursive(expr *ast.Expr, r reporter) *ast.Expr 
 		return nil
 	}
 	switch next.Type() {
-	case token.BinaryOperator:
+	case token.BinaryOperator, token.UnaryOperator:
 		return p.parseExpr4(expr, r)
 	case token.KeywordCollate:
 		return p.parseExpr8(expr, r)
@@ -1406,7 +1406,7 @@ func (p *simpleParser) parseExpr4(expr *ast.Expr, r reporter) *ast.Expr {
 	if !ok {
 		return nil
 	}
-	if next.Type() == token.BinaryOperator {
+	if next.Type() == token.BinaryOperator || next.Value() == "+" || next.Value() == "-" {
 		exprParent.BinaryOperator = next
 		p.consumeToken()
 		exprParent.Expr2 = p.parseExpression(r)
