@@ -64,7 +64,7 @@ func (e Engine) evaluateProjection(ctx ExecutionContext, proj command.Project) (
 			colName = col.Table + "." + colName
 		}
 
-		// TODO: support alias
+		// #193: support alias
 
 		expectedColumnNames = append(expectedColumnNames, colName)
 	}

@@ -10,8 +10,6 @@ func (e Engine) scanSimpleTable(ctx ExecutionContext, table command.SimpleTable)
 		return table, nil
 	}
 
-	// TODO: load table from the database file
-
 	ctx.putScannedTable(table.QualifiedName(), Table{})
 	return Table{}, ErrUnimplemented("scan simple table")
 }

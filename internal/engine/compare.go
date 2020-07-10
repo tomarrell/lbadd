@@ -33,7 +33,6 @@ func (e Engine) cmp(left, right types.Value) cmpResult {
 	}
 	res, err := comparator.Compare(left, right)
 	if err != nil {
-		// TODO: log error?
 		return cmpUncomparable
 	}
 	switch res {

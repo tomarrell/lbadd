@@ -50,7 +50,7 @@ func (m *PageManager) ReadPage(id page.ID) (*page.Page, error) {
 // WritePage will write the given page into secondary storage. It is guaranteed,
 // that after this call returns, the page is present on disk.
 func (m *PageManager) WritePage(p *page.Page) error {
-	data := p.RawData() // TODO: avoid copying in RawData()
+	data := p.RawData()
 	_, err := m.file.WriteAt(data, int64(p.ID())*page.Size)
 	if err != nil {
 		return fmt.Errorf("write at: %w", err)

@@ -61,7 +61,6 @@ func (c *LRUCache) Flush(id page.ID) error {
 
 // Close will flush all dirty pages and then close this cache.
 func (c *LRUCache) Close() error {
-	// TODO: can we really just flush on close?
 	for id := range c.pages {
 		_ = c.flush(id)
 	}
