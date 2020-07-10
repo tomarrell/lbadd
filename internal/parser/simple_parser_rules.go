@@ -3800,9 +3800,9 @@ func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 		}
 		if next.Type() == token.Delimiter && next.Value() == "(" {
 			for {
-				parExp := p.parseParenthesizedExpression(r)
-				if parExp != nil {
-					stmt.ParenthesizedExpressions = append(stmt.ParenthesizedExpressions, parExp)
+				parExpr := p.parseParenthesizedExpression(r)
+				if parExpr != nil {
+					stmt.ParenthesizedExpressions = append(stmt.ParenthesizedExpressions, parExpr)
 				}
 				next, ok = p.optionalLookahead(r)
 				if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
@@ -3811,7 +3811,8 @@ func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 					}
 					return
 				}
-				if next.Value() == "," {
+				// Do not allow nil exprs.
+				if next.Value() == "," && parExpr != nil {
 					p.consumeToken()
 				} else {
 					if len(stmt.ParenthesizedExpressions) == 0 {
@@ -4345,8 +4346,12 @@ func (p *simpleParser) parseParenthesizedExpression(r reporter) (stmt *ast.Paren
 				p.consumeToken()
 				break
 			}
-			if next.Value() == "," {
+			// Do not allow nil exprs.
+			if next.Value() == "," && expr != nil {
 				p.consumeToken()
+			} else {
+				r.expectedExpression()
+				break
 			}
 		}
 	}
