@@ -10,8 +10,7 @@ import (
 
 // evaluateExpression evaluates the given expression to a runtime-constant
 // value, meaning that it can only be evaluated to a constant value with a given
-// execution context. This execution context must be inferred from the engine
-// receiver.
+// execution context.
 func (e Engine) evaluateExpression(ctx ExecutionContext, expr command.Expr) (types.Value, error) {
 	switch ex := expr.(type) {
 	case command.ConstantBooleanExpr:
