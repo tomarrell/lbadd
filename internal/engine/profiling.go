@@ -1,5 +1,15 @@
 package engine
 
+const (
+	// EvtEvaluate is the event 'evaluate'. This is used for every call to
+	// 'Evaluate' (exported), and is used to measure the total amount of time it
+	// takes the database to evaluate a command.
+	EvtEvaluate Evt = "evaluate"
+	// EvtCompare is the event 'compare'. This is used for every comparison
+	// (with 'cmp') of two values that is performed.
+	EvtCompare Evt = "compare"
+)
+
 // Evt is an event this engine uses.
 type Evt string
 
@@ -17,11 +27,6 @@ type ParameterizedEvt struct {
 func (e ParameterizedEvt) String() string {
 	return e.Name + "[" + e.Param + "]"
 }
-
-const (
-	// EvtEvaluate is the event 'evaluate'.
-	EvtEvaluate Evt = "evaluate"
-)
 
 // EvtFullTableScan creates an event 'full table scan[table=<tableName>]'.
 func EvtFullTableScan(tableName string) ParameterizedEvt {

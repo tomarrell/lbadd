@@ -21,20 +21,23 @@ const (
 	// yet, while ErrUnsupported indicates, that the feature is intentionally
 	// unimplemented.
 	ErrUnsupported Error = "unsupported"
-	// ErrUnimplemented indicates a missing implementation for the requested
-	// feature. It may be implemented in the next version.
-	ErrUnimplemented Error = "unimplemented"
 )
 
 // ErrNoSuchFunction returns an error indicating that an error with the given
 // name can not be found.
-func ErrNoSuchFunction(name string) error {
-	return fmt.Errorf("no function for name %v(...)", name)
+func ErrNoSuchFunction(name string) Error {
+	return Error(fmt.Sprintf("no function for name %v(...)", name))
 }
 
 // ErrUncomparable returns an error indicating that the given type does not
 // implement the types.Comparator interface, and thus, values of that type
 // cannot be compared.
-func ErrUncomparable(t types.Type) error {
-	return fmt.Errorf("type %v is not comparable", t)
+func ErrUncomparable(t types.Type) Error {
+	return Error(fmt.Sprintf("type %v is not comparable", t))
+}
+
+// ErrUnimplemented returns an error indicating a missing implementation for the
+// requested feature. It may be implemented in the next version.
+func ErrUnimplemented(what interface{}) Error {
+	return Error(fmt.Sprintf("'%v' is not implemented", what))
 }

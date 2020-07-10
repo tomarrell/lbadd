@@ -1,13 +1,13 @@
 package engine
 
 import (
+	"fmt"
 	"math/rand"
 	"time"
 
 	"github.com/rs/zerolog"
 	"github.com/tomarrell/lbadd/internal/compiler/command"
 	"github.com/tomarrell/lbadd/internal/engine/profile"
-	"github.com/tomarrell/lbadd/internal/engine/result"
 	"github.com/tomarrell/lbadd/internal/engine/storage"
 	"github.com/tomarrell/lbadd/internal/engine/storage/cache"
 )
@@ -44,7 +44,7 @@ func New(dbFile *storage.DBFile, opts ...Option) (Engine, error) {
 
 // Evaluate evaluates the given command. This may mutate the state of the
 // database, and changes may occur to the database file.
-func (e Engine) Evaluate(cmd command.Command) (result.Result, error) {
+func (e Engine) Evaluate(cmd command.Command) (Table, error) {
 	defer e.profiler.Enter(EvtEvaluate).Exit()
 
 	_ = e.eq
@@ -53,10 +53,18 @@ func (e Engine) Evaluate(cmd command.Command) (result.Result, error) {
 	_ = e.lteq
 	_ = e.gteq
 
-	ctx := ExecutionContext{
-		executionContext: &executionContext{},
+	ctx := newEmptyExecutionContext()
+
+	e.log.Debug().
+		Str("ctx", ctx.String()).
+		Str("command", cmd.String()).
+		Msg("evaluate")
+
+	result, err := e.evaluate(ctx, cmd)
+	if err != nil {
+		return Table{}, fmt.Errorf("evaluate: %w", err)
 	}
-	return e.evaluate(ctx, cmd)
+	return result, nil
 }
 
 // Closed determines whether the underlying database file was closed. If so,

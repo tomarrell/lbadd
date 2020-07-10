@@ -8,8 +8,11 @@ type cmpResult uint8
 
 const (
 	cmpUncomparable cmpResult = iota
+	// cmpEqual is returned if left==right.
 	cmpEqual
+	// cmpLessThan is returned if left<right.
 	cmpLessThan
+	// cmpGreaterThan is returned if left>right.
 	cmpGreaterThan
 )
 
@@ -18,6 +21,8 @@ const (
 // as left<right. If left and right cannot be compared, e.g. because they have
 // different types, cmpUncomparable will be returned.
 func (e Engine) cmp(left, right types.Value) cmpResult {
+	defer e.profiler.Enter(EvtCompare).Exit()
+
 	// types must be equal
 	if !right.Is(left.Type()) {
 		return cmpUncomparable
