@@ -20,7 +20,7 @@ func (e Engine) evaluateExpression(ctx ExecutionContext, expr command.Expr) (typ
 	case command.FunctionExpr:
 		return e.evaluateFunctionExpr(ctx, ex)
 	}
-	return nil, fmt.Errorf("cannot evaluate expression of type %T", expr)
+	return nil, ErrUnimplemented(fmt.Sprintf("evaluate %T", expr))
 }
 
 func (e Engine) evaluateMultipleExpressions(ctx ExecutionContext, exprs []command.Expr) ([]types.Value, error) {
