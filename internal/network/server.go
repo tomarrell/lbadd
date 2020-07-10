@@ -2,9 +2,10 @@ package network
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"net"
+
+	"github.com/tomarrell/lbadd/internal/id"
 )
 
 // ConnHandler is a handler function for handling new connections. It will be
@@ -29,10 +30,15 @@ type Server interface {
 	// Addr returns the address that this server is listening to.
 	Addr() net.Addr
 
+	// OwnID returns the ID of this server. The remote ID of any connection is
+	// the own ID of another server.
+	OwnID() id.ID
 	// OnConnect sets a callback that will be executed whenever a new connection
 	// connects to this server.
 	OnConnect(ConnHandler)
 }
+
+//go:generate mockery -case=snake -name=Conn
 
 // Conn describes a network connection. One can send a message with Conn.Send,
 // and receive one with Conn.Receive. Unlike an io.Writer, the data that is
@@ -42,9 +48,8 @@ type Server interface {
 type Conn interface {
 	io.Closer
 
-	// ID returns the ID of this connection. It can be used to uniquely identify
-	// this connection globally.
-	ID() ID
+	// RemoteID returns the own ID of the server that this connection points to.
+	RemoteID() id.ID
 	// Send sends the given payload to the remote part of this connection. The
 	// message will not be chunked, and can be read with a single call to
 	// Conn.Receive.
@@ -52,11 +57,4 @@ type Conn interface {
 	// Receive reads a whole message and returns it in a byte slice. A message
 	// is a byte slice that was sent with a single call to Conn.Send.
 	Receive(context.Context) ([]byte, error)
-}
-
-// ID describes an identifier that is used for connections. An ID has to be
-// unique application-wide. IDs must not be re-used.
-type ID interface {
-	fmt.Stringer
-	Bytes() []byte
 }

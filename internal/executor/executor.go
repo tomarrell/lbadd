@@ -1,7 +1,8 @@
 package executor
 
 import (
-	"github.com/rs/zerolog"
+	"io"
+
 	"github.com/tomarrell/lbadd/internal/compiler/command"
 )
 
@@ -12,9 +13,6 @@ type Executor interface {
 	// Execute executes a command. The result of the computation is returned
 	// together with an error, if one occurred.
 	Execute(command.Command) (Result, error)
-}
 
-// New creates a new, ready to use Executor.
-func New(log zerolog.Logger, databaseFile string) Executor {
-	return newSimpleExecutor(log, databaseFile)
+	io.Closer
 }

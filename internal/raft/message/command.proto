@@ -1,0 +1,209 @@
+syntax = "proto3";
+
+//lint:file-ignore SA1019 Generated deprecated import
+
+package message;
+option go_package = ".;message";
+
+message SimpleTable {
+    string Schema = 1;
+    string Table = 2;
+    string Alias = 3;
+    bool Indexed = 4;
+    string Index = 5;
+}
+
+message UpdateSetter {
+    repeated string Cols = 1;
+    oneof Value {
+        LiteralExpr literal = 2;
+        ConstantBooleanExpr constant = 3;
+        UnaryExpr unary = 4;
+        BinaryExpr binary = 5;
+        FunctionExpr func = 6;
+        EqualityExpr equality = 7;
+        RangeExpr range = 8;
+    }
+}
+
+enum JoinType {
+    JoinUnknown = 0;
+    JoinLeft = 1;
+    JoinLeftOuter = 2;
+    JoinInner = 3;
+    JoinCross = 4;
+}
+
+enum UpdateOr {
+    UpdateOrUnknown = 0;
+    UpdateOrRollback = 1;
+    UpdateOrAbort = 2;
+    UpdateOrReplace = 3;
+    UpdateOrFail = 4;
+    UpdateOrIgnore = 5; 
+}
+
+enum InsertOr {
+    InsertOrUnknown = 0;
+    InsertOrReplace = 1;
+    InsertOrRollback = 2;
+    InsertOrAbort = 3;
+    InsertOrFail = 4;
+    InsertOrIgnore = 5;
+}
+
+message Column {
+    string Table = 1;
+    Expr Column = 2;
+    string Alias = 3;
+}
+
+ message List {
+    oneof list {
+        Command.Scan scan = 1;
+        Command.Select select = 2;
+        Command.Project project = 3;
+        Command.Join join = 4;
+        Command.Limit limit = 5;
+        Command.Offset offset = 6;
+        Command.Distinct distinct = 7;
+        Command.Values values = 8;
+    }
+}
+
+enum DropTarget {
+    Table = 0;
+    View = 1;
+    Index = 2;
+    Trigger = 3;
+}
+
+message Command {
+
+    message Scan {
+        SimpleTable Table = 1;
+    }
+
+    message Select {
+        Expr  Filter = 1;
+        List Input = 2;
+    }
+
+    message Project {
+        repeated Column Cols = 1;
+        List Input = 2;
+    }
+
+    message Delete {
+        SimpleTable Table = 1;
+        Expr Filter = 2; 
+    }
+
+    message drop {
+        DropTarget target = 1;
+        bool IfExists = 2;
+        string Schema = 3;
+        string Name = 4;
+    }
+
+    message Update {
+        UpdateOr UpdateOr = 1;
+        SimpleTable Table = 2;
+        repeated UpdateSetter Updates = 3;
+        Expr Filter = 4;
+    }
+
+    message Join {
+        bool Natural = 1;
+        JoinType Type = 2;
+        Expr Filter = 3;
+        List Left = 4;
+        List Right = 5;
+    }
+
+    message Limit {
+        Expr Limit = 1;
+        List Input = 2;
+    }
+
+    message Offset {
+        Expr Offset = 1;
+        List Input = 2;
+    }
+
+    message Empty {
+        repeated Column Cols = 1;
+    }
+
+    message Distinct {
+        List Input = 1;
+    }
+
+    message Values {
+        repeated repeatedExpr expr = 1;
+    }
+
+    message Insert {
+        InsertOr InsertOr = 1;
+        SimpleTable Table = 2;
+        repeated Column Cols = 3;
+        bool DefaultValues = 4;
+        List Input = 5;
+    }
+}
+
+// Expression
+
+message Expr {
+    oneof expr {
+        LiteralExpr literal = 1;
+        ConstantBooleanExpr constant = 2;
+        UnaryExpr unary = 3;
+        BinaryExpr binary = 4;
+        FunctionExpr func = 5;
+        EqualityExpr equality = 6;
+        RangeExpr range = 7;
+    }
+}
+
+message repeatedExpr {
+    repeated Expr expr = 1;
+}
+
+message LiteralExpr {
+    string Value = 1;
+}
+
+message ConstantBooleanExpr {
+    bool Value = 1;
+}
+
+message UnaryExpr {
+    string Operator = 1;
+    Expr Value = 2;
+}
+
+message BinaryExpr {
+    string Operator = 1;
+    Expr Left = 2;
+    Expr Right = 3;
+}
+
+message FunctionExpr {
+    string Name = 1;
+    bool Distinct = 2;
+    repeated Expr Args = 3;
+}
+
+message EqualityExpr {
+    Expr Left = 1;
+    Expr Right = 2;
+    bool Invert = 3;
+}
+
+message RangeExpr {
+    Expr Needle = 1;
+    Expr Lo = 2;
+    Expr Hi = 3;
+    bool Invert = 4;
+}

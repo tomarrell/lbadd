@@ -160,10 +160,10 @@ func startNode(cmd *cobra.Command, args []string) {
 	exec := createExecutor(log, databaseFile)
 
 	node := node.New(nodeLog, exec)
-	if err := node.ListenAndServe(cmd.Context(), addr); err != nil {
+	if err := node.Open(cmd.Context(), addr); err != nil {
 		log.Error().
 			Err(err).
-			Msg("listen and serve")
+			Msg("open")
 		os.Exit(ExitAbnormal)
 	}
 }
@@ -212,6 +212,6 @@ func createExecutor(log zerolog.Logger, databaseFile string) executor.Executor {
 		Str("component", "executor").
 		Logger()
 
-	exec := executor.New(execLog, databaseFile)
+	exec := executor.NewSimpleExecutor(execLog, databaseFile)
 	return exec
 }

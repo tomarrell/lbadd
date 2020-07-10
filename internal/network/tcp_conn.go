@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"net"
 	"sync"
+	"sync/atomic"
 	"time"
 
+	"github.com/tomarrell/lbadd/internal/id"
 	"golang.org/x/net/context"
 	"golang.org/x/sync/errgroup"
 )
@@ -22,8 +24,8 @@ var (
 var _ Conn = (*tcpConn)(nil)
 
 type tcpConn struct {
-	id     ID
-	closed bool
+	remoteID id.ID
+	closed   int32
 
 	readLock   sync.Mutex
 	writeLock  sync.Mutex
@@ -32,7 +34,7 @@ type tcpConn struct {
 
 // DialTCP dials to the given address, assuming a TCP network. The returned Conn
 // is ready to use.
-func DialTCP(ctx context.Context, addr string) (Conn, error) {
+func DialTCP(ctx context.Context, ownID id.ID, addr string) (Conn, error) {
 	// dial the remote endpoint
 	var d net.Dialer
 	conn, err := d.DialContext(ctx, "tcp", addr)
@@ -43,38 +45,50 @@ func DialTCP(ctx context.Context, addr string) (Conn, error) {
 	// create a new connection object
 	tcpConn := newTCPConn(conn)
 
-	// receive the connection ID from the remote endpoint and apply it
-	myID, err := tcpConn.Receive(ctx)
+	// receive the remote ID from the remote endpoint and apply it
+	remoteID, err := tcpConn.Receive(ctx)
 	if err != nil {
 		_ = tcpConn.Close()
-		return nil, fmt.Errorf("receive ID: %w", err)
+		return nil, fmt.Errorf("receive remote ID: %w", err)
 	}
-	parsedID, err := parseID(myID)
+	parsedID, err := id.Parse(remoteID)
 	if err != nil {
 		_ = tcpConn.Close()
-		return nil, fmt.Errorf("parse ID: %w", err)
+		return nil, fmt.Errorf("parse remote ID: %w", err)
 	}
-	tcpConn.id = parsedID
+	tcpConn.remoteID = parsedID
+
+	// send own ID to remote endpoint
+	err = tcpConn.Send(ctx, ownID.Bytes())
+	if err != nil {
+		_ = tcpConn.Close()
+		return nil, fmt.Errorf("send own ID: %w", err)
+	}
 
 	// return the connection object
 	return tcpConn, nil
 }
 
+// NewTCPConn wraps the underlying connection into a tcpConn.
+func NewTCPConn(underlying net.Conn) Conn {
+	return newTCPConn(underlying)
+}
+
 func newTCPConn(underlying net.Conn) *tcpConn {
-	id := createID()
+	id := id.Create()
 	conn := &tcpConn{
-		id:         id,
+		remoteID:   id,
 		underlying: underlying,
 	}
 	return conn
 }
 
-func (c *tcpConn) ID() ID {
-	return c.id
+func (c *tcpConn) RemoteID() id.ID {
+	return c.remoteID
 }
 
 func (c *tcpConn) Send(ctx context.Context, payload []byte) error {
-	if c.closed {
+	if atomic.LoadInt32(&c.closed) == 1 {
 		return ErrClosed
 	}
 
@@ -137,7 +151,7 @@ func (c *tcpConn) sendAsync(payload []byte) chan error {
 }
 
 func (c *tcpConn) Receive(ctx context.Context) ([]byte, error) {
-	if c.closed {
+	if atomic.LoadInt32(&c.closed) == 1 {
 		return nil, ErrClosed
 	}
 
@@ -202,7 +216,7 @@ func (c *tcpConn) receiveAsync() chan interface{} {
 }
 
 func (c *tcpConn) Close() error {
-	c.closed = true
+	atomic.StoreInt32(&c.closed, 1)
 
 	// release all resources
 	ctx := context.Background()

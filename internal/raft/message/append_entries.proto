@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+//lint:file-ignore SA1019 Generated deprecated import
+
+package message;
+option go_package = ".;message";
+import "command.proto";
+
+message AppendEntriesRequest {
+    int32 term = 1;
+    bytes leaderID = 2;
+    int32 prevLogIndex = 3;
+    int32 prevLogTerm = 4;
+    repeated LogData Entries = 5; // Entries are the log entries in the node.
+    int32 leaderCommit = 6; // LeaderCommit is the Leader's commit index.
+}
+
+message LogData {
+    int32 term = 1;
+    Command Entry = 2; // Each is a compiled sql stmt
+}
+
+message AppendEntriesResponse {
+    int32 term = 1; // Term is the responder node's current term.
+    bool success = 2;  // Success returns true if the log matching property holds good.
+}

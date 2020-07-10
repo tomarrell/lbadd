@@ -23,8 +23,7 @@ func scanKeyword{{ sanitize .path }}(s RuneScanner) (token.Type, bool) {
 		{{ if .tokenType }}return {{ .tokenType }}, true{{ else }}return token.Unknown, false{{ end }}
 	}{{ if .nextRunes }}
 	switch next { {{- range .nextRunes }}
-	{{ $low := lower . }}
-	case '{{ . }}'{{ if eq . $low }}{{ else }}, '{{ $low }}'{{ end }}:
+	{{ $low := lower . }}case '{{ . }}'{{ if eq . $low }}{{ else }}, '{{ $low }}'{{ end }}:
 		s.ConsumeRune()
 		return scanKeyword{{ sanitize $.path }}{{ sanitize . }}(s){{ end }}
 	}{{ end }}
@@ -41,8 +40,8 @@ func defaultKeywordsRule(s RuneScanner) (token.Type, bool) {
 	if !ok {
 		return token.Unknown, false
 	}
-	peek, noEof := s.Lookahead()
-	if noEof && defaultLiteral.Matches(peek) { // keywords must be terminated with a whitespace
+	peek, noEOF := s.Lookahead()
+	if noEOF && defaultLiteral.Matches(peek) { // keywords must be terminated with a whitespace
 		return token.Unknown, false
 	}
 	return tok, ok

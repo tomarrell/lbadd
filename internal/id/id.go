@@ -1,4 +1,4 @@
-package network
+package id
 
 import (
 	"fmt"
@@ -10,6 +10,13 @@ import (
 	"github.com/oklog/ulid"
 )
 
+// ID describes a general identifier. An ID has to be unique application-wide.
+// IDs must not be re-used.
+type ID interface {
+	fmt.Stringer
+	Bytes() []byte
+}
+
 var _ ID = (*id)(nil)
 
 type id ulid.ULID
@@ -20,7 +27,9 @@ var (
 	entropy    = ulid.Monotonic(randSource, 0)
 )
 
-func createID() ID {
+// Create creates a globally unique ID. This function is safe for concurrent
+// use.
+func Create() ID {
 	lock.Lock()
 	defer lock.Unlock()
 
@@ -37,7 +46,8 @@ func createID() ID {
 	return id(genID)
 }
 
-func parseID(idBytes []byte) (ID, error) {
+// Parse parses an ID from a byte slice.
+func Parse(idBytes []byte) (ID, error) {
 	parsed, err := ulid.Parse(string(idBytes))
 	if err != nil {
 		return nil, fmt.Errorf("parse: %w", err)

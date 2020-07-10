@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
+	"github.com/tomarrell/lbadd/internal/id"
 	"golang.org/x/net/context"
 	"golang.org/x/sync/errgroup"
 )
@@ -19,6 +20,8 @@ type tcpServer struct {
 	listening chan struct{}
 	lis       net.Listener
 
+	ownID id.ID
+
 	onConnect ConnHandler
 }
 
@@ -26,9 +29,14 @@ type tcpServer struct {
 // logger.
 func NewTCPServer(log zerolog.Logger) Server {
 	return &tcpServer{
-		log:       log,
+		log:       log.With().Str("server", "tcp").Logger(),
 		listening: make(chan struct{}),
+		ownID:     id.Create(),
 	}
+}
+
+func (s *tcpServer) OwnID() id.ID {
+	return s.ownID
 }
 
 func (s *tcpServer) Open(addr string) error {
@@ -73,7 +81,12 @@ func (s *tcpServer) Close() error {
 	// release all resources
 	ctx := context.Background()
 	errs, _ := errgroup.WithContext(ctx)
-	errs.Go(s.lis.Close)
+	errs.Go(func() error {
+		if s.lis == nil {
+			return nil
+		}
+		return s.lis.Close()
+	})
 	return errs.Wait()
 }
 
@@ -108,7 +121,8 @@ func (s *tcpServer) handleIncomingNetConn(conn net.Conn) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	err := tcpConn.Send(ctx, tcpConn.id.Bytes())
+	// send own ID to client
+	err := tcpConn.Send(ctx, s.ownID.Bytes())
 	if err != nil {
 		s.log.Error().
 			Err(err).
@@ -116,6 +130,25 @@ func (s *tcpServer) handleIncomingNetConn(conn net.Conn) {
 		_ = tcpConn.Close()
 		return
 	}
+
+	// receive the client ID from the remote endpoint and apply it
+	remoteID, err := tcpConn.Receive(ctx)
+	if err != nil {
+		s.log.Error().
+			Err(err).
+			Msg("receive remote ID")
+		_ = tcpConn.Close()
+		return
+	}
+	parsedID, err := id.Parse(remoteID)
+	if err != nil {
+		s.log.Error().
+			Err(err).
+			Msg("parse remote ID")
+		_ = tcpConn.Close()
+		return
+	}
+	tcpConn.remoteID = parsedID
 
 	if s.onConnect != nil {
 		s.onConnect(tcpConn)
