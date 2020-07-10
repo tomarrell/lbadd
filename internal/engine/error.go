@@ -23,7 +23,7 @@ const (
 	ErrUnsupported Error = "unsupported"
 )
 
-// ErrNoSuchFunction returns an error indicating that an error with the given
+// ErrNoSuchFunction returns an error indicating that a function with the given
 // name can not be found.
 func ErrNoSuchFunction(name string) Error {
 	return Error(fmt.Sprintf("no function for name %v(...)", name))
