@@ -10,6 +10,7 @@ import (
 )
 
 var (
+	// EmptyTable is the empty table, with 0 cols and 0 rows.
 	EmptyTable = Table{
 		Cols: make([]Col, 0),
 		Rows: make([]Row, 0),
@@ -35,6 +36,10 @@ type Row struct {
 	Values []types.Value
 }
 
+// RemoveColumnByQualifiedName will remove the first column with the given
+// qualified name from the table, and return the new table. The original table
+// will not be modified. If no such column exists, the original table is
+// returned.
 func (t Table) RemoveColumnByQualifiedName(qualifiedName string) Table {
 	index := -1
 	for i, col := range t.Cols {
