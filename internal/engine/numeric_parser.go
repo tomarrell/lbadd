@@ -25,7 +25,7 @@ type numericParser struct {
 }
 
 // ToNumericValue checks whether the given string is of this form
-// https://www.sqlite.org/lang_expr.html#literal_values_constants_ . If it is, a
+// https://www.sqlite.org/lang_expr.html#literal_values_constants_ . If it is, an
 // appropriate value is returned (either types.IntegerValue or types.RealValue).
 // If it is not, false will be returned. This will never return the NULL value,
 // even if the given string is empty. In that case, nil and false is returned.
