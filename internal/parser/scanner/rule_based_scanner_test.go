@@ -291,9 +291,9 @@ func TestRuleBasedScanner(t *testing.T) {
 			ruleset.Default,
 			[]token.Token{
 				token.New(1, 1, 0, 1, token.LiteralNumeric, "2"),
-				token.New(1, 3, 2, 1, token.UnaryOperator, "+"),
-				token.New(1, 4, 3, 1, token.LiteralNumeric, "3"),
-				token.New(1, 5, 4, 0, token.EOF, ""),
+				token.New(1, 2, 1, 1, token.UnaryOperator, "+"),
+				token.New(1, 3, 2, 1, token.LiteralNumeric, "3"),
+				token.New(1, 4, 3, 0, token.EOF, ""),
 			},
 		},
 	}
