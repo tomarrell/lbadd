@@ -12,6 +12,10 @@ import (
 // value, meaning that it can only be evaluated to a constant value with a given
 // execution context.
 func (e Engine) evaluateExpression(ctx ExecutionContext, expr command.Expr) (types.Value, error) {
+	if expr == nil {
+		return nil, fmt.Errorf("cannot evaluate expression of type %T", expr)
+	}
+
 	switch ex := expr.(type) {
 	case command.ConstantBooleanExpr:
 		return types.NewBool(ex.Value), nil
