@@ -197,7 +197,7 @@ func (s *SimpleServer) Start() (err error) {
 			s.lock.Unlock()
 			// One round is said to be complete when leader election
 			// is started for all terms except the first term.
-			if s.node.PersistentState.CurrentTerm != 1 {
+			if s.node.PersistentState.CurrentTerm != 1 && s.onCompleteOneRound != nil {
 				s.onCompleteOneRound()
 			}
 			s.StartElection()
