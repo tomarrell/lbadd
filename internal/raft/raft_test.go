@@ -2,7 +2,6 @@ package raft
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -122,16 +121,20 @@ func timeoutProvider(node *Node) *time.Timer {
 func Test_Integration(t *testing.T) {
 	log := zerolog.New(os.Stdout).With().Logger().Level(zerolog.GlobalLevel())
 
+	assert := assert.New(t)
 	opParams := OperationParameters{
 		Rounds:    4,
-		TimeLimit: 2,
+		TimeLimit: 5,
 	}
 
 	cfg := NetworkConfiguration{}
 
 	raftTest := NewSimpleRaftTest(log, opParams, cfg)
 
-	err := raftTest.BeginTest()
-
-	fmt.Println(err)
+	go func() {
+		err := raftTest.BeginTest()
+		assert.Nil(err)
+	}()
+	raftTest.InjectOperation(SendData, &OpSendData{})
+	<-time.After(time.Duration(2*opParams.Rounds) * time.Second)
 }

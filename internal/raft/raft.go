@@ -74,9 +74,10 @@ type SimpleServer struct {
 	timeoutProvider func(*Node) *time.Timer
 	lock            sync.Mutex
 
-	onRequestVotes  func(*message.RequestVoteRequest)
-	onLeaderElected func()
-	onAppendEntries func()
+	onRequestVotes     func(*message.RequestVoteRequest)
+	onLeaderElected    func()
+	onAppendEntries    func()
+	onCompleteOneRound func()
 }
 
 // incomingData describes every request that the server gets.
@@ -194,6 +195,11 @@ func (s *SimpleServer) Start() (err error) {
 				return
 			}
 			s.lock.Unlock()
+			// One round is said to be complete when leader election
+			// is started for all terms except the first term.
+			if s.node.PersistentState.CurrentTerm != 1 {
+				s.onCompleteOneRound()
+			}
 			s.StartElection()
 		case data := <-liveChan:
 			err = s.processIncomingData(data)
@@ -321,4 +327,9 @@ func (s *SimpleServer) OnLeaderElected(hook func()) {
 // OnAppendEntries is a hook setter for AppenEntriesRequest.
 func (s *SimpleServer) OnAppendEntries(hook func()) {
 	s.onAppendEntries = hook
+}
+
+// OnCompleteOneRound is a hook setter for completion for one round of raft.
+func (s *SimpleServer) OnCompleteOneRound(hook func()) {
+	s.onCompleteOneRound = hook
 }

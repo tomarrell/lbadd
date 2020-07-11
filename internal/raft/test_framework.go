@@ -62,6 +62,7 @@ const (
 	SendData Operation = 1 + iota
 	StopNode
 	PartitionNetwork
+	RestartNode
 )
 
 // OpData fully describes a runnable operation on the raft cluster.
@@ -76,7 +77,7 @@ type OpSendData struct {
 	Data []*compile.Command
 }
 
-// OpStopNode describes the data related to StopNode
+// OpStopNode describes the data related to StopNode.
 type OpStopNode struct {
 	NodeID id.ID
 }
@@ -84,4 +85,9 @@ type OpStopNode struct {
 // OpPartitionNetwork describes the data related to PartitionNetwork.
 type OpPartitionNetwork struct {
 	Groups [][]id.ID
+}
+
+// OpRestartNode describes the data related to RestartNode.
+type OpRestartNode struct {
+	NodeID id.ID
 }
