@@ -157,14 +157,15 @@ func (t *SimpleRaftTest) executeOperation() {
 				t.RestartNode(d)
 			}
 		default:
+			continue
 		}
 	}
 }
 
-func (t *SimpleRaftTest) roundHook() {
-	t.round++
-	t.roundsChan <- true
-}
+// func (t *SimpleRaftTest) roundHook() {
+// 	t.round++
+// 	t.roundsChan <- true
+// }
 
 // SendData sends command data to the cluster by calling
 // the appropriate function in the raft module.
