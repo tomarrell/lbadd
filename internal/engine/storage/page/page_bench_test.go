@@ -15,17 +15,17 @@ var (
 	pageSize = int(math.Round(2 * float64(Size) / 3)) // two-third of the max size
 )
 
-func generateRecordCell() RecordCell {
+func generateRecordCell(b *testing.B) RecordCell {
 	keySize := 1 + rand.Intn(maxKeySize-1)
 	recordSize := 1 + rand.Intn(maxRecordSize-1)
 	key, record := make([]byte, keySize), make([]byte, recordSize)
 	_, err := rand.Read(key)
 	if err != nil {
-		panic(err)
+		b.Fatal(err)
 	}
 	_, err = rand.Read(record)
 	if err != nil {
-		panic(err)
+		b.Fatal(err)
 	}
 
 	return RecordCell{
@@ -34,20 +34,21 @@ func generateRecordCell() RecordCell {
 	}
 }
 
-func generatePage() *Page {
+func generatePage(b *testing.B) *Page {
+	b.Helper()
 	p, err := load(make([]byte, pageSize))
 	if err != nil {
-		panic(err)
+		b.Fatal(err)
 	}
-	record := generateRecordCell()
+	record := generateRecordCell(b)
 	for err = p.StoreRecordCell(record); err != ErrPageFull; err = p.StoreRecordCell(record) {
-		record = generateRecordCell()
+		record = generateRecordCell(b)
 	}
 	return p
 }
 
 func BenchmarkPage_Defragment(b *testing.B) {
-	data := generatePage().data
+	data := generatePage(b).data
 	bytes := make([]byte, len(data))
 	b.ResetTimer()
 	b.ReportAllocs()
