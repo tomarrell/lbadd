@@ -12,7 +12,7 @@ const (
 )
 
 var (
-	pageSize = int(math.Round(2 * float64(Size) / 3)) // two-third of the max size
+	pageSize = int(math.Round(2 * float64(Size) / 3)) // two-thirds of the max size
 )
 
 func generateRecordCell(b *testing.B) RecordCell {
