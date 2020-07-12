@@ -59,6 +59,12 @@ func (e Engine) evaluateProjection(ctx ExecutionContext, proj command.Project) (
 		var colName string
 		if colNameExpr.Is(types.String) {
 			colName = colNameExpr.(types.StringValue).Value
+		} else {
+			casted, err := types.String.Cast(colNameExpr)
+			if err != nil {
+				return Table{}, fmt.Errorf("cannot cast %v to %v: %w", colNameExpr.Type(), types.String, err)
+			}
+			colName = casted.(types.StringValue).Value
 		}
 		if col.Table != "" {
 			colName = col.Table + "." + colName
