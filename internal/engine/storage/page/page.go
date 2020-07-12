@@ -10,7 +10,7 @@ import (
 const (
 	// Size is the fix size of a page, which is 16KB or 16384 bytes.
 	Size = 1 << 14
-	// HeaderSize is the fix size of a page header, which is 10 bytes.
+	// HeaderSize is the fix size of a page header, which is 6 bytes.
 	HeaderSize = 6
 )
 
