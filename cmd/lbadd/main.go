@@ -11,7 +11,6 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/diode"
 	"github.com/spf13/cobra"
-	"github.com/tomarrell/lbadd/internal/executor"
 	"github.com/tomarrell/lbadd/internal/node"
 )
 
@@ -157,10 +156,15 @@ func startNode(cmd *cobra.Command, args []string) {
 		Str("dbfile", databaseFile).
 		Logger()
 
+<<<<<<< HEAD
 	exec := createExecutor(log, databaseFile)
 
 	node := node.New(nodeLog, exec)
 	if err := node.Open(cmd.Context(), addr); err != nil {
+=======
+	node := node.New(nodeLog)
+	if err := node.ListenAndServe(cmd.Context(), addr); err != nil {
+>>>>>>> e8c3b868cee2d425f0285a06f90af4b19b95936b
 		log.Error().
 			Err(err).
 			Msg("open")
@@ -206,6 +210,7 @@ func createLogger(stdin io.Reader, stdout, stderr io.Writer) zerolog.Logger {
 
 	return log
 }
+<<<<<<< HEAD
 
 func createExecutor(log zerolog.Logger, databaseFile string) executor.Executor {
 	execLog := log.With().
@@ -215,3 +220,5 @@ func createExecutor(log zerolog.Logger, databaseFile string) executor.Executor {
 	exec := executor.NewSimpleExecutor(execLog, databaseFile)
 	return exec
 }
+=======
+>>>>>>> e8c3b868cee2d425f0285a06f90af4b19b95936b

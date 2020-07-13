@@ -7,6 +7,17 @@ func TestCompileGolden(t *testing.T) {
 	t.Run("delete", _TestCompileDelete)
 	t.Run("drop", _TestCompileDrop)
 	t.Run("update", _TestCompileUpdate)
+	t.Run("expressions", _TestCompileExpressions)
+}
+
+func _TestCompileExpressions(t *testing.T) {
+	tests := []string{
+		"VALUES (7)",
+		"VALUES (-7)",
+	}
+	for _, test := range tests {
+		RunGolden(t, test)
+	}
 }
 
 func _TestCompileUpdate(t *testing.T) {

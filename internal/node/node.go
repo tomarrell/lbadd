@@ -21,13 +21,13 @@ type Node struct {
 
 	raft    raft.Server
 	cluster cluster.Cluster
-}
+)
+
 
 // New creates a new node that is executing commands on the given executor.
-func New(log zerolog.Logger, exec executor.Executor) *Node {
+func New(log zerolog.Logger) *Node {
 	return &Node{
-		log:  log,
-		exec: exec,
+		log: log,
 	}
 }
 
