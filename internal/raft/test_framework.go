@@ -46,6 +46,8 @@ type OperationParameters struct {
 	Rounds int
 	// TimeLimit specifies the limit until which the raft operation will run.
 	TimeLimit int
+	// Operations are all the operations that wil be performed in the test run.
+	Operations []OpData
 }
 
 // NetworkConfiguration holds the details of the network of the cluster.

@@ -1,8 +1,6 @@
 package message
 
 import (
-	"errors"
-
 	"github.com/tomarrell/lbadd/internal/compiler/command"
 )
 
@@ -13,318 +11,510 @@ func ConvertCommandToMessage(cmd command.Command) (Message, error) {
 	}
 	switch c := cmd.(type) {
 	case *command.Scan:
-		return ConvertCommandScanToMessageScan(c), nil
+		return ConvertCommandScanToMessageScan(c)
 	case *command.Select:
-		return ConvertCommandToMessageSelect(c), nil
+		return ConvertCommandToMessageSelect(c)
 	case *command.Project:
-		return ConvertCommandToMessageProject(c), nil
+		return ConvertCommandToMessageProject(c)
 	case *command.Delete:
-		return ConvertCommandToMessageDelete(c), nil
+		return ConvertCommandToMessageDelete(c)
 	case *command.DropIndex:
-		return ConvertCommandToMessageDrop(c), nil
+		return ConvertCommandToMessageDrop(c)
 	case *command.DropTable:
-		return ConvertCommandToMessageDrop(c), nil
+		return ConvertCommandToMessageDrop(c)
 	case *command.DropTrigger:
-		return ConvertCommandToMessageDrop(c), nil
+		return ConvertCommandToMessageDrop(c)
 	case *command.DropView:
-		return ConvertCommandToMessageDrop(c), nil
+		return ConvertCommandToMessageDrop(c)
 	case *command.Update:
-		return ConvertCommandToMessageUpdate(c), nil
+		return ConvertCommandToMessageUpdate(c)
 	case *command.Join:
-		return ConvertCommandToMessageJoin(c), nil
+		return ConvertCommandToMessageJoin(c)
 	case *command.Limit:
-		return ConvertCommandToMessageLimit(c), nil
+		return ConvertCommandToMessageLimit(c)
 	case *command.Insert:
-		return ConvertCommandToMessageInsert(c), nil
+		return ConvertCommandToMessageInsert(c)
 	}
-	return nil, errors.New("no matching command found")
+	return nil, ErrUnknownCommandKind
 }
 
 // ConvertCommandTableToMessageTable converts a command.Table to a SimpleTable.
-func ConvertCommandTableToMessageTable(cmd command.Table) *SimpleTable {
-	simpleTable := &SimpleTable{
+func ConvertCommandTableToMessageTable(cmd command.Table) (*SimpleTable, error) {
+	if cmd == nil {
+		//TODO
+		return nil, nil
+	}
+	return &SimpleTable{
 		Schema:  cmd.(*command.SimpleTable).Schema,
 		Table:   cmd.(*command.SimpleTable).Table,
 		Alias:   cmd.(*command.SimpleTable).Alias,
 		Indexed: cmd.(*command.SimpleTable).Indexed,
 		Index:   cmd.(*command.SimpleTable).Index,
-	}
-	return simpleTable
+	}, nil
 }
 
 // ConvertCommandScanToMessageScan converts a Command type to a Command_Scan type.
-func ConvertCommandScanToMessageScan(cmd *command.Scan) *Command_Scan {
-	return &Command_Scan{
-		Table: ConvertCommandTableToMessageTable(cmd.Table),
+func ConvertCommandScanToMessageScan(cmd *command.Scan) (*Command_Scan, error) {
+	table, err := ConvertCommandTableToMessageTable(cmd.Table)
+	if err != nil {
+		return nil, err
 	}
+	return &Command_Scan{
+		Table: table,
+	}, nil
 }
 
 // ConvertCommandLiteralExprToMessageLiteralExpr converts a command.Expr to a message.Expr_Literal.
-func ConvertCommandLiteralExprToMessageLiteralExpr(cmd *command.LiteralExpr) *Expr_Literal {
+func ConvertCommandLiteralExprToMessageLiteralExpr(cmd *command.LiteralExpr) (*Expr_Literal, error) {
 	return &Expr_Literal{
 		&LiteralExpr{
 			Value: cmd.Value,
 		},
-	}
+	}, nil
 }
 
 // ConvertCommandToMessageConstantBooleanExpr converts a command.Expr to a message.Expr_Constant.
-func ConvertCommandToMessageConstantBooleanExpr(cmd *command.ConstantBooleanExpr) *Expr_Constant {
+func ConvertCommandToMessageConstantBooleanExpr(cmd *command.ConstantBooleanExpr) (*Expr_Constant, error) {
 	return &Expr_Constant{
 		&ConstantBooleanExpr{
 			Value: cmd.Value,
 		},
-	}
+	}, nil
 }
 
 // ConvertCommandToMessageUnaryExpr converts a command.Expr to a message.Expr_Unary.
-func ConvertCommandToMessageUnaryExpr(cmd *command.UnaryExpr) *Expr_Unary {
+func ConvertCommandToMessageUnaryExpr(cmd *command.UnaryExpr) (*Expr_Unary, error) {
+	val, err := ConvertCommandToMessageExpr(cmd.Value)
+	if err != nil {
+		return nil, err
+	}
 	return &Expr_Unary{
 		&UnaryExpr{
 			Operator: cmd.Operator,
-			Value:    ConvertCommandToMessageExpr(cmd.Value),
+			Value:    val,
 		},
-	}
+	}, nil
 }
 
 // ConvertCommandToMessageBinaryExpr converts a command.Expr to a message.Expr_Binary.
-func ConvertCommandToMessageBinaryExpr(cmd *command.BinaryExpr) *Expr_Binary {
+func ConvertCommandToMessageBinaryExpr(cmd *command.BinaryExpr) (*Expr_Binary, error) {
+	left, err := ConvertCommandToMessageExpr(cmd.Left)
+	if err != nil {
+		return nil, err
+	}
+	right, err := ConvertCommandToMessageExpr(cmd.Right)
+	if err != nil {
+		return nil, err
+	}
 	return &Expr_Binary{
 		&BinaryExpr{
 			Operator: cmd.Operator,
-			Left:     ConvertCommandToMessageExpr(cmd.Left),
-			Right:    ConvertCommandToMessageExpr(cmd.Right),
+			Left:     left,
+			Right:    right,
 		},
-	}
+	}, nil
 }
 
 // ConvertCommandToMessageRepeatedExpr converts a []command.Expr to a message.Expr.
-func ConvertCommandToMessageRepeatedExpr(cmd []command.Expr) []*Expr {
+func ConvertCommandToMessageRepeatedExpr(cmd []command.Expr) ([]*Expr, error) {
 	msgRepeatedExpr := []*Expr{}
 	for i := range cmd {
-		msgRepeatedExpr = append(msgRepeatedExpr, ConvertCommandToMessageExpr(cmd[i]))
+		expr, err := ConvertCommandToMessageExpr(cmd[i])
+		if err != nil {
+			return nil, err
+		}
+		msgRepeatedExpr = append(msgRepeatedExpr, expr)
 	}
-	return msgRepeatedExpr
+	return msgRepeatedExpr, nil
 }
 
 // ConvertCommandToMessageFunctionalExpr converts a command.Expr to a message.Expr_Func.
-func ConvertCommandToMessageFunctionalExpr(cmd *command.FunctionExpr) *Expr_Func {
+func ConvertCommandToMessageFunctionalExpr(cmd *command.FunctionExpr) (*Expr_Func, error) {
+	args, err := ConvertCommandToMessageRepeatedExpr(cmd.Args)
+	if err != nil {
+		return nil, err
+	}
 	return &Expr_Func{
 		&FunctionExpr{
 			Name:     cmd.Name,
 			Distinct: cmd.Distinct,
-			Args:     ConvertCommandToMessageRepeatedExpr(cmd.Args),
+			Args:     args,
 		},
-	}
+	}, nil
 }
 
 // ConvertCommandToMessageEqualityExpr converts a command.Expr to a message.Expr_Equality.
-func ConvertCommandToMessageEqualityExpr(cmd *command.EqualityExpr) *Expr_Equality {
+func ConvertCommandToMessageEqualityExpr(cmd *command.EqualityExpr) (*Expr_Equality, error) {
+	left, err := ConvertCommandToMessageExpr(cmd.Left)
+	if err != nil {
+		return nil, err
+	}
+	right, err := ConvertCommandToMessageExpr(cmd.Right)
+	if err != nil {
+		return nil, err
+	}
 	return &Expr_Equality{
 		&EqualityExpr{
-			Left:   ConvertCommandToMessageExpr(cmd.Left),
-			Right:  ConvertCommandToMessageExpr(cmd.Right),
+			Left:   left,
+			Right:  right,
 			Invert: cmd.Invert,
 		},
-	}
+	}, nil
 }
 
 // ConvertCommandToMessageRangeExpr converts a command.Expr to a message.Expr_Range.
-func ConvertCommandToMessageRangeExpr(cmd *command.RangeExpr) *Expr_Range {
+func ConvertCommandToMessageRangeExpr(cmd *command.RangeExpr) (*Expr_Range, error) {
+	needle, err := ConvertCommandToMessageExpr(cmd.Needle)
+	if err != nil {
+		return nil, err
+	}
+	lo, err := ConvertCommandToMessageExpr(cmd.Lo)
+	if err != nil {
+		return nil, err
+	}
+	hi, err := ConvertCommandToMessageExpr(cmd.Hi)
+	if err != nil {
+		return nil, err
+	}
 	return &Expr_Range{
 		&RangeExpr{
-			Needle: ConvertCommandToMessageExpr(cmd.Needle),
-			Lo:     ConvertCommandToMessageExpr(cmd.Lo),
-			Hi:     ConvertCommandToMessageExpr(cmd.Hi),
+			Needle: needle,
+			Lo:     lo,
+			Hi:     hi,
 			Invert: cmd.Invert,
 		},
-	}
+	}, nil
 }
 
 // ConvertCommandToMessageExpr converts command.Expr to a message.Expr.
-func ConvertCommandToMessageExpr(cmd command.Expr) *Expr {
+func ConvertCommandToMessageExpr(cmd command.Expr) (*Expr, error) {
+	var err error
 	msgExpr := &Expr{}
 	switch c := cmd.(type) {
 	case *command.LiteralExpr:
-		msgExpr.Expr = ConvertCommandLiteralExprToMessageLiteralExpr(c)
+		msgExpr.Expr, err = ConvertCommandLiteralExprToMessageLiteralExpr(c)
+		if err != nil {
+			return nil, err
+		}
 	case *command.ConstantBooleanExpr:
-		msgExpr.Expr = ConvertCommandToMessageConstantBooleanExpr(c)
+		msgExpr.Expr, err = ConvertCommandToMessageConstantBooleanExpr(c)
+		if err != nil {
+			return nil, err
+		}
 	case *command.UnaryExpr:
-		msgExpr.Expr = ConvertCommandToMessageUnaryExpr(c)
+		msgExpr.Expr, err = ConvertCommandToMessageUnaryExpr(c)
+		if err != nil {
+			return nil, err
+		}
 	case *command.BinaryExpr:
-		msgExpr.Expr = ConvertCommandToMessageBinaryExpr(c)
+		msgExpr.Expr, err = ConvertCommandToMessageBinaryExpr(c)
+		if err != nil {
+			return nil, err
+		}
 	case *command.FunctionExpr:
-		msgExpr.Expr = ConvertCommandToMessageFunctionalExpr(c)
+		msgExpr.Expr, err = ConvertCommandToMessageFunctionalExpr(c)
+		if err != nil {
+			return nil, err
+		}
 	case *command.EqualityExpr:
-		msgExpr.Expr = ConvertCommandToMessageEqualityExpr(c)
+		msgExpr.Expr, err = ConvertCommandToMessageEqualityExpr(c)
+		if err != nil {
+			return nil, err
+		}
 	case *command.RangeExpr:
-		msgExpr.Expr = ConvertCommandToMessageRangeExpr(c)
+		msgExpr.Expr, err = ConvertCommandToMessageRangeExpr(c)
+		if err != nil {
+			return nil, err
+		}
+	default:
+		return nil, ErrUnknownCommandKind
 	}
-	return msgExpr
+	return msgExpr, nil
 }
 
 // ConvertCommandToMessageListScan converts a command.Scan to a message.List_Scan.
-func ConvertCommandToMessageListScan(cmd *command.Scan) *List_Scan {
+func ConvertCommandToMessageListScan(cmd *command.Scan) (*List_Scan, error) {
+	table, err := ConvertCommandTableToMessageTable(cmd.Table)
+	if err != nil {
+		return nil, err
+	}
 	return &List_Scan{
 		&Command_Scan{
-			Table: ConvertCommandTableToMessageTable(cmd.Table),
+			Table: table,
 		},
-	}
+	}, nil
 }
 
 // ConvertCommandToMessageListSelect converts a command.Select to a message.List_Select.
-func ConvertCommandToMessageListSelect(cmd *command.Select) *List_Select {
+func ConvertCommandToMessageListSelect(cmd *command.Select) (*List_Select, error) {
+	filter, err := ConvertCommandToMessageExpr(cmd.Filter)
+	if err != nil {
+		return nil, err
+	}
+	input, err := ConvertCommandToMessageList(cmd.Input)
+	if err != nil {
+		return nil, err
+	}
 	return &List_Select{
 		&Command_Select{
-			Filter: ConvertCommandToMessageExpr(cmd.Filter),
-			Input:  ConvertCommandToMessageList(cmd.Input),
+			Filter: filter,
+			Input:  input,
 		},
-	}
+	}, nil
 }
 
 // ConvertCommandToMessageListProject converts a command.Project to a message.List_Project.
-func ConvertCommandToMessageListProject(cmd *command.Project) *List_Project {
+func ConvertCommandToMessageListProject(cmd *command.Project) (*List_Project, error) {
+	input, err := ConvertCommandToMessageList(cmd.Input)
+	if err != nil {
+		return nil, err
+	}
+	cols, err := ConvertCommandToMessageColSlice(cmd.Cols)
+	if err != nil {
+		return nil, err
+	}
 	return &List_Project{
 		&Command_Project{
-			Cols:  ConvertCommandToMessageColSlice(cmd.Cols),
-			Input: ConvertCommandToMessageList(cmd.Input),
+			Cols:  cols,
+			Input: input,
 		},
-	}
+	}, nil
 }
 
 // ConvertCommandToMessageListJoin converts a command.Join to a message.List_Join.
-func ConvertCommandToMessageListJoin(cmd *command.Join) *List_Join {
+func ConvertCommandToMessageListJoin(cmd *command.Join) (*List_Join, error) {
+	filter, err := ConvertCommandToMessageExpr(cmd.Filter)
+	if err != nil {
+		return nil, err
+	}
+	left, err := ConvertCommandToMessageList(cmd.Left)
+	if err != nil {
+		return nil, err
+	}
+	right, err := ConvertCommandToMessageList(cmd.Right)
+	if err != nil {
+		return nil, err
+	}
 	return &List_Join{
 		&Command_Join{
 			Natural: cmd.Natural,
 			Type:    ConvertCommandToMessageJoinType(cmd.Type),
-			Filter:  ConvertCommandToMessageExpr(cmd.Filter),
-			Left:    ConvertCommandToMessageList(cmd.Left),
-			Right:   ConvertCommandToMessageList(cmd.Right),
+			Filter:  filter,
+			Left:    left,
+			Right:   right,
 		},
-	}
+	}, nil
 }
 
 // ConvertCommandToMessageListLimit converts a command.Limit to a message.List_Limit.
-func ConvertCommandToMessageListLimit(cmd *command.Limit) *List_Limit {
+func ConvertCommandToMessageListLimit(cmd *command.Limit) (*List_Limit, error) {
+	limit, err := ConvertCommandToMessageExpr(cmd.Limit)
+	if err != nil {
+		return nil, err
+	}
+	input, err := ConvertCommandToMessageList(cmd.Input)
+	if err != nil {
+		return nil, err
+	}
 	return &List_Limit{
 		&Command_Limit{
-			Limit: ConvertCommandToMessageExpr(cmd.Limit),
-			Input: ConvertCommandToMessageList(cmd.Input),
+			Limit: limit,
+			Input: input,
 		},
-	}
+	}, nil
 }
 
 // ConvertCommandToMessageListOffset converts a command.Offset to a message.List_Offset.
-func ConvertCommandToMessageListOffset(cmd *command.Offset) *List_Offset {
+func ConvertCommandToMessageListOffset(cmd *command.Offset) (*List_Offset, error) {
+	offset, err := ConvertCommandToMessageExpr(cmd.Offset)
+	if err != nil {
+		return nil, err
+	}
+	input, err := ConvertCommandToMessageList(cmd.Input)
+	if err != nil {
+		return nil, err
+	}
 	return &List_Offset{
 		&Command_Offset{
-			Offset: ConvertCommandToMessageExpr(cmd.Offset),
-			Input:  ConvertCommandToMessageList(cmd.Input),
+			Offset: offset,
+			Input:  input,
 		},
-	}
+	}, nil
 }
 
 // ConvertCommandToMessageListDistinct converts a command.Distinct to a message.List_Distinct.
-func ConvertCommandToMessageListDistinct(cmd *command.Distinct) *List_Distinct {
+func ConvertCommandToMessageListDistinct(cmd *command.Distinct) (*List_Distinct, error) {
+	input, err := ConvertCommandToMessageList(cmd.Input)
+	if err != nil {
+		return nil, err
+	}
 	return &List_Distinct{
 		&Command_Distinct{
-			Input: ConvertCommandToMessageList(cmd.Input),
+			Input: input,
 		},
-	}
+	}, nil
 }
 
 // ConvertCommandToMessageRepeatedExprSlice converts a [][]command.Expr to a [][]message.Expr.
-func ConvertCommandToMessageRepeatedExprSlice(cmd [][]command.Expr) []*RepeatedExpr {
+func ConvertCommandToMessageRepeatedExprSlice(cmd [][]command.Expr) ([]*RepeatedExpr, error) {
 	msgRepeatedExprSlice := []*RepeatedExpr{}
 	for i := range cmd {
 		msgRepeatedExpr := &RepeatedExpr{}
 		for j := range cmd[i] {
-			msgRepeatedExpr.Expr = append(msgRepeatedExpr.Expr, ConvertCommandToMessageExpr(cmd[i][j]))
+			expr, err := ConvertCommandToMessageExpr(cmd[i][j])
+			if err != nil {
+				return nil, err
+			}
+			msgRepeatedExpr.Expr = append(msgRepeatedExpr.Expr, expr)
 		}
 		msgRepeatedExprSlice = append(msgRepeatedExprSlice, msgRepeatedExpr)
 	}
-	return msgRepeatedExprSlice
+	return msgRepeatedExprSlice, nil
 }
 
 // ConvertCommandToMessageListValues converts a command.Values to a message.List_Values.
-func ConvertCommandToMessageListValues(cmd *command.Values) *List_Values {
+func ConvertCommandToMessageListValues(cmd *command.Values) (*List_Values, error) {
+	exprSlice, err := ConvertCommandToMessageRepeatedExprSlice(cmd.Values)
+	if err != nil {
+		return nil, err
+	}
 	return &List_Values{
 		&Command_Values{
-			Expr: ConvertCommandToMessageRepeatedExprSlice(cmd.Values),
+			Expr: exprSlice,
 		},
-	}
+	}, nil
 }
 
 // ConvertCommandToMessageList converts
-func ConvertCommandToMessageList(cmd command.List) *List {
+func ConvertCommandToMessageList(cmd command.List) (*List, error) {
+	var err error
 	msgList := &List{}
 	switch c := cmd.(type) {
 	case *command.Scan:
-		msgList.List = ConvertCommandToMessageListScan(c)
+		msgList.List, err = ConvertCommandToMessageListScan(c)
+		if err != nil {
+			return nil, err
+		}
 	case *command.Select:
-		msgList.List = ConvertCommandToMessageListSelect(c)
+		msgList.List, err = ConvertCommandToMessageListSelect(c)
+		if err != nil {
+			return nil, err
+		}
 	case *command.Project:
-		msgList.List = ConvertCommandToMessageListProject(c)
+		msgList.List, err = ConvertCommandToMessageListProject(c)
+		if err != nil {
+			return nil, err
+		}
 	case *command.Join:
-		msgList.List = ConvertCommandToMessageListJoin(c)
+		msgList.List, err = ConvertCommandToMessageListJoin(c)
+		if err != nil {
+			return nil, err
+		}
 	case *command.Limit:
-		msgList.List = ConvertCommandToMessageListLimit(c)
+		msgList.List, err = ConvertCommandToMessageListLimit(c)
+		if err != nil {
+			return nil, err
+		}
 	case *command.Offset:
-		msgList.List = ConvertCommandToMessageListOffset(c)
+		msgList.List, err = ConvertCommandToMessageListOffset(c)
+		if err != nil {
+			return nil, err
+		}
 	case *command.Distinct:
-		msgList.List = ConvertCommandToMessageListDistinct(c)
+		msgList.List, err = ConvertCommandToMessageListDistinct(c)
+		if err != nil {
+			return nil, err
+		}
 	case *command.Values:
-		msgList.List = ConvertCommandToMessageListValues(c)
+		msgList.List, err = ConvertCommandToMessageListValues(c)
+		if err != nil {
+			return nil, err
+		}
+	default:
+		return nil, ErrUnknownCommandKind
 	}
-	return msgList
+	return msgList, nil
 }
 
 // ConvertCommandToMessageSelect converts a Command type to a Command_Select type.
-func ConvertCommandToMessageSelect(cmd *command.Select) *Command_Select {
-	return &Command_Select{
-		Filter: ConvertCommandToMessageExpr(cmd.Filter),
-		Input:  ConvertCommandToMessageList(cmd.Input),
+func ConvertCommandToMessageSelect(cmd *command.Select) (*Command_Select, error) {
+	filter, err := ConvertCommandToMessageExpr(cmd.Filter)
+	if err != nil {
+		return nil, err
 	}
+	input, err := ConvertCommandToMessageList(cmd.Input)
+	if err != nil {
+		return nil, err
+	}
+	return &Command_Select{
+		Filter: filter,
+		Input:  input,
+	}, nil
 }
 
 // ConvertCommandToMessageCol converts command.Column to a message.Column.
-func ConvertCommandToMessageCol(cmd command.Column) *Column {
-	msgCol := &Column{
-		Table:  cmd.Table,
-		Column: ConvertCommandToMessageExpr(cmd.Column),
-		Alias:  cmd.Alias,
+func ConvertCommandToMessageCol(cmd command.Column) (*Column, error) {
+	column, err := ConvertCommandToMessageExpr(cmd.Column)
+	if err != nil {
+		return nil, err
 	}
-	return msgCol
+	return &Column{
+		Table:  cmd.Table,
+		Column: column,
+		Alias:  cmd.Alias,
+	}, nil
 }
 
 // ConvertCommandToMessageColSlice converts []command.Column to a []message.Column.
-func ConvertCommandToMessageColSlice(cmd []command.Column) []*Column {
+func ConvertCommandToMessageColSlice(cmd []command.Column) ([]*Column, error) {
 	msgCols := []*Column{}
 	for i := range cmd {
-		msgCols = append(msgCols, ConvertCommandToMessageCol(cmd[i]))
+		col, err := ConvertCommandToMessageCol(cmd[i])
+		if err != nil {
+			return nil, err
+		}
+		msgCols = append(msgCols, col)
 	}
-	return msgCols
+	return msgCols, nil
 }
 
 // ConvertCommandToMessageProject converts a Command type to a Command_Project type.
-func ConvertCommandToMessageProject(cmd command.Command) *Command_Project {
-	return &Command_Project{
-		Cols:  ConvertCommandToMessageColSlice(cmd.(*command.Project).Cols),
-		Input: ConvertCommandToMessageList(cmd.(*command.Project).Input),
+func ConvertCommandToMessageProject(cmd command.Command) (*Command_Project, error) {
+	cols, err := ConvertCommandToMessageColSlice(cmd.(*command.Project).Cols)
+	if err != nil {
+		return nil, err
 	}
+	input, err := ConvertCommandToMessageList(cmd.(*command.Project).Input)
+	if err != nil {
+		return nil, err
+	}
+	return &Command_Project{
+		Cols:  cols,
+		Input: input,
+	}, nil
 }
 
 // ConvertCommandToMessageDelete converts a Command type to a Command_Delete type.
-func ConvertCommandToMessageDelete(cmd command.Command) *Command_Delete {
-	return &Command_Delete{
-		Table:  ConvertCommandTableToMessageTable(cmd.(*command.Delete).Table),
-		Filter: ConvertCommandToMessageExpr(cmd.(*command.Delete).Filter),
+func ConvertCommandToMessageDelete(cmd *command.Delete) (*Command_Delete, error) {
+	table, err := ConvertCommandTableToMessageTable(cmd.Table)
+	if err != nil {
+		return nil, err
 	}
+	filter, err := ConvertCommandToMessageExpr(cmd.Filter)
+	if err != nil {
+		return nil, err
+	}
+	return &Command_Delete{
+		Table:  table,
+		Filter: filter,
+	}, nil
 }
 
 // ConvertCommandToMessageDrop converts a Command type to a CommandDrop type.
-func ConvertCommandToMessageDrop(cmd command.Command) *CommandDrop {
+func ConvertCommandToMessageDrop(cmd command.Command) (*CommandDrop, error) {
+	if cmd == nil {
+		return nil, ErrNilCommand
+	}
 	msgCmdDrop := &CommandDrop{}
 	switch c := cmd.(type) {
 	case *command.DropTable:
@@ -348,142 +538,221 @@ func ConvertCommandToMessageDrop(cmd command.Command) *CommandDrop {
 		msgCmdDrop.Schema = c.Schema
 		msgCmdDrop.Name = c.Name
 	}
-	return msgCmdDrop
+	return msgCmdDrop, nil
 }
 
 // ConvertCommandToMessageUpdateOr converts a command.Update or to a message.UpdateOr.
 // Returns -1 if the UpdateOr type doesn't match.
-func ConvertCommandToMessageUpdateOr(cmd command.UpdateOr) UpdateOr {
+func ConvertCommandToMessageUpdateOr(cmd command.UpdateOr) (UpdateOr, error) {
 	switch cmd {
 	case command.UpdateOrUnknown:
-		return UpdateOr_UpdateOrUnknown
+		return UpdateOr_UpdateOrUnknown, nil
 	case command.UpdateOrRollback:
-		return UpdateOr_UpdateOrRollback
+		return UpdateOr_UpdateOrRollback, nil
 	case command.UpdateOrAbort:
-		return UpdateOr_UpdateOrAbort
+		return UpdateOr_UpdateOrAbort, nil
 	case command.UpdateOrReplace:
-		return UpdateOr_UpdateOrReplace
+		return UpdateOr_UpdateOrReplace, nil
 	case command.UpdateOrFail:
-		return UpdateOr_UpdateOrFail
+		return UpdateOr_UpdateOrFail, nil
 	case command.UpdateOrIgnore:
-		return UpdateOr_UpdateOrIgnore
+		return UpdateOr_UpdateOrIgnore, nil
 	}
-	return -1
+	return -1, ErrUnknownCommandKind
 }
 
 // ConvertCommandToMessageUpdateSetterLiteral converts a command.Literal to a message.UpdateSetter_Literal.
-func ConvertCommandToMessageUpdateSetterLiteral(cmd command.LiteralExpr) *UpdateSetter_Literal {
+func ConvertCommandToMessageUpdateSetterLiteral(cmd command.LiteralExpr) (*UpdateSetter_Literal, error) {
 	return &UpdateSetter_Literal{
 		&LiteralExpr{
 			Value: cmd.Value,
 		},
-	}
+	}, nil
 }
 
 // ConvertCommandToMessageUpdateSetterConstant converts a command.Constant to a message.UpdateSetter_Constant.
-func ConvertCommandToMessageUpdateSetterConstant(cmd command.ConstantBooleanExpr) *UpdateSetter_Constant {
+func ConvertCommandToMessageUpdateSetterConstant(cmd command.ConstantBooleanExpr) (*UpdateSetter_Constant, error) {
+
 	return &UpdateSetter_Constant{
 		&ConstantBooleanExpr{
 			Value: cmd.Value,
 		},
-	}
+	}, nil
 }
 
 // ConvertCommandToMessageUpdateSetterUnary converts a command.Unary to a message.UpdateSetter_Unary.
-func ConvertCommandToMessageUpdateSetterUnary(cmd command.UnaryExpr) *UpdateSetter_Unary {
+func ConvertCommandToMessageUpdateSetterUnary(cmd command.UnaryExpr) (*UpdateSetter_Unary, error) {
+	val, err := ConvertCommandToMessageExpr(cmd.Value)
+	if err != nil {
+		return nil, err
+	}
 	return &UpdateSetter_Unary{
 		&UnaryExpr{
 			Operator: cmd.Operator,
-			Value:    ConvertCommandToMessageExpr(cmd.Value),
+			Value:    val,
 		},
-	}
+	}, nil
 }
 
 // ConvertCommandToMessageUpdateSetterBinary converts a command.Binary to a message.UpdateSetter_Binary.
-func ConvertCommandToMessageUpdateSetterBinary(cmd command.BinaryExpr) *UpdateSetter_Binary {
+func ConvertCommandToMessageUpdateSetterBinary(cmd command.BinaryExpr) (*UpdateSetter_Binary, error) {
+	left, err := ConvertCommandToMessageExpr(cmd.Left)
+	if err != nil {
+		return nil, err
+	}
+	right, err := ConvertCommandToMessageExpr(cmd.Right)
+	if err != nil {
+		return nil, err
+	}
 	return &UpdateSetter_Binary{
 		&BinaryExpr{
 			Operator: cmd.Operator,
-			Left:     ConvertCommandToMessageExpr(cmd.Left),
-			Right:    ConvertCommandToMessageExpr(cmd.Right),
+			Left:     left,
+			Right:    right,
 		},
-	}
+	}, nil
 }
 
 // ConvertCommandToMessageUpdateSetterFunc converts a command.Func to a message.UpdateSetter_Func.
-func ConvertCommandToMessageUpdateSetterFunc(cmd command.FunctionExpr) *UpdateSetter_Func {
+func ConvertCommandToMessageUpdateSetterFunc(cmd command.FunctionExpr) (*UpdateSetter_Func, error) {
+	repExpr, err := ConvertCommandToMessageRepeatedExpr(cmd.Args)
+	if err != nil {
+		return nil, err
+	}
 	return &UpdateSetter_Func{
 		&FunctionExpr{
 			Name:     cmd.Name,
 			Distinct: cmd.Distinct,
-			Args:     ConvertCommandToMessageRepeatedExpr(cmd.Args),
+			Args:     repExpr,
 		},
-	}
+	}, nil
 }
 
 // ConvertCommandToMessageUpdateSetterEquality converts a command.Equality to a message.UpdateSetter_Equality.
-func ConvertCommandToMessageUpdateSetterEquality(cmd command.EqualityExpr) *UpdateSetter_Equality {
+func ConvertCommandToMessageUpdateSetterEquality(cmd command.EqualityExpr) (*UpdateSetter_Equality, error) {
+	left, err := ConvertCommandToMessageExpr(cmd.Left)
+	if err != nil {
+		return nil, err
+	}
+	right, err := ConvertCommandToMessageExpr(cmd.Right)
+	if err != nil {
+		return nil, err
+	}
 	return &UpdateSetter_Equality{
 		&EqualityExpr{
-			Left:   ConvertCommandToMessageExpr(cmd.Left),
-			Right:  ConvertCommandToMessageExpr(cmd.Right),
+			Left:   left,
+			Right:  right,
 			Invert: cmd.Invert,
 		},
-	}
+	}, nil
 }
 
 // ConvertCommandToMessageUpdateSetterRange converts a command.Range to a message.UpdateSetter_Range.
-func ConvertCommandToMessageUpdateSetterRange(cmd command.RangeExpr) *UpdateSetter_Range {
+func ConvertCommandToMessageUpdateSetterRange(cmd command.RangeExpr) (*UpdateSetter_Range, error) {
+	needle, err := ConvertCommandToMessageExpr(cmd.Needle)
+	if err != nil {
+		return nil, err
+	}
+	lo, err := ConvertCommandToMessageExpr(cmd.Lo)
+	if err != nil {
+		return nil, err
+	}
+	hi, err := ConvertCommandToMessageExpr(cmd.Hi)
+	if err != nil {
+		return nil, err
+	}
 	return &UpdateSetter_Range{
 		&RangeExpr{
-			Needle: ConvertCommandToMessageExpr(cmd.Needle),
-			Lo:     ConvertCommandToMessageExpr(cmd.Lo),
-			Hi:     ConvertCommandToMessageExpr(cmd.Hi),
+			Needle: needle,
+			Lo:     lo,
+			Hi:     hi,
 			Invert: cmd.Invert,
 		},
-	}
+	}, nil
 }
 
 // ConvertCommandToMessageUpdateSetter converts a command.UpdateSetter to a message.UpdateSetter.
-func ConvertCommandToMessageUpdateSetter(cmd command.UpdateSetter) *UpdateSetter {
+func ConvertCommandToMessageUpdateSetter(cmd command.UpdateSetter) (*UpdateSetter, error) {
+	var err error
 	msgUpdateSetter := &UpdateSetter{}
 	msgUpdateSetter.Cols = cmd.Cols
 	switch val := cmd.Value.(type) {
 	case command.LiteralExpr:
-		msgUpdateSetter.Value = ConvertCommandToMessageUpdateSetterLiteral(val)
+		msgUpdateSetter.Value, err = ConvertCommandToMessageUpdateSetterLiteral(val)
+		if err != nil {
+			return nil, err
+		}
 	case command.ConstantBooleanExpr:
-		msgUpdateSetter.Value = ConvertCommandToMessageUpdateSetterConstant(val)
+		msgUpdateSetter.Value, err = ConvertCommandToMessageUpdateSetterConstant(val)
+		if err != nil {
+			return nil, err
+		}
 	case command.UnaryExpr:
-		msgUpdateSetter.Value = ConvertCommandToMessageUpdateSetterUnary(val)
+		msgUpdateSetter.Value, err = ConvertCommandToMessageUpdateSetterUnary(val)
+		if err != nil {
+			return nil, err
+		}
 	case command.BinaryExpr:
-		msgUpdateSetter.Value = ConvertCommandToMessageUpdateSetterBinary(val)
+		msgUpdateSetter.Value, err = ConvertCommandToMessageUpdateSetterBinary(val)
+		if err != nil {
+			return nil, err
+		}
 	case command.FunctionExpr:
-		msgUpdateSetter.Value = ConvertCommandToMessageUpdateSetterFunc(val)
+		msgUpdateSetter.Value, err = ConvertCommandToMessageUpdateSetterFunc(val)
+		if err != nil {
+			return nil, err
+		}
 	case command.EqualityExpr:
-		msgUpdateSetter.Value = ConvertCommandToMessageUpdateSetterEquality(val)
+		msgUpdateSetter.Value, err = ConvertCommandToMessageUpdateSetterEquality(val)
+		if err != nil {
+			return nil, err
+		}
 	case command.RangeExpr:
-		msgUpdateSetter.Value = ConvertCommandToMessageUpdateSetterRange(val)
+		msgUpdateSetter.Value, err = ConvertCommandToMessageUpdateSetterRange(val)
+		if err != nil {
+			return nil, err
+		}
 	}
-	return msgUpdateSetter
+	return msgUpdateSetter, nil
 }
 
 // ConvertCommandToMessageUpdateSetterSlice converts a []command.UpdateSetter to a []message.UpdateSetter.
-func ConvertCommandToMessageUpdateSetterSlice(cmd []command.UpdateSetter) []*UpdateSetter {
+func ConvertCommandToMessageUpdateSetterSlice(cmd []command.UpdateSetter) ([]*UpdateSetter, error) {
 	msgUpdateSetterSlice := []*UpdateSetter{}
 	for i := range cmd {
-		msgUpdateSetterSlice = append(msgUpdateSetterSlice, ConvertCommandToMessageUpdateSetter(cmd[i]))
+		updateSetter, err := ConvertCommandToMessageUpdateSetter(cmd[i])
+		if err != nil {
+			return nil, err
+		}
+		msgUpdateSetterSlice = append(msgUpdateSetterSlice, updateSetter)
 	}
-	return msgUpdateSetterSlice
+	return msgUpdateSetterSlice, nil
 }
 
 // ConvertCommandToMessageUpdate converts a Command type to a Command_Update type.
-func ConvertCommandToMessageUpdate(cmd command.Command) *Command_Update {
-	return &Command_Update{
-		UpdateOr: ConvertCommandToMessageUpdateOr(cmd.(*command.Update).UpdateOr),
-		Table:    ConvertCommandTableToMessageTable(cmd.(*command.Update).Table),
-		Updates:  ConvertCommandToMessageUpdateSetterSlice(cmd.(*command.Update).Updates),
-		Filter:   ConvertCommandToMessageExpr(cmd.(*command.Update).Filter),
+func ConvertCommandToMessageUpdate(cmd command.Command) (*Command_Update, error) {
+	updateOr, err := ConvertCommandToMessageUpdateOr(cmd.(*command.Update).UpdateOr)
+	if err != nil {
+		return nil, err
 	}
+	table, err := ConvertCommandTableToMessageTable(cmd.(*command.Update).Table)
+	if err != nil {
+		return nil, err
+	}
+	updates, err := ConvertCommandToMessageUpdateSetterSlice(cmd.(*command.Update).Updates)
+	if err != nil {
+		return nil, err
+	}
+	filter, err := ConvertCommandToMessageExpr(cmd.(*command.Update).Filter)
+	if err != nil {
+		return nil, err
+	}
+	return &Command_Update{
+		UpdateOr: updateOr,
+		Table:    table,
+		Updates:  updates,
+		Filter:   filter,
+	}, nil
 }
 
 // ConvertCommandToMessageJoinType converts command.JoinType to message.JoinType.
@@ -505,22 +774,43 @@ func ConvertCommandToMessageJoinType(cmd command.JoinType) JoinType {
 }
 
 // ConvertCommandToMessageJoin converts a Command type to a Command_Join type.
-func ConvertCommandToMessageJoin(cmd *command.Join) *Command_Join {
+func ConvertCommandToMessageJoin(cmd *command.Join) (*Command_Join, error) {
+	filter, err := ConvertCommandToMessageExpr(cmd.Filter)
+	if err != nil {
+		return nil, err
+	}
+	left, err := ConvertCommandToMessageList(cmd.Left)
+	if err != nil {
+		return nil, err
+	}
+	right, err := ConvertCommandToMessageList(cmd.Right)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Command_Join{
 		Natural: cmd.Natural,
 		Type:    ConvertCommandToMessageJoinType(cmd.Type),
-		Filter:  ConvertCommandToMessageExpr(cmd.Filter),
-		Left:    ConvertCommandToMessageList(cmd.Left),
-		Right:   ConvertCommandToMessageList(cmd.Right),
-	}
+		Filter:  filter,
+		Left:    left,
+		Right:   right,
+	}, nil
 }
 
 // ConvertCommandToMessageLimit converts a Command type to a Command_Limit type.
-func ConvertCommandToMessageLimit(cmd *command.Limit) *Command_Limit {
-	return &Command_Limit{
-		Limit: ConvertCommandToMessageExpr(cmd.Limit),
-		Input: ConvertCommandToMessageList(cmd.Input),
+func ConvertCommandToMessageLimit(cmd *command.Limit) (*Command_Limit, error) {
+	limit, err := ConvertCommandToMessageExpr(cmd.Limit)
+	if err != nil {
+		return nil, err
 	}
+	input, err := ConvertCommandToMessageList(cmd.Input)
+	if err != nil {
+		return nil, err
+	}
+	return &Command_Limit{
+		Limit: limit,
+		Input: input,
+	}, nil
 }
 
 // ConvertCommandToMessageInsertOr converts command.InsertOr to a message.InsertOr.
@@ -544,14 +834,26 @@ func ConvertCommandToMessageInsertOr(cmd command.InsertOr) InsertOr {
 }
 
 // ConvertCommandToMessageInsert converts a Command type to a Command_Insert type.
-func ConvertCommandToMessageInsert(cmd command.Command) *Command_Insert {
-	return &Command_Insert{
-		InsertOr:      ConvertCommandToMessageInsertOr(cmd.(*command.Insert).InsertOr),
-		Table:         ConvertCommandTableToMessageTable(cmd.(*command.Insert).Table),
-		Cols:          ConvertCommandToMessageColSlice(cmd.(*command.Insert).Cols),
-		DefaultValues: cmd.(*command.Insert).DefaultValues,
-		Input:         ConvertCommandToMessageList(cmd.(*command.Insert).Input),
+func ConvertCommandToMessageInsert(cmd *command.Insert) (*Command_Insert, error) {
+	table, err := ConvertCommandTableToMessageTable(cmd.Table)
+	if err != nil {
+		return nil, err
 	}
+	colSlice, err := ConvertCommandToMessageColSlice(cmd.Cols)
+	if err != nil {
+		return nil, err
+	}
+	input, err := ConvertCommandToMessageList(cmd.Input)
+	if err != nil {
+		return nil, err
+	}
+	return &Command_Insert{
+		InsertOr:      ConvertCommandToMessageInsertOr(cmd.InsertOr),
+		Table:         table,
+		Cols:          colSlice,
+		DefaultValues: cmd.DefaultValues,
+		Input:         input,
+	}, nil
 }
 
 // ConvertMessageToCommand converts a message.Command to a command.Command.

@@ -11,10 +11,11 @@ import (
 //
 // * Create a new instance of the RaftTestFramework;
 //   this begins the raft cluster and all operations.
-// * Call monitor to start seeing real time logs.
-// * Use "InjectData" to insert a log into the cluster.
+//
+//	 raftTest := NewSimpleRaftTest(log,opParams,cfg)
+//
 // * Use "InjectOperation" with appropriate args to
-//   trigger an operation in the cluster.1
+//   trigger an operation in the cluster.
 var _ TestFramework = (*SimpleRaftTest)(nil)
 
 // SimpleRaftTest implements TestFramework.
@@ -34,9 +35,10 @@ type SimpleRaftTest struct {
 func NewSimpleRaftTest(
 	log zerolog.Logger,
 	parameters OperationParameters,
-	config NetworkConfiguration) *SimpleRaftTest {
-	opChan := make(chan OpData, 5)
-	execChan := make(chan OpData, 5)
+	config NetworkConfiguration,
+) *SimpleRaftTest {
+	opChan := make(chan OpData, len(parameters.Operations))
+	execChan := make(chan OpData, len(parameters.Operations))
 	shutdownChan := make(chan bool, 1)
 	roundsChan := make(chan bool, 1)
 	return &SimpleRaftTest{
@@ -79,6 +81,9 @@ func (t *SimpleRaftTest) BeginTest() error {
 	log.Debug().Msg("beginning execution goroutine")
 	go t.executeOperation()
 
+	log.Debug().Msg("initiating operation injection")
+	go t.pushOperations()
+
 	// Look for incoming operations and parallely run them
 	// while waiting for the limit of the execution.
 	// Once the limit of the execution is reached, wait for
@@ -117,6 +122,13 @@ func (t *SimpleRaftTest) InjectOperation(op Operation, args interface{}) {
 	}
 	log.Debug().Msg("injecting operation")
 	t.opChannel <- opData
+}
+
+func (t *SimpleRaftTest) pushOperations() {
+	for i := range t.parameters.Operations {
+		time.Sleep(100 * time.Millisecond)
+		t.opChannel <- t.parameters.Operations[i]
+	}
 }
 
 // execute appends the operation to the queue which will

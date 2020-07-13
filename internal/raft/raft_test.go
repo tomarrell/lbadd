@@ -9,6 +9,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/tomarrell/lbadd/internal/compile"
 	"github.com/tomarrell/lbadd/internal/id"
 	"github.com/tomarrell/lbadd/internal/network"
 	networkmocks "github.com/tomarrell/lbadd/internal/network/mocks"
@@ -122,9 +123,22 @@ func Test_Integration(t *testing.T) {
 	log := zerolog.New(os.Stdout).With().Logger().Level(zerolog.GlobalLevel())
 
 	assert := assert.New(t)
+	operations := []OpData{
+		{
+			Op: SendData,
+			Data: &OpSendData{
+				Data: []*compile.Command{},
+			},
+		},
+		{
+			Op:   StopNode,
+			Data: &OpStopNode{},
+		},
+	}
 	opParams := OperationParameters{
-		Rounds:    4,
-		TimeLimit: 5,
+		Rounds:     4,
+		TimeLimit:  5,
+		Operations: operations,
 	}
 
 	cfg := NetworkConfiguration{}
@@ -135,6 +149,6 @@ func Test_Integration(t *testing.T) {
 		err := raftTest.BeginTest()
 		assert.Nil(err)
 	}()
-	raftTest.InjectOperation(SendData, &OpSendData{})
-	<-time.After(time.Duration(2*opParams.Rounds) * time.Second)
+
+	<-time.After(time.Duration(2*opParams.TimeLimit) * time.Second)
 }
