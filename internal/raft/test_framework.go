@@ -1,7 +1,7 @@
 package raft
 
 import (
-	"github.com/tomarrell/lbadd/internal/compile"
+	"github.com/tomarrell/lbadd/internal/compiler/command"
 	"github.com/tomarrell/lbadd/internal/id"
 	"github.com/tomarrell/lbadd/internal/network"
 )
@@ -46,7 +46,7 @@ type OperationParameters struct {
 	Rounds int
 	// TimeLimit specifies the limit until which the raft operation will run.
 	TimeLimit int
-	// Operations are all the operations that wil be performed in the test run.
+	// Operations are all the operations that wil be performed in the test
 	Operations []OpData
 }
 
@@ -76,7 +76,7 @@ type OpData struct {
 
 // OpSendData describes the data related to SendData.
 type OpSendData struct {
-	Data []*compile.Command
+	Data []*command.Command
 }
 
 // OpStopNode describes the data related to StopNode.

@@ -9,7 +9,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"github.com/tomarrell/lbadd/internal/compile"
+	"github.com/tomarrell/lbadd/internal/compiler/command"
 	"github.com/tomarrell/lbadd/internal/id"
 	"github.com/tomarrell/lbadd/internal/network"
 	networkmocks "github.com/tomarrell/lbadd/internal/network/mocks"
@@ -127,7 +127,7 @@ func Test_Integration(t *testing.T) {
 		{
 			Op: SendData,
 			Data: &OpSendData{
-				Data: []*compile.Command{},
+				Data: []*command.Command{},
 			},
 		},
 		{
