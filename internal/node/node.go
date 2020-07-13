@@ -10,6 +10,7 @@ import (
 	"github.com/tomarrell/lbadd/internal/raft"
 	"github.com/tomarrell/lbadd/internal/raft/cluster"
 	"github.com/tomarrell/lbadd/internal/raft/message"
+	"golang.org/x/sync/errgroup"
 )
 
 // Node is a database node. It uses an underlying raft.Server to communicate
@@ -40,31 +41,31 @@ func (n *Node) ListenAndServe(ctx context.Context, addr string) error {
 	return fmt.Errorf("unimplemented")
 }
 
-// // Open opens a new cluster, making this node the only node in the cluster.
-// // Other clusters can connect to the given address and perform the implemented
-// // handshake, in order to become nodes in the cluster.
-// func (n *Node) Open(ctx context.Context, addr string) error {
-// 	n.log.Info().
-// 		Str("addr", addr).
-// 		Msg("open")
+// Open opens a new cluster, making this node the only node in the cluster.
+// Other clusters can connect to the given address and perform the implemented
+// handshake, in order to become nodes in the cluster.
+func (n *Node) Open(ctx context.Context, addr string) error {
+	n.log.Info().
+		Str("addr", addr).
+		Msg("open")
 
-// 	if err := n.openCluster(ctx, addr); err != nil {
-// 		return fmt.Errorf("open cluster: %w", err)
-// 	}
+	if err := n.openCluster(ctx, addr); err != nil {
+		return fmt.Errorf("open cluster: %w", err)
+	}
 
-// 	return n.startNode()
-// }
+	return n.startNode()
+}
 
-// // Close closes the node, starting with the underlying raft server, then the
-// // cluster, then the executor.
-// func (n *Node) Close() error {
-// 	ctx := context.TODO()
-// 	errs, _ := errgroup.WithContext(ctx)
-// 	errs.Go(n.raft.Close)
-// 	errs.Go(n.cluster.Close)
-// 	errs.Go(n.engine.Close)
-// 	return errs.Wait()
-// }
+// Close closes the node, starting with the underlying raft server, then the
+// cluster, then the executor.
+func (n *Node) Close() error {
+	ctx := context.TODO()
+	errs, _ := errgroup.WithContext(ctx)
+	errs.Go(n.raft.Close)
+	errs.Go(n.cluster.Close)
+	errs.Go(n.engine.Close)
+	return errs.Wait()
+}
 
 func (n *Node) openCluster(ctx context.Context, addr string) error {
 	if n.cluster != nil {
