@@ -50,6 +50,7 @@ func (e Engine) evaluateProjection(ctx ExecutionContext, proj command.Project) (
 	}
 
 	var expectedColumnNames []string
+	aliases := make(map[string]string)
 	for _, col := range proj.Cols {
 		// evaluate the column name
 		colNameExpr, err := e.evaluateExpression(ctx, col.Column)
@@ -63,10 +64,25 @@ func (e Engine) evaluateProjection(ctx ExecutionContext, proj command.Project) (
 		if col.Table != "" {
 			colName = col.Table + "." + colName
 		}
-
-		// #193: support alias
+		if col.Alias != "" {
+			aliases[colName] = col.Alias
+		}
 
 		expectedColumnNames = append(expectedColumnNames, colName)
+	}
+
+	// check if the table actually has all expected columns
+	for _, expectedCol := range expectedColumnNames {
+		if !origin.HasColumn(expectedCol) {
+			return Table{}, ErrNoSuchColumn(expectedCol)
+		}
+	}
+
+	// apply aliases
+	for i, col := range origin.Cols {
+		if alias, ok := aliases[col.QualifiedName]; ok {
+			origin.Cols[i].Alias = alias
+		}
 	}
 
 	sort.Strings(expectedColumnNames)
