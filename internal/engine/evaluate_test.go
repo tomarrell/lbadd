@@ -23,38 +23,134 @@ func TestFullTableScan(t *testing.T) {
 	assert.Equal(Table{}, result)
 }
 
-func TestProjection(t *testing.T) {
-	assert := assert.New(t)
+func TestEngine_evaluateProjection(t *testing.T) {
+	tests := []struct {
+		name    string
+		ctx     ExecutionContext
+		proj    command.Project
+		want    Table
+		wantErr string
+	}{
+		{
+			"empty",
+			newEmptyExecutionContext(),
+			command.Project{
+				Cols: []command.Column{},
+				Input: command.Values{
+					Values: [][]command.Expr{
+						{command.LiteralExpr{Value: "hello"}, command.LiteralExpr{Value: "world"}, command.ConstantBooleanExpr{Value: true}},
+						{command.LiteralExpr{Value: "foo"}, command.LiteralExpr{Value: "bar"}, command.ConstantBooleanExpr{Value: false}},
+					},
+				},
+			},
+			Table{
+				Cols: []Col{},
+				Rows: []Row{},
+			},
+			"",
+		},
+		{
+			"simple",
+			newEmptyExecutionContext(),
+			command.Project{
+				Cols: []command.Column{
+					{
+						Column: command.LiteralExpr{Value: "column2"},
+					},
+				},
+				Input: command.Values{
+					Values: [][]command.Expr{
+						{command.LiteralExpr{Value: "hello"}, command.LiteralExpr{Value: "world"}, command.ConstantBooleanExpr{Value: true}},
+						{command.LiteralExpr{Value: "foo"}, command.LiteralExpr{Value: "bar"}, command.ConstantBooleanExpr{Value: false}},
+					},
+				},
+			},
+			Table{
+				Cols: []Col{
+					{
+						QualifiedName: "column2",
+						Type:          types.String,
+					},
+				},
+				Rows: []Row{
+					{
+						Values: []types.Value{types.NewString("world")},
+					},
+					{
+						Values: []types.Value{types.NewString("bar")},
+					},
+				},
+			},
+			"",
+		},
+		{
+			"simple with alias",
+			newEmptyExecutionContext(),
+			command.Project{
+				Cols: []command.Column{
+					{
+						Column: command.LiteralExpr{Value: "column2"},
+						Alias:  "foo",
+					},
+				},
+				Input: command.Values{
+					Values: [][]command.Expr{
+						{command.LiteralExpr{Value: "hello"}, command.LiteralExpr{Value: "world"}, command.ConstantBooleanExpr{Value: true}},
+						{command.LiteralExpr{Value: "foo"}, command.LiteralExpr{Value: "bar"}, command.ConstantBooleanExpr{Value: false}},
+					},
+				},
+			},
+			Table{
+				Cols: []Col{
+					{
+						QualifiedName: "column2",
+						Alias:         "foo",
+						Type:          types.String,
+					},
+				},
+				Rows: []Row{
+					{
+						Values: []types.Value{types.NewString("world")},
+					},
+					{
+						Values: []types.Value{types.NewString("bar")},
+					},
+				},
+			},
+			"",
+		},
+		{
+			"missing column",
+			newEmptyExecutionContext(),
+			command.Project{
+				Cols: []command.Column{
+					{
+						Column: command.LiteralExpr{Value: "foo"},
+					},
+				},
+				Input: command.Values{
+					Values: [][]command.Expr{
+						{command.LiteralExpr{Value: "hello"}},
+						{command.LiteralExpr{Value: "foo"}},
+					},
+				},
+			},
+			Table{},
+			"no column with name or alias 'foo'",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert := assert.New(t)
 
-	e := createEngineOnEmptyDatabase(t)
-	result, err := e.Evaluate(command.Project{
-		Cols: []command.Column{
-			{
-				Column: command.LiteralExpr{Value: "column2"},
-			},
-		},
-		Input: command.Values{
-			Values: [][]command.Expr{
-				{command.LiteralExpr{Value: "hello"}, command.LiteralExpr{Value: "world"}, command.ConstantBooleanExpr{Value: true}},
-				{command.LiteralExpr{Value: "foo"}, command.LiteralExpr{Value: "bar"}, command.ConstantBooleanExpr{Value: false}},
-			},
-		},
-	})
-	assert.NoError(err)
-	assert.Equal(Table{
-		Cols: []Col{
-			{
-				QualifiedName: "column2",
-				Type:          types.String,
-			},
-		},
-		Rows: []Row{
-			{
-				Values: []types.Value{types.NewString("world")},
-			},
-			{
-				Values: []types.Value{types.NewString("bar")},
-			},
-		},
-	}, result)
+			e := createEngineOnEmptyDatabase(t)
+			got, err := e.evaluateProjection(tt.ctx, tt.proj)
+			if tt.wantErr != "" {
+				assert.EqualError(err, tt.wantErr)
+			} else {
+				assert.NoError(err)
+			}
+			assert.Equal(tt.want, got)
+		})
+	}
 }
