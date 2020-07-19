@@ -1,0 +1,4 @@
+command.Delete{Table:command.SimpleTable{Schema:"", Table:"myTable", Alias:"", Indexed:false, Index:""}, Filter:command.BinaryExpr{Operator:"==", Left:command.LiteralExpr{Value:"col1"}, Right:command.LiteralExpr{Value:"col2"}}}
+
+String:
+Delete[filter=col1 == col2](myTable)

@@ -1,0 +1,4 @@
+command.Update{UpdateOr:0x5, Table:command.SimpleTable{Schema:"", Table:"myTable", Alias:"", Indexed:false, Index:""}, Updates:[]command.UpdateSetter{command.UpdateSetter{Cols:[]string{"myCol1", "myCol2"}, Value:command.LiteralExpr{Value:"7"}}, command.UpdateSetter{Cols:[]string{"myOtherCol1", "myOtherCol2"}, Value:command.LiteralExpr{Value:"8"}}}, Filter:command.BinaryExpr{Operator:"==", Left:command.LiteralExpr{Value:"myOtherCol"}, Right:command.LiteralExpr{Value:"9"}}}
+
+String:
+Update[or=UpdateOrIgnore,table=myTable,sets=((myCol1,myCol2)=7,(myOtherCol1,myOtherCol2)=8),filter=myOtherCol == 9]

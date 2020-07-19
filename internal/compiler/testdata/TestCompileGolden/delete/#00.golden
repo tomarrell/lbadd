@@ -1,0 +1,4 @@
+command.Delete{Table:command.SimpleTable{Schema:"", Table:"myTable", Alias:"", Indexed:false, Index:""}, Filter:command.ConstantBooleanExpr{Value:true}}
+
+String:
+Delete[filter=true](myTable)

@@ -1774,12 +1774,14 @@ func TestSingleStatementParse(t *testing.T) {
 												TableOrSubquery: &ast.TableOrSubquery{
 													TableName: token.New(1, 32, 31, 8, token.Literal, "myTable1"),
 												},
-												JoinClausePart: &ast.JoinClausePart{
-													JoinOperator: &ast.JoinOperator{
-														Comma: token.New(1, 40, 39, 1, token.Delimiter, ","),
-													},
-													TableOrSubquery: &ast.TableOrSubquery{
-														TableName: token.New(1, 41, 40, 8, token.Literal, "myTable2"),
+												JoinClausePart: []*ast.JoinClausePart{
+													{
+														JoinOperator: &ast.JoinOperator{
+															Comma: token.New(1, 40, 39, 1, token.Delimiter, ","),
+														},
+														TableOrSubquery: &ast.TableOrSubquery{
+															TableName: token.New(1, 41, 40, 8, token.Literal, "myTable2"),
+														},
 													},
 												},
 											},
@@ -1794,6 +1796,68 @@ func TestSingleStatementParse(t *testing.T) {
 					From:   token.New(1, 58, 57, 4, token.KeywordFrom, "FROM"),
 					QualifiedTableName: &ast.QualifiedTableName{
 						TableName: token.New(1, 63, 62, 7, token.Literal, "myTable"),
+					},
+				},
+			},
+		},
+		{
+			"DELETE with basic with clause, select stmt with FROM with joinclause with multiple join-clause-parts, join constraint and basic cte-table-name",
+			"WITH myTable AS (SELECT * FROM myTable1,myTable2 JOIN myTable3) DELETE FROM myTable",
+			&ast.SQLStmt{
+				DeleteStmt: &ast.DeleteStmt{
+					WithClause: &ast.WithClause{
+						With: token.New(1, 1, 0, 4, token.KeywordWith, "WITH"),
+						RecursiveCte: []*ast.RecursiveCte{
+							{
+								CteTableName: &ast.CteTableName{
+									TableName: token.New(1, 6, 5, 7, token.Literal, "myTable"),
+								},
+								As:        token.New(1, 14, 13, 2, token.KeywordAs, "AS"),
+								LeftParen: token.New(1, 17, 16, 1, token.Delimiter, "("),
+								SelectStmt: &ast.SelectStmt{
+									SelectCore: []*ast.SelectCore{
+										{
+											Select: token.New(1, 18, 17, 6, token.KeywordSelect, "SELECT"),
+											ResultColumn: []*ast.ResultColumn{
+												{
+													Asterisk: token.New(1, 25, 24, 1, token.BinaryOperator, "*"),
+												},
+											},
+											From: token.New(1, 27, 26, 4, token.KeywordFrom, "FROM"),
+											JoinClause: &ast.JoinClause{
+												TableOrSubquery: &ast.TableOrSubquery{
+													TableName: token.New(1, 32, 31, 8, token.Literal, "myTable1"),
+												},
+												JoinClausePart: []*ast.JoinClausePart{
+													{
+														JoinOperator: &ast.JoinOperator{
+															Comma: token.New(1, 40, 39, 1, token.Delimiter, ","),
+														},
+														TableOrSubquery: &ast.TableOrSubquery{
+															TableName: token.New(1, 41, 40, 8, token.Literal, "myTable2"),
+														},
+													},
+													{
+														JoinOperator: &ast.JoinOperator{
+															Join: token.New(1, 50, 49, 4, token.KeywordJoin, "JOIN"),
+														},
+														TableOrSubquery: &ast.TableOrSubquery{
+															TableName: token.New(1, 55, 54, 8, token.Literal, "myTable3"),
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+								RightParen: token.New(1, 63, 62, 1, token.Delimiter, ")"),
+							},
+						},
+					},
+					Delete: token.New(1, 65, 64, 6, token.KeywordDelete, "DELETE"),
+					From:   token.New(1, 72, 71, 4, token.KeywordFrom, "FROM"),
+					QualifiedTableName: &ast.QualifiedTableName{
+						TableName: token.New(1, 77, 76, 7, token.Literal, "myTable"),
 					},
 				},
 			},
@@ -1826,17 +1890,19 @@ func TestSingleStatementParse(t *testing.T) {
 												TableOrSubquery: &ast.TableOrSubquery{
 													TableName: token.New(1, 32, 31, 8, token.Literal, "myTable1"),
 												},
-												JoinClausePart: &ast.JoinClausePart{
-													JoinOperator: &ast.JoinOperator{
-														Comma: token.New(1, 40, 39, 1, token.Delimiter, ","),
-													},
-													TableOrSubquery: &ast.TableOrSubquery{
-														TableName: token.New(1, 41, 40, 8, token.Literal, "myTable2"),
-													},
-													JoinConstraint: &ast.JoinConstraint{
-														On: token.New(1, 50, 49, 2, token.KeywordOn, "ON"),
-														Expr: &ast.Expr{
-															LiteralValue: token.New(1, 53, 52, 6, token.Literal, "myExpr"),
+												JoinClausePart: []*ast.JoinClausePart{
+													{
+														JoinOperator: &ast.JoinOperator{
+															Comma: token.New(1, 40, 39, 1, token.Delimiter, ","),
+														},
+														TableOrSubquery: &ast.TableOrSubquery{
+															TableName: token.New(1, 41, 40, 8, token.Literal, "myTable2"),
+														},
+														JoinConstraint: &ast.JoinConstraint{
+															On: token.New(1, 50, 49, 2, token.KeywordOn, "ON"),
+															Expr: &ast.Expr{
+																LiteralValue: token.New(1, 53, 52, 6, token.Literal, "myExpr"),
+															},
 														},
 													},
 												},
@@ -1884,20 +1950,22 @@ func TestSingleStatementParse(t *testing.T) {
 												TableOrSubquery: &ast.TableOrSubquery{
 													TableName: token.New(1, 32, 31, 8, token.Literal, "myTable1"),
 												},
-												JoinClausePart: &ast.JoinClausePart{
-													JoinOperator: &ast.JoinOperator{
-														Comma: token.New(1, 40, 39, 1, token.Delimiter, ","),
-													},
-													TableOrSubquery: &ast.TableOrSubquery{
-														TableName: token.New(1, 41, 40, 8, token.Literal, "myTable2"),
-													},
-													JoinConstraint: &ast.JoinConstraint{
-														Using:     token.New(1, 50, 49, 5, token.KeywordUsing, "USING"),
-														LeftParen: token.New(1, 56, 55, 1, token.Delimiter, "("),
-														ColumnName: []token.Token{
-															token.New(1, 57, 56, 5, token.Literal, "myCol"),
+												JoinClausePart: []*ast.JoinClausePart{
+													{
+														JoinOperator: &ast.JoinOperator{
+															Comma: token.New(1, 40, 39, 1, token.Delimiter, ","),
 														},
-														RightParen: token.New(1, 62, 61, 1, token.Delimiter, ")"),
+														TableOrSubquery: &ast.TableOrSubquery{
+															TableName: token.New(1, 41, 40, 8, token.Literal, "myTable2"),
+														},
+														JoinConstraint: &ast.JoinConstraint{
+															Using:     token.New(1, 50, 49, 5, token.KeywordUsing, "USING"),
+															LeftParen: token.New(1, 56, 55, 1, token.Delimiter, "("),
+															ColumnName: []token.Token{
+																token.New(1, 57, 56, 5, token.Literal, "myCol"),
+															},
+															RightParen: token.New(1, 62, 61, 1, token.Delimiter, ")"),
+														},
 													},
 												},
 											},
@@ -1944,21 +2012,23 @@ func TestSingleStatementParse(t *testing.T) {
 												TableOrSubquery: &ast.TableOrSubquery{
 													TableName: token.New(1, 32, 31, 8, token.Literal, "myTable1"),
 												},
-												JoinClausePart: &ast.JoinClausePart{
-													JoinOperator: &ast.JoinOperator{
-														Comma: token.New(1, 40, 39, 1, token.Delimiter, ","),
-													},
-													TableOrSubquery: &ast.TableOrSubquery{
-														TableName: token.New(1, 41, 40, 8, token.Literal, "myTable2"),
-													},
-													JoinConstraint: &ast.JoinConstraint{
-														Using:     token.New(1, 50, 49, 5, token.KeywordUsing, "USING"),
-														LeftParen: token.New(1, 56, 55, 1, token.Delimiter, "("),
-														ColumnName: []token.Token{
-															token.New(1, 57, 56, 6, token.Literal, "myCol1"),
-															token.New(1, 64, 63, 6, token.Literal, "myCol2"),
+												JoinClausePart: []*ast.JoinClausePart{
+													{
+														JoinOperator: &ast.JoinOperator{
+															Comma: token.New(1, 40, 39, 1, token.Delimiter, ","),
 														},
-														RightParen: token.New(1, 70, 69, 1, token.Delimiter, ")"),
+														TableOrSubquery: &ast.TableOrSubquery{
+															TableName: token.New(1, 41, 40, 8, token.Literal, "myTable2"),
+														},
+														JoinConstraint: &ast.JoinConstraint{
+															Using:     token.New(1, 50, 49, 5, token.KeywordUsing, "USING"),
+															LeftParen: token.New(1, 56, 55, 1, token.Delimiter, "("),
+															ColumnName: []token.Token{
+																token.New(1, 57, 56, 6, token.Literal, "myCol1"),
+																token.New(1, 64, 63, 6, token.Literal, "myCol2"),
+															},
+															RightParen: token.New(1, 70, 69, 1, token.Delimiter, ")"),
+														},
 													},
 												},
 											},
@@ -2005,12 +2075,14 @@ func TestSingleStatementParse(t *testing.T) {
 												TableOrSubquery: &ast.TableOrSubquery{
 													TableName: token.New(1, 32, 31, 8, token.Literal, "myTable1"),
 												},
-												JoinClausePart: &ast.JoinClausePart{
-													JoinOperator: &ast.JoinOperator{
-														Join: token.New(1, 41, 40, 4, token.KeywordJoin, "JOIN"),
-													},
-													TableOrSubquery: &ast.TableOrSubquery{
-														TableName: token.New(1, 46, 45, 8, token.Literal, "myTable2"),
+												JoinClausePart: []*ast.JoinClausePart{
+													{
+														JoinOperator: &ast.JoinOperator{
+															Join: token.New(1, 41, 40, 4, token.KeywordJoin, "JOIN"),
+														},
+														TableOrSubquery: &ast.TableOrSubquery{
+															TableName: token.New(1, 46, 45, 8, token.Literal, "myTable2"),
+														},
 													},
 												},
 											},
@@ -2057,13 +2129,15 @@ func TestSingleStatementParse(t *testing.T) {
 												TableOrSubquery: &ast.TableOrSubquery{
 													TableName: token.New(1, 32, 31, 8, token.Literal, "myTable1"),
 												},
-												JoinClausePart: &ast.JoinClausePart{
-													JoinOperator: &ast.JoinOperator{
-														Natural: token.New(1, 41, 40, 7, token.KeywordNatural, "NATURAL"),
-														Join:    token.New(1, 49, 48, 4, token.KeywordJoin, "JOIN"),
-													},
-													TableOrSubquery: &ast.TableOrSubquery{
-														TableName: token.New(1, 54, 53, 8, token.Literal, "myTable2"),
+												JoinClausePart: []*ast.JoinClausePart{
+													{
+														JoinOperator: &ast.JoinOperator{
+															Natural: token.New(1, 41, 40, 7, token.KeywordNatural, "NATURAL"),
+															Join:    token.New(1, 49, 48, 4, token.KeywordJoin, "JOIN"),
+														},
+														TableOrSubquery: &ast.TableOrSubquery{
+															TableName: token.New(1, 54, 53, 8, token.Literal, "myTable2"),
+														},
 													},
 												},
 											},
@@ -2110,13 +2184,15 @@ func TestSingleStatementParse(t *testing.T) {
 												TableOrSubquery: &ast.TableOrSubquery{
 													TableName: token.New(1, 32, 31, 8, token.Literal, "myTable1"),
 												},
-												JoinClausePart: &ast.JoinClausePart{
-													JoinOperator: &ast.JoinOperator{
-														Left: token.New(1, 41, 40, 4, token.KeywordLeft, "LEFT"),
-														Join: token.New(1, 46, 45, 4, token.KeywordJoin, "JOIN"),
-													},
-													TableOrSubquery: &ast.TableOrSubquery{
-														TableName: token.New(1, 51, 50, 8, token.Literal, "myTable2"),
+												JoinClausePart: []*ast.JoinClausePart{
+													{
+														JoinOperator: &ast.JoinOperator{
+															Left: token.New(1, 41, 40, 4, token.KeywordLeft, "LEFT"),
+															Join: token.New(1, 46, 45, 4, token.KeywordJoin, "JOIN"),
+														},
+														TableOrSubquery: &ast.TableOrSubquery{
+															TableName: token.New(1, 51, 50, 8, token.Literal, "myTable2"),
+														},
 													},
 												},
 											},
@@ -2163,14 +2239,16 @@ func TestSingleStatementParse(t *testing.T) {
 												TableOrSubquery: &ast.TableOrSubquery{
 													TableName: token.New(1, 32, 31, 8, token.Literal, "myTable1"),
 												},
-												JoinClausePart: &ast.JoinClausePart{
-													JoinOperator: &ast.JoinOperator{
-														Left:  token.New(1, 41, 40, 4, token.KeywordLeft, "LEFT"),
-														Outer: token.New(1, 46, 45, 5, token.KeywordOuter, "OUTER"),
-														Join:  token.New(1, 52, 51, 4, token.KeywordJoin, "JOIN"),
-													},
-													TableOrSubquery: &ast.TableOrSubquery{
-														TableName: token.New(1, 57, 56, 8, token.Literal, "myTable2"),
+												JoinClausePart: []*ast.JoinClausePart{
+													{
+														JoinOperator: &ast.JoinOperator{
+															Left:  token.New(1, 41, 40, 4, token.KeywordLeft, "LEFT"),
+															Outer: token.New(1, 46, 45, 5, token.KeywordOuter, "OUTER"),
+															Join:  token.New(1, 52, 51, 4, token.KeywordJoin, "JOIN"),
+														},
+														TableOrSubquery: &ast.TableOrSubquery{
+															TableName: token.New(1, 57, 56, 8, token.Literal, "myTable2"),
+														},
 													},
 												},
 											},
@@ -2217,13 +2295,15 @@ func TestSingleStatementParse(t *testing.T) {
 												TableOrSubquery: &ast.TableOrSubquery{
 													TableName: token.New(1, 32, 31, 8, token.Literal, "myTable1"),
 												},
-												JoinClausePart: &ast.JoinClausePart{
-													JoinOperator: &ast.JoinOperator{
-														Inner: token.New(1, 41, 40, 5, token.KeywordInner, "INNER"),
-														Join:  token.New(1, 47, 46, 4, token.KeywordJoin, "JOIN"),
-													},
-													TableOrSubquery: &ast.TableOrSubquery{
-														TableName: token.New(1, 52, 51, 8, token.Literal, "myTable2"),
+												JoinClausePart: []*ast.JoinClausePart{
+													{
+														JoinOperator: &ast.JoinOperator{
+															Inner: token.New(1, 41, 40, 5, token.KeywordInner, "INNER"),
+															Join:  token.New(1, 47, 46, 4, token.KeywordJoin, "JOIN"),
+														},
+														TableOrSubquery: &ast.TableOrSubquery{
+															TableName: token.New(1, 52, 51, 8, token.Literal, "myTable2"),
+														},
 													},
 												},
 											},
@@ -2270,13 +2350,15 @@ func TestSingleStatementParse(t *testing.T) {
 												TableOrSubquery: &ast.TableOrSubquery{
 													TableName: token.New(1, 32, 31, 8, token.Literal, "myTable1"),
 												},
-												JoinClausePart: &ast.JoinClausePart{
-													JoinOperator: &ast.JoinOperator{
-														Cross: token.New(1, 41, 40, 5, token.KeywordCross, "CROSS"),
-														Join:  token.New(1, 47, 46, 4, token.KeywordJoin, "JOIN"),
-													},
-													TableOrSubquery: &ast.TableOrSubquery{
-														TableName: token.New(1, 52, 51, 8, token.Literal, "myTable2"),
+												JoinClausePart: []*ast.JoinClausePart{
+													{
+														JoinOperator: &ast.JoinOperator{
+															Cross: token.New(1, 41, 40, 5, token.KeywordCross, "CROSS"),
+															Join:  token.New(1, 47, 46, 4, token.KeywordJoin, "JOIN"),
+														},
+														TableOrSubquery: &ast.TableOrSubquery{
+															TableName: token.New(1, 52, 51, 8, token.Literal, "myTable2"),
+														},
 													},
 												},
 											},
@@ -9529,6 +9611,207 @@ func TestSingleStatementParse(t *testing.T) {
 				},
 			},
 		},
+		{
+			`SELECT stms's result column with recursive expr`,
+			"SELECT amount * price AS total_price FROM items",
+			&ast.SQLStmt{
+				SelectStmt: &ast.SelectStmt{
+					SelectCore: []*ast.SelectCore{
+						{
+							Select: token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+							ResultColumn: []*ast.ResultColumn{
+								{
+									Expr: &ast.Expr{
+										Expr1: &ast.Expr{
+											LiteralValue: token.New(1, 8, 7, 6, token.Literal, "amount"),
+										},
+										BinaryOperator: token.New(1, 15, 14, 1, token.BinaryOperator, "*"),
+										Expr2: &ast.Expr{
+											LiteralValue: token.New(1, 17, 16, 5, token.Literal, "price"),
+										},
+									},
+									As:          token.New(1, 23, 22, 2, token.KeywordAs, "AS"),
+									ColumnAlias: token.New(1, 26, 25, 11, token.Literal, "total_price"),
+								},
+							},
+							From: token.New(1, 38, 37, 4, token.KeywordFrom, "FROM"),
+							JoinClause: &ast.JoinClause{
+								TableOrSubquery: &ast.TableOrSubquery{
+									TableName: token.New(1, 43, 42, 5, token.Literal, "items"),
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			"SELECT stmt with result column with single expr - function name",
+			"SELECT AVG(price) AS average_price FROM items LEFT OUTER JOIN prices",
+			&ast.SQLStmt{
+				SelectStmt: &ast.SelectStmt{
+					SelectCore: []*ast.SelectCore{
+						{
+							Select: token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+							ResultColumn: []*ast.ResultColumn{
+								{
+									Expr: &ast.Expr{
+										FunctionName: token.New(1, 8, 7, 3, token.Literal, "AVG"),
+										LeftParen:    token.New(1, 11, 10, 1, token.Delimiter, "("),
+										Expr: []*ast.Expr{
+											{
+												LiteralValue: token.New(1, 12, 11, 5, token.Literal, "price"),
+											},
+										},
+										RightParen: token.New(1, 17, 16, 1, token.Delimiter, ")"),
+									},
+									As:          token.New(1, 19, 18, 2, token.KeywordAs, "AS"),
+									ColumnAlias: token.New(1, 22, 21, 13, token.Literal, "average_price"),
+								},
+							},
+							From: token.New(1, 36, 35, 4, token.KeywordFrom, "FROM"),
+							JoinClause: &ast.JoinClause{
+								TableOrSubquery: &ast.TableOrSubquery{
+									TableName: token.New(1, 41, 40, 5, token.Literal, "items"),
+								},
+								JoinClausePart: []*ast.JoinClausePart{
+									{
+										JoinOperator: &ast.JoinOperator{
+											Left:  token.New(1, 47, 46, 4, token.KeywordLeft, "LEFT"),
+											Outer: token.New(1, 52, 51, 5, token.KeywordOuter, "OUTER"),
+											Join:  token.New(1, 58, 57, 4, token.KeywordJoin, "JOIN"),
+										},
+										TableOrSubquery: &ast.TableOrSubquery{
+											TableName: token.New(1, 63, 62, 6, token.Literal, "prices"),
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			`Compulsory Expr condition 1`,
+			"SELECT 0 LIKE 2 ESCAPE 3 FROM y",
+			&ast.SQLStmt{
+				SelectStmt: &ast.SelectStmt{
+					SelectCore: []*ast.SelectCore{
+						{
+							Select: token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+							ResultColumn: []*ast.ResultColumn{
+								{
+									Expr: &ast.Expr{
+										Expr1: &ast.Expr{
+											LiteralValue: token.New(1, 8, 7, 1, token.LiteralNumeric, "0"),
+										},
+										Like: token.New(1, 10, 9, 4, token.KeywordLike, "LIKE"),
+										Expr2: &ast.Expr{
+											LiteralValue: token.New(1, 15, 14, 1, token.LiteralNumeric, "2"),
+										},
+										Escape: token.New(1, 17, 16, 6, token.KeywordEscape, "ESCAPE"),
+										Expr3: &ast.Expr{
+											LiteralValue: token.New(1, 24, 23, 1, token.LiteralNumeric, "3"),
+										},
+									},
+								},
+							},
+							From: token.New(1, 26, 25, 4, token.KeywordFrom, "FROM"),
+							JoinClause: &ast.JoinClause{
+								TableOrSubquery: &ast.TableOrSubquery{
+									TableName: token.New(1, 31, 30, 1, token.Literal, "y"),
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			`Compulsory Expr condition 2`,
+			"SELECT 0 IS 1 FROM y",
+			&ast.SQLStmt{
+				SelectStmt: &ast.SelectStmt{
+					SelectCore: []*ast.SelectCore{
+						{
+							Select: token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+							ResultColumn: []*ast.ResultColumn{
+								{
+									Expr: &ast.Expr{
+										Expr1: &ast.Expr{
+											LiteralValue: token.New(1, 8, 7, 1, token.LiteralNumeric, "0"),
+										},
+										Is: token.New(1, 10, 9, 2, token.KeywordIs, "IS"),
+										Expr2: &ast.Expr{
+											LiteralValue: token.New(1, 13, 12, 1, token.LiteralNumeric, "1"),
+										},
+									},
+								},
+							},
+							From: token.New(1, 15, 14, 4, token.KeywordFrom, "FROM"),
+							JoinClause: &ast.JoinClause{
+								TableOrSubquery: &ast.TableOrSubquery{
+									TableName: token.New(1, 20, 19, 1, token.Literal, "y"),
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			`Simple select`,
+			"SELECT A",
+			&ast.SQLStmt{
+				SelectStmt: &ast.SelectStmt{
+					SelectCore: []*ast.SelectCore{
+						{
+							Select: token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+							ResultColumn: []*ast.ResultColumn{
+								{
+									Expr: &ast.Expr{
+										LiteralValue: token.New(1, 8, 7, 1, token.Literal, "A"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			`Binary Expr in SELECT`,
+			"SELECT 2+3 FROM y",
+			&ast.SQLStmt{
+				SelectStmt: &ast.SelectStmt{
+					SelectCore: []*ast.SelectCore{
+						{
+							Select: token.New(1, 1, 0, 6, token.KeywordSelect, "SELECT"),
+							ResultColumn: []*ast.ResultColumn{
+								{
+									Expr: &ast.Expr{
+										Expr1: &ast.Expr{
+											LiteralValue: token.New(1, 8, 7, 1, token.LiteralNumeric, "2"),
+										},
+										BinaryOperator: token.New(1, 9, 8, 1, token.UnaryOperator, "+"),
+										Expr2: &ast.Expr{
+											LiteralValue: token.New(1, 10, 9, 1, token.LiteralNumeric, "3"),
+										},
+									},
+								},
+							},
+							From: token.New(1, 12, 11, 4, token.KeywordFrom, "FROM"),
+							JoinClause: &ast.JoinClause{
+								TableOrSubquery: &ast.TableOrSubquery{
+									TableName: token.New(1, 17, 16, 1, token.Literal, "y"),
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 
 	for _, input := range inputs {
@@ -9539,9 +9822,7 @@ func TestSingleStatementParse(t *testing.T) {
 
 			stmt, errs, ok := p.Next()
 			assert.True(ok, "expected exactly one statement")
-			for _, err := range errs {
-				assert.Nil(err)
-			}
+			assert.Nil(errs)
 
 			opts := []cmp.Option{
 				cmp.Comparer(func(t1, t2 token.Token) bool {

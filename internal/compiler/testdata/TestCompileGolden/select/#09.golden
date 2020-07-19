@@ -1,0 +1,4 @@
+command.Project{Cols:[]command.Column{command.Column{Table:"", Column:command.LiteralExpr{Value:"name"}, Alias:""}, command.Column{Table:"", Column:command.BinaryExpr{Operator:"*", Left:command.LiteralExpr{Value:"amount"}, Right:command.LiteralExpr{Value:"price"}}, Alias:"total_price"}}, Input:command.Join{Natural:false, Type:0x0, Filter:command.Expr(nil), Left:command.Scan{Table:command.SimpleTable{Schema:"", Table:"items", Alias:"", Indexed:false, Index:""}}, Right:command.Scan{Table:command.SimpleTable{Schema:"", Table:"prices", Alias:"", Indexed:false, Index:""}}}}
+
+String:
+Project[cols=name,amount * price AS total_price](Join[](Scan[table=items](),Scan[table=prices]()))

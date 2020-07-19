@@ -33,6 +33,7 @@ var (
 		matcher.New("upper", unicode.Upper),
 		matcher.New("lower", unicode.Lower),
 		matcher.New("title", unicode.Title),
+		matcher.String("-_"),
 		defaultNumber,
 	)
 	defaultNumericLiteral = matcher.Merge(
@@ -245,31 +246,36 @@ func defaultNumericLiteralRule(s RuneScanner) (token.Type, bool) {
 		if !(ok && (defaultNumericLiteral.Matches(next) || (!decimalPointFlag && defaultDecimalPoint.Matches(next)) || (!exponentFlag && defaultExponent.Matches(next)) || (!exponentOperatorFlag && defaultExponentOperator.Matches(next)))) {
 			break
 		}
-		if next == '.' {
+		switch next {
+		case '.':
 			if decimalPointFlag {
 				return token.Unknown, false
 			}
 			decimalPointFlag = true
-		}
-		if next == 'E' {
+			s.ConsumeRune()
+		case 'E':
 			if exponentFlag {
 				return token.Unknown, false
 			}
 			exponentFlag = true
-		}
-		if next == '+' || next == '-' {
-			if exponentOperatorFlag {
-				return token.Unknown, false
+			s.ConsumeRune()
+		case '+', '-':
+			// only allow `+` or `-` in case of `E+x` or `E-x`.
+			if exponentFlag {
+				if exponentOperatorFlag {
+					return token.Unknown, false
+				}
+				exponentOperatorFlag = true
+				s.ConsumeRune()
+			} else {
+				return token.LiteralNumeric, true
 			}
-			exponentOperatorFlag = true
+		default:
+			if defaultNumericLiteral.Matches(next) {
+				numericLiteralFlag = true
+			}
+			s.ConsumeRune()
 		}
-		if defaultDecimalPoint.Matches(next) {
-			decimalPointFlag = true
-		}
-		if defaultNumericLiteral.Matches(next) {
-			numericLiteralFlag = true
-		}
-		s.ConsumeRune()
 	}
 	// This case checks for "." passing as numericLiterals
 	if decimalPointFlag && !numericLiteralFlag {

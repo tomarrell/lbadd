@@ -1,0 +1,4 @@
+command.Project{Cols:[]command.Column{command.Column{Table:"", Column:command.FunctionExpr{Name:"AVG", Distinct:true, Args:[]command.Expr{command.LiteralExpr{Value:"price"}}}, Alias:"avg_price"}}, Input:command.Join{Natural:false, Type:0x1, Filter:command.Expr(nil), Left:command.Scan{Table:command.SimpleTable{Schema:"", Table:"items", Alias:"", Indexed:false, Index:""}}, Right:command.Scan{Table:command.SimpleTable{Schema:"", Table:"prices", Alias:"", Indexed:false, Index:""}}}}
+
+String:
+Project[cols=AVG(DISTINCT price) AS avg_price](Join[type=JoinLeft](Scan[table=items](),Scan[table=prices]()))

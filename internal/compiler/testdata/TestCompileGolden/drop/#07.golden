@@ -1,0 +1,4 @@
+command.DropView{IfExists:true, Schema:"mySchema", Name:"myView"}
+
+String:
+DropView[view=mySchema.myView,ifexists=true]()

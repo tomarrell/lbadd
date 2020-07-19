@@ -1,0 +1,4 @@
+command.Project{Cols:[]command.Column{command.Column{Table:"", Column:command.LiteralExpr{Value:"*"}, Alias:""}}, Input:command.Select{Filter:command.ConstantBooleanExpr{Value:true}, Input:command.Join{Natural:false, Type:0x0, Filter:command.Expr(nil), Left:command.Join{Natural:false, Type:0x0, Filter:command.Expr(nil), Left:command.Scan{Table:command.SimpleTable{Schema:"", Table:"a", Alias:"", Indexed:false, Index:""}}, Right:command.Scan{Table:command.SimpleTable{Schema:"", Table:"b", Alias:"", Indexed:false, Index:""}}}, Right:command.Scan{Table:command.SimpleTable{Schema:"", Table:"c", Alias:"", Indexed:false, Index:""}}}}}
+
+String:
+Project[cols=*](Select[filter=true](Join[](Join[](Scan[table=a](),Scan[table=b]()),Scan[table=c]())))

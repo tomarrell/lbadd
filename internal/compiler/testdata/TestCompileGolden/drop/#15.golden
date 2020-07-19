@@ -1,0 +1,4 @@
+command.DropTrigger{IfExists:true, Schema:"mySchema", Name:"myTrigger"}
+
+String:
+DropTrigger[trigger=mySchema.myTrigger,ifexists=true]()

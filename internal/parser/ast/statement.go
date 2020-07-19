@@ -737,7 +737,7 @@ type (
 	// JoinClause as in the SQLite grammar.
 	JoinClause struct {
 		TableOrSubquery *TableOrSubquery
-		JoinClausePart  *JoinClausePart
+		JoinClausePart  []*JoinClausePart
 	}
 
 	// JoinClausePart as in the SQLite grammar.

@@ -5,23 +5,20 @@ import (
 	"fmt"
 
 	"github.com/rs/zerolog"
-	"github.com/tomarrell/lbadd/internal/executor"
 )
 
 // Node is a database node.
 //
-//  m := node.New(log, executor)
+//  m := node.New(log)
 //  err := m.ListenAndServe(ctx, ":34213")
 type Node struct {
-	log  zerolog.Logger
-	exec executor.Executor
+	log zerolog.Logger
 }
 
 // New creates a new node that is executing commands on the given executor.
-func New(log zerolog.Logger, exec executor.Executor) *Node {
+func New(log zerolog.Logger) *Node {
 	return &Node{
-		log:  log,
-		exec: exec,
+		log: log,
 	}
 }
 

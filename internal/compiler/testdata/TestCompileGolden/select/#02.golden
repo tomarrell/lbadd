@@ -1,0 +1,4 @@
+command.Limit{Limit:command.LiteralExpr{Value:"5"}, Input:command.Project{Cols:[]command.Column{command.Column{Table:"", Column:command.LiteralExpr{Value:"*"}, Alias:""}}, Input:command.Scan{Table:command.SimpleTable{Schema:"", Table:"myTable", Alias:"", Indexed:false, Index:""}}}}
+
+String:
+Limit[limit=5](Project[cols=*](Scan[table=myTable]()))

@@ -1,0 +1,4 @@
+command.DropTable{IfExists:true, Schema:"", Name:"myTable"}
+
+String:
+DropTable[table=myTable,ifexists=true]()

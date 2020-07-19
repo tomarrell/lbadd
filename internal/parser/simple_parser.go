@@ -22,11 +22,10 @@ func NewSimpleParser(input string) Parser {
 
 func (p *simpleParser) Next() (*ast.SQLStmt, []error, bool) {
 	if p.scanner.Peek().Type() == token.EOF {
-		return nil, []error{}, false
+		return nil, nil, false
 	}
 	errs := &errorReporter{
-		p:    p,
-		errs: []error{},
+		p: p,
 	}
 	stmt := p.parseSQLStatement(errs)
 	return stmt, errs.errs, true

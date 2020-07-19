@@ -249,6 +249,53 @@ func TestRuleBasedScanner(t *testing.T) {
 				token.New(1, 13, 12, 0, token.EOF, ""),
 			},
 		},
+		{
+			"underscore in single unquoted token",
+			"alpha_beta",
+			ruleset.Default,
+			[]token.Token{
+				token.New(1, 1, 0, 10, token.Literal, "alpha_beta"),
+				token.New(1, 11, 10, 0, token.EOF, ""),
+			},
+		},
+		{
+			"underscore in single quoted token",
+			"\"alpha_beta\"",
+			ruleset.Default,
+			[]token.Token{
+				token.New(1, 1, 0, 12, token.Literal, "\"alpha_beta\""),
+				token.New(1, 13, 12, 0, token.EOF, ""),
+			},
+		},
+		{
+			"dash in single unquoted token",
+			"alpha-beta",
+			ruleset.Default,
+			[]token.Token{
+				token.New(1, 1, 0, 10, token.Literal, "alpha-beta"),
+				token.New(1, 11, 10, 0, token.EOF, ""),
+			},
+		},
+		{
+			"dash in single quoted token",
+			"\"alpha-beta\"",
+			ruleset.Default,
+			[]token.Token{
+				token.New(1, 1, 0, 12, token.Literal, "\"alpha-beta\""),
+				token.New(1, 13, 12, 0, token.EOF, ""),
+			},
+		},
+		{
+			"binary expression",
+			"2+3",
+			ruleset.Default,
+			[]token.Token{
+				token.New(1, 1, 0, 1, token.LiteralNumeric, "2"),
+				token.New(1, 2, 1, 1, token.UnaryOperator, "+"),
+				token.New(1, 3, 2, 1, token.LiteralNumeric, "3"),
+				token.New(1, 4, 3, 0, token.EOF, ""),
+			},
+		},
 	}
 	for _, input := range inputs {
 		t.Run("ruleset=default/"+input.name, _TestRuleBasedScannerWithRuleset(input.query, input.ruleset, input.want))

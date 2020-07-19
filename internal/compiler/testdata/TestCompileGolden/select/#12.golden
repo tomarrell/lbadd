@@ -1,0 +1,4 @@
+command.Values{Values:[][]command.Expr{[]command.Expr{command.LiteralExpr{Value:"1"}, command.LiteralExpr{Value:"2"}, command.LiteralExpr{Value:"3"}}, []command.Expr{command.LiteralExpr{Value:"4"}, command.LiteralExpr{Value:"5"}, command.LiteralExpr{Value:"6"}}, []command.Expr{command.LiteralExpr{Value:"7"}, command.LiteralExpr{Value:"8"}, command.LiteralExpr{Value:"9"}}}}
+
+String:
+Values[]((1,2,3),(4,5,6),(7,8,9))
