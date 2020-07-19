@@ -54,6 +54,17 @@ func (t Table) RemoveColumnByQualifiedName(qualifiedName string) Table {
 	return t
 }
 
+// HasColumn inspects the table's columns and determines whether the table has
+// any column, that has the given name as qualified name OR as alias.
+func (t Table) HasColumn(qualifiedNameOrAlias string) bool {
+	for _, col := range t.Cols {
+		if col.QualifiedName == qualifiedNameOrAlias || col.Alias == qualifiedNameOrAlias {
+			return true
+		}
+	}
+	return false
+}
+
 // RemoveColumn works on a copy of the table, and removes the column with the
 // given index from the copy. After removal, the copy is returned.
 func (t Table) RemoveColumn(index int) Table {

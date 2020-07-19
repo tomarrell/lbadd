@@ -41,3 +41,9 @@ func ErrUncomparable(t types.Type) Error {
 func ErrUnimplemented(what interface{}) Error {
 	return Error(fmt.Sprintf("'%v' is not implemented", what))
 }
+
+// ErrNoSuchColumn returns an error indicating that a requested column is not
+// contained in the current result table.
+func ErrNoSuchColumn(name string) Error {
+	return Error(fmt.Sprintf("no column with name or alias '%s'", name))
+}
