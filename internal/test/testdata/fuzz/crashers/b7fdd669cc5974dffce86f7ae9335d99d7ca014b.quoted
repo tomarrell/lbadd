@@ -1,0 +1,4 @@
+	"CREATE TRIGGER myTri" +
+	"gger AFTER DELETE ON" +
+	" myTable BEIN SELECT" +
+	" *; END\n"

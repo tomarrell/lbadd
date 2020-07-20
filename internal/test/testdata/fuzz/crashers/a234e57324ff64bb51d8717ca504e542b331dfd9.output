@@ -1,0 +1,215 @@
+runtime: goroutine stack exceeds 1000000000-byte limit
+runtime: sp=0xc053000350 stack=[0xc053000000, 0xc073000000]
+fatal error: stack overflow
+
+runtime stack:
+runtime.throw(0x144bc83, 0xe)
+	runtime/panic.go:1116 +0x72
+runtime.newstack()
+	runtime/stack.go:1035 +0x6ce
+runtime.morestack()
+	runtime/asm_amd64.s:449 +0x8f
+
+goroutine 1 [running]:
+runtime.(*mcache).nextFree(0x1809108, 0x38, 0x0, 0x0, 0x0)
+	runtime/malloc.go:858 +0x227 fp=0xc053000360 sp=0xc053000358 pc=0x100d947
+runtime.mallocgc(0x2c0, 0x1446c80, 0xc053000401, 0x2)
+	runtime/malloc.go:1036 +0x793 fp=0xc053000400 sp=0xc053000360 pc=0x100e0e3
+runtime.newobject(0x1446c80, 0x98)
+	runtime/malloc.go:1165 +0x38 fp=0xc053000430 sp=0xc053000400 pc=0x100e4d8
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a68a1b80, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1403 +0x49 fp=0xc053000488 sp=0xc053000430 pc=0x1377589
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a68a1b80, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc0530004f0 sp=0xc053000488 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a68a18c0, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053000548 sp=0xc0530004f0 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a68a18c0, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc0530005b0 sp=0xc053000548 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a68a1600, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053000608 sp=0xc0530005b0 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a68a1600, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc053000670 sp=0xc053000608 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a68a1340, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc0530006c8 sp=0xc053000670 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a68a1340, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc053000730 sp=0xc0530006c8 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a68a1080, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053000788 sp=0xc053000730 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a68a1080, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc0530007f0 sp=0xc053000788 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a68a0dc0, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053000848 sp=0xc0530007f0 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a68a0dc0, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc0530008b0 sp=0xc053000848 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a68a0b00, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053000908 sp=0xc0530008b0 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a68a0b00, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc053000970 sp=0xc053000908 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a68a0840, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc0530009c8 sp=0xc053000970 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a68a0840, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc053000a30 sp=0xc0530009c8 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a68a0580, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053000a88 sp=0xc053000a30 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a68a0580, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc053000af0 sp=0xc053000a88 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a68a02c0, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053000b48 sp=0xc053000af0 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a68a02c0, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc053000bb0 sp=0xc053000b48 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a68a0000, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053000c08 sp=0xc053000bb0 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a68a0000, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc053000c70 sp=0xc053000c08 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a689fb80, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053000cc8 sp=0xc053000c70 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a689fb80, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc053000d30 sp=0xc053000cc8 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a689f8c0, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053000d88 sp=0xc053000d30 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a689f8c0, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc053000df0 sp=0xc053000d88 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a689f600, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053000e48 sp=0xc053000df0 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a689f600, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc053000eb0 sp=0xc053000e48 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a689f340, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053000f08 sp=0xc053000eb0 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a689f340, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc053000f70 sp=0xc053000f08 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a689f080, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053000fc8 sp=0xc053000f70 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a689f080, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc053001030 sp=0xc053000fc8 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a689edc0, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053001088 sp=0xc053001030 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a689edc0, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc0530010f0 sp=0xc053001088 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a689eb00, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053001148 sp=0xc0530010f0 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a689eb00, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc0530011b0 sp=0xc053001148 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a689e840, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053001208 sp=0xc0530011b0 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a689e840, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc053001270 sp=0xc053001208 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a689e580, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc0530012c8 sp=0xc053001270 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a689e580, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc053001330 sp=0xc0530012c8 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a689e2c0, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053001388 sp=0xc053001330 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a689e2c0, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc0530013f0 sp=0xc053001388 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a689e000, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053001448 sp=0xc0530013f0 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a689e000, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc0530014b0 sp=0xc053001448 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a689db80, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053001508 sp=0xc0530014b0 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a689db80, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc053001570 sp=0xc053001508 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a689d8c0, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc0530015c8 sp=0xc053001570 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a689d8c0, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc053001630 sp=0xc0530015c8 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a689d600, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053001688 sp=0xc053001630 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a689d600, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc0530016f0 sp=0xc053001688 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a689d340, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053001748 sp=0xc0530016f0 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a689d340, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc0530017b0 sp=0xc053001748 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a689d080, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053001808 sp=0xc0530017b0 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a689d080, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc053001870 sp=0xc053001808 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a689cdc0, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc0530018c8 sp=0xc053001870 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a689cdc0, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc053001930 sp=0xc0530018c8 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a689cb00, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053001988 sp=0xc053001930 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a689cb00, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc0530019f0 sp=0xc053001988 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a689c840, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053001a48 sp=0xc0530019f0 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a689c840, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc053001ab0 sp=0xc053001a48 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a689c580, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053001b08 sp=0xc053001ab0 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a689c580, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc053001b70 sp=0xc053001b08 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a689c2c0, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053001bc8 sp=0xc053001b70 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a689c2c0, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc053001c30 sp=0xc053001bc8 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a689c000, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053001c88 sp=0xc053001c30 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a689c000, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc053001cf0 sp=0xc053001c88 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a689bb80, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053001d48 sp=0xc053001cf0 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a689bb80, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc053001db0 sp=0xc053001d48 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a689b8c0, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053001e08 sp=0xc053001db0 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a689b8c0, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc053001e70 sp=0xc053001e08 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a689b600, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053001ec8 sp=0xc053001e70 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a689b600, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc053001f30 sp=0xc053001ec8 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a689b340, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053001f88 sp=0xc053001f30 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a689b340, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc053001ff0 sp=0xc053001f88 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a689b080, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053002048 sp=0xc053001ff0 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a689b080, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc0530020b0 sp=0xc053002048 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a689adc0, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053002108 sp=0xc0530020b0 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a689adc0, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc053002170 sp=0xc053002108 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a689ab00, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc0530021c8 sp=0xc053002170 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a689ab00, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc053002230 sp=0xc0530021c8 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a689a840, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053002288 sp=0xc053002230 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a689a840, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc0530022f0 sp=0xc053002288 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a689a580, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053002348 sp=0xc0530022f0 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a689a580, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc0530023b0 sp=0xc053002348 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a689a2c0, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053002408 sp=0xc0530023b0 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a689a2c0, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc053002470 sp=0xc053002408 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a689a000, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc0530024c8 sp=0xc053002470 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a689a000, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc053002530 sp=0xc0530024c8 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a6899b80, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053002588 sp=0xc053002530 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a6899b80, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc0530025f0 sp=0xc053002588 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a68998c0, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053002648 sp=0xc0530025f0 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a68998c0, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc0530026b0 sp=0xc053002648 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a6899600, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053002708 sp=0xc0530026b0 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a6899600, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc053002770 sp=0xc053002708 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a6899340, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc0530027c8 sp=0xc053002770 pc=0x13777f3
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExprRecursive(0xc000012020, 0xc0a6899340, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1266 +0x9b9 fp=0xc053002830 sp=0xc0530027c8 pc=0x13763b9
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseExpr4(0xc000012020, 0xc0a6899080, 0x14c1840, 0xc00009ecf0, 0xc00002a500)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:1422 +0x2b3 fp=0xc053002888 sp=0xc053002830 pc=0x13777f3
+...additional frames elided...
+exit status 2

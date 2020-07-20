@@ -1,0 +1,1 @@
+H mTable S (WITH mTable (myCol1,myCol2) AS (SELECT *) SELECT *) E M yTable

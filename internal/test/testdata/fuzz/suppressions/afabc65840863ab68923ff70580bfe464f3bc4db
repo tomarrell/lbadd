@@ -1,0 +1,8 @@
+panic: runtime error: invalid memory address or nil pointer dereference
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).compileQualifiedTableName
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).compileDelete
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).compileInternal
+github.com/tomarrell/lbadd/internal/compiler.(*simpleCompiler).Compile
+github.com/tomarrell/lbadd/internal/test.Fuzz
+go-fuzz-dep.Main
+main.main

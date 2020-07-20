@@ -1,0 +1,1 @@
+DELETE a.y NOT INDEXED
