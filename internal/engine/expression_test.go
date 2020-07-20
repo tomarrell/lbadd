@@ -79,7 +79,7 @@ func TestEngine_evaluateExpression(t *testing.T) {
 		t.Run("op=add", func(t *testing.T) {
 			testEvaluateExpressionTest(t, []evaluateExpressionTest{
 				{
-					"simple addition",
+					"simple integral addition",
 					builder().build(),
 					newEmptyExecutionContext(),
 					command.BinaryExpr{
@@ -90,12 +90,24 @@ func TestEngine_evaluateExpression(t *testing.T) {
 					types.NewInteger(11),
 					"",
 				},
+				{
+					"simple real addition",
+					builder().build(),
+					newEmptyExecutionContext(),
+					command.BinaryExpr{
+						Left:     command.LiteralExpr{Value: "5.5"},
+						Operator: "+",
+						Right:    command.LiteralExpr{Value: "6.7"},
+					},
+					types.NewReal(12.2),
+					"",
+				},
 			})
 		})
 		t.Run("op=sub", func(t *testing.T) {
 			testEvaluateExpressionTest(t, []evaluateExpressionTest{
 				{
-					"simple subtraction",
+					"simple integral subtraction",
 					builder().build(),
 					newEmptyExecutionContext(),
 					command.BinaryExpr{
@@ -106,12 +118,24 @@ func TestEngine_evaluateExpression(t *testing.T) {
 					types.NewInteger(1),
 					"",
 				},
+				{
+					"simple real subtraction",
+					builder().build(),
+					newEmptyExecutionContext(),
+					command.BinaryExpr{
+						Left:     command.LiteralExpr{Value: "12.2"},
+						Operator: "-",
+						Right:    command.LiteralExpr{Value: "7.6"},
+					},
+					types.NewReal(4.6),
+					"",
+				},
 			})
 		})
 		t.Run("op=mul", func(t *testing.T) {
 			testEvaluateExpressionTest(t, []evaluateExpressionTest{
 				{
-					"simple multiplication",
+					"simple integral multiplication",
 					builder().build(),
 					newEmptyExecutionContext(),
 					command.BinaryExpr{
@@ -122,12 +146,24 @@ func TestEngine_evaluateExpression(t *testing.T) {
 					types.NewInteger(30),
 					"",
 				},
+				{
+					"simple real multiplication",
+					builder().build(),
+					newEmptyExecutionContext(),
+					command.BinaryExpr{
+						Left:     command.LiteralExpr{Value: "6.2"},
+						Operator: "*",
+						Right:    command.LiteralExpr{Value: "5.7"},
+					},
+					types.NewReal(35.34),
+					"",
+				},
 			})
 		})
 		t.Run("op=div", func(t *testing.T) {
 			testEvaluateExpressionTest(t, []evaluateExpressionTest{
 				{
-					"simple division",
+					"simple integral division",
 					builder().build(),
 					newEmptyExecutionContext(),
 					command.BinaryExpr{
@@ -138,12 +174,24 @@ func TestEngine_evaluateExpression(t *testing.T) {
 					types.NewReal(3),
 					"",
 				},
+				{
+					"simple real division",
+					builder().build(),
+					newEmptyExecutionContext(),
+					command.BinaryExpr{
+						Left:     command.LiteralExpr{Value: "35.34"},
+						Operator: "/",
+						Right:    command.LiteralExpr{Value: "5.7"},
+					},
+					types.NewReal(6.2),
+					"",
+				},
 			})
 		})
 		t.Run("op=mod", func(t *testing.T) {
 			testEvaluateExpressionTest(t, []evaluateExpressionTest{
 				{
-					"simple modulo",
+					"simple integral modulo",
 					builder().build(),
 					newEmptyExecutionContext(),
 					command.BinaryExpr{
@@ -154,12 +202,24 @@ func TestEngine_evaluateExpression(t *testing.T) {
 					types.NewInteger(2),
 					"",
 				},
+				{
+					"real modulo",
+					builder().build(),
+					newEmptyExecutionContext(),
+					command.BinaryExpr{
+						Left:     command.LiteralExpr{Value: "7.2"},
+						Operator: "%",
+						Right:    command.LiteralExpr{Value: "5.2"},
+					},
+					nil,
+					"Real does not support modulo",
+				},
 			})
 		})
 		t.Run("op=pow", func(t *testing.T) {
 			testEvaluateExpressionTest(t, []evaluateExpressionTest{
 				{
-					"simple exponentiation",
+					"simple integral exponentiation",
 					builder().build(),
 					newEmptyExecutionContext(),
 					command.BinaryExpr{
@@ -168,6 +228,18 @@ func TestEngine_evaluateExpression(t *testing.T) {
 						Right:    command.LiteralExpr{Value: "4"},
 					},
 					types.NewInteger(16),
+					"",
+				},
+				{
+					"simple real exponentiation",
+					builder().build(),
+					newEmptyExecutionContext(),
+					command.BinaryExpr{
+						Left:     command.LiteralExpr{Value: "2.2"},
+						Operator: "**",
+						Right:    command.LiteralExpr{Value: "1.5"},
+					},
+					types.NewReal(3.2631273343220926),
 					"",
 				},
 			})
