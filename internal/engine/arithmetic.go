@@ -41,8 +41,8 @@ func (e Engine) mul(ctx ExecutionContext, left, right types.Value) (types.Value,
 		return nil, fmt.Errorf("cannot multiplicate %T and %T", left, right)
 	}
 
-	if multiplicactor, ok := left.Type().(types.ArithmeticMultiplicator); ok {
-		result, err := multiplicactor.Mul(left, right)
+	if multiplicator, ok := left.Type().(types.ArithmeticMultiplicator); ok {
+		result, err := multiplicator.Mul(left, right)
 		if err != nil {
 			return nil, fmt.Errorf("mul: %w", err)
 		}
