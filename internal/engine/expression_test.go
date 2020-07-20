@@ -102,6 +102,18 @@ func TestEngine_evaluateExpression(t *testing.T) {
 					types.NewReal(12.2),
 					"",
 				},
+				{
+					"simple string addition/concatenation",
+					builder().build(),
+					newEmptyExecutionContext(),
+					command.BinaryExpr{
+						Left:     command.LiteralExpr{Value: `"abc"`},
+						Operator: "+",
+						Right:    command.LiteralExpr{Value: `"def"`},
+					},
+					types.NewString("abcdef"),
+					"",
+				},
 			})
 		})
 		t.Run("op=sub", func(t *testing.T) {
