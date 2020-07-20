@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	record = flag.Bool("record", false, "record golden tests")
+	update = flag.Bool("update", false, "update fixture files")
 )
 
 func TestMain(m *testing.M) {
@@ -50,7 +50,7 @@ func runGolden(t *testing.T, input string) {
 
 	testFilePath := "testdata/" + t.Name() + ".golden"
 
-	if *record {
+	if *update {
 		t.Logf("overwriting golden file %v", testFilePath)
 		err := os.MkdirAll(filepath.Dir(testFilePath), 0777)
 		require.NoError(err)
