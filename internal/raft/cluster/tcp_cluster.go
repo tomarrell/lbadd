@@ -27,10 +27,14 @@ type tcpCluster struct {
 
 	onConnect ConnHandler
 
-	server   network.Server
-	messages chan incomingPayload
-	started  chan struct{}
-	closed   int32
+	server        network.Server
+	messages      chan incomingPayload
+	started       chan struct{}
+	startedClosed bool
+	closed        int32
+
+	// lock needed for atomic write on startedClosed.
+	mu sync.Mutex
 }
 
 type incomingPayload struct {
@@ -42,11 +46,12 @@ type incomingPayload struct {
 // with other nodes.
 func NewTCPCluster(log zerolog.Logger) Cluster {
 	return &tcpCluster{
-		log:       log.With().Str("cluster", "tcp").Logger(),
-		onConnect: func(c Cluster, conn network.Conn) { c.AddConnection(conn) },
-		server:    network.NewTCPServer(log),
-		messages:  make(chan incomingPayload, tcpClusterMessageQueueBufferSize),
-		started:   make(chan struct{}),
+		log:           log.With().Str("cluster", "tcp").Logger(),
+		onConnect:     func(c Cluster, conn network.Conn) { c.AddConnection(conn) },
+		server:        network.NewTCPServer(log),
+		messages:      make(chan incomingPayload, tcpClusterMessageQueueBufferSize),
+		started:       make(chan struct{}),
+		startedClosed: false,
 	}
 }
 
@@ -205,7 +210,12 @@ func (c *tcpCluster) start() {
 
 	// signal all waiting receive message goroutines that the server is now
 	// started and they can start pushing messages onto the queue
-	close(c.started)
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if !c.startedClosed {
+		close(c.started)
+		c.startedClosed = true
+	}
 }
 
 // receiveMessages will wait for the cluster to be started, and then, while the

@@ -15,7 +15,7 @@ import (
 
 // Server is a description of a raft server.
 type Server interface {
-	Start() error
+	Start(context.Context) error
 	OnReplication(ReplicationHandler)
 	Input(*message.Command)
 	io.Closer
@@ -140,7 +140,7 @@ func NewRaftNode(cluster Cluster) *Node {
 // regular heartbeats to the node exists. It restarts leader election on failure to do so.
 // This function also continuously listens on all the connections to the nodes
 // and routes the requests to appropriate functions.
-func (s *SimpleServer) Start() (err error) {
+func (s *SimpleServer) Start(ctx context.Context) (err error) {
 	// Making the function idempotent, returns whether the server is already open.
 	s.lock.Lock()
 	if s.node != nil {
@@ -158,26 +158,26 @@ func (s *SimpleServer) Start() (err error) {
 	selfID := node.PersistentState.SelfID
 	node.PersistentState.mu.Unlock()
 
-	ctx := context.Background()
 	// liveChan is a channel that passes the incomingData once received.
 	liveChan := make(chan *incomingData)
 	// Listen forever on all node connections.
-
 	go func() {
 		for {
 			// Parallely start waiting for incoming data.
 			conn, msg, err := s.cluster.Receive(ctx)
-			node.log.
-				Debug().
-				Str("self-id", selfID.String()).
-				Str("received", msg.Kind().String()).
-				Msg("received request")
-			liveChan <- &incomingData{
-				conn,
-				msg,
-			}
 			if err != nil {
 				return
+			}
+			if msg != nil {
+				node.log.
+					Debug().
+					Str("self-id", selfID.String()).
+					Str("received", msg.Kind().String()).
+					Msg("received request")
+				liveChan <- &incomingData{
+					conn,
+					msg,
+				}
 			}
 		}
 	}()
@@ -200,12 +200,14 @@ func (s *SimpleServer) Start() (err error) {
 			if s.node.PersistentState.CurrentTerm != 1 && s.onCompleteOneRound != nil {
 				s.onCompleteOneRound()
 			}
-			s.StartElection()
+			s.StartElection(ctx)
 		case data := <-liveChan:
 			err = s.processIncomingData(data)
 			if err != nil {
 				return
 			}
+		case <-ctx.Done():
+			return
 		}
 	}
 }

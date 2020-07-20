@@ -3,6 +3,7 @@ package network
 import (
 	"fmt"
 	"net"
+	"sync"
 	"time"
 
 	"github.com/rs/zerolog"
@@ -23,6 +24,8 @@ type tcpServer struct {
 	ownID id.ID
 
 	onConnect ConnHandler
+	// lock needed for atomic write on onConnect.
+	mu sync.Mutex
 }
 
 // NewTCPServer creates a new ready to use TCP server that uses the given
@@ -72,6 +75,8 @@ func (s *tcpServer) Addr() net.Addr {
 }
 
 func (s *tcpServer) OnConnect(h ConnHandler) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.onConnect = h
 }
 

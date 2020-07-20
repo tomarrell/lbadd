@@ -53,7 +53,7 @@ func (n *Node) Open(ctx context.Context, addr string) error {
 		return fmt.Errorf("open cluster: %w", err)
 	}
 
-	return n.startNode()
+	return n.startNode(ctx)
 }
 
 // Close closes the node, starting with the underlying raft server, then the
@@ -92,11 +92,11 @@ func (n *Node) performLogonHandshake(cluster cluster.Cluster, conn network.Conn)
 	cluster.AddConnection(conn)
 }
 
-func (n *Node) startNode() error {
+func (n *Node) startNode(ctx context.Context) error {
 	n.raft = raft.NewServer(n.log, n.cluster)
 	n.raft.OnReplication(n.replicate)
 
-	return n.raft.Start()
+	return n.raft.Start(ctx)
 }
 
 // replicate returns the number of commands that were executed from the

@@ -87,7 +87,7 @@ func Test_LeaderElection(t *testing.T) {
 		log:     log,
 	}
 
-	server.StartElection()
+	server.StartElection(ctx)
 
 	wg.Wait()
 

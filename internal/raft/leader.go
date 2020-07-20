@@ -17,10 +17,12 @@ import (
 // existance of data in the LogChannel channel.
 func (s *SimpleServer) startLeader() {
 
+	s.lock.Lock()
 	s.node.log.
 		Debug().
 		Str("self-id", s.node.PersistentState.SelfID.String()).
 		Msg("starting leader election proceedings")
+	s.lock.Unlock()
 
 	go func() {
 		// The loop that the leader stays in until it's functioning properly.

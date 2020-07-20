@@ -12,8 +12,7 @@ import (
 // RequestVote enables a node to send out the RequestVotes RPC.
 // This function requests a vote from one node and returns that node's response.
 // It opens a connection to the intended node using the network layer and waits for a response.
-func (s *SimpleServer) RequestVote(nodeConn network.Conn, req *message.RequestVoteRequest) (*message.RequestVoteResponse, error) {
-	ctx := context.Background()
+func (s *SimpleServer) RequestVote(ctx context.Context, nodeConn network.Conn, req *message.RequestVoteRequest) (*message.RequestVoteResponse, error) {
 
 	payload, err := message.Marshal(req)
 	if err != nil {

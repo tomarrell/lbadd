@@ -1,6 +1,8 @@
 package raft
 
 import (
+	"context"
+
 	"github.com/tomarrell/lbadd/internal/compiler/command"
 	"github.com/tomarrell/lbadd/internal/id"
 	"github.com/tomarrell/lbadd/internal/network"
@@ -24,7 +26,7 @@ type TestFramework interface {
 	// BeginTest kicks of all operations by starting the raft cluster.
 	// It obeys the parameters of operation and raises an error if the
 	// conditions for the test don't satisfy.
-	BeginTest() error
+	BeginTest(context.Context) error
 	// InjectOperation will initiate the given operation in the cluster.
 	InjectOperation(op Operation, args interface{})
 	// GracefulShutdown ensures the cluster is shutdown by waiting for

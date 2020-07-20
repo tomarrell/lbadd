@@ -13,6 +13,7 @@ import (
 	"github.com/tomarrell/lbadd/internal/id"
 	"github.com/tomarrell/lbadd/internal/network"
 	networkmocks "github.com/tomarrell/lbadd/internal/network/mocks"
+	"github.com/tomarrell/lbadd/internal/raft/cluster"
 	"github.com/tomarrell/lbadd/internal/raft/message"
 	raftmocks "github.com/tomarrell/lbadd/internal/raft/mocks"
 )
@@ -100,7 +101,7 @@ func Test_Raft(t *testing.T) {
 			assert.NoError(err)
 		}
 	})
-	err = server.Start()
+	err = server.Start(ctx)
 	assert.NoError(err)
 }
 
@@ -141,14 +142,27 @@ func Test_Integration(t *testing.T) {
 		Operations: operations,
 	}
 
-	cfg := NetworkConfiguration{}
+	testNetwork, err := cluster.NewTestNetwork(5, log)
+	assert.Nil(err)
+	// for i := range testNetwork.Clusters {
+	// 	fmt.Printf("Cluster: %v\n", testNetwork.Clusters[i].Cluster)
+	// 	for j := range testNetwork.Clusters[i].Nodes {
+	// 		fmt.Printf("Node: %v\n", testNetwork.Clusters[i].Nodes[j])
+	// 	}
+	// }
 
-	raftTest := NewSimpleRaftTest(log, opParams, cfg)
+	cfg := NetworkConfiguration{}
+	ctx := context.Background()
+	ctx, cancelFunc := context.WithCancel(ctx)
+
+	raftNodes := createRaftNodes(log, testNetwork)
+
+	raftTest := NewSimpleRaftTest(log, opParams, cfg, raftNodes, cancelFunc)
 
 	go func() {
-		err := raftTest.BeginTest()
+		err := raftTest.BeginTest(ctx)
 		assert.Nil(err)
 	}()
 
-	<-time.After(time.Duration(2*opParams.TimeLimit) * time.Second)
+	<-time.After(time.Duration(opParams.TimeLimit) * time.Second)
 }

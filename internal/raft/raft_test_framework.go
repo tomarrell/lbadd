@@ -1,10 +1,13 @@
 package raft
 
 import (
+	"context"
+	"sync"
 	"time"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"github.com/tomarrell/lbadd/internal/raft/cluster"
 )
 
 // Usage of framework:
@@ -20,15 +23,19 @@ var _ TestFramework = (*SimpleRaftTest)(nil)
 
 // SimpleRaftTest implements TestFramework.
 type SimpleRaftTest struct {
-	log         zerolog.Logger
-	parameters  OperationParameters
-	config      NetworkConfiguration
+	log        zerolog.Logger
+	parameters OperationParameters
+	config     NetworkConfiguration
+	raftNodes  []*SimpleServer
+
 	opChannel   chan OpData
 	execChannel chan OpData
 	roundsChan  chan bool
 	opQueue     []OpData
 	round       int
 	shutdown    chan bool
+	mu          sync.Mutex
+	cancelFunc  context.CancelFunc
 }
 
 // NewSimpleRaftTest provides a ready to use raft test framework.
@@ -36,21 +43,25 @@ func NewSimpleRaftTest(
 	log zerolog.Logger,
 	parameters OperationParameters,
 	config NetworkConfiguration,
+	raftNodes []*SimpleServer,
+	cancel context.CancelFunc,
 ) *SimpleRaftTest {
 	opChan := make(chan OpData, len(parameters.Operations))
 	execChan := make(chan OpData, len(parameters.Operations))
-	shutdownChan := make(chan bool, 1)
-	roundsChan := make(chan bool, 1)
+	shutdownChan := make(chan bool, 4)
+	roundsChan := make(chan bool, 4)
 	return &SimpleRaftTest{
 		log:         log,
 		parameters:  parameters,
 		config:      config,
+		raftNodes:   raftNodes,
 		opChannel:   opChan,
 		execChannel: execChan,
 		roundsChan:  roundsChan,
 		opQueue:     []OpData{},
 		round:       0,
 		shutdown:    shutdownChan,
+		cancelFunc:  cancel,
 	}
 }
 
@@ -70,11 +81,19 @@ func (t *SimpleRaftTest) Config() NetworkConfiguration {
 // while monitoring their behavior.
 //
 // BeginTest will wrapped under a Go Test for ease of use.
-func (t *SimpleRaftTest) BeginTest() error {
-	// Check for proper config before beginning.
-	// Start the cluster and blah.
-	//
-	//
+func (t *SimpleRaftTest) BeginTest(ctx context.Context) error {
+	// if t.config.IDs == nil && t.config.IPs == nil {
+	// 	return errors.New("nil network configuration")
+	// }
+
+	// start up the raft operation.
+	for i := range t.raftNodes {
+		go func(i int) {
+			t.raftNodes[i].OnCompleteOneRound(t.roundHook)
+			_ = t.raftNodes[i].Start(ctx)
+		}(i)
+	}
+
 	shutDownTimer := time.NewTimer(time.Duration(t.OpParams().TimeLimit) * time.Second)
 
 	// start the execution goroutine.
@@ -96,8 +115,12 @@ func (t *SimpleRaftTest) BeginTest() error {
 				Msg("beginning execution")
 			go t.execute(data)
 		case <-shutDownTimer.C:
+			log.Debug().
+				Msg("shutting down - reached time limit")
 			return t.GracefulShutdown()
 		case <-t.roundsChan:
+			log.Debug().
+				Msg("shutting down - reached round limit")
 			return t.GracefulShutdown()
 		}
 	}
@@ -106,6 +129,21 @@ func (t *SimpleRaftTest) BeginTest() error {
 // GracefulShutdown shuts down all operations of the server after waiting
 // all running operations to complete while not accepting any more op reqs.
 func (t *SimpleRaftTest) GracefulShutdown() error {
+	t.cancelFunc()
+	var errSlice multiError
+	var errLock sync.Mutex
+	for i := range t.raftNodes {
+		err := t.raftNodes[i].Close()
+		if err != nil {
+			errLock.Lock()
+			errSlice = append(errSlice, err)
+			errLock.Unlock()
+		}
+	}
+	if len(errSlice) != 0 {
+		return errSlice
+	}
+
 	t.shutdown <- true
 	log.Debug().
 		Msg("gracefully shutting down")
@@ -114,8 +152,6 @@ func (t *SimpleRaftTest) GracefulShutdown() error {
 
 // InjectOperation initiates an operation in the raft cluster based on the args.
 func (t *SimpleRaftTest) InjectOperation(op Operation, args interface{}) {
-	// check whether test has begun.
-
 	opData := OpData{
 		Op:   op,
 		Data: args,
@@ -124,9 +160,9 @@ func (t *SimpleRaftTest) InjectOperation(op Operation, args interface{}) {
 	t.opChannel <- opData
 }
 
+// pushOperations pushes operations into the execution queue.
 func (t *SimpleRaftTest) pushOperations() {
 	for i := range t.parameters.Operations {
-		time.Sleep(100 * time.Millisecond)
 		t.opChannel <- t.parameters.Operations[i]
 	}
 }
@@ -168,16 +204,18 @@ func (t *SimpleRaftTest) executeOperation() {
 				d := operation.Data.(*OpRestartNode)
 				t.RestartNode(d)
 			}
-		default:
-			continue
 		}
 	}
 }
 
-// func (t *SimpleRaftTest) roundHook() {
-// 	t.round++
-// 	t.roundsChan <- true
-// }
+func (t *SimpleRaftTest) roundHook() {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	t.round++
+	if t.round == t.parameters.Rounds*len(t.raftNodes) {
+		t.roundsChan <- true
+	}
+}
 
 // SendData sends command data to the cluster by calling
 // the appropriate function in the raft module.
@@ -211,4 +249,14 @@ func (t *SimpleRaftTest) PartitionNetwork(d *OpPartitionNetwork) {
 // all resources allocated to it but went down for any reason.
 func (t *SimpleRaftTest) RestartNode(d *OpRestartNode) {
 
+}
+
+func createRaftNodes(log zerolog.Logger, cluster *cluster.TestNetwork) []*SimpleServer {
+	raftNodes := []*SimpleServer{}
+	for i := range cluster.Clusters {
+		node := NewServer(log, cluster.Clusters[i].Cluster)
+		raftNodes = append(raftNodes, node)
+	}
+
+	return raftNodes
 }
