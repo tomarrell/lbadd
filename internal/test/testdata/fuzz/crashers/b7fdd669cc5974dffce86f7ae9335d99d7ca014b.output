@@ -1,0 +1,49 @@
+program hanged (timeout 10 seconds)
+
+SIGABRT: abort
+PC=0x13867c7 m=0 sigcode=0
+
+goroutine 1 [running]:
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseCreateTriggerStmt.func2(...)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:2874
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseCreateTriggerStmt(0xc000012f80, 0xc000166000, 0x14c0ee0, 0xc00002aac0, 0x0, 0x0, 0x0, 0x0, 0x14c1840, 0xc000100cf0, ...)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:2874 +0x1f57 fp=0xc000057b08 sp=0xc000057a80 pc=0x13867c7
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseCreateStmts(0xc000012f80, 0xc000166000, 0x14c1840, 0xc000100cf0)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:2239 +0xa89 fp=0xc000057b90 sp=0xc000057b08 pc=0x1380b59
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).parseSQLStatement(0xc000012f80, 0x14c1840, 0xc000100cf0, 0x1)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser_rules.go:54 +0xaed fp=0xc000057c40 sp=0xc000057b90 pc=0x13691ed
+github.com/tomarrell/lbadd/internal/parser.(*simpleParser).Next(0xc000012f80, 0xc000012f80, 0x44, 0xc000164000, 0x44, 0x48)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/parser/simple_parser.go:30 +0xe4 fp=0xc000057c78 sp=0xc000057c40 pc=0x1367f54
+github.com/tomarrell/lbadd/internal/test.Fuzz(0x9010000, 0x44, 0x44, 0x0)
+	/Users/tsatke/Development/private/github.com/tomarrell/lbadd/internal/test/lbadd_fuzz.go:31 +0x2c2 fp=0xc000057ea8 sp=0xc000057c78 pc=0x13ab852
+go-fuzz-dep.Main(0xc000057f70, 0x1, 0x1)
+	go-fuzz-dep/main.go:36 +0x1ad fp=0xc000057f58 sp=0xc000057ea8 pc=0x1082f4d
+main.main()
+	github.com/tomarrell/lbadd/internal/test/go.fuzz.main/main.go:15 +0x52 fp=0xc000057f88 sp=0xc000057f58 pc=0x13abed2
+runtime.main()
+	runtime/proc.go:203 +0x1fa fp=0xc000057fe0 sp=0xc000057f88 pc=0x103600a
+runtime.goexit()
+	runtime/asm_amd64.s:1373 +0x1 fp=0xc000057fe8 sp=0xc000057fe0 pc=0x10626f1
+
+rax    0x96
+rbx    0x0
+rcx    0xf9
+rdx    0x11
+rdi    0x0
+rsi    0x0
+rbp    0xc000057af8
+rsp    0xc000057a80
+r8     0x1b01501
+r9     0x203000
+r10    0x4
+r11    0x32
+r12    0xf2
+r13    0x0
+r14    0x14af5d5
+r15    0x0
+rip    0x13867c7
+rflags 0x202
+cs     0x2b
+fs     0x0
+gs     0x0
+exit status 2
