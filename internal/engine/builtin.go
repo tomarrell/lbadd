@@ -22,6 +22,7 @@ var (
 	_ = builtinUCase
 	_ = builtinLCase
 	_ = builtinMin
+	_ = builtinMax
 )
 
 // builtinNow returns a new date value, containing the timestamp provided by the
