@@ -77,3 +77,15 @@ func (t StringType) Deserialize(data []byte) (Value, error) {
 	}
 	return NewString(string(data[4:])), nil
 }
+
+// Add concatenates the left and right right value. This only works, if left and
+// right are string values.
+func (t StringType) Add(left, right Value) (Value, error) {
+	if err := t.ensureHaveThisType(left, right); err != nil {
+		return nil, err
+	}
+
+	leftString := left.(StringValue).Value
+	rightString := right.(StringValue).Value
+	return NewString(leftString + rightString), nil
+}

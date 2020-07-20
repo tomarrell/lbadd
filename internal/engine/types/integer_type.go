@@ -1,5 +1,7 @@
 package types
 
+import "math"
+
 var (
 	// Integer is the date type. Integers are comparable. The name of this type
 	// is "Integer".
@@ -39,4 +41,82 @@ func (t IntegerType) Compare(left, right Value) (int, error) {
 		return 1, nil
 	}
 	return 0, nil
+}
+
+// Add adds the left and right value, producing a new integer value. This only
+// works, if left and right are of type integer.
+func (t IntegerType) Add(left, right Value) (Value, error) {
+	if err := t.ensureHaveThisType(left, right); err != nil {
+		return nil, err
+	}
+
+	leftInteger := left.(IntegerValue).Value
+	rightInteger := right.(IntegerValue).Value
+
+	return NewInteger(leftInteger + rightInteger), nil
+}
+
+// Sub subtracts the right from the left value, producing a new integer value.
+// This only works, if left and right are of type integer.
+func (t IntegerType) Sub(left, right Value) (Value, error) {
+	if err := t.ensureHaveThisType(left, right); err != nil {
+		return nil, err
+	}
+
+	leftInteger := left.(IntegerValue).Value
+	rightInteger := right.(IntegerValue).Value
+
+	return NewInteger(leftInteger - rightInteger), nil
+}
+
+// Mul multiplicates the left and right value, producing a new integer value.
+// This only works, if left and right are of type integer.
+func (t IntegerType) Mul(left, right Value) (Value, error) {
+	if err := t.ensureHaveThisType(left, right); err != nil {
+		return nil, err
+	}
+
+	leftInteger := left.(IntegerValue).Value
+	rightInteger := right.(IntegerValue).Value
+
+	return NewInteger(leftInteger * rightInteger), nil
+}
+
+// Div divides the left by the right value, producing a new real value. This
+// only works, if left and right are of type integer.
+func (t IntegerType) Div(left, right Value) (Value, error) {
+	if err := t.ensureHaveThisType(left, right); err != nil {
+		return nil, err
+	}
+
+	leftInteger := left.(IntegerValue).Value
+	rightInteger := right.(IntegerValue).Value
+
+	return NewReal(float64(leftInteger) / float64(rightInteger)), nil
+}
+
+// Mod modulates the left and right value, producing a new integer value. This
+// only works, if left and right are of type integer.
+func (t IntegerType) Mod(left, right Value) (Value, error) {
+	if err := t.ensureHaveThisType(left, right); err != nil {
+		return nil, err
+	}
+
+	leftInteger := left.(IntegerValue).Value
+	rightInteger := right.(IntegerValue).Value
+
+	return NewInteger(leftInteger % rightInteger), nil
+}
+
+// Pow exponentiates the left and right value, producing a new integer value.
+// This only works, if left and right are of type integer.
+func (t IntegerType) Pow(left, right Value) (Value, error) {
+	if err := t.ensureHaveThisType(left, right); err != nil {
+		return nil, err
+	}
+
+	leftInteger := left.(IntegerValue).Value
+	rightInteger := right.(IntegerValue).Value
+
+	return NewInteger(int64(math.Pow(float64(leftInteger), float64(rightInteger)))), nil
 }

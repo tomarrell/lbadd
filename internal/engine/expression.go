@@ -23,6 +23,8 @@ func (e Engine) evaluateExpression(ctx ExecutionContext, expr command.Expr) (typ
 		return e.evaluateLiteralExpr(ctx, ex)
 	case command.FunctionExpr:
 		return e.evaluateFunctionExpr(ctx, ex)
+	case command.BinaryExpr:
+		return e.evaluateBinaryExpr(ctx, ex)
 	}
 	return nil, ErrUnimplemented(fmt.Sprintf("evaluate %T", expr))
 }
@@ -65,4 +67,31 @@ func (e Engine) evaluateFunctionExpr(ctx ExecutionContext, expr command.Function
 
 	function := types.NewFunction(expr.Name, exprs...)
 	return e.evaluateFunction(ctx, function)
+}
+
+func (e Engine) evaluateBinaryExpr(ctx ExecutionContext, expr command.BinaryExpr) (types.Value, error) {
+	left, err := e.evaluateExpression(ctx, expr.Left)
+	if err != nil {
+		return nil, fmt.Errorf("left: %w", err)
+	}
+	right, err := e.evaluateExpression(ctx, expr.Right)
+	if err != nil {
+		return nil, fmt.Errorf("right: %w", err)
+	}
+
+	switch expr.Operator {
+	case "+":
+		return e.add(ctx, left, right)
+	case "-":
+		return e.sub(ctx, left, right)
+	case "*":
+		return e.mul(ctx, left, right)
+	case "/":
+		return e.div(ctx, left, right)
+	case "%":
+		return e.mod(ctx, left, right)
+	case "**":
+		return e.pow(ctx, left, right)
+	}
+	return nil, ErrUnimplemented(expr.Operator)
 }
