@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"reflect"
+
 	"github.com/tomarrell/lbadd/internal/parser/ast"
 	"github.com/tomarrell/lbadd/internal/parser/scanner/token"
 )
@@ -3180,7 +3182,13 @@ func (p *simpleParser) parseDeleteStmtHelper(withClause *ast.WithClause, r repor
 	} else {
 		r.unexpectedToken(token.KeywordFrom)
 	}
-	deleteStmt.QualifiedTableName = p.parseQualifiedTableName(r)
+	qTableName := p.parseQualifiedTableName(r)
+	if qTableName != nil {
+		deleteStmt.QualifiedTableName = qTableName
+	} else {
+		r.incompleteStatement()
+		return
+	}
 
 	next, ok = p.optionalLookahead(r)
 	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
@@ -3642,6 +3650,11 @@ func (p *simpleParser) parseQualifiedTableName(r reporter) (stmt *ast.QualifiedT
 			r.unexpectedToken(token.KeywordIndexed)
 		}
 	}
+
+	if reflect.DeepEqual(stmt, &ast.QualifiedTableName{}) {
+		return nil
+	}
+
 	return
 }
 
