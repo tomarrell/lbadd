@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"reflect"
 
 	"github.com/tomarrell/lbadd/internal/parser/ast"
@@ -5018,6 +5019,8 @@ func (p *simpleParser) parseInsertStmt(withClause *ast.WithClause, r reporter) (
 		stmt.SchemaName = nil
 	}
 
+	fmt.Println(stmt)
+
 	next, ok = p.lookahead(r)
 	if !ok {
 		return
@@ -5052,14 +5055,15 @@ func (p *simpleParser) parseInsertStmt(withClause *ast.WithClause, r reporter) (
 			if next.Type() == token.Literal {
 				stmt.ColumnName = append(stmt.ColumnName, next)
 				p.consumeToken()
-			}
-			if next.Value() == "," {
+			} else if next.Value() == "," {
 				p.consumeToken()
-			}
-			if next.Type() == token.Delimiter && next.Value() == ")" {
+			} else if next.Type() == token.Delimiter && next.Value() == ")" {
 				stmt.RightParen = next
 				p.consumeToken()
 				break
+			} else {
+				r.unexpectedToken(token.Literal, token.Delimiter)
+				return
 			}
 		}
 	}
@@ -5094,6 +5098,8 @@ func (p *simpleParser) parseInsertStmt(withClause *ast.WithClause, r reporter) (
 		}
 	} else if next.Type() == token.KeywordSelect || next.Type() == token.KeywordWith {
 		stmt.SelectStmt = p.parseSelectStmt(nil, r)
+	} else {
+		r.unexpectedToken(token.KeywordValues, token.KeywordDefault, token.KeywordSelect)
 	}
 
 	next, ok = p.optionalLookahead(r)
