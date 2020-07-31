@@ -2,7 +2,6 @@ package engine
 
 import (
 	"fmt"
-	"sort"
 
 	"github.com/tomarrell/lbadd/internal/compiler/command"
 	"github.com/tomarrell/lbadd/internal/engine/types"
@@ -32,6 +31,8 @@ func (e Engine) evaluateList(ctx ExecutionContext, l command.List) (Table, error
 		return scanned, nil
 	case command.Project:
 		return e.evaluateProjection(ctx, list)
+	case command.Select:
+		return e.evaluateSelection(ctx, list)
 	}
 	return Table{}, ErrUnimplemented(l)
 }
@@ -79,6 +80,9 @@ func (e Engine) evaluateProjection(ctx ExecutionContext, proj command.Project) (
 
 	// check if the table actually has all expected columns
 	for _, expectedCol := range expectedColumnNames {
+		if expectedCol == "*" {
+			continue
+		}
 		if !origin.HasColumn(expectedCol) {
 			return Table{}, ErrNoSuchColumn(expectedCol)
 		}
@@ -91,12 +95,20 @@ func (e Engine) evaluateProjection(ctx ExecutionContext, proj command.Project) (
 		}
 	}
 
-	sort.Strings(expectedColumnNames)
-
 	var toRemove []string
 	for _, col := range origin.Cols {
-		searchResult := sort.SearchStrings(expectedColumnNames, col.QualifiedName)
-		if searchResult == len(expectedColumnNames) || expectedColumnNames[searchResult] != col.QualifiedName {
+		found := false
+		if len(expectedColumnNames) == 1 && expectedColumnNames[0] == "*" {
+			found = true
+		} else {
+			for _, expectedColumnName := range expectedColumnNames {
+				if expectedColumnName == col.QualifiedName {
+					found = true
+					break
+				}
+			}
+		}
+		if !found {
 			toRemove = append(toRemove, col.QualifiedName)
 		}
 	}
@@ -144,4 +156,60 @@ func (e Engine) evaluateScan(ctx ExecutionContext, s command.Scan) (Table, error
 	default:
 		return Table{}, ErrUnimplemented(fmt.Sprintf("scan %T", table))
 	}
+}
+
+func (e Engine) evaluateSelection(ctx ExecutionContext, sel command.Select) (Table, error) {
+	origin, err := e.evaluateList(ctx, sel.Input)
+	if err != nil {
+		return Table{}, fmt.Errorf("list: %w", err)
+	}
+
+	// filter might have been optimized to constant expression
+	if expr, ok := sel.Filter.(command.ConstantBooleanExpr); ok && expr.Value {
+		return origin, nil
+	}
+
+	switch t := sel.Filter.(type) {
+	case command.EqualityExpr:
+	default:
+		return Table{}, fmt.Errorf("cannot use %T as filter", t)
+	}
+
+	newTable, err := origin.FilterRows(func(cols []Col, r Row) (bool, error) {
+		switch filter := sel.Filter.(type) {
+		case command.EqualityExpr:
+			left, err := e.evaluateExpression(ctx, filter.Left)
+			if err != nil {
+				return false, fmt.Errorf("left: %w", err)
+			}
+			right, err := e.evaluateExpression(ctx, filter.Right)
+			if err != nil {
+				return false, fmt.Errorf("right: %w", err)
+			}
+			if left.Is(types.String) {
+				leftString := left.(types.StringValue).Value
+				for i, col := range cols {
+					if col.Alias == leftString || col.QualifiedName == leftString {
+						left = r.Values[i]
+					}
+				}
+			}
+			if right.Is(types.String) {
+				rightString := right.(types.StringValue).Value
+				for i, col := range cols {
+					if col.Alias == rightString || col.QualifiedName == rightString {
+						right = r.Values[i]
+					}
+				}
+			}
+
+			return e.cmp(left, right) == cmpEqual, nil
+		}
+		return false, nil
+	})
+	if err != nil {
+		return Table{}, fmt.Errorf("filter: %w", err)
+	}
+
+	return newTable, nil
 }

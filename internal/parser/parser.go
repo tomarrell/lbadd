@@ -40,6 +40,6 @@ type Parser interface {
 
 // New creates a new, ready to use parser, that will parse the given input
 // string.
-func New(input string) Parser {
+func New(input string) (Parser, error) {
 	return NewSimpleParser(input)
 }

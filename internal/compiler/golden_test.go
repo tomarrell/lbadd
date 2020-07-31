@@ -36,7 +36,8 @@ func runGolden(t *testing.T, input string) {
 	require := require.New(t)
 
 	c := &simpleCompiler{}
-	p := parser.New(input)
+	p, err := parser.New(input)
+	require.NoError(err)
 	stmt, errs, ok := p.Next()
 	require.Len(errs, 0)
 	require.True(ok, "expected at least one statement that can be parsed")
