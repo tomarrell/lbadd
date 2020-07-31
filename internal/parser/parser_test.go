@@ -1726,8 +1726,8 @@ func TestSingleStatementParse(t *testing.T) {
 												},
 											},
 											From: token.New(1, 27, 26, 4, token.KeywordFrom, "FROM"),
-											JoinClause: &ast.JoinClause{
-												TableOrSubquery: &ast.TableOrSubquery{
+											TableOrSubquery: []*ast.TableOrSubquery{
+												{
 													TableName: token.New(1, 32, 31, 7, token.Literal, "myTable"),
 												},
 											},
@@ -6056,8 +6056,8 @@ func TestSingleStatementParse(t *testing.T) {
 								},
 							},
 							From: token.New(1, 10, 9, 4, token.KeywordFrom, "FROM"),
-							JoinClause: &ast.JoinClause{
-								TableOrSubquery: &ast.TableOrSubquery{
+							TableOrSubquery: []*ast.TableOrSubquery{
+								{
 									TableName: token.New(1, 15, 14, 5, token.Literal, "users"),
 								},
 							},
@@ -9612,7 +9612,7 @@ func TestSingleStatementParse(t *testing.T) {
 			},
 		},
 		{
-			`SELECT stms's result column with recursive expr`,
+			`SELECT stmt's result column with recursive expr`,
 			"SELECT amount * price AS total_price FROM items",
 			&ast.SQLStmt{
 				SelectStmt: &ast.SelectStmt{
@@ -9635,8 +9635,8 @@ func TestSingleStatementParse(t *testing.T) {
 								},
 							},
 							From: token.New(1, 38, 37, 4, token.KeywordFrom, "FROM"),
-							JoinClause: &ast.JoinClause{
-								TableOrSubquery: &ast.TableOrSubquery{
+							TableOrSubquery: []*ast.TableOrSubquery{
+								{
 									TableName: token.New(1, 43, 42, 5, token.Literal, "items"),
 								},
 							},
@@ -9718,8 +9718,8 @@ func TestSingleStatementParse(t *testing.T) {
 								},
 							},
 							From: token.New(1, 26, 25, 4, token.KeywordFrom, "FROM"),
-							JoinClause: &ast.JoinClause{
-								TableOrSubquery: &ast.TableOrSubquery{
+							TableOrSubquery: []*ast.TableOrSubquery{
+								{
 									TableName: token.New(1, 31, 30, 1, token.Literal, "y"),
 								},
 							},
@@ -9750,8 +9750,8 @@ func TestSingleStatementParse(t *testing.T) {
 								},
 							},
 							From: token.New(1, 15, 14, 4, token.KeywordFrom, "FROM"),
-							JoinClause: &ast.JoinClause{
-								TableOrSubquery: &ast.TableOrSubquery{
+							TableOrSubquery: []*ast.TableOrSubquery{
+								{
 									TableName: token.New(1, 20, 19, 1, token.Literal, "y"),
 								},
 							},
@@ -9802,8 +9802,8 @@ func TestSingleStatementParse(t *testing.T) {
 								},
 							},
 							From: token.New(1, 12, 11, 4, token.KeywordFrom, "FROM"),
-							JoinClause: &ast.JoinClause{
-								TableOrSubquery: &ast.TableOrSubquery{
+							TableOrSubquery: []*ast.TableOrSubquery{
+								{
 									TableName: token.New(1, 17, 16, 1, token.Literal, "y"),
 								},
 							},
@@ -9818,8 +9818,8 @@ func TestSingleStatementParse(t *testing.T) {
 		t.Run(input.Name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			p := New(input.Query)
-
+			p, err := New(input.Query)
+			assert.NoError(err)
 			stmt, errs, ok := p.Next()
 			assert.True(ok, "expected exactly one statement")
 			assert.Nil(errs)

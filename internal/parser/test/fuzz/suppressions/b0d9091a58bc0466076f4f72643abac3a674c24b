@@ -1,4 +1,0 @@
-panic: timeout after 5s
-github.com/tomarrell/lbadd/internal/parser.Fuzz
-go-fuzz-dep.Main
-main.main

@@ -729,7 +729,9 @@ func _TestCompile(tt testcase) func(t *testing.T) {
 		assert := assert.New(t)
 
 		c := &simpleCompiler{}
-		p := parser.New(tt.input)
+		p, err := parser.New(tt.input)
+		assert.NoError(err)
+
 		stmt, errs, ok := p.Next()
 		assert.Len(errs, 0)
 		assert.True(ok)

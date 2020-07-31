@@ -47,6 +47,7 @@ func RunAndCompare(t *testing.T, tt Test) {
 
 func runAndCompare(t *testing.T, tt Test) {
 	t.Helper()
+	t.Logf("statement: %v", tt.Statement)
 
 	assert := assert.New(t)
 
@@ -71,11 +72,13 @@ func runAndCompare(t *testing.T, tt Test) {
 	totalStart := time.Now()
 	parseStart := time.Now()
 
-	p := parser.New(tt.Statement)
+	p, err := parser.New(tt.Statement)
+	assert.NoError(err)
+
 	stmt, errs, ok := p.Next()
 	assert.True(ok)
 	for _, err := range errs {
-		assert.NoError(err)
+		assert.NoError(err, "parse")
 	}
 
 	t.Logf("parse: %v", time.Since(parseStart))
@@ -84,24 +87,26 @@ func runAndCompare(t *testing.T, tt Test) {
 
 	c := compiler.New(tt.CompileOptions...)
 	cmd, err := c.Compile(stmt)
-	assert.NoError(err)
+	assert.NoError(err, "compile")
 
 	t.Logf("compile: %v", time.Since(compileStart))
 
 	engineStart := time.Now()
 
 	e, err := engine.New(dbFile, tt.EngineOptions...)
-	assert.NoError(err)
+	assert.NoError(err, "create engine")
 
 	t.Logf("start engine: %v", time.Since(engineStart))
 
 	evalStart := time.Now()
 
 	result, err := e.Evaluate(cmd)
-	assert.NoError(err)
+	assert.NoError(err, "evaluate")
 
 	t.Logf("evaluate: %v", time.Since(evalStart))
 	t.Logf("TOTAL: %v", time.Since(totalStart))
+
+	t.Logf("evaluation result:\n%v", result.String())
 
 	if overwriteExpected {
 		writeExpectedFile(t, tt.Name, result.String())
