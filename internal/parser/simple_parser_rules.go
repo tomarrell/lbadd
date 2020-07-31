@@ -942,14 +942,16 @@ func (p *simpleParser) parseConflictClause(r reporter) (clause *ast.ConflictClau
 
 // parseExpression parses expr as defined in:
 // https://sqlite.org/syntax/expr.html
+//
 // parseExprX or parseExprXSubY are the helper functions that parse line X and sub line Y in the spec.
 // (bind-parameter is removed and neglected while counting line numbers)
+//
 // parseExprXHelper functions are helper functions for parseExprX, mainly to
 // avoid code duplication and suffice alternate paths possible.
 func (p *simpleParser) parseExpression(r reporter) (expr *ast.Expr) {
 	expr = &ast.Expr{}
 	// The following rules being Left Recursive, have been converted to remove it.
-	// Details of the conversion follow above the implementations.
+	// Details of the conversions precede the implementations.
 	// S - is the starting production rule for expr.
 	// S -> SX | Y is converted to S -> YS' and S' -> XS'.
 
@@ -1413,6 +1415,9 @@ func (p *simpleParser) parseExpr4(expr *ast.Expr, r reporter) *ast.Expr {
 		if exprParent.Expr2 == nil {
 			r.expectedExpression()
 		}
+	} else {
+		r.unexpectedToken(token.BinaryOperator, '+', '-')
+		return nil
 	}
 
 	next, ok = p.optionalLookahead(r)
@@ -2829,6 +2834,9 @@ func (p *simpleParser) parseCreateTriggerStmt(sqlStmt *ast.SQLStmt, createToken,
 				if next.Type() == token.KeywordBegin {
 					stmt.Begin = next
 					p.consumeToken()
+				} else {
+					r.unexpectedToken(token.KeywordBegin)
+					return
 				}
 
 				for {
@@ -2879,6 +2887,8 @@ func (p *simpleParser) parseCreateTriggerStmt(sqlStmt *ast.SQLStmt, createToken,
 			} else {
 				r.unexpectedToken(token.Literal)
 			}
+		} else {
+			r.unexpectedToken(token.KeywordOn)
 		}
 	} else {
 		r.unexpectedToken(token.KeywordTrigger)
@@ -3180,7 +3190,13 @@ func (p *simpleParser) parseDeleteStmtHelper(withClause *ast.WithClause, r repor
 	} else {
 		r.unexpectedToken(token.KeywordFrom)
 	}
-	deleteStmt.QualifiedTableName = p.parseQualifiedTableName(r)
+	qTableName := p.parseQualifiedTableName(r)
+	if qTableName != nil {
+		deleteStmt.QualifiedTableName = qTableName
+	} else {
+		r.incompleteStatement()
+		return
+	}
 
 	next, ok = p.optionalLookahead(r)
 	if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
@@ -3642,6 +3658,11 @@ func (p *simpleParser) parseQualifiedTableName(r reporter) (stmt *ast.QualifiedT
 			r.unexpectedToken(token.KeywordIndexed)
 		}
 	}
+
+	if (*stmt == ast.QualifiedTableName{}) {
+		return nil
+	}
+
 	return
 }
 
@@ -3674,7 +3695,14 @@ func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 		}
 
 		for {
-			stmt.ResultColumn = append(stmt.ResultColumn, p.parseResultColumn(r))
+			resCol := p.parseResultColumn(r)
+			if resCol != nil {
+				stmt.ResultColumn = append(stmt.ResultColumn, resCol)
+			} else {
+				r.expectedExpression()
+				r.unexpectedToken(token.Literal)
+			}
+
 			next, ok = p.optionalLookahead(r)
 			if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 				return
@@ -3928,6 +3956,9 @@ func (p *simpleParser) parseResultColumn(r reporter) (stmt *ast.ResultColumn) {
 			stmt.ColumnAlias = next
 			p.consumeToken()
 		}
+	}
+	if stmt.Expr == nil && stmt.TableName == nil && stmt.Asterisk == nil {
+		return nil
 	}
 	return
 }
@@ -4976,6 +5007,8 @@ func (p *simpleParser) parseInsertStmt(withClause *ast.WithClause, r reporter) (
 	if next.Type() == token.KeywordInto {
 		stmt.Into = next
 		p.consumeToken()
+	} else {
+		r.unexpectedToken(token.KeywordInto)
 	}
 
 	next, ok = p.lookahead(r)
@@ -5043,14 +5076,15 @@ func (p *simpleParser) parseInsertStmt(withClause *ast.WithClause, r reporter) (
 			if next.Type() == token.Literal {
 				stmt.ColumnName = append(stmt.ColumnName, next)
 				p.consumeToken()
-			}
-			if next.Value() == "," {
+			} else if next.Value() == "," {
 				p.consumeToken()
-			}
-			if next.Type() == token.Delimiter && next.Value() == ")" {
+			} else if next.Type() == token.Delimiter && next.Value() == ")" {
 				stmt.RightParen = next
 				p.consumeToken()
 				break
+			} else {
+				r.unexpectedToken(token.Literal, token.Delimiter)
+				return
 			}
 		}
 	}
@@ -5085,6 +5119,8 @@ func (p *simpleParser) parseInsertStmt(withClause *ast.WithClause, r reporter) (
 		}
 	} else if next.Type() == token.KeywordSelect || next.Type() == token.KeywordWith {
 		stmt.SelectStmt = p.parseSelectStmt(nil, r)
+	} else {
+		r.unexpectedToken(token.KeywordValues, token.KeywordDefault, token.KeywordSelect)
 	}
 
 	next, ok = p.optionalLookahead(r)

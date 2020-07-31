@@ -38,7 +38,11 @@ func _TestCorpusFile(file string) func(*testing.T) {
 		content := string(data)
 
 		// try to parse the input
-		p := parser.New(content)
+		p, err := parser.New(content)
+		if err != nil {
+			return
+		}
+
 		stmt, errs, ok := p.Next()
 		if !ok || len(errs) != 0 {
 			return

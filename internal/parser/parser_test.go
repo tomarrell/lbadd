@@ -9818,8 +9818,8 @@ func TestSingleStatementParse(t *testing.T) {
 		t.Run(input.Name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			p := New(input.Query)
-
+			p, err := New(input.Query)
+			assert.NoError(err)
 			stmt, errs, ok := p.Next()
 			assert.True(ok, "expected exactly one statement")
 			assert.Nil(errs)
