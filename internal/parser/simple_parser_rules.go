@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"reflect"
 
 	"github.com/tomarrell/lbadd/internal/parser/ast"
@@ -945,14 +944,16 @@ func (p *simpleParser) parseConflictClause(r reporter) (clause *ast.ConflictClau
 
 // parseExpression parses expr as defined in:
 // https://sqlite.org/syntax/expr.html
+//
 // parseExprX or parseExprXSubY are the helper functions that parse line X and sub line Y in the spec.
 // (bind-parameter is removed and neglected while counting line numbers)
+//
 // parseExprXHelper functions are helper functions for parseExprX, mainly to
 // avoid code duplication and suffice alternate paths possible.
 func (p *simpleParser) parseExpression(r reporter) (expr *ast.Expr) {
 	expr = &ast.Expr{}
 	// The following rules being Left Recursive, have been converted to remove it.
-	// Details of the conversion follow above the implementations.
+	// Details of the conversions precede the implementations.
 	// S - is the starting production rule for expr.
 	// S -> SX | Y is converted to S -> YS' and S' -> XS'.
 
@@ -3688,7 +3689,14 @@ func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 		}
 
 		for {
-			stmt.ResultColumn = append(stmt.ResultColumn, p.parseResultColumn(r))
+			resCol := p.parseResultColumn(r)
+			if resCol != nil {
+				stmt.ResultColumn = append(stmt.ResultColumn, p.parseResultColumn(r))
+			} else {
+				r.expectedExpression()
+				r.unexpectedToken(token.Literal)
+			}
+
 			next, ok = p.optionalLookahead(r)
 			if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 				return
@@ -3940,6 +3948,9 @@ func (p *simpleParser) parseResultColumn(r reporter) (stmt *ast.ResultColumn) {
 			p.consumeToken()
 		}
 	}
+	// if stmt.Expr == nil && stmt.TableName == nil && stmt.Asterisk == nil {
+	// 	return nil
+	// }
 	return
 }
 
@@ -4986,6 +4997,8 @@ func (p *simpleParser) parseInsertStmt(withClause *ast.WithClause, r reporter) (
 	if next.Type() == token.KeywordInto {
 		stmt.Into = next
 		p.consumeToken()
+	} else {
+		r.unexpectedToken(token.KeywordInto)
 	}
 
 	next, ok = p.lookahead(r)
@@ -5018,8 +5031,6 @@ func (p *simpleParser) parseInsertStmt(withClause *ast.WithClause, r reporter) (
 	} else {
 		stmt.SchemaName = nil
 	}
-
-	fmt.Println(stmt)
 
 	next, ok = p.lookahead(r)
 	if !ok {

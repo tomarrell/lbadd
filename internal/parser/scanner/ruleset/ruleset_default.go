@@ -1,7 +1,6 @@
 package ruleset
 
 import (
-	"fmt"
 	"unicode"
 
 	"github.com/tomarrell/lbadd/internal/parser/scanner/matcher"
@@ -34,7 +33,6 @@ var (
 		matcher.New("upper", unicode.Upper),
 		matcher.New("lower", unicode.Lower),
 		matcher.New("title", unicode.Title),
-		matcher.New("unicode", unicode.Common),
 		matcher.String("-_"),
 		defaultNumber,
 	)
@@ -199,11 +197,11 @@ func defaultNumericLiteralRule(s RuneScanner) (token.Type, bool) {
 	// case of hexadecimal numbers
 	if next == '0' {
 		s.ConsumeRune()
-		for {
-			next, ok = s.Lookahead()
-			if !ok || next != 'x' {
-				break
-			}
+		next, ok = s.Lookahead()
+		if !ok {
+			return token.Unknown, false
+		}
+		if next == 'x' {
 			s.ConsumeRune()
 			if next, ok := s.Lookahead(); !(ok && defaultLiteral.Matches(next)) {
 				return token.Unknown, false
@@ -274,16 +272,7 @@ func defaultNumericLiteralRule(s RuneScanner) (token.Type, bool) {
 }
 
 func defaultUnquotedLiteralRule(s RuneScanner) (token.Type, bool) {
-	if next, ok := s.Lookahead(); !(ok && defaultLiteral.Matches(next) && next != ' ' && next != '\n') {
-		fmt.Println(next)
-		// fmt.Println("WERTHJKLKJHGFC")
-		// for k, v := range unicode.Scripts {
-		// 	matcher := matcher.New("new", v)
-		// 	if matcher.Matches(next) {
-		// 		// fmt.Println(v)
-		// 		fmt.Println(k)
-		// 	}
-		// }
+	if next, ok := s.Lookahead(); !(ok && defaultLiteral.Matches(next)) {
 		return token.Unknown, false
 	}
 	s.ConsumeRune()

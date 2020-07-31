@@ -11,7 +11,8 @@ func (s Error) Error() string { return string(s) }
 
 // Constant errors
 const (
-	ErrUnexpectedToken = Error("unexpected token")
+	ErrUnexpectedToken   = Error("unexpected token")
+	ErrInvalidUTF8String = Error("the input is not a valid utf8 encoded string")
 )
 
 // Scanner is the interface that describes a scanner.

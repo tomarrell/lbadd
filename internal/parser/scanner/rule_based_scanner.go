@@ -2,6 +2,7 @@ package scanner
 
 import (
 	"fmt"
+	"unicode/utf8"
 
 	"github.com/tomarrell/lbadd/internal/parser/scanner/ruleset"
 	"github.com/tomarrell/lbadd/internal/parser/scanner/token"
@@ -32,9 +33,13 @@ type state struct {
 
 // NewRuleBased creates a new, ready to use rule based scanner with the given
 // ruleset, that will process the given input rune slice.
-func NewRuleBased(input []rune, ruleset ruleset.Ruleset) Scanner {
+func NewRuleBased(input string, ruleset ruleset.Ruleset) (Scanner, error) {
+	if !utf8.ValidString(input) {
+		return nil, ErrInvalidUTF8String
+	}
+
 	return &ruleBasedScanner{
-		input:              input,
+		input:              []rune(input),
 		cache:              nil,
 		whitespaceDetector: ruleset.WhitespaceDetector,
 		linefeedDetector:   ruleset.LinefeedDetector,
@@ -47,7 +52,7 @@ func NewRuleBased(input []rune, ruleset ruleset.Ruleset) Scanner {
 			line:      1,
 			col:       1,
 		},
-	}
+	}, nil
 }
 
 func (s *ruleBasedScanner) Next() token.Token {

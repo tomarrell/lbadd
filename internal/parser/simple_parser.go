@@ -14,10 +14,14 @@ type simpleParser struct {
 }
 
 // NewSimpleParser creates new ready to use parser.
-func NewSimpleParser(input string) Parser {
-	return &simpleParser{
-		scanner: scanner.NewRuleBased([]rune(input), ruleset.Default),
+func NewSimpleParser(input string) (Parser, error) {
+	sc, err := scanner.NewRuleBased(input, ruleset.Default)
+	if err != nil {
+		return nil, err
 	}
+	return &simpleParser{
+		scanner: sc,
+	}, nil
 }
 
 func (p *simpleParser) Next() (*ast.SQLStmt, []error, bool) {
