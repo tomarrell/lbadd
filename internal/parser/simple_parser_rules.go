@@ -1417,6 +1417,9 @@ func (p *simpleParser) parseExpr4(expr *ast.Expr, r reporter) *ast.Expr {
 		if exprParent.Expr2 == nil {
 			r.expectedExpression()
 		}
+	} else {
+		r.unexpectedToken(token.BinaryOperator, '+', '-')
+		return nil
 	}
 
 	next, ok = p.optionalLookahead(r)
@@ -2833,6 +2836,9 @@ func (p *simpleParser) parseCreateTriggerStmt(sqlStmt *ast.SQLStmt, createToken,
 				if next.Type() == token.KeywordBegin {
 					stmt.Begin = next
 					p.consumeToken()
+				} else {
+					r.unexpectedToken(token.KeywordBegin)
+					p.consumeToken()
 				}
 
 				for {
@@ -2883,6 +2889,8 @@ func (p *simpleParser) parseCreateTriggerStmt(sqlStmt *ast.SQLStmt, createToken,
 			} else {
 				r.unexpectedToken(token.Literal)
 			}
+		} else {
+			r.unexpectedToken(token.KeywordOn)
 		}
 	} else {
 		r.unexpectedToken(token.KeywordTrigger)
@@ -3691,7 +3699,7 @@ func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 		for {
 			resCol := p.parseResultColumn(r)
 			if resCol != nil {
-				stmt.ResultColumn = append(stmt.ResultColumn, p.parseResultColumn(r))
+				stmt.ResultColumn = append(stmt.ResultColumn, resCol)
 			} else {
 				r.expectedExpression()
 				r.unexpectedToken(token.Literal)
@@ -3951,9 +3959,9 @@ func (p *simpleParser) parseResultColumn(r reporter) (stmt *ast.ResultColumn) {
 			p.consumeToken()
 		}
 	}
-	// if stmt.Expr == nil && stmt.TableName == nil && stmt.Asterisk == nil {
-	// 	return nil
-	// }
+	if stmt.Expr == nil && stmt.TableName == nil && stmt.Asterisk == nil {
+		return nil
+	}
 	return
 }
 
