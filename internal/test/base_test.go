@@ -73,7 +73,7 @@ func runAndCompare(t *testing.T, tt Test) {
 	parseStart := time.Now()
 
 	p, err := parser.New(tt.Statement)
-	assert.Nil(err)
+	assert.NoError(err)
 
 	stmt, errs, ok := p.Next()
 	assert.True(ok)

@@ -169,21 +169,21 @@ func TestRuleBasedScanner(t *testing.T) {
 		},
 		{
 			"numeric literals",
-			"7 7.5 8.9 .8 8.0 0.4 10 10000 18907.890 1890976.09 .977",
+			"7 7.5 8.9.8 8.0 0.4 10 10000 18907.890 1890976.09.977",
 			ruleset.Default,
 			[]token.Token{
 				token.New(1, 1, 0, 1, token.LiteralNumeric, "7"),
 				token.New(1, 3, 2, 3, token.LiteralNumeric, "7.5"),
 				token.New(1, 7, 6, 3, token.LiteralNumeric, "8.9"),
-				token.New(1, 11, 10, 2, token.LiteralNumeric, ".8"),
-				token.New(1, 14, 13, 3, token.LiteralNumeric, "8.0"),
-				token.New(1, 18, 17, 3, token.LiteralNumeric, "0.4"),
-				token.New(1, 22, 21, 2, token.LiteralNumeric, "10"),
-				token.New(1, 25, 24, 5, token.LiteralNumeric, "10000"),
-				token.New(1, 31, 30, 9, token.LiteralNumeric, "18907.890"),
-				token.New(1, 41, 40, 10, token.LiteralNumeric, "1890976.09"),
-				token.New(1, 52, 51, 4, token.LiteralNumeric, ".977"),
-				token.New(1, 56, 55, 0, token.EOF, ""),
+				token.New(1, 10, 9, 2, token.LiteralNumeric, ".8"),
+				token.New(1, 13, 12, 3, token.LiteralNumeric, "8.0"),
+				token.New(1, 17, 16, 3, token.LiteralNumeric, "0.4"),
+				token.New(1, 21, 20, 2, token.LiteralNumeric, "10"),
+				token.New(1, 24, 23, 5, token.LiteralNumeric, "10000"),
+				token.New(1, 30, 29, 9, token.LiteralNumeric, "18907.890"),
+				token.New(1, 40, 39, 10, token.LiteralNumeric, "1890976.09"),
+				token.New(1, 50, 49, 4, token.LiteralNumeric, ".977"),
+				token.New(1, 54, 53, 0, token.EOF, ""),
 			},
 		},
 		{
@@ -310,7 +310,7 @@ func _TestRuleBasedScannerWithRuleset(input string, ruleset ruleset.Ruleset, wan
 
 		// create the scanner to be tested
 		sc, err := NewRuleBased(input, ruleset)
-		assert.Nil(err)
+		assert.NoError(err)
 
 		// collect all whitespaces
 		for {
@@ -342,7 +342,7 @@ func TestRuleBasedScannerStatementEndingInWhitespace(t *testing.T) {
 
 	stmt := "SELECT "
 	sc, err := NewRuleBased(stmt, ruleset.Default)
-	assert.Nil(err)
+	assert.NoError(err)
 	next := sc.Next()
 	assert.Equal(token.KeywordSelect, next.Type())
 	eof := sc.Next()

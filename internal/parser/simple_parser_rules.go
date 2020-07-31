@@ -1,8 +1,6 @@
 package parser
 
 import (
-	"reflect"
-
 	"github.com/tomarrell/lbadd/internal/parser/ast"
 	"github.com/tomarrell/lbadd/internal/parser/scanner/token"
 )
@@ -3661,7 +3659,7 @@ func (p *simpleParser) parseQualifiedTableName(r reporter) (stmt *ast.QualifiedT
 		}
 	}
 
-	if reflect.DeepEqual(stmt, &ast.QualifiedTableName{}) {
+	if (*stmt == ast.QualifiedTableName{}) {
 		return nil
 	}
 
