@@ -3729,6 +3729,9 @@ func (p *simpleParser) parseSelectCore(r reporter) (stmt *ast.SelectCore) {
 						break
 					}
 				}
+			} else if len(stmt.JoinClause.JoinClausePart) == 0 {
+				stmt.TableOrSubquery = append(stmt.TableOrSubquery, stmt.JoinClause.TableOrSubquery)
+				stmt.JoinClause = nil
 			}
 		}
 
@@ -4567,6 +4570,7 @@ func (p *simpleParser) parseTableOrSubquery(r reporter) (stmt *ast.TableOrSubque
 			}
 		}
 	} else if schemaOrTableNameOrLeftPar.Value() == "(" {
+		p.consumeToken()
 		stmt.SelectStmt = p.parseSelectStmt(nil, r)
 		if stmt.SelectStmt == nil {
 			stmt.JoinClause = p.parseJoinClause(r)
@@ -4615,8 +4619,8 @@ func (p *simpleParser) parseTableOrSubquery(r reporter) (stmt *ast.TableOrSubque
 				p.consumeToken()
 			}
 
-			next, ok = p.lookahead(r)
-			if !ok {
+			next, ok = p.optionalLookahead(r)
+			if !ok || next.Type() == token.EOF || next.Type() == token.StatementSeparator {
 				return
 			}
 			if next.Type() == token.KeywordAs {

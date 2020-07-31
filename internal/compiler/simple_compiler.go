@@ -433,8 +433,14 @@ func (c *simpleCompiler) compileSelectCoreSelect(core *ast.SelectCore) (command.
 			return nil, fmt.Errorf("table or subquery: %w", err)
 		}
 
-		selectionInput = command.Scan{
-			Table: table,
+		if tbl, ok := table.(command.Table); ok {
+			selectionInput = command.Scan{
+				Table: tbl,
+			}
+		} else if subQ, ok := table.(command.List); ok {
+			selectionInput = subQ
+		} else {
+			return nil, fmt.Errorf("unsupported subquery: %T", table)
 		}
 	} else if len(core.TableOrSubquery) == 0 {
 		if core.JoinClause == nil {
@@ -539,6 +545,15 @@ func (c *simpleCompiler) compileExpr(expr *ast.Expr) (command.Expr, error) {
 		if err != nil {
 			return nil, fmt.Errorf("expr2: %w", err)
 		}
+		switch expr.BinaryOperator.Value() {
+		case "=":
+			return command.EqualityExpr{
+				Invert: expr.Not != nil,
+				Left:   left,
+				Right:  right,
+			}, nil
+		default:
+		}
 		return command.BinaryExpr{
 			Operator: expr.BinaryOperator.Value(),
 			Left:     left,
@@ -578,8 +593,14 @@ func (c *simpleCompiler) compileJoin(join *ast.JoinClause) (command.List, error)
 	}
 
 	var prev command.List
-	prev = command.Scan{
-		Table: left,
+	if tbl, ok := left.(command.Table); ok {
+		prev = command.Scan{
+			Table: tbl,
+		}
+	} else if subQ, ok := left.(command.List); ok {
+		prev = subQ
+	} else {
+		return nil, fmt.Errorf("unsupported subquery: %T", left)
 	}
 
 	for _, part := range join.JoinClausePart {
@@ -619,21 +640,38 @@ func (c *simpleCompiler) compileJoin(join *ast.JoinClause) (command.List, error)
 			return command.Join{}, fmt.Errorf("table or subquery: %w", err)
 		}
 
+		var right command.List
+		if tbl, ok := table.(command.Table); ok {
+			right = command.Scan{
+				Table: tbl,
+			}
+		} else if subQ, ok := table.(command.List); ok {
+			right = subQ
+		} else {
+			return nil, fmt.Errorf("unsupported subquery: %T", table)
+		}
+
 		prev = command.Join{
 			Natural: natural,
 			Type:    typ,
 			Filter:  filter,
 			Left:    prev,
-			Right: command.Scan{
-				Table: table,
-			},
+			Right:   right,
 		}
 	}
 
 	return prev, nil
 }
 
-func (c *simpleCompiler) compileTableOrSubquery(tos *ast.TableOrSubquery) (command.Table, error) {
+func (c *simpleCompiler) compileTableOrSubquery(tos *ast.TableOrSubquery) (command.Command, error) {
+	if tos.SelectStmt != nil {
+		result, err := c.compileSelect(tos.SelectStmt)
+		if err != nil {
+			return nil, fmt.Errorf("select: %w", err)
+		}
+		return result, nil
+	}
+
 	if tos.TableName == nil {
 		return nil, fmt.Errorf("not simple table: %w", ErrUnsupported)
 	}

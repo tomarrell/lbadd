@@ -31,3 +31,17 @@ func TestExample02(t *testing.T) {
 		},
 	})
 }
+
+func TestExample03(t *testing.T) {
+	RunAndCompare(t, Test{
+		Name:      "example03",
+		Statement: `SELECT * FROM (VALUES (1, 2, 3), (4, 5, 6), (7, 5, 9))`,
+	})
+}
+
+func TestExample04(t *testing.T) {
+	RunAndCompare(t, Test{
+		Name:      "example04",
+		Statement: `SELECT * FROM (VALUES (1, 2, 3), (4, 5, 6), (7, 5, 9)) WHERE column2 = 5`,
+	})
+}

@@ -75,6 +75,27 @@ func (t Table) RemoveColumn(index int) Table {
 	return t
 }
 
+// FilterRows filteres this table's rows according to the given keep function.
+// Rows for which the given function returns true and no error, will be copied
+// over to a new table, which will then be returned. The keep function is fed
+// with one row at a time, but always all columns from the original table, to
+// facilitate checking values by index.
+func (t Table) FilterRows(keep func([]Col, Row) (bool, error)) (Table, error) {
+	newTable := Table{
+		Cols: t.Cols,
+	}
+	for _, row := range t.Rows {
+		shouldKeep, err := keep(t.Cols, row)
+		if err != nil {
+			return Table{}, err
+		}
+		if shouldKeep {
+			newTable.Rows = append(newTable.Rows, row)
+		}
+	}
+	return newTable, nil
+}
+
 func (t Table) String() string {
 	var buf bytes.Buffer
 	w := tabwriter.NewWriter(&buf, 0, 1, 3, ' ', 0)
