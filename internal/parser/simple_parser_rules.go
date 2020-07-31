@@ -2838,7 +2838,7 @@ func (p *simpleParser) parseCreateTriggerStmt(sqlStmt *ast.SQLStmt, createToken,
 					p.consumeToken()
 				} else {
 					r.unexpectedToken(token.KeywordBegin)
-					p.consumeToken()
+					return
 				}
 
 				for {
