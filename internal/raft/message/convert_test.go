@@ -581,7 +581,7 @@ var commandToMessageTests = []struct {
 	},
 }
 
-func Test_CommandToMessage(t *testing.T) {
+func TestConvertCommandToMessage(t *testing.T) {
 	for _, tt := range commandToMessageTests {
 		t.Run(tt.in.String(), func(t *testing.T) {
 			msg, _ := ConvertCommandToMessage(tt.in)
@@ -1166,7 +1166,7 @@ var messageToCommandTests = []struct {
 	},
 }
 
-func Test_MessageToCommand(t *testing.T) {
+func TestConvertMessageToCommand(t *testing.T) {
 	for _, tt := range messageToCommandTests {
 		t.Run(tt.in.Kind().String(), func(t *testing.T) {
 			msg := ConvertMessageToCommand(tt.in)
