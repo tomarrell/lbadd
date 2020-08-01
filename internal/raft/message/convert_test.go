@@ -13,7 +13,7 @@ var commandToMessageTests = []struct {
 }{
 	{
 		// SCAN
-		&command.Scan{
+		command.Scan{
 			Table: &command.SimpleTable{
 				Schema:  "mySchema",
 				Table:   "myTable",
@@ -34,11 +34,11 @@ var commandToMessageTests = []struct {
 	},
 	{
 		// SELECT
-		&command.Select{
-			Filter: &command.LiteralExpr{
+		command.Select{
+			Filter: command.LiteralExpr{
 				Value: "literal",
 			},
-			Input: &command.Scan{
+			Input: command.Scan{
 				Table: &command.SimpleTable{
 					Schema:  "mySchema",
 					Table:   "myTable",
@@ -73,24 +73,24 @@ var commandToMessageTests = []struct {
 	},
 	{
 		// PROJECT
-		&command.Project{
+		command.Project{
 			Cols: []command.Column{
 				{
 					Table: "myTable1",
-					Column: &command.LiteralExpr{
+					Column: command.LiteralExpr{
 						Value: "literal",
 					},
 					Alias: "myAlias1",
 				},
 				{
 					Table: "myTable2",
-					Column: &command.LiteralExpr{
+					Column: command.LiteralExpr{
 						Value: "literal",
 					},
 					Alias: "myAlias2",
 				},
 			},
-			Input: &command.Scan{
+			Input: command.Scan{
 				Table: &command.SimpleTable{
 					Schema:  "mySchema",
 					Table:   "myTable",
@@ -142,7 +142,7 @@ var commandToMessageTests = []struct {
 	},
 	{
 		// DELETE
-		&command.Delete{
+		command.Delete{
 			Table: &command.SimpleTable{
 				Schema:  "mySchema",
 				Table:   "myTable",
@@ -150,12 +150,12 @@ var commandToMessageTests = []struct {
 				Indexed: true,
 				Index:   "myIndex",
 			},
-			Filter: &command.BinaryExpr{
+			Filter: command.BinaryExpr{
 				Operator: "operator",
-				Left: &command.LiteralExpr{
+				Left: command.LiteralExpr{
 					Value: "leftLiteral",
 				},
-				Right: &command.LiteralExpr{
+				Right: command.LiteralExpr{
 					Value: "rightLiteral",
 				},
 			},
@@ -249,7 +249,7 @@ var commandToMessageTests = []struct {
 	},
 	{
 		// UPDATE
-		&command.Update{
+		command.Update{
 			UpdateOr: 0,
 			Table: &command.SimpleTable{
 				Schema:  "mySchema",
@@ -269,11 +269,11 @@ var commandToMessageTests = []struct {
 					},
 				},
 			},
-			Filter: &command.EqualityExpr{
-				Left: &command.LiteralExpr{
+			Filter: command.EqualityExpr{
+				Left: command.LiteralExpr{
 					Value: "leftLiteral",
 				},
-				Right: &command.LiteralExpr{
+				Right: command.LiteralExpr{
 					Value: "rightLiteral",
 				},
 			},
@@ -324,34 +324,34 @@ var commandToMessageTests = []struct {
 	},
 	{
 		// JOIN
-		&command.Join{
+		command.Join{
 			Natural: true,
 			Type:    0,
-			Filter: &command.FunctionExpr{
+			Filter: command.FunctionExpr{
 				Name:     "function",
 				Distinct: true,
 				Args: []command.Expr{
-					&command.RangeExpr{
-						Needle: &command.LiteralExpr{
+					command.RangeExpr{
+						Needle: command.LiteralExpr{
 							Value: "literal",
 						},
-						Lo: &command.LiteralExpr{
+						Lo: command.LiteralExpr{
 							Value: "literal",
 						},
-						Hi: &command.LiteralExpr{
+						Hi: command.LiteralExpr{
 							Value: "literal",
 						},
 						Invert: false,
 					},
-					&command.UnaryExpr{
+					command.UnaryExpr{
 						Operator: "operator",
-						Value: &command.LiteralExpr{
+						Value: command.LiteralExpr{
 							Value: "literal",
 						},
 					},
 				},
 			},
-			Left: &command.Scan{
+			Left: command.Scan{
 				Table: &command.SimpleTable{
 					Schema:  "mySchema",
 					Table:   "myTable",
@@ -360,7 +360,7 @@ var commandToMessageTests = []struct {
 					Index:   "myIndex",
 				},
 			},
-			Right: &command.Scan{
+			Right: command.Scan{
 				Table: &command.SimpleTable{
 					Schema:  "mySchema",
 					Table:   "myTable",
@@ -455,11 +455,11 @@ var commandToMessageTests = []struct {
 	},
 	{
 		// LIMIT
-		&command.Limit{
-			Limit: &command.LiteralExpr{
+		command.Limit{
+			Limit: command.LiteralExpr{
 				Value: "literal",
 			},
-			Input: &command.Scan{
+			Input: command.Scan{
 				Table: &command.SimpleTable{
 					Schema:  "mySchema",
 					Table:   "myTable",
@@ -494,7 +494,7 @@ var commandToMessageTests = []struct {
 	},
 	{
 		// INSERT
-		&command.Insert{
+		command.Insert{
 			InsertOr: 0,
 			Table: &command.SimpleTable{
 				Schema:  "mySchema",
@@ -506,21 +506,21 @@ var commandToMessageTests = []struct {
 			Cols: []command.Column{
 				{
 					Table: "myTable1",
-					Column: &command.LiteralExpr{
+					Column: command.LiteralExpr{
 						Value: "literal",
 					},
 					Alias: "myAlias1",
 				},
 				{
 					Table: "myTable2",
-					Column: &command.LiteralExpr{
+					Column: command.LiteralExpr{
 						Value: "literal",
 					},
 					Alias: "myAlias2",
 				},
 			},
 			DefaultValues: false,
-			Input: &command.Scan{
+			Input: command.Scan{
 				Table: &command.SimpleTable{
 					Schema:  "mySchema",
 					Table:   "myTable",
@@ -607,7 +607,7 @@ var messageToCommandTests = []struct {
 				Index:   "myIndex",
 			},
 		},
-		&command.Scan{
+		command.Scan{
 			Table: &command.SimpleTable{
 				Schema:  "mySchema",
 				Table:   "myTable",
@@ -641,11 +641,11 @@ var messageToCommandTests = []struct {
 				},
 			},
 		},
-		&command.Select{
-			Filter: &command.LiteralExpr{
+		command.Select{
+			Filter: command.LiteralExpr{
 				Value: "literal",
 			},
-			Input: &command.Scan{
+			Input: command.Scan{
 				Table: &command.SimpleTable{
 					Schema:  "mySchema",
 					Table:   "myTable",
@@ -697,24 +697,24 @@ var messageToCommandTests = []struct {
 				},
 			},
 		},
-		&command.Project{
+		command.Project{
 			Cols: []command.Column{
 				{
 					Table: "myTable1",
-					Column: &command.LiteralExpr{
+					Column: command.LiteralExpr{
 						Value: "literal",
 					},
 					Alias: "myAlias1",
 				},
 				{
 					Table: "myTable2",
-					Column: &command.LiteralExpr{
+					Column: command.LiteralExpr{
 						Value: "literal",
 					},
 					Alias: "myAlias2",
 				},
 			},
-			Input: &command.Scan{
+			Input: command.Scan{
 				Table: &command.SimpleTable{
 					Schema:  "mySchema",
 					Table:   "myTable",
@@ -765,12 +765,12 @@ var messageToCommandTests = []struct {
 				Indexed: true,
 				Index:   "myIndex",
 			},
-			Filter: &command.BinaryExpr{
+			Filter: command.BinaryExpr{
 				Operator: "operator",
-				Left: &command.LiteralExpr{
+				Left: command.LiteralExpr{
 					Value: "leftLiteral",
 				},
-				Right: &command.LiteralExpr{
+				Right: command.LiteralExpr{
 					Value: "rightLiteral",
 				},
 			},
@@ -897,11 +897,11 @@ var messageToCommandTests = []struct {
 					},
 				},
 			},
-			Filter: &command.EqualityExpr{
-				Left: &command.LiteralExpr{
+			Filter: command.EqualityExpr{
+				Left: command.LiteralExpr{
 					Value: "leftLiteral",
 				},
-				Right: &command.LiteralExpr{
+				Right: command.LiteralExpr{
 					Value: "rightLiteral",
 				},
 			},
@@ -994,31 +994,31 @@ var messageToCommandTests = []struct {
 		command.Join{
 			Natural: true,
 			Type:    0,
-			Filter: &command.FunctionExpr{
+			Filter: command.FunctionExpr{
 				Name:     "function",
 				Distinct: true,
 				Args: []command.Expr{
-					&command.RangeExpr{
-						Needle: &command.LiteralExpr{
+					command.RangeExpr{
+						Needle: command.LiteralExpr{
 							Value: "literal",
 						},
-						Lo: &command.LiteralExpr{
+						Lo: command.LiteralExpr{
 							Value: "literal",
 						},
-						Hi: &command.LiteralExpr{
+						Hi: command.LiteralExpr{
 							Value: "literal",
 						},
 						Invert: false,
 					},
-					&command.UnaryExpr{
+					command.UnaryExpr{
 						Operator: "operator",
-						Value: &command.LiteralExpr{
+						Value: command.LiteralExpr{
 							Value: "literal",
 						},
 					},
 				},
 			},
-			Left: &command.Scan{
+			Left: command.Scan{
 				Table: &command.SimpleTable{
 					Schema:  "mySchema",
 					Table:   "myTable",
@@ -1027,7 +1027,7 @@ var messageToCommandTests = []struct {
 					Index:   "myIndex",
 				},
 			},
-			Right: &command.Scan{
+			Right: command.Scan{
 				Table: &command.SimpleTable{
 					Schema:  "mySchema",
 					Table:   "myTable",
@@ -1063,10 +1063,10 @@ var messageToCommandTests = []struct {
 			},
 		},
 		command.Limit{
-			Limit: &command.LiteralExpr{
+			Limit: command.LiteralExpr{
 				Value: "literal",
 			},
-			Input: &command.Scan{
+			Input: command.Scan{
 				Table: &command.SimpleTable{
 					Schema:  "mySchema",
 					Table:   "myTable",
@@ -1139,21 +1139,21 @@ var messageToCommandTests = []struct {
 			Cols: []command.Column{
 				{
 					Table: "myTable1",
-					Column: &command.LiteralExpr{
+					Column: command.LiteralExpr{
 						Value: "literal",
 					},
 					Alias: "myAlias1",
 				},
 				{
 					Table: "myTable2",
-					Column: &command.LiteralExpr{
+					Column: command.LiteralExpr{
 						Value: "literal",
 					},
 					Alias: "myAlias2",
 				},
 			},
 			DefaultValues: false,
-			Input: &command.Scan{
+			Input: command.Scan{
 				Table: &command.SimpleTable{
 					Schema:  "mySchema",
 					Table:   "myTable",
