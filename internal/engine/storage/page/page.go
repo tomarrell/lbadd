@@ -58,8 +58,14 @@ func Load(data []byte) (*Page, error) {
 	return load(data)
 }
 
+// DecodeID decodes a page ID from the given bytes. The ID is stored in the
+// first 4 bytes, encoded big endian unsigned.
+func DecodeID(data []byte) ID {
+	return byteOrder.Uint32(data[idOffset:])
+}
+
 // ID returns the ID of this page. This value must be constant.
-func (p *Page) ID() ID { return byteOrder.Uint32(p.data[idOffset:]) }
+func (p *Page) ID() ID { return DecodeID(p.data) }
 
 // CellCount returns the amount of stored cells in this page. This value is NOT
 // constant.
