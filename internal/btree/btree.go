@@ -1,5 +1,11 @@
 package btree
 
+import "github.com/davecgh/go-spew/spew"
+
+const (
+	defaultOrder = 3
+)
+
 type Btreer interface {
 	// Get attempts to retrieve an entry in the tree by the given key `k`. It
 	// returns the entry and a bool indicating whether it was found or not.
@@ -19,10 +25,6 @@ type Btreer interface {
 	// Generate a string representation of the tree. Useful for debugging.
 	String() string
 }
-
-const (
-	defaultOrder = 3
-)
 
 // Btree is an implementation of a B+tree with the following invariants
 //
@@ -190,6 +192,8 @@ func (b *Btree) removeNode(n *node, k Key) (removed bool) {
 	} else if !exists {
 		return false
 	}
+
+	spew.Printf("On node: %s\n", n.entries)
 
 	// Ok, so we've found the key we were looking for, now we need to remove it
 	// and decrement the size.

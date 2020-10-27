@@ -13,12 +13,14 @@ type node struct {
 // recursiveBalance ...
 //
 // We know that a node is below the threshold for which we must rebalance. There
-// are three options:
+// are four options:
 //   A: steal from the right sibling
 //   B: steal from the left sibling
 //   C: merge the node with the left sibling
 //   D: merge the node with the right sibling
 //
+// TODO it probably makes sense to have this rebalance method on the *btree
+// rather than the node. However, it is convenient here for recursion.
 func (n *node) recursiveBalance(k Key, order int, b *Btree) {
 	// If we're at the root or the current node is not breaking the invariant, we
 	// can stop.
@@ -35,6 +37,7 @@ func (n *node) recursiveBalance(k Key, order int, b *Btree) {
 	// current node's children.
 	//
 	if rSib, exists := n.rightSibling(k); exists && rSib.canStealEntry(order) {
+		spew.Println("Stealing from right sibling")
 		// Entry operations
 		//
 		// Append the right sibling's leftmost entry to this node
@@ -59,6 +62,10 @@ func (n *node) recursiveBalance(k Key, order int, b *Btree) {
 		// Replace the parent key to the right sibling's leftmost entry's key
 		n.parent.entries[parIdx] = &Entry{rSib.entries[0].key, nil}
 
+		spew.Printf("New entries: %s\n", n.entries)
+		spew.Printf("New parent: %s\n", n.parent.entries)
+		spew.Printf("New right sibling: %s\n", rSib.entries)
+
 		return
 	}
 
@@ -75,8 +82,7 @@ func (n *node) recursiveBalance(k Key, order int, b *Btree) {
 	// that we stole from the left sibling.
 	//
 	if lSib, exists := n.leftSibling(k); exists && lSib.canStealEntry(order) {
-		spew.Println(n.entries)
-		spew.Println(lSib.entries)
+		spew.Println("Stealing from left sibling")
 
 		// Entry operations
 		//
@@ -107,14 +113,12 @@ func (n *node) recursiveBalance(k Key, order int, b *Btree) {
 			n.parent.entries[parIdx-1].key = stolenKey
 		}
 
-		spew.Println("HERE")
-		spew.Println(parIdx)
-		spew.Println(n.parent.entries)
-
 		// Set the parent's key to the key of the first entry of the node
 		n.parent.entries[parIdx-1] = &Entry{n.entries[0].key, nil}
 
-		spew.Dump(b.root)
+		// spew.Printf("New entries: %s\n", n.entries)
+		// spew.Printf("New parent: %s\n", n.parent.entries)
+		// spew.Printf("New right sibling: %s\n", rSib.entries)
 
 		return
 	}
@@ -126,6 +130,7 @@ func (n *node) recursiveBalance(k Key, order int, b *Btree) {
 	// TODO handle the children
 	//
 	if _, exists := n.leftSibling(k); exists {
+		spew.Println("Merging left sibling")
 		panic("can merge left")
 	}
 
@@ -147,6 +152,7 @@ func (n *node) recursiveBalance(k Key, order int, b *Btree) {
 	// parent.
 	//
 	if rSib, exists := n.rightSibling(k); exists {
+		spew.Println("Merging right sibling")
 		parIdx, _ := search(n.parent.entries, k)
 
 		// Add the right sibling's entries to the current node

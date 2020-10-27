@@ -3,11 +3,14 @@ package btree
 import (
 	"testing"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestBtree(t *testing.T) {
+	// TODO don't skip this test
 	t.Skip()
+
 	cases := []struct {
 		name   string
 		insert []Entry
@@ -793,6 +796,7 @@ func TestRemove_structure_2(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			for _, k := range tt.remove {
+				spew.Printf("\n==\nRemoving %d\n", k)
 				assert.True(t, tt.haveTree.Remove(k))
 			}
 
