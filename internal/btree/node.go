@@ -1,5 +1,7 @@
 package btree
 
+import "github.com/davecgh/go-spew/spew"
+
 // node defines the stuct which contains keys (entries) and the child nodes of a
 // particular node in the b-tree
 type node struct {
@@ -41,7 +43,7 @@ func (n *node) recursiveBalance(k Key, order int, b *Btree) {
 		rSib.entries = rSib.entries[1:]
 
 		// Child operations
-		if !n.isLeaf() {
+		if n.isInternal() {
 			// Append the right sibling's leftmost child to this node
 			n.children = append(n.children, rSib.children[0])
 			// Update the stolen child's parent
@@ -73,16 +75,20 @@ func (n *node) recursiveBalance(k Key, order int, b *Btree) {
 	// that we stole from the left sibling.
 	//
 	if lSib, exists := n.leftSibling(k); exists && lSib.canStealEntry(order) {
+		spew.Println(n.entries)
+		spew.Println(lSib.entries)
+
 		// Entry operations
 		//
 		// Prepend the left sibling's rightmost entry to this node
 		n.entries = append([]*Entry{lSib.entries[len(lSib.entries)-1]}, n.entries...)
 		// Remove the left sibling's rightmost entry
 		lSib.entries = lSib.entries[:len(lSib.entries)-1]
+		// Rotate the parent's key down
 
 		// Child operations
 		//
-		if !n.isLeaf() {
+		if n.isInternal() {
 			// Prepend the left sibling's rightmost child to this node
 			n.children = append([]*node{lSib.children[len(lSib.children)-1]}, n.children...)
 			n.children[0].parent = n
@@ -94,8 +100,21 @@ func (n *node) recursiveBalance(k Key, order int, b *Btree) {
 		//
 		parIdx, _ := search(n.parent.entries, k)
 
+		if n.isInternal() {
+			// Rotate the parent down
+			stolenKey := n.entries[0].key
+			n.entries[0].key = n.parent.entries[parIdx-1].key
+			n.parent.entries[parIdx-1].key = stolenKey
+		}
+
+		spew.Println("HERE")
+		spew.Println(parIdx)
+		spew.Println(n.parent.entries)
+
 		// Set the parent's key to the key of the first entry of the node
-		n.parent.entries[parIdx] = &Entry{n.entries[0].key, nil}
+		n.parent.entries[parIdx-1] = &Entry{n.entries[0].key, nil}
+
+		spew.Dump(b.root)
 
 		return
 	}
@@ -104,21 +123,54 @@ func (n *node) recursiveBalance(k Key, order int, b *Btree) {
 	//
 	// First we check whether a left sibling exists.
 	//
+	// TODO handle the children
+	//
 	if _, exists := n.leftSibling(k); exists {
 		panic("can merge left")
 	}
 
-	// Scenario D: merge the node with the left sibling.
+	// Scenario D: merge the node with the right sibling.
 	//
-	// First we check whether a left sibling exists.
+	// First we check whether a right sibling exists. If it does, we know that it
+	// doesn't have enough to steal. Therefore we must merge the current node and
+	// it. We can do this as we know both nodes together will not break the
+	// maximum number of children invariant.
 	//
-	if _, exists := n.rightSibling(k); exists {
-		panic("can merge right")
+	// In order to merge right, we append all of the right nodes' entries to the
+	// current node.
+	//
+	// We then need to remove the parent at index i, and update the parent at
+	// index i-1 to have the key of the leftmost entry.
+	//
+	// Once this is done, we must now check if the parent breaks and of the
+	// invariants. If it does, we should recursively call this method on the
+	// parent.
+	//
+	if rSib, exists := n.rightSibling(k); exists {
+		parIdx, _ := search(n.parent.entries, k)
+
+		// Add the right sibling's entries to the current node
+		n.entries = append(n.entries, rSib.entries...)
+		n.children = append(n.children, rSib.children...)
+
+		// Remove the right sibling from the parent
+		n.parent.children = append(n.parent.children[:parIdx+1], n.parent.children[parIdx+2:]...)
+		// Remove the right key entry from parent
+		n.parent.entries = append(n.parent.entries[:parIdx], n.parent.entries[parIdx+1:]...)
+
+		if n.parent.isUnderflowed(b.order) {
+			n.parent.recursiveBalance(k, order, b)
+			return
+		}
 	}
 }
 
 func (n *node) isLeaf() bool {
 	return len(n.children) == 0
+}
+
+func (n *node) isInternal() bool {
+	return !n.isLeaf()
 }
 
 // isRoot returns whether or not the current node is the root of the tree

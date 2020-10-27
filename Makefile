@@ -7,7 +7,7 @@ all: lint test build ## test -> lint -> build
 
 .PHONY: test
 test: ## Runs the unit test suite
-	go test -race ./...
+	go test -race -failfast ./...
 
 .PHONY: lint
 lint: ## Runs the linters (including internal ones)
