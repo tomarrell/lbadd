@@ -3,7 +3,7 @@ module github.com/tomarrell/lbadd
 go 1.13
 
 require (
-	github.com/google/go-cmp v0.5.1
+	github.com/google/go-cmp v0.5.3
 	github.com/kr/text v0.2.0 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/oklog/ulid v1.3.1
