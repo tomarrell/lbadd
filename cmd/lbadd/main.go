@@ -160,7 +160,7 @@ func startNode(cmd *cobra.Command, args []string) {
 	if err := node.ListenAndServe(cmd.Context(), addr); err != nil {
 		log.Error().
 			Err(err).
-			Msg("listen and serve")
+			Msg("open")
 		os.Exit(ExitAbnormal)
 	}
 }

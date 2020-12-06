@@ -18,9 +18,9 @@ var _ Command = (*DropIndex)(nil)
 var _ Command = (*DropTrigger)(nil)
 var _ Command = (*DropView)(nil)
 var _ Command = (*Update)(nil)
-var _ Command = (*Insert)(nil)
 var _ Command = (*Join)(nil)
 var _ Command = (*Limit)(nil)
+var _ Command = (*Insert)(nil)
 
 // Command describes a structure that can be executed by the database executor.
 // Instead of using bytecode, we use a hierarchical structure for the executor.
